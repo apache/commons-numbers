@@ -40,7 +40,7 @@ class FractionException extends ArithmeticException {
      * @param message  the exception message format string
      * @param formatArguments the arguments for formatting the message
      */
-    FractionException(String message, Object... formatArguments) {
+    FractionException(final String message, final Object... formatArguments) {
         super(String.format(message, formatArguments));
     }
 
@@ -49,7 +49,7 @@ class FractionException extends ArithmeticException {
      *
      * @param message  the exception message
      */
-    FractionException(String message) {
+    FractionException(final String message) {
         super(message);
     }
 }

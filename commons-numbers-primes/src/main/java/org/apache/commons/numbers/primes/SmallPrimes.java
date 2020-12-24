@@ -170,8 +170,8 @@ final class SmallPrimes {
      * @return {@code n} (or 1 if factorization is completed).
      */
     static int boundedTrialDivision(int n,
-                                    int maxFactor,
-                                    List<Integer> factors) {
+                                    final int maxFactor,
+                                    final List<Integer> factors) {
         final int minFactor = PRIMES_LAST + 2;
 
         /*

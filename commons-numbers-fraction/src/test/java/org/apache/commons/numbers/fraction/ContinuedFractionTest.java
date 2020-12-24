@@ -27,20 +27,20 @@ class ContinuedFractionTest {
 
     @Test
     void testGoldenRatio() throws Exception {
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
-            public double getA(int n, double x) {
+            public double getA(final int n, final double x) {
                 return 1;
             }
 
             @Override
-            public double getB(int n, double x) {
+            public double getB(final int n, final double x) {
                 return 1;
             }
         };
 
         final double eps = 1e-8;
-        double gr = cf.evaluate(0, eps);
+        final double gr = cf.evaluate(0, eps);
         Assertions.assertEquals(1.61803399, gr, eps);
     }
 
@@ -56,14 +56,14 @@ class ContinuedFractionTest {
         //                    7
         //      = [4; 2, 6, 7]
 
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
-            public double getA(int n, double x) {
+            public double getA(final int n, final double x) {
                 return n <= 3 ? 1 : 0;
             }
 
             @Override
-            public double getB(int n, double x) {
+            public double getB(final int n, final double x) {
                 switch (n) {
                     case 0: return 4;
                     case 1: return 2;
@@ -75,20 +75,20 @@ class ContinuedFractionTest {
         };
 
         final double eps = 1e-8;
-        double gr = cf.evaluate(0, eps, 5);
+        final double gr = cf.evaluate(0, eps, 5);
         Assertions.assertEquals(415.0 / 93.0, gr, eps);
     }
 
     @Test
     void testMaxIterationsThrows() throws Exception {
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
-            public double getA(int n, double x) {
+            public double getA(final int n, final double x) {
                 return 1;
             }
 
             @Override
-            public double getB(int n, double x) {
+            public double getB(final int n, final double x) {
                 return 1;
             }
         };
@@ -103,14 +103,14 @@ class ContinuedFractionTest {
     @Test
     void testNaNThrows() throws Exception {
         // Create a NaN during the iteration
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
-            public double getA(int n, double x) {
+            public double getA(final int n, final double x) {
                 return 1;
             }
 
             @Override
-            public double getB(int n, double x) {
+            public double getB(final int n, final double x) {
                 return n == 0 ? 1 : Double.NaN;
             }
         };
@@ -125,14 +125,14 @@ class ContinuedFractionTest {
     void testInfThrows() throws Exception {
         // Create an infinity during the iteration:
         // a / cPrev  => a_1 / b_0 => Double.MAX_VALUE / 0.5
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
-            public double getA(int n, double x) {
+            public double getA(final int n, final double x) {
                 return n == 0 ? 1 : Double.MAX_VALUE;
             }
 
             @Override
-            public double getB(int n, double x) {
+            public double getB(final int n, final double x) {
                 return 0.5;
             }
         };
@@ -143,7 +143,7 @@ class ContinuedFractionTest {
         assertExceptionMessageContains(t, "infinity");
     }
 
-    private static void assertExceptionMessageContains(Throwable t, String text) {
+    private static void assertExceptionMessageContains(final Throwable t, final String text) {
         Assertions.assertTrue(t.getMessage().toLowerCase(Locale.ROOT).contains(text),
             () -> "Missing '" + text + "' from exception message: " + t.getMessage());
     }
@@ -151,40 +151,40 @@ class ContinuedFractionTest {
     // NUMBERS-46
     @Test
     void testOneIteration() {
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
-            public double getA(int n, double x) {
+            public double getA(final int n, final double x) {
                 return 1;
             }
 
             @Override
-            public double getB(int n, double x) {
+            public double getB(final int n, final double x) {
                 return 1;
             }
         };
 
         final double eps = 10;
-        double gr = cf.evaluate(0, eps, 1);
+        final double gr = cf.evaluate(0, eps, 1);
         Assertions.assertEquals(1.61, gr, eps);
     }
 
     // NUMBERS-46
     @Test
     void testTwoIterations() {
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
-            public double getA(int n, double x) {
+            public double getA(final int n, final double x) {
                 return 1;
             }
 
             @Override
-            public double getB(int n, double x) {
+            public double getB(final int n, final double x) {
                 return 1;
             }
         };
 
         final double eps = 0.5;
-        double gr = cf.evaluate(0, eps, 2);
+        final double gr = cf.evaluate(0, eps, 2);
         Assertions.assertEquals(1.5, gr);
     }
 }

@@ -25,15 +25,15 @@ import org.junit.jupiter.api.Test;
 class ErfTest {
     @Test
     void testErf0() {
-        double actual = Erf.value(0);
-        double expected = 0;
+        final double actual = Erf.value(0);
+        final double expected = 0;
         Assertions.assertEquals(expected, actual, 1e-15);
         Assertions.assertEquals(1 - expected, Erfc.value(0), 1e-15);
     }
 
     @Test
     void testErf1960() {
-        double x = 1.960 / Math.sqrt(2);
+        final double x = 1.960 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.95;
         Assertions.assertEquals(expected, actual, 1e-5);
@@ -47,7 +47,7 @@ class ErfTest {
 
     @Test
     void testErf2576() {
-        double x = 2.576 / Math.sqrt(2);
+        final double x = 2.576 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.99;
         Assertions.assertEquals(expected, actual, 1e-5);
@@ -61,7 +61,7 @@ class ErfTest {
 
     @Test
     void testErf2807() {
-        double x = 2.807 / Math.sqrt(2);
+        final double x = 2.807 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.995;
         Assertions.assertEquals(expected, actual, 1e-5);
@@ -75,7 +75,7 @@ class ErfTest {
 
     @Test
     void testErf3291() {
-        double x = 3.291 / Math.sqrt(2);
+        final double x = 3.291 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.999;
         Assertions.assertEquals(expected, actual, 1e-5);

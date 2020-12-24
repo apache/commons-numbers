@@ -42,8 +42,8 @@ public final class Combinations implements Iterable<int[]> {
      * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code k > n} or {@code k < 0}.
      */
-    private Combinations(int n,
-                         int k) {
+    private Combinations(final int n,
+                         final int k) {
         BinomialCoefficient.checkBinomial(n, k);
         this.n = n;
         this.k = k;
@@ -56,8 +56,8 @@ public final class Combinations implements Iterable<int[]> {
      * @throws IllegalArgumentException if {@code k > n} or {@code k < 0}.
      * @return a new instance.
      */
-    public static Combinations of(int n,
-                                  int k) {
+    public static Combinations of(final int n,
+                                  final int k) {
         return new Combinations(n, k);
     }
 
@@ -156,7 +156,7 @@ public final class Combinations implements Iterable<int[]> {
          * @param n Size of the set from which subsets are enumerated.
          * @param k Size of the subsets to enumerate.
          */
-        LexicographicIterator(int n, int k) {
+        LexicographicIterator(final int n, final int k) {
             this.k = k;
             c = new int[k + 3];
             // Initialize c to start with lexicographically first k-set
@@ -311,8 +311,8 @@ public final class Combinations implements Iterable<int[]> {
          * @param n Size of the set from which subsets are selected.
          * @param k Size of the subsets to be enumerated.
          */
-        LexicographicComparator(int n,
-                                int k) {
+        LexicographicComparator(final int n,
+                                final int k) {
             this.n = n;
             this.k = k;
         }
@@ -326,8 +326,8 @@ public final class Combinations implements Iterable<int[]> {
          * within the interval [0, {@code n}).
          */
         @Override
-        public int compare(int[] c1,
-                           int[] c2) {
+        public int compare(final int[] c1,
+                           final int[] c2) {
             if (c1.length != k) {
                 throw new CombinatoricsException(CombinatoricsException.MISMATCH, c1.length, k);
             }
@@ -359,7 +359,7 @@ public final class Combinations implements Iterable<int[]> {
          * @throws IllegalArgumentException if an element of the array is not
          * within the interval [0, {@code n}).
          */
-        private long lexNorm(int[] c) {
+        private long lexNorm(final int[] c) {
             long ret = 0;
             for (int i = 0; i < c.length; i++) {
                 final int digit = c[i];

@@ -26,12 +26,12 @@ class MonitoredFunction implements DoubleUnaryOperator {
     private int callsCount;
     private final DoubleUnaryOperator f;
 
-    MonitoredFunction(DoubleUnaryOperator f) {
+    MonitoredFunction(final DoubleUnaryOperator f) {
         this(f, Integer.MAX_VALUE);
     }
 
-    MonitoredFunction(DoubleUnaryOperator f,
-                      int maxCount) {
+    MonitoredFunction(final DoubleUnaryOperator f,
+                      final int maxCount) {
         callsCount = 0;
         this.f = f;
         this.maxCount = maxCount;
@@ -42,7 +42,7 @@ class MonitoredFunction implements DoubleUnaryOperator {
     }
 
     @Override
-    public double applyAsDouble(double x) {
+    public double applyAsDouble(final double x) {
         if (++callsCount > maxCount) {
             throw new IllegalStateException(callsCount + " > " + maxCount +
                                             ": too many calls");

@@ -73,7 +73,7 @@ public final class BigFraction
      * @param den Denominator, must not be {@code null}.
      * @throws ArithmeticException if the denominator is zero.
      */
-    private BigFraction(BigInteger num, BigInteger den) {
+    private BigFraction(final BigInteger num, final BigInteger den) {
         if (den.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
@@ -96,7 +96,7 @@ public final class BigFraction
      *
      * @param num Numerator (must not be null).
      */
-    private BigFraction(BigInteger num) {
+    private BigFraction(final BigInteger num) {
         numerator = num;
         denominator = BigInteger.ONE;
     }
@@ -218,7 +218,7 @@ public final class BigFraction
 
         // Use p2 / q2 or p1 / q1 if q2 has grown too large in maxDenominator mode
         long num;
-        long den;
+        final long den;
         if (q2 <= maxDen) {
             num = p2;
             den = q2;
@@ -486,7 +486,7 @@ public final class BigFraction
      * @see BigInteger#BigInteger(String)
      * @see #toString()
      */
-    public static BigFraction parse(String s) {
+    public static BigFraction parse(final String s) {
         final String stripped = s.replace(",", "");
         final int slashLoc = stripped.indexOf('/');
         // if no slash, parse as single number
@@ -663,7 +663,7 @@ public final class BigFraction
      * @return the fraction as a {@code BigDecimal}.
      * @see BigDecimal
      */
-    public BigDecimal bigDecimalValue(RoundingMode roundingMode) {
+    public BigDecimal bigDecimalValue(final RoundingMode roundingMode) {
         return new BigDecimal(numerator).divide(new BigDecimal(denominator), roundingMode);
     }
 
@@ -681,7 +681,7 @@ public final class BigFraction
      *      the specified scale is insufficient to represent the result of the division exactly.
      * @see BigDecimal
      */
-    public BigDecimal bigDecimalValue(final int scale, RoundingMode roundingMode) {
+    public BigDecimal bigDecimalValue(final int scale, final RoundingMode roundingMode) {
         return new BigDecimal(numerator).divide(new BigDecimal(denominator), scale, roundingMode);
     }
 
@@ -1110,7 +1110,7 @@ public final class BigFraction
      * @return the bits of an IEEE 754 binary floating-point representation of
      * this fraction encoded in a {@code long}, as described above.
      */
-    private long toFloatingPointBits(int exponentLength, int significandLength) {
+    private long toFloatingPointBits(final int exponentLength, final int significandLength) {
         // Assume the following conditions:
         //assert exponentLength >= 1;
         //assert exponentLength <= 32;
@@ -1265,7 +1265,8 @@ public final class BigFraction
      * @return a {@code BigInteger} as described above
      * @throws IllegalArgumentException if {@code bits <= 0}
      */
-    private static BigInteger roundAndRightShift(BigInteger value, int bits, boolean hasFractionalBits) {
+    private static BigInteger roundAndRightShift(final BigInteger value, final int bits,
+                                                 final boolean hasFractionalBits) {
         if (bits <= 0) {
             throw new IllegalArgumentException("bits: " + bits);
         }

@@ -41,7 +41,7 @@ public final class LogBinomialCoefficient {
      * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code k > n}.
      */
-    public static double value(int n, int k) {
+    public static double value(final int n, final int k) {
         BinomialCoefficient.checkBinomial(n, k);
 
         if (n == k ||

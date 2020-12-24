@@ -67,7 +67,7 @@ public final class MultidimensionalCounter {
      * @throws IllegalArgumentException if one of the sizes is negative
      * or zero.
      */
-    private MultidimensionalCounter(int... size) {
+    private MultidimensionalCounter(final int... size) {
         dimension = size.length;
         this.size = Arrays.copyOf(size, size.length);
 
@@ -97,7 +97,7 @@ public final class MultidimensionalCounter {
      * @throws IllegalArgumentException if one of the sizes is negative
      * or zero.
      */
-    public static MultidimensionalCounter of(int... size) {
+    public static MultidimensionalCounter of(final int... size) {
         return new MultidimensionalCounter(size);
     }
 
@@ -148,7 +148,7 @@ public final class MultidimensionalCounter {
      * the range of the corresponding dimension, as defined in the
      * {@link MultidimensionalCounter#of(int...) constructor}.
      */
-    public int toUni(int... c) {
+    public int toUni(final int... c) {
         if (c.length != dimension) {
             throw new IllegalArgumentException("Wrong number of arguments: " + c.length +
                                                "(expected: " + dimension + ")");
@@ -195,7 +195,7 @@ public final class MultidimensionalCounter {
      * @param name the name of the size
      * @param size the size
      */
-    private static void checkStrictlyPositive(String name, int size) {
+    private static void checkStrictlyPositive(final String name, final int size) {
         if (size <= 0) {
             throw new IllegalArgumentException("Not positive " + name + ": " + size);
         }
@@ -208,7 +208,7 @@ public final class MultidimensionalCounter {
      * @param index the index
      * @return the message
      */
-    private static String createIndexOutOfBoundsMessage(int size, int index) {
+    private static String createIndexOutOfBoundsMessage(final int size, final int index) {
         return "Index out of bounds [0, " + (size - 1) + "]: " + index;
     }
 }

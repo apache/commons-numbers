@@ -35,7 +35,7 @@ class BigFractionTest {
     /** The zero representation with negative denominator. */
     private static final BigFraction ZERO_N = BigFraction.of(0, -1);
 
-    private static void assertFraction(int expectedNumerator, int expectedDenominator, BigFraction actual) {
+    private static void assertFraction(final int expectedNumerator, final int expectedDenominator, final BigFraction actual) {
         Assertions.assertEquals(expectedNumerator, actual.getNumeratorAsInt());
         Assertions.assertEquals(expectedDenominator, actual.getDenominatorAsInt());
         Assertions.assertEquals(
@@ -43,7 +43,7 @@ class BigFractionTest {
             actual.signum());
     }
 
-    private static void assertFraction(long expectedNumerator, long expectedDenominator, BigFraction actual) {
+    private static void assertFraction(final long expectedNumerator, final long expectedDenominator, final BigFraction actual) {
         Assertions.assertEquals(expectedNumerator, actual.getNumeratorAsLong());
         Assertions.assertEquals(expectedDenominator, actual.getDenominatorAsLong());
         Assertions.assertEquals(
@@ -51,7 +51,7 @@ class BigFractionTest {
             actual.signum());
     }
 
-    private static void assertFraction(BigInteger expectedNumerator, BigInteger expectedDenominator, BigFraction actual) {
+    private static void assertFraction(final BigInteger expectedNumerator, final BigInteger expectedDenominator, final BigFraction actual) {
         Assertions.assertEquals(expectedNumerator, actual.getNumerator());
         Assertions.assertEquals(expectedDenominator, actual.getDenominator());
         Assertions.assertEquals(
@@ -59,12 +59,12 @@ class BigFractionTest {
             actual.signum());
     }
 
-    private static void assertDoubleValue(double expected, BigInteger numerator, BigInteger denominator) {
+    private static void assertDoubleValue(final double expected, final BigInteger numerator, final BigInteger denominator) {
         final BigFraction f = BigFraction.of(numerator, denominator);
         Assertions.assertEquals(expected, f.doubleValue());
     }
 
-    private static void assertDoubleValue(double expected, long numerator, long denominator) {
+    private static void assertDoubleValue(final double expected, final long numerator, final long denominator) {
         assertDoubleValue(expected, BigInteger.valueOf(numerator), BigInteger.valueOf(denominator));
     }
 
@@ -673,7 +673,7 @@ class BigFractionTest {
      * @param f1 Fraction 1.
      * @param f2 Fraction 2.
      */
-    private static void assertEqualAndHashCodeEqual(BigFraction f1, BigFraction f2) {
+    private static void assertEqualAndHashCodeEqual(final BigFraction f1, final BigFraction f2) {
         Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
         // Check the computation matches the result of Arrays.hashCode and the signum.

@@ -46,8 +46,8 @@ public class Slerp implements DoubleFunction<Quaternion> {
      * @param start Start of the interpolation.
      * @param end End of the interpolation.
      */
-    public Slerp(Quaternion start,
-                 Quaternion end) {
+    public Slerp(final Quaternion start,
+                 final Quaternion end) {
         this.start = start.positivePolarForm();
 
         final Quaternion e = end.positivePolarForm();
@@ -81,7 +81,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
      * @return an interpolated quaternion in positive polar form.
      */
     @Override
-    public Quaternion apply(double t) {
+    public Quaternion apply(final double t) {
         // Handle no-op cases.
         if (t == 0) {
             return start;
@@ -100,7 +100,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
     private class Linear implements DoubleFunction<Quaternion> {
         /** {@inheritDoc} */
         @Override
-        public Quaternion apply(double t) {
+        public Quaternion apply(final double t) {
             final double f = 1 - t;
             return Quaternion.of(f * start.getW() + t * end.getW(),
                                  f * start.getX() + t * end.getX(),
@@ -123,14 +123,14 @@ public class Slerp implements DoubleFunction<Quaternion> {
         /**
          * @param dot Dot product of the start and end quaternions.
          */
-        Spherical(double dot) {
+        Spherical(final double dot) {
             theta = Math.acos(dot);
             sinTheta = Math.sin(theta);
         }
 
         /** {@inheritDoc} */
         @Override
-        public Quaternion apply(double t) {
+        public Quaternion apply(final double t) {
             final double f1 = Math.sin((1 - t) * theta) / sinTheta;
             final double f2 = Math.sin(t * theta) / sinTheta;
 

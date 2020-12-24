@@ -92,12 +92,12 @@ class BinomialCoefficientDoubleTest {
                 boolean didThrow = false;
                 try {
                     BinomialCoefficient.value(n, k);
-                } catch (ArithmeticException ex) {
+                } catch (final ArithmeticException ex) {
                     didThrow = true;
                 }
                 try {
                     exactResult = BinomialCoefficientTest.binomialCoefficient(n, k);
-                } catch (ArithmeticException ex) {
+                } catch (final ArithmeticException ex) {
                     shouldThrow = true;
                 }
 

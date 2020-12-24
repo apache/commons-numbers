@@ -61,25 +61,25 @@ class PrimesTest {
 
     static final HashSet<Integer> PRIMES_SET = new HashSet<>();
     static {
-        for (int p : PRIMES) {
+        for (final int p : PRIMES) {
             PRIMES_SET.add(p);
         }
     }
 
-    void assertPrimeFactorsException(int n, String expected) {
+    void assertPrimeFactorsException(final int n, final String expected) {
         try {
             Primes.primeFactors(n);
             Assertions.fail("Exception not thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             Assertions.assertEquals(expected, e.getMessage());
         }
     }
 
-    void assertNextPrimeException(int n, String expected) {
+    void assertNextPrimeException(final int n, final String expected) {
         try {
             Primes.nextPrime(n);
             Assertions.fail("Exception not thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             Assertions.assertEquals(expected, e.getMessage());
         }
     }
@@ -116,35 +116,35 @@ class PrimesTest {
 
     @Test
     void testIsPrime() throws Exception {
-        for (int i : BELOW_2) {
+        for (final int i : BELOW_2) {
             Assertions.assertFalse(Primes.isPrime(i));
         }
-        for (int i:NOT_PRIMES) {
+        for (final int i:NOT_PRIMES) {
             Assertions.assertFalse(Primes.isPrime(i));
         }
-        for (int i:PRIMES) {
+        for (final int i:PRIMES) {
             Assertions.assertTrue(Primes.isPrime(i));
         }
     }
 
-    static int sum(List<Integer> numbers) {
+    static int sum(final List<Integer> numbers) {
         int out = 0;
-        for (int i:numbers) {
+        for (final int i:numbers) {
             out += i;
         }
         return out;
     }
 
-    static int product(List<Integer> numbers) {
+    static int product(final List<Integer> numbers) {
         int out = 1;
-        for (int i : numbers) {
+        for (final int i : numbers) {
             out *= i;
         }
         return out;
     }
 
-    static void checkPrimeFactors(List<Integer> factors) {
-        for (int p : factors) {
+    static void checkPrimeFactors(final List<Integer> factors) {
+        for (final int p : factors) {
             if (!PRIMES_SET.contains(p)) {
                 Assertions.fail("Not found in primes list: " + p);
             }
@@ -153,17 +153,17 @@ class PrimesTest {
 
     @Test
     void testPrimeFactors() throws Exception {
-        for (int i : BELOW_2) {
+        for (final int i : BELOW_2) {
             assertPrimeFactorsException(i, MessageFormat.format(Primes.NUMBER_TOO_SMALL, i, 2));
         }
-        for (int i : NOT_PRIMES) {
-            List<Integer> factors = Primes.primeFactors(i);
+        for (final int i : NOT_PRIMES) {
+            final List<Integer> factors = Primes.primeFactors(i);
             checkPrimeFactors(factors);
-            int prod = product(factors);
+            final int prod = product(factors);
             Assertions.assertEquals(i, prod);
         }
-        for (int i : PRIMES) {
-            List<Integer> factors = Primes.primeFactors(i);
+        for (final int i : PRIMES) {
+            final List<Integer> factors = Primes.primeFactors(i);
             Assertions.assertEquals(i, (int)factors.get(0));
             Assertions.assertEquals(1, factors.size());
         }

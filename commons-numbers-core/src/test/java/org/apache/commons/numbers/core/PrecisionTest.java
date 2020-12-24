@@ -78,7 +78,7 @@ class PrecisionTest {
 
     @Test
     void testEqualsIncludingNaN() {
-        double[] testArray = {
+        final double[] testArray = {
             Double.NaN,
             Double.POSITIVE_INFINITY,
             Double.NEGATIVE_INFINITY,
@@ -107,7 +107,7 @@ class PrecisionTest {
         assertEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
-    private static void assertEqualsWithAllowedDelta(EqualsWithDelta fun, boolean nanAreEqual) {
+    private static void assertEqualsWithAllowedDelta(final EqualsWithDelta fun, final boolean nanAreEqual) {
         Assertions.assertTrue(fun.equals(153.0000, 153.0000, .0625));
         Assertions.assertTrue(fun.equals(153.0000, 153.0625, .0625));
         Assertions.assertTrue(fun.equals(152.9375, 153.0000, .0625));
@@ -135,14 +135,14 @@ class PrecisionTest {
         assertEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
     }
 
-    private static void assertEqualsIncludingNaNWithAllowedUlps(EqualsWithUlps fun,
-            boolean nanAreEqual, boolean fixed1Ulp) {
+    private static void assertEqualsIncludingNaNWithAllowedUlps(final EqualsWithUlps fun,
+                                                                final boolean nanAreEqual, final boolean fixed1Ulp) {
         Assertions.assertTrue(fun.equals(0.0, -0.0, 1));
 
         Assertions.assertTrue(fun.equals(1.0, 1 + Math.ulp(1d), 1));
         Assertions.assertFalse(fun.equals(1.0, 1 + 2 * Math.ulp(1d), 1));
 
-        for (double value : new double[] {153.0, -128.0, 0.0, 1.0}) {
+        for (final double value : new double[] {153.0, -128.0, 0.0, 1.0}) {
             Assertions.assertTrue(fun.equals(value, value, 1));
             Assertions.assertTrue(fun.equals(value, Math.nextUp(value), 1));
             Assertions.assertFalse(fun.equals(value, Math.nextUp(Math.nextUp(value)), 1));
@@ -177,7 +177,7 @@ class PrecisionTest {
 
     @Test
     void testFloatEqualsIncludingNaN() {
-        float[] testArray = {
+        final float[] testArray = {
             Float.NaN,
             Float.POSITIVE_INFINITY,
             Float.NEGATIVE_INFINITY,
@@ -206,7 +206,7 @@ class PrecisionTest {
         assertFloatEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
-    private static void assertFloatEqualsWithAllowedDelta(FloatEqualsWithDelta fun, boolean nanAreEqual) {
+    private static void assertFloatEqualsWithAllowedDelta(final FloatEqualsWithDelta fun, final boolean nanAreEqual) {
         Assertions.assertTrue(fun.equals(153.0000f, 153.0000f, .0625f));
         Assertions.assertTrue(fun.equals(153.0000f, 153.0625f, .0625f));
         Assertions.assertTrue(fun.equals(152.9375f, 153.0000f, .0625f));
@@ -234,14 +234,14 @@ class PrecisionTest {
         assertFloatEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
     }
 
-    private static void assertFloatEqualsIncludingNaNWithAllowedUlps(FloatEqualsWithUlps fun,
-            boolean nanAreEqual, boolean fixed1Ulp) {
+    private static void assertFloatEqualsIncludingNaNWithAllowedUlps(final FloatEqualsWithUlps fun,
+                                                                     final boolean nanAreEqual, final boolean fixed1Ulp) {
         Assertions.assertTrue(fun.equals(0.0f, -0.0f, 1));
 
         Assertions.assertTrue(fun.equals(1.0f, 1f + Math.ulp(1f), 1));
         Assertions.assertFalse(fun.equals(1.0f, 1f + 2 * Math.ulp(1f), 1));
 
-        for (float value : new float[] {153.0f, -128.0f, 0.0f, 1.0f}) {
+        for (final float value : new float[] {153.0f, -128.0f, 0.0f, 1.0f}) {
             Assertions.assertTrue(fun.equals(value, value, 1));
             Assertions.assertTrue(fun.equals(value, Math.nextUp(value), 1));
             Assertions.assertFalse(fun.equals(value, Math.nextUp(Math.nextUp(value)), 1));
@@ -282,8 +282,8 @@ class PrecisionTest {
 
     @Test
     void testCompareToMaxUlps() {
-        double a = 152.32;
-        double delta = Math.ulp(a);
+        final double a = 152.32;
+        final double delta = Math.ulp(a);
         for (int i = 0; i <= 10; ++i) {
             if (i <= 5) {
                 Assertions.assertEquals(+0, Precision.compareTo(a, a + i * delta, 5));
@@ -319,7 +319,7 @@ class PrecisionTest {
 
     @Test
     void testRoundDouble() {
-        double x = 1.234567890;
+        final double x = 1.234567890;
         Assertions.assertEquals(1.23, Precision.round(x, 2));
         Assertions.assertEquals(1.235, Precision.round(x, 3));
         Assertions.assertEquals(1.2346, Precision.round(x, 4));
@@ -398,7 +398,7 @@ class PrecisionTest {
         try {
             Precision.round(1.234, 2, RoundingMode.UNNECESSARY);
             Assertions.fail();
-        } catch (ArithmeticException ex) {
+        } catch (final ArithmeticException ex) {
             // expected
         }
 

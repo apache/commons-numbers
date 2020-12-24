@@ -54,8 +54,8 @@ public final class LinearCombination {
      * @return \( \sum_i a_i b_i \).
      * @throws IllegalArgumentException if the sizes of the arrays are different.
      */
-    public static double value(double[] a,
-                               double[] b) {
+    public static double value(final double[] a,
+                               final double[] b) {
         if (a.length != b.length) {
             throw new IllegalArgumentException("Dimension mismatch: " + a.length + " != " + b.length);
         }
@@ -124,8 +124,8 @@ public final class LinearCombination {
      * @see #value(double, double, double, double, double, double, double, double)
      * @see #value(double[], double[])
      */
-    public static double value(double a1, double b1,
-                               double a2, double b2) {
+    public static double value(final double a1, final double b1,
+                               final double a2, final double b2) {
         // split a1 and b1 as one 26 bits number and one 27 bits number
         final double a1High     = highPart(a1);
         final double a1Low      = a1 - a1High;
@@ -177,9 +177,9 @@ public final class LinearCombination {
      * @see #value(double, double, double, double, double, double, double, double)
      * @see #value(double[], double[])
      */
-    public static double value(double a1, double b1,
-                               double a2, double b2,
-                               double a3, double b3) {
+    public static double value(final double a1, final double b1,
+                               final double a2, final double b2,
+                               final double a3, final double b3) {
         // split a1 and b1 as one 26 bits number and one 27 bits number
         final double a1High     = highPart(a1);
         final double a1Low      = a1 - a1High;
@@ -248,10 +248,10 @@ public final class LinearCombination {
      * @see #value(double, double, double, double, double, double)
      * @see #value(double[], double[])
      */
-    public static double value(double a1, double b1,
-                               double a2, double b2,
-                               double a3, double b3,
-                               double a4, double b4) {
+    public static double value(final double a1, final double b1,
+                               final double a2, final double b2,
+                               final double a3, final double b3,
+                               final double a4, final double b4) {
         // split a1 and b1 as one 26 bits number and one 27 bits number
         final double a1High     = highPart(a1);
         final double a1Low      = a1 - a1High;
@@ -324,7 +324,7 @@ public final class LinearCombination {
      * @param value Value.
      * @return the high part of the value.
      */
-    private static double highPart(double value) {
+    private static double highPart(final double value) {
         return Double.longBitsToDouble(Double.doubleToRawLongBits(value) & ((-1L) << 27));
     }
 
@@ -336,11 +336,11 @@ public final class LinearCombination {
      * @param bHigh High part of second factor.
      * @return <code>aLow * bLow - (((prodHigh - aHigh * bHigh) - aLow * bHigh) - aHigh * bLow)</code>
      */
-    private static double prodLow(double aLow,
-                                  double bLow,
-                                  double prodHigh,
-                                  double aHigh,
-                                  double bHigh) {
+    private static double prodLow(final double aLow,
+                                  final double bLow,
+                                  final double prodHigh,
+                                  final double aHigh,
+                                  final double bHigh) {
         return aLow * bLow - (((prodHigh - aHigh * bHigh) - aLow * bHigh) - aHigh * bLow);
     }
 }

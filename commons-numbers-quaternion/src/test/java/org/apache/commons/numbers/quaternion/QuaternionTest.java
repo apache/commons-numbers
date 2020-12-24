@@ -481,8 +481,8 @@ class QuaternionTest {
 
     @Test
     final void testPositivePolarFormWhenScalarPositive() {
-        Quaternion q = Quaternion.of(3, -3, -3, 3).positivePolarForm();
-        Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
+        final Quaternion q = Quaternion.of(3, -3, -3, 3).positivePolarForm();
+        final Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
         assertEquals(q, expected, EPS);
 
         Assertions.assertSame(q.positivePolarForm(), q);
@@ -490,8 +490,8 @@ class QuaternionTest {
 
     @Test
     final void testPositivePolarFormWhenScalarNegative() {
-        Quaternion q = Quaternion.of(-3, 3, -3, 3).positivePolarForm();
-        Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
+        final Quaternion q = Quaternion.of(-3, 3, -3, 3).positivePolarForm();
+        final Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
         assertEquals(q, expected, EPS);
 
         Assertions.assertSame(q.positivePolarForm(), q);
@@ -499,7 +499,7 @@ class QuaternionTest {
 
     @Test
     final void testPositivePolarFormWhenScalarPositiveAndNormalized() {
-        Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().positivePolarForm();
+        final Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().positivePolarForm();
 
         Assertions.assertTrue(q.getW() >= 0);
         Assertions.assertSame(q.positivePolarForm(), q);
@@ -507,7 +507,7 @@ class QuaternionTest {
 
     @Test
     final void testPositivePolarFormWhenScalarNegativeAndNormalized() {
-        Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().negate().positivePolarForm();
+        final Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().negate().positivePolarForm();
 
         Assertions.assertTrue(q.getW() >= 0);
         Assertions.assertSame(q.positivePolarForm(), q);
@@ -600,14 +600,14 @@ class QuaternionTest {
         try {
             final Quaternion inverseQNul = qNul.inverse();
             Assertions.fail("expecting ZeroException but got : " + inverseQNul);
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // expected
         }
     }
 
     @Test
     void testInverse_zeroNorm() {
-        Quaternion q = Quaternion.of(0, 0, 0, 0);
+        final Quaternion q = Quaternion.of(0, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
         );
@@ -615,7 +615,7 @@ class QuaternionTest {
 
     @Test
     void testInverse_nanNorm() {
-        Quaternion q = Quaternion.of(Double.NaN, 0, 0, 0);
+        final Quaternion q = Quaternion.of(Double.NaN, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
         );
@@ -623,7 +623,7 @@ class QuaternionTest {
 
     @Test
     void testInverse_positiveInfinityNorm() {
-        Quaternion q = Quaternion.of(0, Double.POSITIVE_INFINITY, 0, 0);
+        final Quaternion q = Quaternion.of(0, Double.POSITIVE_INFINITY, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
         );
@@ -631,7 +631,7 @@ class QuaternionTest {
 
     @Test
     void testInverse_negativeInfinityNorm() {
-        Quaternion q = Quaternion.of(0, 0, Double.NEGATIVE_INFINITY, 0);
+        final Quaternion q = Quaternion.of(0, 0, Double.NEGATIVE_INFINITY, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
         );
@@ -669,13 +669,13 @@ class QuaternionTest {
     @Test
     final void testParseFromToString() {
         final Quaternion q = Quaternion.of(1.1, 2.2, 3.3, 4.4);
-        Quaternion parsed = Quaternion.parse(q.toString());
+        final Quaternion parsed = Quaternion.parse(q.toString());
         assertEquals(parsed, q, EPS);
     }
 
     @Test
     final void testParseSpecials() {
-        Quaternion parsed = Quaternion.parse("[1e-5 Infinity NaN -0xa.cp0]");
+        final Quaternion parsed = Quaternion.parse("[1e-5 Infinity NaN -0xa.cp0]");
         Assertions.assertEquals(1e-5, parsed.getW(), EPS);
         Assertions.assertTrue(Double.isInfinite(parsed.getX()));
         Assertions.assertTrue(Double.isNaN(parsed.getY()));
@@ -743,7 +743,7 @@ class QuaternionTest {
      * @param expected
      * @param tolerance
      */
-    private void assertEquals(Quaternion actual, Quaternion expected, double tolerance) {
+    private void assertEquals(final Quaternion actual, final Quaternion expected, final double tolerance) {
         Assertions.assertTrue(actual.equals(expected, tolerance), "expecting " + expected + " but got " + actual);
     }
 

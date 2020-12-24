@@ -36,7 +36,7 @@ public final class SafeNorm {
      * @param v Cartesian coordinates.
      * @return the 2-norm of the vector.
      */
-    public static double value(double[] v) {
+    public static double value(final double[] v) {
         double s1 = 0;
         double s2 = 0;
         double s3 = 0;
@@ -72,7 +72,7 @@ public final class SafeNorm {
                 s2 += xabs * xabs;
             }
         }
-        double norm;
+        final double norm;
         if (s1 != 0) {
             norm = x1max * Math.sqrt(s1 + (s2 / x1max) / x1max);
         } else {

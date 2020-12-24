@@ -79,7 +79,7 @@ class ComplexTest {
      * @param real Real part.
      * @return {@code Complex} object
      */
-    private static Complex ofReal(double real) {
+    private static Complex ofReal(final double real) {
         return Complex.ofCartesian(real, 0);
     }
 
@@ -89,7 +89,7 @@ class ComplexTest {
      * @param imaginary Imaginary part.
      * @return {@code Complex} object
      */
-    private static Complex ofImaginary(double imaginary) {
+    private static Complex ofImaginary(final double imaginary) {
         return Complex.ofCartesian(0, imaginary);
     }
 
@@ -370,7 +370,7 @@ class ComplexTest {
         assertArgument(Double.NaN, NAN, 0);
     }
 
-    private static void assertArgument(double expected, Complex complex, double delta) {
+    private static void assertArgument(final double expected, final Complex complex, final double delta) {
         final double actual = complex.arg();
         Assertions.assertEquals(expected, actual, delta);
         Assertions.assertEquals(actual, complex.arg(), delta);
@@ -429,7 +429,7 @@ class ComplexTest {
      * @param imaginary the imaginary component
      * @param type the type
      */
-    private static void assertNumberType(double real, double imaginary, NumberType type) {
+    private static void assertNumberType(final double real, final double imaginary, final NumberType type) {
         final Complex z = Complex.ofCartesian(real, imaginary);
         final boolean isNaN = z.isNaN();
         final boolean isInfinite = z.isInfinite();
@@ -1329,9 +1329,9 @@ class ComplexTest {
         // sign.
     }
 
-    private static void assertSignedZeroArithmetic(String name, BiFunction<Complex, Double, Complex> doubleOperation,
-        DoubleFunction<Complex> doubleToComplex, BiFunction<Complex, Complex, Complex> complexOperation,
-        long expectedFailures) {
+    private static void assertSignedZeroArithmetic(final String name, final BiFunction<Complex, Double, Complex> doubleOperation,
+                                                   final DoubleFunction<Complex> doubleToComplex, final BiFunction<Complex, Complex, Complex> complexOperation,
+                                                   long expectedFailures) {
         // With an operation on zero or non-zero arguments
         final double[] arguments = {-0.0, 0.0, -2, 3};
         for (final double a : arguments) {
@@ -1454,7 +1454,7 @@ class ComplexTest {
         assertPowComplexZeroBase(x, 0, Complex.ZERO);
     }
 
-    private static void assertPowComplexZeroBase(double re, double im, Complex expected) {
+    private static void assertPowComplexZeroBase(final double re, final double im, final Complex expected) {
         final Complex z = Complex.ofCartesian(re, im);
         final Complex c = Complex.ZERO.pow(z);
         Assertions.assertEquals(expected, c);
@@ -1477,7 +1477,7 @@ class ComplexTest {
         assertPowScalarZeroBase(x, Complex.ZERO);
     }
 
-    private static void assertPowScalarZeroBase(double exp, Complex expected) {
+    private static void assertPowScalarZeroBase(final double exp, final Complex expected) {
         final Complex c = Complex.ZERO.pow(exp);
         Assertions.assertEquals(expected, c);
     }
@@ -1830,7 +1830,7 @@ class ComplexTest {
      * @param c2 the second complex
      * @param msg the message to append to an assertion error
      */
-    private static void assertEqualsIsConsistentWithArraysEquals(Complex c1, Complex c2, String msg) {
+    private static void assertEqualsIsConsistentWithArraysEquals(final Complex c1, final Complex c2, final String msg) {
         final boolean expected = Arrays.equals(new double[] {c1.getReal(), c1.getImaginary()},
             new double[] {c2.getReal(), c2.getImaginary()});
         final boolean actual = c1.equals(c2);
@@ -1941,7 +1941,7 @@ class ComplexTest {
      * @param x the x
      * @return the new value
      */
-    private static double smallestChange(double x) {
+    private static double smallestChange(final double x) {
         if (Double.isNaN(x)) {
             return 0;
         }
@@ -2084,7 +2084,7 @@ class ComplexTest {
             () -> Complex.ofCartesian(createFixedExponentNumber(rng, -1000), createFixedExponentNumber(rng, -1000)));
     }
 
-    private static void assertAbsVsSqrt(int samples, Supplier<Complex> supplier) {
+    private static void assertAbsVsSqrt(final int samples, final Supplier<Complex> supplier) {
         // Note: All methods implement scaling to ensure the magnitude can be computed.
         // Try very large or small numbers that will over/underflow to test that the
         // scaling
@@ -2150,7 +2150,7 @@ class ComplexTest {
             () -> Complex.ofCartesian(createFixedExponentNumber(rng, -1022), createFixedExponentNumber(rng, -1022)));
     }
 
-    private static void assertAbsVsLog(int samples, Supplier<Complex> supplier) {
+    private static void assertAbsVsLog(final int samples, final Supplier<Complex> supplier) {
         // Note: All methods implement scaling to ensure the magnitude can be computed.
         // Try very large or small numbers that will over/underflow to test that the
         // scaling
@@ -2176,7 +2176,7 @@ class ComplexTest {
      * @param exponent Amount to change the exponent (in range [-1023, 1023])
      * @return the number
      */
-    private static double createFixedExponentNumber(UniformRandomProvider rng, int exponent) {
+    private static double createFixedExponentNumber(final UniformRandomProvider rng, final int exponent) {
         return Double.longBitsToDouble((rng.nextLong() >>> 12) | ((1023L + exponent) << 52));
     }
 }

@@ -31,9 +31,9 @@ class ArithmeticUtilsTest {
 
     @Test
     void testGcd() {
-        int a = 30;
-        int b = 50;
-        int c = 77;
+        final int a = 30;
+        final int b = 50;
+        final int c = 77;
 
         Assertions.assertEquals(0, ArithmeticUtils.gcd(0, 0));
 
@@ -61,21 +61,21 @@ class ArithmeticUtilsTest {
             // gcd(Integer.MIN_VALUE, 0) > Integer.MAX_VALUE
             ArithmeticUtils.gcd(Integer.MIN_VALUE, 0);
             Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(0, Integer.MIN_VALUE) > Integer.MAX_VALUE
             ArithmeticUtils.gcd(0, Integer.MIN_VALUE);
             Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(Integer.MIN_VALUE, Integer.MIN_VALUE) > Integer.MAX_VALUE
             ArithmeticUtils.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE);
             Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
     }
@@ -83,29 +83,29 @@ class ArithmeticUtilsTest {
     @Test
     void testGcdConsistency() {
         // Use Integer to prevent varargs vs array issue with Arrays.asList
-        Integer[] primeList = {19, 23, 53, 67, 73, 79, 101, 103, 111, 131};
+        final Integer[] primeList = {19, 23, 53, 67, 73, 79, 101, 103, 111, 131};
 
         for (int i = 0; i < 20; i++) {
             Collections.shuffle(Arrays.asList(primeList));
-            int p1 = primeList[0];
-            int p2 = primeList[1];
-            int p3 = primeList[2];
-            int p4 = primeList[3];
-            int i1 = p1 * p2 * p3;
-            int i2 = p1 * p2 * p4;
-            int gcd = p1 * p2;
+            final int p1 = primeList[0];
+            final int p2 = primeList[1];
+            final int p3 = primeList[2];
+            final int p4 = primeList[3];
+            final int i1 = p1 * p2 * p3;
+            final int i2 = p1 * p2 * p4;
+            final int gcd = p1 * p2;
             Assertions.assertEquals(gcd, ArithmeticUtils.gcd(i1, i2));
-            long l1 = i1;
-            long l2 = i2;
+            final long l1 = i1;
+            final long l2 = i2;
             Assertions.assertEquals(gcd, ArithmeticUtils.gcd(l1, l2));
         }
     }
 
     @Test
     void  testGcdLong() {
-        long a = 30;
-        long b = 50;
-        long c = 77;
+        final long a = 30;
+        final long b = 50;
+        final long c = 77;
 
         Assertions.assertEquals(0, ArithmeticUtils.gcd(0L, 0));
 
@@ -135,21 +135,21 @@ class ArithmeticUtilsTest {
             // gcd(Long.MIN_VALUE, 0) > Long.MAX_VALUE
             ArithmeticUtils.gcd(Long.MIN_VALUE, 0);
             Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(0, Long.MIN_VALUE) > Long.MAX_VALUE
             ArithmeticUtils.gcd(0, Long.MIN_VALUE);
             Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(Long.MIN_VALUE, Long.MIN_VALUE) > Long.MAX_VALUE
             ArithmeticUtils.gcd(Long.MIN_VALUE, Long.MIN_VALUE);
             Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
     }
@@ -157,9 +157,9 @@ class ArithmeticUtilsTest {
 
     @Test
     void testLcm() {
-        int a = 30;
-        int b = 50;
-        int c = 77;
+        final int a = 30;
+        final int b = 50;
+        final int c = 77;
 
         Assertions.assertEquals(0, ArithmeticUtils.lcm(0, b));
         Assertions.assertEquals(0, ArithmeticUtils.lcm(a, 0));
@@ -182,7 +182,7 @@ class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Integer.MIN_VALUE, 1);
             Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
 
@@ -190,23 +190,23 @@ class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Integer.MIN_VALUE, 1 << 20);
             Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
 
         try {
             ArithmeticUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);
             Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
     }
 
     @Test
     void testLcmLong() {
-        long a = 30;
-        long b = 50;
-        long c = 77;
+        final long a = 30;
+        final long b = 50;
+        final long c = 77;
 
         Assertions.assertEquals(0, ArithmeticUtils.lcm(0, b));
         Assertions.assertEquals(0, ArithmeticUtils.lcm(a, 0));
@@ -231,7 +231,7 @@ class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Long.MIN_VALUE, 1);
             Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
 
@@ -239,7 +239,7 @@ class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Long.MIN_VALUE, 1 << 20);
             Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
 
@@ -248,7 +248,7 @@ class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.lcm(Long.MAX_VALUE, Long.MAX_VALUE - 1);
             Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException expected) {
+        } catch (final ArithmeticException expected) {
             // expected
         }
     }
@@ -261,7 +261,7 @@ class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.pow(21, -7);
             Assertions.fail("Expecting IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             // expected behavior
         }
 
@@ -270,7 +270,7 @@ class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.pow(21, -7);
             Assertions.fail("Expecting IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             // expected behavior
         }
 
@@ -279,17 +279,17 @@ class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.pow(21L, -7);
             Assertions.fail("Expecting IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             // expected behavior
         }
 
-        BigInteger twentyOne = BigInteger.valueOf(21L);
+        final BigInteger twentyOne = BigInteger.valueOf(21L);
         Assertions.assertEquals(BigInteger.valueOf(1801088541L), ArithmeticUtils.pow(twentyOne, 7));
         Assertions.assertEquals(BigInteger.ONE, ArithmeticUtils.pow(twentyOne, 0));
         try {
             ArithmeticUtils.pow(twentyOne, -7);
             Assertions.fail("Expecting IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             // expected behavior
         }
 
@@ -298,7 +298,7 @@ class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.pow(twentyOne, -7L);
             Assertions.fail("Expecting IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             // expected behavior
         }
 
@@ -307,7 +307,7 @@ class ArithmeticUtilsTest {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(-7L)));
 
-        BigInteger bigOne =
+        final BigInteger bigOne =
             new BigInteger("1543786922199448028351389769265814882661837148" +
                            "4763915343722775611762713982220306372888519211" +
                            "560905579993523402015636025177602059044911261");
@@ -464,7 +464,7 @@ class ArithmeticUtilsTest {
      * </ul>
      */
     private static int[] getIntSpecialCases() {
-        int[] ints = new int[100];
+        final int[] ints = new int[100];
         int i = 0;
         ints[i++] = Integer.MAX_VALUE;
         ints[i++] = Integer.MAX_VALUE - 1;
@@ -479,7 +479,7 @@ class ArithmeticUtilsTest {
         for (int j = i - 1; j >= 0; j--) {
             ints[i++] = ints[j] > 0 ? -ints[j] : Integer.MIN_VALUE;
         }
-        java.util.Random r = new java.util.Random(System.nanoTime());
+        final java.util.Random r = new java.util.Random(System.nanoTime());
         for (; i < ints.length;) {
             ints[i++] = r.nextInt();
         }
@@ -498,7 +498,7 @@ class ArithmeticUtilsTest {
      * </ul>
      */
     private static long[] getLongSpecialCases() {
-        long[] longs = new long[100];
+        final long[] longs = new long[100];
         int i = 0;
         longs[i++] = Long.MAX_VALUE;
         longs[i++] = Long.MAX_VALUE - 1L;
@@ -516,34 +516,34 @@ class ArithmeticUtilsTest {
         for (int j = i - 1; j >= 0; j--) {
             longs[i++] = longs[j] > 0L ? -longs[j] : Long.MIN_VALUE;
         }
-        java.util.Random r = new java.util.Random(System.nanoTime());
+        final java.util.Random r = new java.util.Random(System.nanoTime());
         for (; i < longs.length;) {
             longs[i++] = r.nextLong();
         }
         return longs;
     }
 
-    private static long toUnsignedLong(int number) {
+    private static long toUnsignedLong(final int number) {
         return number < 0 ? 0x100000000L + (long)number : (long)number;
     }
 
-    private static int remainderUnsignedExpected(int dividend, int divisor) {
+    private static int remainderUnsignedExpected(final int dividend, final int divisor) {
         return (int)remainderUnsignedExpected(toUnsignedLong(dividend), toUnsignedLong(divisor));
     }
 
-    private static int divideUnsignedExpected(int dividend, int divisor) {
+    private static int divideUnsignedExpected(final int dividend, final int divisor) {
         return (int)divideUnsignedExpected(toUnsignedLong(dividend), toUnsignedLong(divisor));
     }
 
-    private static BigInteger toUnsignedBigInteger(long number) {
+    private static BigInteger toUnsignedBigInteger(final long number) {
         return number < 0L ? BigInteger.ONE.shiftLeft(64).add(BigInteger.valueOf(number)) : BigInteger.valueOf(number);
     }
 
-    private static long remainderUnsignedExpected(long dividend, long divisor) {
+    private static long remainderUnsignedExpected(final long dividend, final long divisor) {
         return toUnsignedBigInteger(dividend).remainder(toUnsignedBigInteger(divisor)).longValue();
     }
 
-    private static long divideUnsignedExpected(long dividend, long divisor) {
+    private static long divideUnsignedExpected(final long dividend, final long divisor) {
         return toUnsignedBigInteger(dividend).divide(toUnsignedBigInteger(divisor)).longValue();
     }
 
@@ -555,9 +555,9 @@ class ArithmeticUtilsTest {
 
     @Test
     void testRemainderUnsignedIntSpecialCases() {
-        int[] ints = getIntSpecialCases();
-        for (int dividend : ints) {
-            for (int divisor : ints) {
+        final int[] ints = getIntSpecialCases();
+        for (final int dividend : ints) {
+            for (final int divisor : ints) {
                 if (divisor == 0) {
                     Assertions.assertThrows(ArithmeticException.class,
                         () -> ArithmeticUtils.remainderUnsigned(dividend, divisor)
@@ -576,14 +576,14 @@ class ArithmeticUtilsTest {
 
     @Test
     void testRemainderUnsignedLongSpecialCases() {
-        long[] longs = getLongSpecialCases();
-        for (long dividend : longs) {
-            for (long divisor : longs) {
+        final long[] longs = getLongSpecialCases();
+        for (final long dividend : longs) {
+            for (final long divisor : longs) {
                 if (divisor == 0L) {
                     try {
                         ArithmeticUtils.remainderUnsigned(dividend, divisor);
                         Assertions.fail("Should have failed with ArithmeticException: division by zero");
-                    } catch (ArithmeticException e) {
+                    } catch (final ArithmeticException e) {
                         // Success.
                     }
                 } else {
@@ -609,9 +609,9 @@ class ArithmeticUtilsTest {
 
     @Test
     void testDivideUnsignedIntSpecialCases() {
-        int[] ints = getIntSpecialCases();
-        for (int dividend : ints) {
-            for (int divisor : ints) {
+        final int[] ints = getIntSpecialCases();
+        for (final int dividend : ints) {
+            for (final int divisor : ints) {
                 if (divisor == 0) {
                     Assertions.assertThrows(ArithmeticException.class,
                         () -> ArithmeticUtils.divideUnsigned(dividend, divisor)
@@ -630,9 +630,9 @@ class ArithmeticUtilsTest {
 
     @Test
     void testDivideUnsignedLongSpecialCases() {
-        long[] longs = getLongSpecialCases();
-        for (long dividend : longs) {
-            for (long divisor : longs) {
+        final long[] longs = getLongSpecialCases();
+        for (final long dividend : longs) {
+            for (final long divisor : longs) {
                 if (divisor == 0L) {
                     Assertions.assertThrows(ArithmeticException.class,
                         () -> ArithmeticUtils.divideUnsigned(dividend, divisor)

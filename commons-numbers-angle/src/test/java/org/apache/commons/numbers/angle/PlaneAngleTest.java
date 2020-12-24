@@ -55,7 +55,7 @@ class PlaneAngleTest {
                 final double c = aA.normalize(aB).toRadians();
                 Assertions.assertTrue((b - Math.PI) <= c);
                 Assertions.assertTrue(c <= (b + Math.PI));
-                double twoK = Math.rint((a - c) / Math.PI);
+                final double twoK = Math.rint((a - c) / Math.PI);
                 Assertions.assertEquals(c, a - twoK * Math.PI, 1e-14);
             }
         }
@@ -70,7 +70,7 @@ class PlaneAngleTest {
                 final double c = aA.normalize(aB).toTurns();
                 Assertions.assertTrue((aB.toTurns() - 0.5) <= c);
                 Assertions.assertTrue(c <= (aB.toTurns() + 0.5));
-                double twoK = Math.rint(aA.toTurns() - c);
+                final double twoK = Math.rint(aA.toTurns() - c);
                 Assertions.assertEquals(c, aA.toTurns() - twoK, 1e-14);
             }
         }
@@ -112,7 +112,7 @@ class PlaneAngleTest {
     @Test
     void testNormalizeUpperAndLowerBounds() {
         // arrange
-        double eps = 1e-15;
+        final double eps = 1e-15;
 
         // act/assert
         Assertions.assertEquals(-0.5, PlaneAngle.ofTurns(-0.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
@@ -131,10 +131,10 @@ class PlaneAngleTest {
     @Test
     void testNormalizeVeryCloseToBounds() {
         // arrange
-        double eps = 1e-22;
+        final double eps = 1e-22;
 
-        double small = 1e-16;
-        double tiny = 1e-18; // 0.5 + tiny = 0.5 (the value is too small to add to 0.5)
+        final double small = 1e-16;
+        final double tiny = 1e-18; // 0.5 + tiny = 0.5 (the value is too small to add to 0.5)
 
         // act/assert
         Assertions.assertEquals(1.0 - small, PlaneAngle.ofTurns(-small).normalize(PlaneAngle.PI).toTurns(), eps);

@@ -130,7 +130,7 @@ class FactorialDoubleTest {
     /**
      * Direct multiplication implementation.
      */
-    private double factorialDirect(int n) {
+    private double factorialDirect(final int n) {
         double result = 1;
         for (int i = 2; i <= n; i++) {
             result *= i;

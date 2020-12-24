@@ -47,7 +47,7 @@ public final class Factorial {
      * @throws IllegalArgumentException if {@code n > 20} (the factorial
      * value is too large to fit in a {@code long}).
      */
-    public static long value(int n) {
+    public static long value(final int n) {
         if (n < 0 ||
             n > 20) {
             throw new CombinatoricsException(CombinatoricsException.OUT_OF_RANGE,

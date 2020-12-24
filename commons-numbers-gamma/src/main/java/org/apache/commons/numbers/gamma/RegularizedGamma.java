@@ -53,8 +53,8 @@ public final class RegularizedGamma {
          * @return \( P(a, x) \).
          * @throws ArithmeticException if the continued fraction fails to converge.
          */
-        public static double value(double a,
-                                   double x) {
+        public static double value(final double a,
+                                   final double x) {
             return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
         }
 
@@ -84,10 +84,10 @@ public final class RegularizedGamma {
          * @return \( P(a, x) \).
          * @throws ArithmeticException if the continued fraction fails to converge.
          */
-        public static double value(double a,
-                                   double x,
-                                   double epsilon,
-                                   int maxIterations) {
+        public static double value(final double a,
+                                   final double x,
+                                   final double epsilon,
+                                   final int maxIterations) {
             if (Double.isNaN(a) ||
                 Double.isNaN(x) ||
                 a <= 0 ||
@@ -145,8 +145,8 @@ public final class RegularizedGamma {
          * @return \( Q(a, x) \).
          * @throws ArithmeticException if the continued fraction fails to converge.
          */
-        public static double value(double a,
-                                   double x) {
+        public static double value(final double a,
+                                   final double x) {
             return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
         }
 
@@ -174,9 +174,9 @@ public final class RegularizedGamma {
          * @return \( Q(a, x) \).
          */
         public static double value(final double a,
-                                   double x,
-                                   double epsilon,
-                                   int maxIterations) {
+                                   final double x,
+                                   final double epsilon,
+                                   final int maxIterations) {
             if (Double.isNaN(a) ||
                 Double.isNaN(x) ||
                 a <= 0 ||
@@ -191,13 +191,13 @@ public final class RegularizedGamma {
                 final ContinuedFraction cf = new ContinuedFraction() {
                         /** {@inheritDoc} */
                         @Override
-                        protected double getA(int n, double x) {
+                        protected double getA(final int n, final double x) {
                             return n * (a - n);
                         }
 
                         /** {@inheritDoc} */
                         @Override
-                        protected double getB(int n, double x) {
+                        protected double getB(final int n, final double x) {
                             return ((2 * n) + 1) - a + x;
                         }
                     };

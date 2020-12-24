@@ -94,7 +94,7 @@ public final class Quaternion implements Serializable {
         private final ToDoubleFunction<Quaternion> normSq;
         /** {@link Quaternion#norm()}. */
         private final ToDoubleFunction<Quaternion> norm;
-        /** {@link Quaternion#isUnit()}. */
+        /** {@link Quaternion#isUnit(double). */
         private final BiPredicate<Quaternion, Double> testIsUnit;
 
         /** Default implementations. */
@@ -107,7 +107,7 @@ public final class Quaternion implements Serializable {
             private static final ToDoubleFunction<Quaternion> NORM = q ->
                 Math.sqrt(NORMSQ.applyAsDouble(q));
 
-            /** {@link Quaternion#isUnit()}. */
+            /** {@link Quaternion#isUnit(double)} . */
             private static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) ->
                 Precision.equals(NORM.applyAsDouble(q), 1d, eps);
         }
@@ -125,9 +125,9 @@ public final class Quaternion implements Serializable {
          * @param norm {@code norm} method.
          * @param isUnit {@code isUnit} method.
          */
-        Type(ToDoubleFunction<Quaternion> normSq,
-             ToDoubleFunction<Quaternion> norm,
-             BiPredicate<Quaternion, Double> isUnit)  {
+        Type(final ToDoubleFunction<Quaternion> normSq,
+             final ToDoubleFunction<Quaternion> norm,
+             final BiPredicate<Quaternion, Double> isUnit)  {
             this.normSq = normSq;
             this.norm = norm;
             this.testIsUnit = isUnit;
@@ -137,14 +137,14 @@ public final class Quaternion implements Serializable {
          * @param q Quaternion.
          * @return the norm squared.
          */
-        double normSq(Quaternion q) {
+        double normSq(final Quaternion q) {
             return normSq.applyAsDouble(q);
         }
         /**
          * @param q Quaternion.
          * @return the norm.
          */
-        double norm(Quaternion q) {
+        double norm(final Quaternion q) {
             return norm.applyAsDouble(q);
         }
         /**
@@ -152,8 +152,8 @@ public final class Quaternion implements Serializable {
          * @param eps Tolerance.
          * @return whether {@code q} has unit norm within the allowed tolerance.
          */
-        boolean isUnit(Quaternion q,
-                       double eps) {
+        boolean isUnit(final Quaternion q,
+                       final double eps) {
             return testIsUnit.test(q, eps);
         }
     }
@@ -167,7 +167,7 @@ public final class Quaternion implements Serializable {
      * @param y Second vector component.
      * @param z Third vector component.
      */
-    private Quaternion(Type type,
+    private Quaternion(final Type type,
                        final double w,
                        final double x,
                        final double y,
@@ -185,8 +185,8 @@ public final class Quaternion implements Serializable {
      * @param type Quaternion type.
      * @param q Quaternion whose components will be copied.
      */
-    private Quaternion(Type type,
-                       Quaternion q) {
+    private Quaternion(final Type type,
+                       final Quaternion q) {
         this.type = type;
         w = q.w;
         x = q.x;
@@ -418,7 +418,7 @@ public final class Quaternion implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (this == other) {
             return true;
         }
@@ -466,7 +466,7 @@ public final class Quaternion implements Serializable {
      * @return {@code true} if the norm is 1 within the given tolerance,
      * {@code false} otherwise
      */
-    public boolean isUnit(double eps) {
+    public boolean isUnit(final double eps) {
         return type.isUnit(this, eps);
     }
 
@@ -477,7 +477,7 @@ public final class Quaternion implements Serializable {
      * @param eps Tolerance (absolute error).
      * @return {@code true} if the scalar part of the quaternion is zero.
      */
-    public boolean isPure(double eps) {
+    public boolean isPure(final double eps) {
         return Math.abs(w) <= eps;
     }
 
@@ -648,7 +648,7 @@ public final class Quaternion implements Serializable {
      * @throws NumberFormatException if the string does not conform
      * to the specification.
      */
-    public static Quaternion parse(String s) {
+    public static Quaternion parse(final String s) {
         final int startBracket = s.indexOf(FORMAT_START);
         if (startBracket != 0) {
             throw new QuaternionParsingException("Expected start string: " + FORMAT_START);
@@ -668,25 +668,25 @@ public final class Quaternion implements Serializable {
         final double a;
         try {
             a = Double.parseDouble(elements[0]);
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse scalar part" + elements[0], ex);
         }
         final double b;
         try {
             b = Double.parseDouble(elements[1]);
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse i part" + elements[1], ex);
         }
         final double c;
         try {
             c = Double.parseDouble(elements[2]);
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse j part" + elements[2], ex);
         }
         final double d;
         try {
             d = Double.parseDouble(elements[3]);
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse k part" + elements[3], ex);
         }
 
@@ -717,7 +717,7 @@ public final class Quaternion implements Serializable {
         /**
          * @param msg Error message.
          */
-        QuaternionParsingException(String msg) {
+        QuaternionParsingException(final String msg) {
             super(msg);
         }
 
@@ -725,7 +725,7 @@ public final class Quaternion implements Serializable {
          * @param msg Error message.
          * @param cause Cause of the exception.
          */
-        QuaternionParsingException(String msg, Throwable cause) {
+        QuaternionParsingException(final String msg, final Throwable cause) {
             super(msg);
             initCause(cause);
         }

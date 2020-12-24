@@ -47,8 +47,8 @@ public final class ErfDifference {
      * @return {@link Erf#value(double) Erf.value(x2) - Erf.value(x1)}.
      * @throws ArithmeticException if the algorithm fails to converge.
      */
-    public static double value(double x1,
-                               double x2) {
+    public static double value(final double x1,
+                               final double x2) {
         if (x1 > x2) {
             return -value(x2, x1);
         } else {

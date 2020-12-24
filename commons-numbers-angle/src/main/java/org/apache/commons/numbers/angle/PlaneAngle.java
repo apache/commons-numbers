@@ -40,7 +40,7 @@ public final class PlaneAngle {
     /**
      * @param value Value in turns.
      */
-    private PlaneAngle(double value) {
+    private PlaneAngle(final double value) {
         this.value = value;
     }
 
@@ -48,7 +48,7 @@ public final class PlaneAngle {
      * @param angle (in <a href="https://en.wikipedia.org/wiki/Turn_%28geometry%29">turns</a>).
      * @return a new intance.
      */
-    public static PlaneAngle ofTurns(double angle) {
+    public static PlaneAngle ofTurns(final double angle) {
         return new PlaneAngle(angle);
     }
 
@@ -56,7 +56,7 @@ public final class PlaneAngle {
      * @param angle (in <a href="https://en.wikipedia.org/wiki/Radian">radians</a>).
      * @return a new intance.
      */
-    public static PlaneAngle ofRadians(double angle) {
+    public static PlaneAngle ofRadians(final double angle) {
         return new PlaneAngle(angle * FROM_RADIANS);
     }
 
@@ -64,7 +64,7 @@ public final class PlaneAngle {
      * @param angle (in <a href="https://en.wikipedia.org/wiki/Degree_%28angle%29">degrees</a>).
      * @return a new intance.
      */
-    public static PlaneAngle ofDegrees(double angle) {
+    public static PlaneAngle ofDegrees(final double angle) {
         return new PlaneAngle(angle * FROM_DEGREES);
     }
 
@@ -97,7 +97,7 @@ public final class PlaneAngle {
      * @return {@code a - k} with integer {@code k} such that
      * {@code center - 0.5 <= a - k < center + 0.5} (in turns).
      */
-    public PlaneAngle normalize(PlaneAngle center) {
+    public PlaneAngle normalize(final PlaneAngle center) {
         final double lowerBound = center.value - HALF_TURN;
         final double upperBound = center.value + HALF_TURN;
 
@@ -125,7 +125,7 @@ public final class PlaneAngle {
      * or not equal to this instance.
      */
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (this == other) {
             return true;
         }

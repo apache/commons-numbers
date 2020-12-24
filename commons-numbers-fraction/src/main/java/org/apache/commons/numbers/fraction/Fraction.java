@@ -73,7 +73,7 @@ public final class Fraction
      * @param den Denominator.
      * @throws ArithmeticException if the denominator is {@code zero}.
      */
-    private Fraction(int num, int den) {
+    private Fraction(final int num, final int den) {
         if (den == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
@@ -83,8 +83,8 @@ public final class Fraction
             denominator = 1;
         } else {
             // Reduce numerator (p) and denominator (q) by greatest common divisor.
-            int p;
-            int q;
+            final int p;
+            final int q;
 
             // If num and den are both 2^-31, or if one is 0 and the other is 2^-31,
             // the calculation of the gcd below will fail. Ensure that this does not
@@ -112,7 +112,7 @@ public final class Fraction
      *
      * @param num Numerator.
      */
-    private Fraction(int num) {
+    private Fraction(final int num) {
         numerator = num;
         denominator = 1;
     }
@@ -406,7 +406,7 @@ public final class Fraction
      * @see Integer#parseInt(String)
      * @see #toString()
      */
-    public static Fraction parse(String s) {
+    public static Fraction parse(final String s) {
         final String stripped = s.replace(",", "");
         final int slashLoc = stripped.indexOf('/');
         // if no slash, parse as single number
@@ -561,7 +561,7 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     @Override
-    public Fraction add(Fraction value) {
+    public Fraction add(final Fraction value) {
         return addSub(value, true /* add */);
     }
 
@@ -599,7 +599,7 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     @Override
-    public Fraction subtract(Fraction value) {
+    public Fraction subtract(final Fraction value) {
         return addSub(value, false /* subtract */);
     }
 
@@ -612,7 +612,7 @@ public final class Fraction
      * @throws ArithmeticException if the resulting numerator or denominator
      * cannot be represented in an {@code int}.
      */
-    private Fraction addSub(Fraction value, boolean isAdd) {
+    private Fraction addSub(final Fraction value, final boolean isAdd) {
         if (value.isZero()) {
             return this;
         }
@@ -687,7 +687,7 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     @Override
-    public Fraction multiply(Fraction value) {
+    public Fraction multiply(final Fraction value) {
         if (value.isZero() || isZero()) {
             return ZERO;
         }
@@ -707,7 +707,7 @@ public final class Fraction
      * @throws ArithmeticException if the resulting numerator or denominator cannot
      * be represented in an {@code int}.
      */
-    private Fraction multiply(int num, int den) {
+    private Fraction multiply(final int num, final int den) {
         // knuth 4.5.1
         // Make sure we don't overflow unless the result *must* overflow.
         final int d1 = ArithmeticUtils.gcd(numerator, den);
@@ -754,7 +754,7 @@ public final class Fraction
      * by an {@code int}.
      */
     @Override
-    public Fraction divide(Fraction value) {
+    public Fraction divide(final Fraction value) {
         if (value.isZero()) {
             throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
@@ -834,7 +834,7 @@ public final class Fraction
      * @return {@inheritDoc}
      */
     @Override
-    public int compareTo(Fraction other) {
+    public int compareTo(final Fraction other) {
         // Compute the sign of each part
         final int lns = Integer.signum(numerator);
         final int lds = Integer.signum(denominator);
@@ -867,7 +867,7 @@ public final class Fraction
      * @return {@inheritDoc}
      */
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (this == other) {
             return true;
         }

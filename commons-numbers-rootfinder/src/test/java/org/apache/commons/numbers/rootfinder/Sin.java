@@ -23,7 +23,7 @@ import java.util.function.DoubleUnaryOperator;
  */
 class Sin implements DoubleUnaryOperator {
     @Override
-    public double applyAsDouble(double x) {
+    public double applyAsDouble(final double x) {
         return Math.sin(x);
     }
 }

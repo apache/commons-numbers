@@ -51,9 +51,9 @@ public class BrentSolver {
      * @param absoluteAccuracy Absolute accuracy.
      * @param functionValueAccuracy Function value accuracy.
      */
-    public BrentSolver(double relativeAccuracy,
-                       double absoluteAccuracy,
-                       double functionValueAccuracy) {
+    public BrentSolver(final double relativeAccuracy,
+                       final double absoluteAccuracy,
+                       final double functionValueAccuracy) {
         this.relativeAccuracy = relativeAccuracy;
         this.absoluteAccuracy = absoluteAccuracy;
         this.functionValueAccuracy = functionValueAccuracy;
@@ -70,9 +70,9 @@ public class BrentSolver {
      * @throws IllegalArgumentException if the given interval does
      * not bracket the root.
      */
-    public double findRoot(DoubleUnaryOperator func,
-                           double min,
-                           double max) {
+    public double findRoot(final DoubleUnaryOperator func,
+                           final double min,
+                           final double max) {
         return findRoot(func, min, 0.5 * (min + max), max);
     }
 
@@ -90,10 +90,10 @@ public class BrentSolver {
      * @throws IllegalArgumentException if the given interval does
      * not bracket the root.
      */
-    public double findRoot(DoubleUnaryOperator func,
-                           double min,
-                           double initial,
-                           double max) {
+    public double findRoot(final DoubleUnaryOperator func,
+                           final double min,
+                           final double initial,
+                           final double max) {
         if (min > max) {
             throw new SolverException(SolverException.TOO_LARGE, min, max);
         }
@@ -150,9 +150,9 @@ public class BrentSolver {
      * @param fHi Function value at the higher bound of the search interval.
      * @return the value where the function is zero.
      */
-    private double brent(DoubleUnaryOperator func,
-                         double lo, double hi,
-                         double fLo, double fHi) {
+    private double brent(final DoubleUnaryOperator func,
+                         final double lo, final double hi,
+                         final double fLo, final double fHi) {
         double a = lo;
         double fa = fLo;
         double b = hi;

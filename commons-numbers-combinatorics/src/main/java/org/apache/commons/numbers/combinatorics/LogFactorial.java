@@ -43,8 +43,8 @@ public final class LogFactorial {
      * @param cache Cached values.
      * @throw IllegalArgumentException if {@code n < 0}.
      */
-    private LogFactorial(int numValues,
-                         double[] cache) {
+    private LogFactorial(final int numValues,
+                         final double[] cache) {
         if (numValues < 0) {
             throw new CombinatoricsException(CombinatoricsException.NEGATIVE, numValues);
         }
@@ -52,7 +52,7 @@ public final class LogFactorial {
         logFactorials = new double[numValues];
 
         final int beginCopy = 2;
-        int endCopy;
+        final int endCopy;
         if (cache == null || cache.length <= beginCopy) {
             endCopy = beginCopy;
         } else if (cache.length <= numValues) {
@@ -99,7 +99,7 @@ public final class LogFactorial {
      * @return {@code log(n!)}.
      * @throws IllegalArgumentException if {@code n < 0}.
      */
-    public double value(int n) {
+    public double value(final int n) {
         if (n < 0) {
             throw new CombinatoricsException(CombinatoricsException.NEGATIVE, n);
         }

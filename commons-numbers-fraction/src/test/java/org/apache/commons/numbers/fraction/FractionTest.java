@@ -35,7 +35,7 @@ class FractionTest {
     /** The zero representation with negative denominator. */
     private static final Fraction ZERO_N = Fraction.of(0, -1);
 
-    private static void assertFraction(int expectedNumerator, int expectedDenominator, Fraction actual) {
+    private static void assertFraction(final int expectedNumerator, final int expectedDenominator, final Fraction actual) {
         Assertions.assertEquals(expectedNumerator, actual.getNumerator());
         Assertions.assertEquals(expectedDenominator, actual.getDenominator());
         Assertions.assertEquals(
@@ -43,7 +43,7 @@ class FractionTest {
             actual.signum());
     }
 
-    private static void assertDoubleValue(double expected, int numerator, int denominator) {
+    private static void assertDoubleValue(final double expected, final int numerator, final int denominator) {
         final Fraction f = Fraction.of(numerator, denominator);
         Assertions.assertEquals(expected, f.doubleValue());
     }
@@ -522,7 +522,7 @@ class FractionTest {
      * @param f1 Fraction 1.
      * @param f2 Fraction 2.
      */
-    private static void assertEqualAndHashCodeEqual(Fraction f1, Fraction f2) {
+    private static void assertEqualAndHashCodeEqual(final Fraction f1, final Fraction f2) {
         Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
         // Check the computation matches the result of Arrays.hashCode and the signum.

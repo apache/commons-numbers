@@ -47,7 +47,7 @@ final class FieldsList {
                 FP64.of(-543.2109876),
                 FP64.of(-234.5678901));
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace(System.err);
             throw new RuntimeException(e);
         }
@@ -60,10 +60,10 @@ final class FieldsList {
      * @param a Field element.
      * @param b Field element.
      */
-    private static <T> void add(Field<T> field,
-                                T a,
-                                T b,
-                                T c) {
+    private static <T> void add(final Field<T> field,
+                                final T a,
+                                final T b,
+                                final T c) {
         LIST.add(new FieldTestData<>(field, a, b, c));
     }
 

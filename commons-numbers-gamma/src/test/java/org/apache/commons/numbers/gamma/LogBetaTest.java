@@ -584,10 +584,10 @@ class LogBetaTest {
         testLogBeta(-0.693147180559945, 1, 2);
     }
 
-    private void testLogBeta(double expected,
-                             double a,
-                             double b) {
-        double actual = LogBeta.value(a, b);
+    private void testLogBeta(final double expected,
+                             final double a,
+                             final double b) {
+        final double actual = LogBeta.value(a, b);
         Assertions.assertEquals(expected, actual, 1e-15);
     }
 
@@ -601,11 +601,11 @@ class LogBetaTest {
                                                              Double.TYPE, Double.TYPE);
             m.setAccessible(true);
             return ((Double) m.invoke(null, a, b)).doubleValue();
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
             Assertions.fail(e.getMessage());
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             Assertions.fail(e.getMessage());
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             if (e.getTargetException() instanceof GammaException) {
                 throw (GammaException) e.getTargetException();
             } else {
@@ -656,7 +656,7 @@ class LogBetaTest {
                                                              Double.TYPE, Double.TYPE);
             m.setAccessible(true);
             return ((Double) m.invoke(null, a, b)).doubleValue();
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
             Assertions.fail(e.getMessage());
         } catch (final IllegalAccessException e) {
             Assertions.fail(e.getMessage());

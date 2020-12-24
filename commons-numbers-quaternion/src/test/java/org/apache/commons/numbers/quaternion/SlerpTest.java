@@ -31,10 +31,10 @@ class SlerpTest {
     @Test
     void testSlerp_sphericalAlgorithm() {
         // arrange
-        Quaternion q1 = createZRotation(0.75 * Math.PI);
-        Quaternion q2 = createZRotation(-0.75 * Math.PI);
+        final Quaternion q1 = createZRotation(0.75 * Math.PI);
+        final Quaternion q2 = createZRotation(-0.75 * Math.PI);
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
         // the algorithm should follow the path around the pi coordinate of the circle rather than
@@ -49,10 +49,10 @@ class SlerpTest {
     @Test
     void testSlerp_sphericalAlgorithm_allOutputsAreInPositivePolarForm() {
         // arrange
-        Quaternion q1 = createZRotation(0.75 * Math.PI);
-        Quaternion q2 = createZRotation(-0.75 * Math.PI);
+        final Quaternion q1 = createZRotation(0.75 * Math.PI);
+        final Quaternion q2 = createZRotation(-0.75 * Math.PI);
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         final int numSteps = 200;
         final double delta = 1d / numSteps;
@@ -60,7 +60,7 @@ class SlerpTest {
             final double t = -10 + step * delta;
 
             // act
-            Quaternion result = slerp.apply(t);
+            final Quaternion result = slerp.apply(t);
 
             // assert
             Assertions.assertEquals(1.0, result.norm(), EPS);
@@ -71,10 +71,10 @@ class SlerpTest {
     @Test
     void testSlerp_nonNormalizedInputs() {
         // arrange
-        Quaternion q1 = createZRotation(0).multiply(10.0);
-        Quaternion q2 = createZRotation(Math.PI).multiply(0.2);
+        final Quaternion q1 = createZRotation(0).multiply(10.0);
+        final Quaternion q2 = createZRotation(Math.PI).multiply(0.2);
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
         assertQuaternion(q1.positivePolarForm(), slerp.apply(0));
@@ -87,10 +87,10 @@ class SlerpTest {
     @Test
     void testSlerp_linearAlgorithm() {
         // arrange
-        Quaternion q1 = createZRotation(0.75 * Math.PI);
-        Quaternion q2 = createZRotation(0.76 * Math.PI);
+        final Quaternion q1 = createZRotation(0.75 * Math.PI);
+        final Quaternion q2 = createZRotation(0.76 * Math.PI);
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
         assertQuaternion(q1.positivePolarForm(), slerp.apply(0));
@@ -103,10 +103,10 @@ class SlerpTest {
     @Test
     void testSlerp_linearAlgorithm_allOutputsAreInPositivePolarForm() {
         // arrange
-        Quaternion q1 = createZRotation(0.75 * Math.PI);
-        Quaternion q2 = createZRotation(0.76 * Math.PI);
+        final Quaternion q1 = createZRotation(0.75 * Math.PI);
+        final Quaternion q2 = createZRotation(0.76 * Math.PI);
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         final int numSteps = 200;
         final double delta = 1d / numSteps;
@@ -114,7 +114,7 @@ class SlerpTest {
             final double t = -10 + step * delta;
 
             // act
-            Quaternion result = slerp.apply(t);
+            final Quaternion result = slerp.apply(t);
 
             // assert
             Assertions.assertEquals(1.0, result.norm(), EPS);
@@ -125,13 +125,13 @@ class SlerpTest {
     @Test
     void testSlerp_identicalInputs() {
         // arrange
-        Quaternion q1 = createZRotation(0);
-        Quaternion q2 = createZRotation(0);
+        final Quaternion q1 = createZRotation(0);
+        final Quaternion q2 = createZRotation(0);
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
-        Quaternion expected = q1.positivePolarForm();
+        final Quaternion expected = q1.positivePolarForm();
 
         assertQuaternion(expected, slerp.apply(0));
         assertQuaternion(expected, slerp.apply(0.5));
@@ -141,15 +141,15 @@ class SlerpTest {
     @Test
     void testSlerp_inputQuaternionsHaveMinusOneDotProduct() {
         // arrange
-        Quaternion q1 = createZRotation(0.5 * Math.PI);
-        Quaternion q2 = createZRotation(1.5 * Math.PI).conjugate(); // 3pi/2 around -z
+        final Quaternion q1 = createZRotation(0.5 * Math.PI);
+        final Quaternion q2 = createZRotation(1.5 * Math.PI).conjugate(); // 3pi/2 around -z
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
         Assertions.assertEquals(-1.0, q1.dot(q2), EPS);
 
-        Quaternion expected = q1.positivePolarForm();
+        final Quaternion expected = q1.positivePolarForm();
 
         assertQuaternion(expected, slerp.apply(0));
         assertQuaternion(expected, slerp.apply(0.5));
@@ -159,10 +159,10 @@ class SlerpTest {
     @Test
     void testSlerp_tOutsideOfZeroToOne() {
         // arrange
-        Quaternion q1 = createZRotation(0);
-        Quaternion q2 = createZRotation(0.25 * Math.PI);
+        final Quaternion q1 = createZRotation(0);
+        final Quaternion q2 = createZRotation(0.25 * Math.PI);
 
-        Slerp slerp = new Slerp(q1, q2);
+        final Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
         assertQuaternion(createZRotation(-0.5 * Math.PI).positivePolarForm(), slerp.apply(-2));
@@ -177,12 +177,12 @@ class SlerpTest {
     @Test
     void testVectorTransform_simple() {
         // arrange
-        Quaternion q0 = Quaternion.of(1, 0, 0, 0); // rotation of zero
-        Quaternion q1 = Quaternion.of(0, 0, 0, 1); // pi rotation around +z
+        final Quaternion q0 = Quaternion.of(1, 0, 0, 0); // rotation of zero
+        final Quaternion q1 = Quaternion.of(0, 0, 0, 1); // pi rotation around +z
 
-        Slerp slerp = new Slerp(q0, q1);
+        final Slerp slerp = new Slerp(q0, q1);
 
-        double[] vec = {2, 0, 1};
+        final double[] vec = {2, 0, 1};
 
         // act/assert
         Assertions.assertArrayEquals(new double[] {2, 0, 1},
@@ -204,7 +204,7 @@ class SlerpTest {
     @Test
     void testVectorTransform_multipleCombinations() {
         // arrange
-        Quaternion[] quaternions = {
+        final Quaternion[] quaternions = {
                 // +x axis
                 Quaternion.of(1, 0, 0, 0), // 0 pi
                 Quaternion.of(INV_SQRT_2, INV_SQRT_2, 0, 0), // pi/2
@@ -245,34 +245,34 @@ class SlerpTest {
         }
     }
 
-    private void checkSlerpCombination(Quaternion start, Quaternion end) {
-        Slerp slerp = new Slerp(start, end);
+    private void checkSlerpCombination(final Quaternion start, final Quaternion end) {
+        final Slerp slerp = new Slerp(start, end);
 
-        double[] vec = {1, 2, 3};
-        double vecNorm = norm(vec);
+        final double[] vec = {1, 2, 3};
+        final double vecNorm = norm(vec);
 
-        double[] startVec = transformVector(start, vec);
-        double[] endVec = transformVector(end, vec);
+        final double[] startVec = transformVector(start, vec);
+        final double[] endVec = transformVector(end, vec);
 
         // check start and end values
         Assertions.assertArrayEquals(startVec, transformVector(slerp.apply(0), vec), EPS);
         Assertions.assertArrayEquals(endVec, transformVector(slerp.apply(1), vec), EPS);
 
         // check intermediate values
-        double prevAngle = -1;
+        final double prevAngle = -1;
         final int numSteps = 100;
         final double delta = 1.0 / numSteps;
         for (int step = 0; step <= numSteps; ++step) {
             final double t = step * delta;
-            Quaternion result = slerp.apply(t);
+            final Quaternion result = slerp.apply(t);
 
-            double[] slerpVec = transformVector(result, vec);
+            final double[] slerpVec = transformVector(result, vec);
 
             // the transformation should not effect the vector magnitude
             Assertions.assertEquals(vecNorm, norm(slerpVec), EPS);
 
             // make sure that we're steadily progressing to the end angle
-            double angle = angle(slerpVec, startVec);
+            final double angle = angle(slerpVec, startVec);
             Assertions.assertTrue(Precision.compareTo(angle, prevAngle, EPS) >= 0,
                     "Expected slerp angle to continuously increase; previous angle was " +
                             prevAngle + " and new angle is " + angle);
@@ -282,25 +282,25 @@ class SlerpTest {
     @Test
     void testVectorTransform_tOutsideOfZeroToOne_() {
         // arrange
-        double angle1 = Math.PI * 0.25;
-        double angle2 = Math.PI * 0.75;
+        final double angle1 = Math.PI * 0.25;
+        final double angle2 = Math.PI * 0.75;
 
-        double halfAngle1 = 0.5 * angle1;
-        double halfAngle2 = 0.5 * angle2;
+        final double halfAngle1 = 0.5 * angle1;
+        final double halfAngle2 = 0.5 * angle2;
 
-        Quaternion q1 = Quaternion.of(Math.cos(halfAngle1), 0, 0, Math.sin(halfAngle1)); // pi/4 around +z
-        Quaternion q2 = Quaternion.of(Math.cos(halfAngle2), 0, 0, Math.sin(halfAngle2)); // 3pi/4 around +z
+        final Quaternion q1 = Quaternion.of(Math.cos(halfAngle1), 0, 0, Math.sin(halfAngle1)); // pi/4 around +z
+        final Quaternion q2 = Quaternion.of(Math.cos(halfAngle2), 0, 0, Math.sin(halfAngle2)); // 3pi/4 around +z
 
-        double[] vec = new double[] {1, 0, 0};
+        final double[] vec = new double[] {1, 0, 0};
 
         // act/assert
-        Slerp slerp12 = new Slerp(q1, q2);
+        final Slerp slerp12 = new Slerp(q1, q2);
         Assertions.assertArrayEquals(new double[] {1, 0, 0}, transformVector(slerp12.apply(-4.5), vec), EPS);
         Assertions.assertArrayEquals(new double[] {1, 0, 0}, transformVector(slerp12.apply(-0.5), vec), EPS);
         Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp12.apply(1.5), vec), EPS);
         Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp12.apply(5.5), vec), EPS);
 
-        Slerp slerp21 = new Slerp(q2, q1);
+        final Slerp slerp21 = new Slerp(q2, q1);
         Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp21.apply(-4.5), vec), EPS);
         Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp21.apply(-0.5), vec), EPS);
         Assertions.assertArrayEquals(new double[] {1, 0, 0}, transformVector(slerp21.apply(1.5), vec), EPS);
@@ -313,7 +313,7 @@ class SlerpTest {
      * @return
      */
     private static Quaternion createZRotation(final double theta) {
-        double halfAngle = theta * 0.5;
+        final double halfAngle = theta * 0.5;
 
         return Quaternion.of(Math.cos(halfAngle), 0, 0, Math.sin(halfAngle));
     }
@@ -323,7 +323,7 @@ class SlerpTest {
      * @param vec
      * @return
      */
-    private static double norm(double[] vec) {
+    private static double norm(final double[] vec) {
         double sum = 0.0;
         for (int i = 0; i < vec.length; ++i) {
             sum += vec[i] * vec[i];
@@ -337,8 +337,8 @@ class SlerpTest {
      * @param b
      * @return
      */
-    private static double angle(double[] a, double[] b) {
-        double cos = dot(a, b) / (norm(a) * norm(b));
+    private static double angle(final double[] a, final double[] b) {
+        final double cos = dot(a, b) / (norm(a) * norm(b));
         return Math.acos(cos);
     }
 
@@ -349,7 +349,7 @@ class SlerpTest {
      * @param b
      * @return
      */
-    private static double dot(double[] a, double[] b) {
+    private static double dot(final double[] a, final double[] b) {
         double result = 0.0;
         for (int i = 0; i < a.length; ++i) {
             result += a[i] * b[i];
@@ -365,11 +365,11 @@ class SlerpTest {
      * @param vec the 3D vector to transform
      * @return the transformed 3D vector
      */
-    private static double[] transformVector(Quaternion q, double[] vec) {
-        Quaternion qVec = Quaternion.of(0, vec[0], vec[1], vec[2]);
-        Quaternion qConj = q.conjugate();
+    private static double[] transformVector(final Quaternion q, final double[] vec) {
+        final Quaternion qVec = Quaternion.of(0, vec[0], vec[1], vec[2]);
+        final Quaternion qConj = q.conjugate();
 
-        Quaternion result = q.multiply(qVec).multiply(qConj);
+        final Quaternion result = q.multiply(qVec).multiply(qConj);
 
         return new double[] {result.getX(), result.getY(), result.getZ()};
     }
@@ -379,8 +379,8 @@ class SlerpTest {
      * @param expected
      * @param actual
      */
-    private static void assertQuaternion(Quaternion expected, Quaternion actual) {
-        String msg = "Expected quaternion to equal " + expected + " but was " + actual;
+    private static void assertQuaternion(final Quaternion expected, final Quaternion actual) {
+        final String msg = "Expected quaternion to equal " + expected + " but was " + actual;
 
         Assertions.assertEquals(expected.getW(), actual.getW(), EPS, msg);
         Assertions.assertEquals(expected.getX(), actual.getX(), EPS, msg);

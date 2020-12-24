@@ -107,7 +107,7 @@ public final class Precision {
      * @return 0 if the value are considered equal, -1 if the first is smaller than
      * the second, 1 is the first is larger than the second.
      */
-    public static int compareTo(double x, double y, double eps) {
+    public static int compareTo(final double x, final double y, final double eps) {
         if (equals(x, y, eps)) {
             return 0;
         } else if (x < y) {
@@ -162,7 +162,7 @@ public final class Precision {
      * @param y second value
      * @return {@code true} if the values are equal.
      */
-    public static boolean equals(float x, float y) {
+    public static boolean equals(final float x, final float y) {
         return equals(x, y, 1);
     }
 
@@ -174,7 +174,7 @@ public final class Precision {
      * @param y second value
      * @return {@code true} if the values are equal or both are NaN.
      */
-    public static boolean equalsIncludingNaN(float x, float y) {
+    public static boolean equalsIncludingNaN(final float x, final float y) {
         final boolean xIsNan = Float.isNaN(x);
         final boolean yIsNan = Float.isNaN(y);
         // Combine the booleans with bitwise OR
@@ -194,7 +194,7 @@ public final class Precision {
      * @param eps the amount of absolute error to allow.
      * @return {@code true} if the values are equal or within range of each other.
      */
-    public static boolean equals(float x, float y, float eps) {
+    public static boolean equals(final float x, final float y, final float eps) {
         return equals(x, y, 1) || Math.abs(y - x) <= eps;
     }
 
@@ -209,7 +209,7 @@ public final class Precision {
      * @return {@code true} if the values are equal or within range of each other,
      * or both are NaN.
      */
-    public static boolean equalsIncludingNaN(float x, float y, float eps) {
+    public static boolean equalsIncludingNaN(final float x, final float y, final float eps) {
         return equalsIncludingNaN(x, y, 1) || (Math.abs(y - x) <= eps);
     }
 
@@ -277,7 +277,7 @@ public final class Precision {
      * @return {@code true} if both arguments are NaN or if there are less than
      * {@code maxUlps} floating point values between {@code x} and {@code y}.
      */
-    public static boolean equalsIncludingNaN(float x, float y, int maxUlps) {
+    public static boolean equalsIncludingNaN(final float x, final float y, final int maxUlps) {
         final boolean xIsNan = Float.isNaN(x);
         final boolean yIsNan = Float.isNaN(y);
         // Combine the booleans with bitwise OR
@@ -294,7 +294,7 @@ public final class Precision {
      * @param y second value
      * @return {@code true} if the values are equal.
      */
-    public static boolean equals(double x, double y) {
+    public static boolean equals(final double x, final double y) {
         return equals(x, y, 1);
     }
 
@@ -306,7 +306,7 @@ public final class Precision {
      * @param y second value
      * @return {@code true} if the values are equal or both are NaN.
      */
-    public static boolean equalsIncludingNaN(double x, double y) {
+    public static boolean equalsIncludingNaN(final double x, final double y) {
         final boolean xIsNan = Double.isNaN(x);
         final boolean yIsNan = Double.isNaN(y);
         // Combine the booleans with bitwise OR
@@ -326,7 +326,7 @@ public final class Precision {
      * @param eps Amount of allowed absolute error.
      * @return {@code true} if the values are equal or within range of each other.
      */
-    public static boolean equals(double x, double y, double eps) {
+    public static boolean equals(final double x, final double y, final double eps) {
         return equals(x, y, 1) || Math.abs(y - x) <= eps;
     }
 
@@ -342,7 +342,7 @@ public final class Precision {
      * @return {@code true} if the values are two adjacent floating point
      * numbers or they are within range of each other.
      */
-    public static boolean equalsWithRelativeTolerance(double x, double y, double eps) {
+    public static boolean equalsWithRelativeTolerance(final double x, final double y, final double eps) {
         if (equals(x, y, 1)) {
             return true;
         }
@@ -364,7 +364,7 @@ public final class Precision {
      * @return {@code true} if the values are equal or within range of each other,
      * or both are NaN.
      */
-    public static boolean equalsIncludingNaN(double x, double y, double eps) {
+    public static boolean equalsIncludingNaN(final double x, final double y, final double eps) {
         return equalsIncludingNaN(x, y) || (Math.abs(y - x) <= eps);
     }
 
@@ -432,7 +432,7 @@ public final class Precision {
      * @return {@code true} if both arguments are NaN or if there are less than
      * {@code maxUlps} floating point values between {@code x} and {@code y}.
      */
-    public static boolean equalsIncludingNaN(double x, double y, int maxUlps) {
+    public static boolean equalsIncludingNaN(final double x, final double y, final int maxUlps) {
         final boolean xIsNan = Double.isNaN(x);
         final boolean yIsNan = Double.isNaN(y);
         // Combine the booleans with bitwise OR
@@ -449,7 +449,7 @@ public final class Precision {
      * @param scale Number of digits to the right of the decimal point.
      * @return the rounded value.
      */
-    public static double round(double x, int scale) {
+    public static double round(final double x, final int scale) {
         return round(x, scale, RoundingMode.HALF_UP);
     }
 
@@ -468,16 +468,16 @@ public final class Precision {
      * {@link RoundingMode#UNNECESSARY} and the specified scaling operation
      * would require rounding.
      */
-    public static double round(double x,
-                               int scale,
-                               RoundingMode roundingMethod) {
+    public static double round(final double x,
+                               final int scale,
+                               final RoundingMode roundingMethod) {
         try {
             final double rounded = (new BigDecimal(Double.toString(x))
                    .setScale(scale, roundingMethod))
                    .doubleValue();
             // MATH-1089: negative values rounded to zero should result in negative zero
             return rounded == POSITIVE_ZERO ? POSITIVE_ZERO * x : rounded;
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             if (Double.isInfinite(x)) {
                 return x;
             }
@@ -496,8 +496,8 @@ public final class Precision {
      * @return the machine-representable floating number closest to the
      * difference between {@code x + delta} and {@code x}.
      */
-    public static double representableDelta(double x,
-                                            double delta) {
+    public static double representableDelta(final double x,
+                                            final double delta) {
         return x + delta - x;
     }
 }

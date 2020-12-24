@@ -40,8 +40,8 @@ public final class FactorialDouble {
      * @param cache Cached values.
      * @throw IllegalArgumentException if {@code n < 0}.
      */
-    private FactorialDouble(int numValues,
-                            double[] cache) {
+    private FactorialDouble(final int numValues,
+                            final double[] cache) {
         if (numValues < 0) {
             throw new CombinatoricsException(CombinatoricsException.NEGATIVE, numValues);
         }
@@ -54,7 +54,7 @@ public final class FactorialDouble {
         }
 
         final int beginCopy = 2;
-        int endCopy;
+        final int endCopy;
         if (cache == null || cache.length <= beginCopy) {
             endCopy = beginCopy;
         } else if (cache.length <= numValues) {
@@ -106,7 +106,7 @@ public final class FactorialDouble {
      * @return {@code n!}
      * @throws IllegalArgumentException if {@code n < 0}.
      */
-    public double value(int n) {
+    public double value(final int n) {
         if (n < FACTORIALS_LONG_CACHE_SIZE) {
             return Factorial.value(n);
         }
@@ -123,7 +123,7 @@ public final class FactorialDouble {
      * @param n Argument.
      * @return {@code n!} (approximated as a {@code double}).
      */
-    private double compute(int n) {
+    private double compute(final int n) {
         int start = 2;
         double result = 1;
 

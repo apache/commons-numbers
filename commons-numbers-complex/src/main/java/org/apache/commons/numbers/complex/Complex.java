@@ -252,7 +252,7 @@ public final class Complex implements Serializable  {
      * @param real Real part.
      * @param imaginary Imaginary part.
      */
-    private Complex(double real, double imaginary) {
+    private Complex(final double real, final double imaginary) {
         this.real = real;
         this.imaginary = imaginary;
     }
@@ -264,7 +264,7 @@ public final class Complex implements Serializable  {
      * @param imaginary Imaginary part.
      * @return {@code Complex} number.
      */
-    public static Complex ofCartesian(double real, double imaginary) {
+    public static Complex ofCartesian(final double real, final double imaginary) {
         return new Complex(real, imaginary);
     }
 
@@ -308,7 +308,7 @@ public final class Complex implements Serializable  {
      * @return {@code Complex} number.
      * @see <a href="http://mathworld.wolfram.com/PolarCoordinates.html">Polar Coordinates</a>
      */
-    public static Complex ofPolar(double rho, double theta) {
+    public static Complex ofPolar(final double rho, final double theta) {
         // Require finite theta and non-negative, non-nan rho
         if (!Double.isFinite(theta) || negative(rho) || Double.isNaN(rho)) {
             return NAN;
@@ -327,7 +327,7 @@ public final class Complex implements Serializable  {
      * @return {@code Complex} cis number.
      * @see <a href="http://mathworld.wolfram.com/Cis.html">Cis</a>
      */
-    public static Complex ofCis(double x) {
+    public static Complex ofCis(final double x) {
         return new Complex(Math.cos(x), Math.sin(x));
     }
 
@@ -359,7 +359,7 @@ public final class Complex implements Serializable  {
      * @see Double#parseDouble(String)
      * @see #toString()
      */
-    public static Complex parse(String s) {
+    public static Complex parse(final String s) {
         final int len = s.length();
         if (len < FORMAT_MIN_LEN) {
             throw new NumberFormatException(
@@ -426,9 +426,9 @@ public final class Complex implements Serializable  {
      * @param s String representation.
      * @return A message.
      */
-    private static String parsingExceptionMsg(String message,
-                                              Object error,
-                                              String s) {
+    private static String parsingExceptionMsg(final String message,
+                                              final Object error,
+                                              final String s) {
         final StringBuilder sb = new StringBuilder(100)
             .append(message)
             .append(" '").append(error)
@@ -533,7 +533,7 @@ public final class Complex implements Serializable  {
      * @param imaginary Imaginary part.
      * @return The absolute value.
      */
-    private static double abs(double real, double imaginary) {
+    private static double abs(final double real, final double imaginary) {
         // Specialised implementation of hypot.
         // See NUMBERS-143
         return hypot(real, imaginary);
@@ -701,7 +701,7 @@ public final class Complex implements Serializable  {
      * @return {@code this + addend}.
      * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
      */
-    public Complex add(Complex addend) {
+    public Complex add(final Complex addend) {
         return new Complex(real + addend.real,
                            imaginary + addend.imaginary);
     }
@@ -726,7 +726,7 @@ public final class Complex implements Serializable  {
      * @see #add(Complex)
      * @see #ofCartesian(double, double)
      */
-    public Complex add(double addend) {
+    public Complex add(final double addend) {
         return new Complex(real + addend, imaginary);
     }
 
@@ -750,7 +750,7 @@ public final class Complex implements Serializable  {
      * @see #add(Complex)
      * @see #ofCartesian(double, double)
      */
-    public Complex addImaginary(double addend) {
+    public Complex addImaginary(final double addend) {
         return new Complex(real, imaginary + addend);
     }
 
@@ -764,7 +764,7 @@ public final class Complex implements Serializable  {
      * @return {@code this - subtrahend}.
      * @see <a href="http://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
      */
-    public Complex subtract(Complex subtrahend) {
+    public Complex subtract(final Complex subtrahend) {
         return new Complex(real - subtrahend.real,
                            imaginary - subtrahend.imaginary);
     }
@@ -783,7 +783,7 @@ public final class Complex implements Serializable  {
      * @return {@code this - subtrahend}.
      * @see #subtract(Complex)
      */
-    public Complex subtract(double subtrahend) {
+    public Complex subtract(final double subtrahend) {
         return new Complex(real - subtrahend, imaginary);
     }
 
@@ -801,7 +801,7 @@ public final class Complex implements Serializable  {
      * @return {@code this - subtrahend}.
      * @see #subtract(Complex)
      */
-    public Complex subtractImaginary(double subtrahend) {
+    public Complex subtractImaginary(final double subtrahend) {
         return new Complex(real, imaginary - subtrahend);
     }
 
@@ -824,7 +824,7 @@ public final class Complex implements Serializable  {
      * @see #subtract(Complex)
      * @see #ofCartesian(double, double)
      */
-    public Complex subtractFrom(double minuend) {
+    public Complex subtractFrom(final double minuend) {
         return new Complex(minuend - real, -imaginary);
     }
 
@@ -847,7 +847,7 @@ public final class Complex implements Serializable  {
      * @see #subtract(Complex)
      * @see #ofCartesian(double, double)
      */
-    public Complex subtractFromImaginary(double minuend) {
+    public Complex subtractFromImaginary(final double minuend) {
         return new Complex(-real, minuend - imaginary);
     }
 
@@ -863,7 +863,7 @@ public final class Complex implements Serializable  {
      * @return {@code this * factor}.
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
-    public Complex multiply(Complex factor) {
+    public Complex multiply(final Complex factor) {
         return multiply(real, imaginary, factor.real, factor.imaginary);
     }
 
@@ -880,7 +880,7 @@ public final class Complex implements Serializable  {
      * @param im2 Imaginary component of second number.
      * @return (a + b i)(c + d i).
      */
-    private static Complex multiply(double re1, double im1, double re2, double im2) {
+    private static Complex multiply(final double re1, final double im1, final double re2, final double im2) {
         double a = re1;
         double b = im1;
         double c = re2;
@@ -961,7 +961,7 @@ public final class Complex implements Serializable  {
      * @param component the component
      * @return The boxed value
      */
-    private static double boxInfinity(double component) {
+    private static double boxInfinity(final double component) {
         return Math.copySign(Double.isInfinite(component) ? 1.0 : 0.0, component);
     }
 
@@ -972,7 +972,7 @@ public final class Complex implements Serializable  {
      * @param imaginary the imaginary component
      * @return true if the complex is not zero
      */
-    private static boolean isNotZero(double real, double imaginary) {
+    private static boolean isNotZero(final double real, final double imaginary) {
         // The use of equals is deliberate.
         // This method must distinguish NaN from zero thus ruling out:
         // (real != 0.0 || imaginary != 0.0)
@@ -985,7 +985,7 @@ public final class Complex implements Serializable  {
      * @param value the value
      * @return The new value
      */
-    private static double changeNaNtoZero(double value) {
+    private static double changeNaNtoZero(final double value) {
         return Double.isNaN(value) ? Math.copySign(0.0, value) : value;
     }
 
@@ -1010,7 +1010,7 @@ public final class Complex implements Serializable  {
      * @return {@code this * factor}.
      * @see #multiply(Complex)
      */
-    public Complex multiply(double factor) {
+    public Complex multiply(final double factor) {
         return new Complex(real * factor, imaginary * factor);
     }
 
@@ -1042,7 +1042,7 @@ public final class Complex implements Serializable  {
      * @return {@code this * factor}.
      * @see #multiply(Complex)
      */
-    public Complex multiplyImaginary(double factor) {
+    public Complex multiplyImaginary(final double factor) {
         return new Complex(-imaginary * factor, real * factor);
     }
 
@@ -1058,7 +1058,7 @@ public final class Complex implements Serializable  {
      * @return {@code this / divisor}.
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
-    public Complex divide(Complex divisor) {
+    public Complex divide(final Complex divisor) {
         return divide(real, imaginary, divisor.real, divisor.imaginary);
     }
 
@@ -1087,7 +1087,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      * @see #divide(double)
      */
-    private static Complex divide(double re1, double im1, double re2, double im2) {
+    private static Complex divide(final double re1, final double im1, final double re2, final double im2) {
         double a = re1;
         double b = im1;
         double c = re2;
@@ -1166,7 +1166,7 @@ public final class Complex implements Serializable  {
      * @return {@code this / divisor}.
      * @see #divide(Complex)
      */
-    public Complex divide(double divisor) {
+    public Complex divide(final double divisor) {
         return new Complex(real / divisor, imaginary / divisor);
     }
 
@@ -1200,7 +1200,7 @@ public final class Complex implements Serializable  {
      * @see #divide(Complex)
      * @see #divide(double)
      */
-    public Complex divideImaginary(double divisor) {
+    public Complex divideImaginary(final double divisor) {
         return new Complex(imaginary / divisor, -real / divisor);
     }
 
@@ -1241,7 +1241,7 @@ public final class Complex implements Serializable  {
     public Complex exp() {
         if (Double.isInfinite(real)) {
             // Set the scale factor applied to cis(y)
-            double zeroOrInf;
+            final double zeroOrInf;
             if (real < 0) {
                 if (!Double.isFinite(imaginary)) {
                     // (−∞ + i∞) or (−∞ + iNaN) returns (±0 ± i0) (where the signs of the
@@ -1383,7 +1383,8 @@ public final class Complex implements Serializable  {
      * @see #abs()
      * @see #arg()
      */
-    private Complex log(DoubleUnaryOperator log, double logOfeOver2, double logOf2, ComplexConstructor constructor) {
+    private Complex log(final DoubleUnaryOperator log, final double logOfeOver2, final double logOf2,
+                        final ComplexConstructor constructor) {
         // Handle NaN
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             // Return NaN unless infinite
@@ -1482,7 +1483,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://mathworld.wolfram.com/ComplexExponentiation.html">Complex exponentiation</a>
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
-    public Complex pow(Complex x) {
+    public Complex pow(final Complex x) {
         if (real == 0 &&
             imaginary == 0) {
             // This value is zero. Test the other.
@@ -1515,7 +1516,7 @@ public final class Complex implements Serializable  {
      * @see #pow(Complex)
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
-    public Complex pow(double x) {
+    public Complex pow(final double x) {
         if (real == 0 &&
             imaginary == 0) {
             // This value is zero. Test the other.
@@ -1587,7 +1588,7 @@ public final class Complex implements Serializable  {
      * @param imaginary Imaginary component.
      * @return The square root of the complex number.
      */
-    private static Complex sqrt(double real, double imaginary) {
+    private static Complex sqrt(final double real, final double imaginary) {
         // Handle NaN
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             // Check for infinite
@@ -1608,7 +1609,7 @@ public final class Complex implements Serializable  {
         final double y = Math.abs(imaginary);
 
         // Compute
-        double t;
+        final double t;
 
         // This alters the implementation of Hull et al (1994) which used a standard
         // precision representation of |z|: sqrt(x*x + y*y).
@@ -1655,9 +1656,9 @@ public final class Complex implements Serializable  {
                 // a = sqrt(b)
                 // a = sqrt(b/4) * sqrt(4)
 
-                double rescale;
-                double sx;
-                double sy;
+                final double rescale;
+                final double sx;
+                final double sy;
                 if (Math.max(x, y) > SQRT_SAFE_UPPER) {
                     // Overflow. Scale down by 16 and rescale by sqrt(16).
                     sx = x / 16;
@@ -1829,8 +1830,8 @@ public final class Complex implements Serializable  {
         final double x = Math.abs(real);
         final double y = Math.abs(imaginary);
         // The result (without sign correction)
-        double re;
-        double im;
+        final double re;
+        final double im;
 
         // Handle C99 special cases
         if (Double.isNaN(x)) {
@@ -1886,7 +1887,7 @@ public final class Complex implements Serializable  {
                 }
 
                 if (a <= A_CROSSOVER) {
-                    double am1;
+                    final double am1;
                     if (x < 1) {
                         am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
                     } else {
@@ -2023,8 +2024,8 @@ public final class Complex implements Serializable  {
         final double x = Math.abs(real);
         final double y = Math.abs(imaginary);
         // The result (without sign correction)
-        double re;
-        double im;
+        final double re;
+        final double im;
 
         // Handle C99 special cases
         if (isPosInfinite(x)) {
@@ -2077,7 +2078,7 @@ public final class Complex implements Serializable  {
                 }
 
                 if (a <= A_CROSSOVER) {
-                    double am1;
+                    final double am1;
                     if (x < 1) {
                         am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
                     } else {
@@ -2210,7 +2211,7 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return The hyperbolic sine of the complex number.
      */
-    private static Complex sinh(double real, double imaginary, ComplexConstructor constructor) {
+    private static Complex sinh(final double real, final double imaginary, final ComplexConstructor constructor) {
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
             return constructor.create(real, Double.NaN);
         }
@@ -2291,7 +2292,7 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return The hyperbolic cosine of the complex number.
      */
-    private static Complex cosh(double real, double imaginary, ComplexConstructor constructor) {
+    private static Complex cosh(final double real, final double imaginary, final ComplexConstructor constructor) {
         // ISO C99: Preserve the even function by mapping to positive
         // f(z) = f(-z)
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
@@ -2346,8 +2347,8 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return The hyperbolic sine/cosine of the complex number.
      */
-    private static Complex coshsinh(double x, double real, double imaginary, boolean sinh,
-                                    ComplexConstructor constructor) {
+    private static Complex coshsinh(final double x, final double real, final double imaginary, final boolean sinh,
+                                    final ComplexConstructor constructor) {
         // Always require the cos and sin.
         double re = Math.cos(imaginary);
         double im = Math.sin(imaginary);
@@ -2371,7 +2372,7 @@ public final class Complex implements Serializable  {
             // Initial part of (e^x / 2) using (e^m / 2)
             re *= EXP_M / 2;
             im *= EXP_M / 2;
-            double xm;
+            final double xm;
             if (x > SAFE_EXP * 2) {
                 // e^x = e^m * e^m * e^(x-2m)
                 re *= EXP_M;
@@ -2447,7 +2448,7 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return The hyperbolic tangent of the complex number.
      */
-    private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
+    private static Complex tanh(final double real, final double imaginary, final ComplexConstructor constructor) {
         // Cache the absolute real value
         final double x = Math.abs(real);
 
@@ -2776,7 +2777,7 @@ public final class Complex implements Serializable  {
                 // The denominator for atan2 is 1 - x^2 - y^2.
                 // This can be made more precise if |x| > |y|.
                 final double numerator = 2 * y;
-                double denominator;
+                final double denominator;
                 if (x < y) {
                     final double tmp = x;
                     x = y;
@@ -2895,7 +2896,7 @@ public final class Complex implements Serializable  {
      * @param y the y value
      * @return {@code x^2 + y^2 - 1}.
      */
-    private static double x2y2m1(double x, double y) {
+    private static double x2y2m1(final double x, final double y) {
         // Hull et al used (x-1)*(x+1)+y*y.
         // From the paper on page 236:
 
@@ -2967,7 +2968,7 @@ public final class Complex implements Serializable  {
      * @see <a href="https://doi.org/10.1007/BF01397083">
      * Dekker (1971) A floating-point technique for extending the available precision</a>
      */
-    private static double splitHigh(double a) {
+    private static double splitHigh(final double a) {
         final double c = MULTIPLIER * a;
         return c - (c - a);
     }
@@ -2988,7 +2989,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 18</a>
      */
-    private static double squareLow(double low, double high, double square) {
+    private static double squareLow(final double low, final double high, final double square) {
         final double lh = low * high;
         return low * low - (((square - high * high) - lh) - lh);
     }
@@ -3005,7 +3006,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
-    private static double fastSumLow(double a, double b, double x) {
+    private static double fastSumLow(final double a, final double b, final double x) {
         // x = a + b
         // bVirtual = x - a
         // y = b - bVirtual
@@ -3023,7 +3024,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 7</a>
      */
-    private static double sumLow(double a, double b, double x) {
+    private static double sumLow(final double a, final double b, final double x) {
         // x = a + b
         // bVirtual = x - a
         // aVirtual = x - bVirtual
@@ -3047,7 +3048,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 12</a>
      */
-    private static double sumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
+    private static double sumx2y2m1(final double x2High, final double x2Low, final double y2High, final double y2Low) {
         // Let e and f be non-overlapping expansions of components of length m and n.
         // The following algorithm will produce a non-overlapping expansion h where the
         // sum h_i = e + f and components of h are in increasing order of magnitude.
@@ -3134,7 +3135,7 @@ public final class Complex implements Serializable  {
      * @throws IllegalArgumentException if {@code n} is zero.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Root/">Root</a>
      */
-    public List<Complex> nthRoot(int n) {
+    public List<Complex> nthRoot(final int n) {
         if (n == 0) {
             throw new IllegalArgumentException("cannot compute zeroth root");
         }
@@ -3210,7 +3211,7 @@ public final class Complex implements Serializable  {
      * @see java.util.Arrays#equals(double[], double[])
      */
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (this == other) {
             return true;
         }
@@ -3271,7 +3272,7 @@ public final class Complex implements Serializable  {
      * @param y Value
      * @return {@code Double.valueof(x).equals(Double.valueOf(y))}.
      */
-    private static boolean equals(double x, double y) {
+    private static boolean equals(final double x, final double y) {
         return Double.doubleToLongBits(x) == Double.doubleToLongBits(y);
     }
 
@@ -3287,7 +3288,7 @@ public final class Complex implements Serializable  {
      * @param d Value.
      * @return {@code true} if {@code d} is negative.
      */
-    private static boolean negative(double d) {
+    private static boolean negative(final double d) {
         return d < 0 || Double.doubleToLongBits(d) == NEGATIVE_ZERO_LONG_BITS;
     }
 
@@ -3299,19 +3300,19 @@ public final class Complex implements Serializable  {
      * @param d Value.
      * @return {@code true} if {@code d} is +inf.
      */
-    private static boolean isPosInfinite(double d) {
+    private static boolean isPosInfinite(final double d) {
         return d == Double.POSITIVE_INFINITY;
     }
 
     /**
-     * Check that an absolute value is finite. Used to replace {@link Double#isFinite()}
+     * Check that an absolute value is finite. Used to replace {@link Double#isFinite(double)}
      * when the input value is known to be positive (i.e. in the case where it has been
      * set using {@link Math#abs(double)}).
      *
      * @param d Value.
      * @return {@code true} if {@code d} is +finite.
      */
-    private static boolean isPosFinite(double d) {
+    private static boolean isPosFinite(final double d) {
         return d <= Double.MAX_VALUE;
     }
 
@@ -3327,7 +3328,7 @@ public final class Complex implements Serializable  {
      * @param imaginary Imaginary part.
      * @return {@code Complex} object.
      */
-    private static Complex multiplyNegativeI(double real, double imaginary) {
+    private static Complex multiplyNegativeI(final double real, final double imaginary) {
         return new Complex(imaginary, -real);
     }
 
@@ -3348,7 +3349,7 @@ public final class Complex implements Serializable  {
      * @return magnitude or -magnitude.
      * @see #negative(double)
      */
-    private static double changeSign(double magnitude, double signedValue) {
+    private static double changeSign(final double magnitude, final double signedValue) {
         return negative(signedValue) ? -magnitude : magnitude;
     }
 
@@ -3387,7 +3388,7 @@ public final class Complex implements Serializable  {
      * @see Math#scalb(double, int)
      * @see <a href="http://www.cplusplus.com/reference/cmath/ilogb/">ilogb</a>
      */
-    private static int getScale(double a, double b) {
+    private static int getScale(final double a, final double b) {
         // Only interested in the exponent and mantissa so remove the sign bit
         final long x = Double.doubleToRawLongBits(a) & UNSIGN_MASK;
         final long y = Double.doubleToRawLongBits(b) & UNSIGN_MASK;
@@ -3434,7 +3435,7 @@ public final class Complex implements Serializable  {
      * @see Math#getExponent(double)
      * @see #divide(double, double, double, double)
      */
-    private static int getMaxExponent(double a, double b) {
+    private static int getMaxExponent(final double a, final double b) {
         // This could return:
         // Math.getExponent(Math.max(Math.abs(a), Math.abs(b)))
         // A speed test is required to determine performance.
@@ -3450,7 +3451,7 @@ public final class Complex implements Serializable  {
      * @param max the maximum (exclusive).
      * @return true if inside the region.
      */
-    private static boolean inRegion(double x, double y, double min, double max) {
+    private static boolean inRegion(final double x, final double y, final double min, final double max) {
         return (x < max) && (x > min) && (y < max) && (y > min);
     }
 
@@ -3516,7 +3517,7 @@ public final class Complex implements Serializable  {
      * @see <a href="https://www.netlib.org/fdlibm/e_hypot.c">fdlibm e_hypot.c</a>
      * @see <a href="https://bugs.java.com/bugdatabase/view_bug.do?bug_id=7130085">JDK-7130085 : Port fdlibm hypot to Java</a>
      */
-    private static double hypot(double x, double y) {
+    private static double hypot(final double x, final double y) {
         // Differences to the fdlibm reference:
         //
         // 1. fdlibm orders the two parts using the magnitude of the upper 32-bits.
@@ -3564,8 +3565,8 @@ public final class Complex implements Serializable  {
         double a;
         double b;
         /* High word of x & y */
-        int ha;
-        int hb;
+        final int ha;
+        final int hb;
         if (ybits > xbits) {
             a = y;
             b = x;
@@ -3645,7 +3646,7 @@ public final class Complex implements Serializable  {
      * @see <a href="https://doi.org/10.1007/BF01397083">
      * Dekker (1971) A floating-point technique for extending the available precision</a>
      */
-    private static double x2y2(double x, double y) {
+    private static double x2y2(final double x, final double y) {
         // Note:
         // This method is different from the high-accuracy summation used in fdlibm for hypot.
         // The summation could be any valid computation of x^2+y^2. However since this follows

@@ -39,7 +39,7 @@ class SolverException extends IllegalArgumentException {
      * @param message  the exception message with replaceable parameters
      * @param formatArguments the arguments for formatting the message
      */
-    SolverException(String message, Object... formatArguments) {
+    SolverException(final String message, final Object... formatArguments) {
         super(MessageFormat.format(message, formatArguments));
     }
 }

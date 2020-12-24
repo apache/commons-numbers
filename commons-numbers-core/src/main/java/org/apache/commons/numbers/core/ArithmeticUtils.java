@@ -66,13 +66,13 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
      */
-    public static int gcd(int p, int q) {
+    public static int gcd(final int p, final int q) {
         // Perform the gcd algorithm on negative numbers, so that -2^31 does not
         // need to be handled separately
         int a = p > 0 ? -p : p;
         int b = q > 0 ? -q : q;
 
-        int negatedGcd;
+        final int negatedGcd;
         if (a == 0) {
             negatedGcd = b;
         } else if (b == 0) {
@@ -218,7 +218,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
      */
-    public static int lcm(int a, int b) {
+    public static int lcm(final int a, final int b) {
         if (a == 0 || b == 0) {
             return 0;
         }
@@ -251,7 +251,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented
      * as a non-negative {@code long} value.
      */
-    public static long lcm(long a, long b) {
+    public static long lcm(final long a, final long b) {
         if (a == 0 || b == 0) {
             return 0;
         }
@@ -391,7 +391,7 @@ public final class ArithmeticUtils {
      * @return k<sup>e</sup>
      * @throws IllegalArgumentException if {@code e < 0}.
      */
-    public static BigInteger pow(final BigInteger k, int e) {
+    public static BigInteger pow(final BigInteger k, final int e) {
         if (e < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
@@ -460,7 +460,7 @@ public final class ArithmeticUtils {
      * @param n the number to test
      * @return true if the argument is a power of two
      */
-    public static boolean isPowerOfTwo(long n) {
+    public static boolean isPowerOfTwo(final long n) {
         return (n > 0) && ((n & (n - 1)) == 0);
     }
 
@@ -475,7 +475,7 @@ public final class ArithmeticUtils {
      * @return the unsigned remainder of the first argument divided by
      * the second argument.
      */
-    public static int remainderUnsigned(int dividend, int divisor) {
+    public static int remainderUnsigned(int dividend, final int divisor) {
         if (divisor >= 0) {
             if (dividend >= 0) {
                 return dividend % divisor;
@@ -503,7 +503,7 @@ public final class ArithmeticUtils {
      * @return the unsigned remainder of the first argument divided by
      * the second argument.
      */
-    public static long remainderUnsigned(long dividend, long divisor) {
+    public static long remainderUnsigned(long dividend, final long divisor) {
         if (divisor >= 0L) {
             if (dividend >= 0L) {
                 return dividend % divisor;
@@ -536,7 +536,7 @@ public final class ArithmeticUtils {
      * @return the unsigned quotient of the first argument divided by
      * the second argument
      */
-    public static int divideUnsigned(int dividend, int divisor) {
+    public static int divideUnsigned(int dividend, final int divisor) {
         if (divisor >= 0) {
             if (dividend >= 0) {
                 return dividend / divisor;
@@ -569,7 +569,7 @@ public final class ArithmeticUtils {
      * @return the unsigned quotient of the first argument divided by
      * the second argument.
      */
-    public static long divideUnsigned(long dividend, long divisor) {
+    public static long divideUnsigned(long dividend, final long divisor) {
         if (divisor >= 0L) {
             if (dividend >= 0L) {
                 return dividend / divisor;
@@ -600,7 +600,7 @@ public final class ArithmeticUtils {
          * the error.
          * @param args Arguments.
          */
-        NumbersArithmeticException(String message, Object... args) {
+        NumbersArithmeticException(final String message, final Object... args) {
             super(MessageFormat.format(message, args));
         }
     }

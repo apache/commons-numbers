@@ -80,10 +80,10 @@ class CReferenceTest {
      * data that has been flagged in data files using the {@code ;} character.
      * Otherwise this data is ignored by testing and printed to System out.
      */
-    private static long globalMaxUlps = 0;
+    private static final long globalMaxUlps = 0;
 
     /** Set this to true to report all deviations to System out when the maximum ULPs is negative. */
-    private static boolean reportAllDeviations = false;
+    private static final boolean reportAllDeviations = false;
 
     /**
      * Assert the two numbers are equal within the provided units of least precision.
@@ -96,15 +96,15 @@ class CReferenceTest {
      * @param actual the actual
      * @param maxUlps the maximum units of least precision between the two values
      */
-    static void assertEquals(Supplier<String> msg, double expected, double actual, long maxUlps) {
+    static void assertEquals(final Supplier<String> msg, final double expected, final double actual, final long maxUlps) {
         final long e = Double.doubleToLongBits(expected);
         final long a = Double.doubleToLongBits(actual);
 
         // Code adapted from Precision#equals(double, double, int) so we maintain the delta
         // for the message.
 
-        long delta;
-        boolean equal;
+        final long delta;
+        final boolean equal;
         if (e == a) {
             // Binary equal
             equal = true;
@@ -160,9 +160,9 @@ class CReferenceTest {
      * @param expected Expected result.
      * @param maxUlps the maximum units of least precision between the two values
      */
-    static void assertComplex(Complex c,
-            String name, UnaryOperator<Complex> operation,
-            Complex expected, long maxUlps) {
+    static void assertComplex(final Complex c,
+                              final String name, final UnaryOperator<Complex> operation,
+                              final Complex expected, final long maxUlps) {
         final Complex z = operation.apply(c);
         assertEquals(() -> c + "." + name + "(): real", expected.real(), z.real(), maxUlps);
         assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), z.imag(), maxUlps);
@@ -184,9 +184,9 @@ class CReferenceTest {
      * @param expected Expected real part.
      * @param maxUlps the maximum units of least precision between the two values
      */
-    static void assertComplex(Complex c1, Complex c2,
-            String name, BiFunction<Complex, Complex, Complex> operation,
-            Complex expected, long maxUlps) {
+    static void assertComplex(final Complex c1, final Complex c2,
+                              final String name, final BiFunction<Complex, Complex, Complex> operation,
+                              final Complex expected, final long maxUlps) {
         final Complex z = operation.apply(c1, c2);
         assertEquals(() -> c1 + "." + name + c2 + ": real", expected.real(), z.real(), maxUlps);
         assertEquals(() -> c1 + "." + name + c2 + ": imaginary", expected.imag(), z.imag(), maxUlps);
@@ -199,8 +199,8 @@ class CReferenceTest {
      * @param operation the operation
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertOperation(String name,
-            UnaryOperator<Complex> operation, long maxUlps) {
+    private static void assertOperation(final String name,
+                                        final UnaryOperator<Complex> operation, final long maxUlps) {
         final List<Complex[]> data = loadTestData(name);
         final long ulps = getTestUlps(maxUlps);
         for (final Complex[] pair : data) {
@@ -215,8 +215,8 @@ class CReferenceTest {
      * @param operation the operation
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertBiOperation(String name,
-            BiFunction<Complex, Complex, Complex> operation, long maxUlps) {
+    private static void assertBiOperation(final String name,
+                                          final BiFunction<Complex, Complex, Complex> operation, final long maxUlps) {
         final List<Complex[]> data = loadTestData(name);
         final long ulps = getTestUlps(maxUlps);
         for (final Complex[] triple : data) {
@@ -227,10 +227,10 @@ class CReferenceTest {
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param testData Test data resource name.
+     * @param name Test data resource name.
      * @return the list
      */
-    private static List<Complex[]> loadTestData(String name) {
+    private static List<Complex[]> loadTestData(final String name) {
         final String testData = "data/" + name + ".txt";
         final TestDataFlagOption option = globalMaxUlps < 1 ?
             TestDataFlagOption.LOAD : TestDataFlagOption.IGNORE;
@@ -247,7 +247,7 @@ class CReferenceTest {
      * @param ulps the ulps
      * @return the test ulps
      */
-    private static long getTestUlps(long ulps) {
+    private static long getTestUlps(final long ulps) {
         // If sign matches use the larger magnitude.
         // xor the sign bytes will be negative if the sign does not match
         if ((globalMaxUlps ^ ulps) >= 0) {

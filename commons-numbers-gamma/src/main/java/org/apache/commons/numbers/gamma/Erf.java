@@ -48,7 +48,7 @@ public final class Erf {
      *
      * @see RegularizedGamma.P#value(double, double, double, int)
      */
-    public static double value(double x) {
+    public static double value(final double x) {
         if (Math.abs(x) > EXTREME_VALUE_BOUND) {
             return x > 0 ? 1 : -1;
         }

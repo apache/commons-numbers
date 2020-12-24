@@ -545,7 +545,7 @@ class GammaTest {
 
         double previousGamma = Gamma.value(-18.5);
         for (double x = -19.5; x > -25; x -= 1.0) {
-            double gamma = Gamma.value(x);
+            final double gamma = Gamma.value(x);
             Assertions.assertEquals((int) Math.signum(previousGamma), -(int) Math.signum(gamma));
 
             previousGamma = gamma;

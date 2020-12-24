@@ -77,9 +77,9 @@ class RegularizedGammaTest {
         testRegularizedGamma(1.0, a, x);
     }
 
-    private void testRegularizedGamma(double expected, double a, double x) {
-        double actualP = RegularizedGamma.P.value(a, x);
-        double actualQ = RegularizedGamma.Q.value(a, x);
+    private void testRegularizedGamma(final double expected, final double a, final double x) {
+        final double actualP = RegularizedGamma.P.value(a, x);
+        final double actualQ = RegularizedGamma.Q.value(a, x);
         Assertions.assertEquals(expected, actualP, 1e-15);
         Assertions.assertEquals(actualP, 1 - actualQ, 1e-15);
     }

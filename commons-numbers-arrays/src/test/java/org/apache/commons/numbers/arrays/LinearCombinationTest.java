@@ -115,7 +115,7 @@ class LinearCombinationTest {
 
     @Test
     void testHuge() {
-        int scale = 971;
+        final int scale = 971;
         final double[] a = new double[] {
             -1321008684645961.0 / 268435456.0,
             -5774608829631843.0 / 268435456.0,

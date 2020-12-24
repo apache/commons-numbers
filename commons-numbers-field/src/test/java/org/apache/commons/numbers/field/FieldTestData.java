@@ -25,10 +25,10 @@ class FieldTestData<T> {
     private final T b;
     private final T c;
 
-    FieldTestData(Field<T> field,
-                  T a,
-                  T b,
-                  T c) {
+    FieldTestData(final Field<T> field,
+                  final T a,
+                  final T b,
+                  final T c) {
         this.field = field;
         this.a = a;
         this.b = b;

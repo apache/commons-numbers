@@ -40,7 +40,7 @@ public final class TestUtils {
      * @param o  object to serialize and recover
      * @return  the recovered, deserialized object
      */
-    public static Object serializeAndRecover(Object o) {
+    public static Object serializeAndRecover(final Object o) {
         try {
             // serialize the Object
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();

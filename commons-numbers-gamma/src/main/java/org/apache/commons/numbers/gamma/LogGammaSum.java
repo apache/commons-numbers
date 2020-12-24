@@ -39,8 +39,8 @@ final class LogGammaSum {
      * @throws IllegalArgumentException if {@code a} or {@code b} is lower than 1
      * or larger than 2.
      */
-    static double value(double a,
-                        double b) {
+    static double value(final double a,
+                        final double b) {
         if (a < 1 ||
             a > 2) {
             throw new GammaException(GammaException.OUT_OF_RANGE, a, 1, 2);

@@ -59,7 +59,7 @@ class PlaneAngleRadiansTest {
                 final double c = PlaneAngleRadians.normalize(a, b);
                 Assertions.assertTrue((b - PlaneAngleRadians.PI) <= c);
                 Assertions.assertTrue(c <= (b + PlaneAngleRadians.PI));
-                double twoK = Math.rint((a - c) / PlaneAngleRadians.PI);
+                final double twoK = Math.rint((a - c) / PlaneAngleRadians.PI);
                 Assertions.assertEquals(c, a - twoK * PlaneAngleRadians.PI, 1e-14);
             }
         }

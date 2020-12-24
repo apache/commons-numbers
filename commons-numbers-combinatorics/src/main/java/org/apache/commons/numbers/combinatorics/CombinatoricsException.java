@@ -39,8 +39,8 @@ class CombinatoricsException extends IllegalArgumentException {
      * @param message Exception message with replaceable parameters.
      * @param formatArguments 1rguments for formatting the message.
      */
-    CombinatoricsException(String message,
-                           Object... formatArguments) {
+    CombinatoricsException(final String message,
+                           final Object... formatArguments) {
         super(MessageFormat.format(message, formatArguments));
     }
 }

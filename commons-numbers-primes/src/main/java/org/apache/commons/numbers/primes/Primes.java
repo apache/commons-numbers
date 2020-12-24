@@ -46,7 +46,7 @@ public final class Primes {
      * @param n Number to test.
      * @return true if {@code n} is prime. All numbers &lt; 2 return false.
      */
-    public static boolean isPrime(int n) {
+    public static boolean isPrime(final int n) {
         if (n < 2) {
             return false;
         }
@@ -106,7 +106,7 @@ public final class Primes {
      * @return the list of prime factors of {@code n}.
      * @throws IllegalArgumentException if n &lt; 2.
      */
-    public static List<Integer> primeFactors(int n) {
+    public static List<Integer> primeFactors(final int n) {
         if (n < 2) {
             throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 2));
         }

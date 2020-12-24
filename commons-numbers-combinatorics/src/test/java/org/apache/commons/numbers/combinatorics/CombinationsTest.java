@@ -164,13 +164,13 @@ class CombinationsTest {
      * @param n Size of the set from which subsets are selected.
      * @param k Size of the subsets to be enumerated.
      */
-    private static void checkLexicographicIterator(int n,
-                                                   int k) {
+    private static void checkLexicographicIterator(final int n,
+                                                   final int k) {
         int[] lastIterate = null;
 
         long numIterates = 0;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
-        for (int[] iterate : Combinations.of(n, k)) {
+        for (final int[] iterate : Combinations.of(n, k)) {
             Assertions.assertEquals(k, iterate.length);
 
             // Check that the sequence of iterates is ordered.
@@ -197,9 +197,9 @@ class CombinationsTest {
      * @param n Size of the set from which subsets are selected.
      * @param k Size of the subsets to be enumerated.
      */
-    private static void checkLexicographicIteratorThrows(int n,
-                                                         int k) {
-        Iterator<int[]> iter = Combinations.of(n, k).iterator();
+    private static void checkLexicographicIteratorThrows(final int n,
+                                                         final int k) {
+        final Iterator<int[]> iter = Combinations.of(n, k).iterator();
 
         // First call
         iter.next();

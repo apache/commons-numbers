@@ -45,7 +45,7 @@ public final class BinomialCoefficient {
      * @throws ArithmeticException if the result is too large to be
      * represented by a {@code long}.
      */
-    public static long value(int n, int k) {
+    public static long value(final int n, final int k) {
         checkBinomial(n, k);
 
         if (n == k ||
@@ -112,8 +112,8 @@ public final class BinomialCoefficient {
      * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code k > n} or {@code k < 0}.
      */
-    static void checkBinomial(int n,
-                              int k) {
+    static void checkBinomial(final int n,
+                              final int k) {
         if (n < 0) {
             throw new CombinatoricsException(CombinatoricsException.NEGATIVE, n);
         }

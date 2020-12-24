@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class DigammaTest {
     @Test
     void testDigammaLargeArgs() {
-        double eps = 1e-8;
+        final double eps = 1e-8;
         Assertions.assertEquals(4.6001618527380874002, Digamma.value(100), eps);
         Assertions.assertEquals(3.9019896734278921970, Digamma.value(50), eps);
         Assertions.assertEquals(2.9705239922421490509, Digamma.value(20), eps);
@@ -46,7 +46,7 @@ class DigammaTest {
         // For example, to compute trigamma($i) = Polygamma(1, $i), use
         //
         // http://functions.wolfram.com/webMathematica/Evaluated.jsp?name=PolyGamma2&plottype=0&vars={%221%22,%22$i%22}&digits=20
-        double[] expected = {-10.423754940411076795, -100.56088545786867450, -1000.5755719318103005,
+        final double[] expected = {-10.423754940411076795, -100.56088545786867450, -1000.5755719318103005,
             -10000.577051183514335, -100000.57719921568107, -1.0000005772140199687e6, -1.0000000577215500408e7,
             -1.0000000057721564845e8, -1.0000000005772156633e9, -1.0000000000577215665e10, -1.0000000000057721566e11,
             -1.0000000000005772157e12, -1.0000000000000577216e13, -1.0000000000000057722e14, -1.0000000000000005772e15, -1e+16,
@@ -73,10 +73,10 @@ class DigammaTest {
         Assertions.assertTrue(Double.isInfinite(Digamma.value(Double.NEGATIVE_INFINITY)));
     }
 
-    private void checkRelativeError(String msg,
-                                    double expected,
-                                    double actual,
-                                    double tolerance) {
+    private void checkRelativeError(final String msg,
+                                    final double expected,
+                                    final double actual,
+                                    final double tolerance) {
         Assertions.assertEquals(expected, actual, Math.abs(tolerance * actual), msg);
     }
 }

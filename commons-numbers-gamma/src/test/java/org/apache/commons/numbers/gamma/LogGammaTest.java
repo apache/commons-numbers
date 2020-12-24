@@ -223,8 +223,8 @@ class LogGammaTest {
         Assertions.assertTrue(Double.isNaN(LogGamma.value(-1.0)));
     }
 
-    private void testLogGamma(double expected, double x) {
-        double actual = LogGamma.value(x);
+    private void testLogGamma(final double expected, final double x) {
+        final double actual = LogGamma.value(x);
         Assertions.assertEquals(expected, actual, 1e-15);
     }
 }

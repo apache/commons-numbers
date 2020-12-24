@@ -45,9 +45,9 @@ public final class RegularizedBeta {
      * @return the regularized beta function I(x, a, b).
      * @throws ArithmeticException if the algorithm fails to converge.
      */
-    public static double value(double x,
-                               double a,
-                               double b) {
+    public static double value(final double x,
+                               final double a,
+                               final double b) {
         return value(x, a, b, DEFAULT_EPSILON, Integer.MAX_VALUE);
     }
 
@@ -79,11 +79,11 @@ public final class RegularizedBeta {
      * @return the regularized beta function I(x, a, b).
      * @throws ArithmeticException if the algorithm fails to converge.
      */
-    public static double value(double x,
+    public static double value(final double x,
                                final double a,
                                final double b,
-                               double epsilon,
-                               int maxIterations) {
+                               final double epsilon,
+                               final int maxIterations) {
         if (Double.isNaN(x) ||
             Double.isNaN(a) ||
             Double.isNaN(b) ||
@@ -99,7 +99,7 @@ public final class RegularizedBeta {
             final ContinuedFraction fraction = new ContinuedFraction() {
                 /** {@inheritDoc} */
                 @Override
-                protected double getA(int n, double x) {
+                protected double getA(final int n, final double x) {
                     if (n % 2 == 0) { // even
                         final double m = n / 2d;
                         return (m * (b - m) * x) /
@@ -113,7 +113,7 @@ public final class RegularizedBeta {
 
                 /** {@inheritDoc} */
                 @Override
-                protected double getB(int n, double x) {
+                protected double getB(final int n, final double x) {
                     return 1;
                 }
             };

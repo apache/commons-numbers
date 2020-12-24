@@ -797,10 +797,10 @@ final class CommonTestCases {
         final int expectedDenominator;
 
         UnaryOperatorTestCase(
-                int operandNumerator,
-                int operandDenominator,
-                int expectedNumerator,
-                int expectedDenominator) {
+                final int operandNumerator,
+                final int operandDenominator,
+                final int expectedNumerator,
+                final int expectedDenominator) {
             this.operandNumerator = operandNumerator;
             this.operandDenominator = operandDenominator;
             this.expectedNumerator = expectedNumerator;
@@ -824,12 +824,12 @@ final class CommonTestCases {
         final int expectedDenominator;
 
         BinaryOperatorTestCase(
-                int firstOperandNumerator,
-                int firstOperandDenominator,
-                int secondOperandNumerator,
-                int secondOperandDenominator,
-                int expectedNumerator,
-                int expectedDenominator) {
+                final int firstOperandNumerator,
+                final int firstOperandDenominator,
+                final int secondOperandNumerator,
+                final int secondOperandDenominator,
+                final int expectedNumerator,
+                final int expectedDenominator) {
             this.firstOperandNumerator = firstOperandNumerator;
             this.firstOperandDenominator = firstOperandDenominator;
             this.secondOperandNumerator = secondOperandNumerator;
@@ -854,11 +854,11 @@ final class CommonTestCases {
         final int expectedDenominator;
 
         BinaryIntOperatorTestCase(
-                int firstOperandNumerator,
-                int firstOperandDenominator,
-                int secondOperand,
-                int expectedNumerator,
-                int expectedDenominator) {
+                final int firstOperandNumerator,
+                final int firstOperandDenominator,
+                final int secondOperand,
+                final int expectedNumerator,
+                final int expectedDenominator) {
             this.firstOperandNumerator = firstOperandNumerator;
             this.firstOperandDenominator = firstOperandDenominator;
             this.secondOperand = secondOperand;
@@ -883,10 +883,10 @@ final class CommonTestCases {
         final int expectedDenominator;
 
         DoubleToFractionTestCase(
-                double operand,
-                int maxDenominator,
-                int expectedNumerator,
-                int expectedDenominator) {
+                final double operand,
+                final int maxDenominator,
+                final int expectedNumerator,
+                final int expectedDenominator) {
             this.operand = operand;
             this.maxDenominator = maxDenominator;
             this.expectedNumerator = expectedNumerator;
@@ -894,9 +894,9 @@ final class CommonTestCases {
         }
 
         DoubleToFractionTestCase(
-                double operand,
-                int expectedNumerator,
-                int expectedDenominator) {
+                final double operand,
+                final int expectedNumerator,
+                final int expectedDenominator) {
             this(operand, 0, expectedNumerator, expectedDenominator);
         }
     }

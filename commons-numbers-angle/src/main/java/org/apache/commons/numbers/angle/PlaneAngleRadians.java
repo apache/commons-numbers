@@ -44,8 +44,8 @@ public final class PlaneAngleRadians {
      * @return {@code a - 2 * k} with integer {@code k} such that
      * {@code center - pi <= a - 2 * k * pi < center + pi}.
      */
-    public static double normalize(double angle,
-                                   double center) {
+    public static double normalize(final double angle,
+                                   final double center) {
         final PlaneAngle a = PlaneAngle.ofRadians(angle);
         final PlaneAngle c = PlaneAngle.ofRadians(center);
         return a.normalize(c).toRadians();
@@ -58,7 +58,7 @@ public final class PlaneAngleRadians {
      * @return {@code a - 2 * k} with integer {@code k} such that
      * {@code -pi <= a - 2 * k * pi < pi}.
      */
-    public static double normalizeBetweenMinusPiAndPi(double angle) {
+    public static double normalizeBetweenMinusPiAndPi(final double angle) {
         return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.ZERO).toRadians();
     }
 
@@ -69,7 +69,7 @@ public final class PlaneAngleRadians {
      * @return {@code a - 2 * k} with integer {@code k} such that
      * {@code 0 <= a - 2 * k * pi < 2 * pi}.
      */
-    public static double normalizeBetweenZeroAndTwoPi(double angle) {
+    public static double normalizeBetweenZeroAndTwoPi(final double angle) {
         return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.PI).toRadians();
     }
 }

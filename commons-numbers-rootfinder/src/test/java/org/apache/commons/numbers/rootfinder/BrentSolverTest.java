@@ -189,21 +189,21 @@ class BrentSolverTest {
         try {  // Bad interval.
             solver.findRoot(f, 1, -1);
             Assertions.fail("Expecting bad interval condition");
-        } catch (SolverException ex) {
+        } catch (final SolverException ex) {
             // Ensure expected error condition.
             Assertions.assertNotEquals(-1, ex.getMessage().indexOf(" > "));
         }
         try {  // No bracketing.
             solver.findRoot(f, 1, 1.5);
             Assertions.fail("Expecting non-bracketing condition");
-        } catch (SolverException ex) {
+        } catch (final SolverException ex) {
             // Ensure expected error condition.
             Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
         }
         try {  // No bracketing.
             solver.findRoot(f, 1, 1.2, 1.5);
             Assertions.fail("Expecting non-bracketing condition");
-        } catch (SolverException ex) {
+        } catch (final SolverException ex) {
             // Ensure expected error condition.
             Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
         }
@@ -218,9 +218,9 @@ class BrentSolverTest {
 
         try {
             // Invalid guess (it *is* a root, but outside of the range).
-            double result = solver.findRoot(func, 0.0, 7.0, 0.6);
+            final double result = solver.findRoot(func, 0.0, 7.0, 0.6);
             Assertions.fail("an out of range condition was expected");
-        } catch (SolverException ex) {
+        } catch (final SolverException ex) {
             // Ensure expected error condition.
             Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
         }

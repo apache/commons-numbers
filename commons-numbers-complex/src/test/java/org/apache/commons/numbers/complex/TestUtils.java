@@ -62,7 +62,7 @@ public final class TestUtils {
      * @param expected the expected value
      * @param actual the actual value
      */
-    public static void assertSame(Complex expected, Complex actual) {
+    public static void assertSame(final Complex expected, final Complex actual) {
         Assertions.assertEquals(expected.getReal(), actual.getReal());
         Assertions.assertEquals(expected.getImaginary(), actual.getImaginary());
     }
@@ -75,7 +75,7 @@ public final class TestUtils {
      * @param actual the actual value
      * @param delta the delta
      */
-    public static void assertEquals(Complex expected, Complex actual, double delta) {
+    public static void assertEquals(final Complex expected, final Complex actual, final double delta) {
         Assertions.assertEquals(expected.getReal(), actual.getReal(), delta);
         Assertions.assertEquals(expected.getImaginary(), actual.getImaginary(), delta);
     }
@@ -87,7 +87,7 @@ public final class TestUtils {
      * @param o object to serialize and recover
      * @return the recovered, deserialized object
      */
-    public static Object serializeAndRecover(Object o) {
+    public static Object serializeAndRecover(final Object o) {
         try {
             // serialize the Object
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -111,7 +111,7 @@ public final class TestUtils {
      *
      * @param object the object to serialize and recover
      */
-    public static void checkSerializedEquality(Object object) {
+    public static void checkSerializedEquality(final Object object) {
         final Object object2 = serializeAndRecover(object);
         Assertions.assertEquals(object, object2, "Equals check");
         Assertions.assertEquals(object.hashCode(), object2.hashCode(), "HashCode check");
@@ -126,7 +126,7 @@ public final class TestUtils {
      * @param actual observed value
      * @param relativeError maximum allowable relative error
      */
-    public static void assertRelativelyEquals(double expected, double actual, double relativeError) {
+    public static void assertRelativelyEquals(final double expected, final double actual, final double relativeError) {
         assertRelativelyEquals(null, expected, actual, relativeError);
     }
 
@@ -140,7 +140,7 @@ public final class TestUtils {
      * @param actual observed value
      * @param relativeError maximum allowable relative error
      */
-    public static void assertRelativelyEquals(String msg, double expected, double actual, double relativeError) {
+    public static void assertRelativelyEquals(final String msg, final double expected, final double actual, final double relativeError) {
         if (Double.isNaN(expected)) {
             Assertions.assertTrue(Double.isNaN(actual), msg);
         } else if (Double.isNaN(actual)) {
@@ -163,7 +163,7 @@ public final class TestUtils {
      * @param z value sought
      * @param epsilon tolerance
      */
-    public static void assertContains(String msg, Complex[] values, Complex z, double epsilon) {
+    public static void assertContains(final String msg, final Complex[] values, final Complex z, final double epsilon) {
         for (final Complex value : values) {
             if (Precision.equals(value.getReal(), z.getReal(), epsilon) &&
                     Precision.equals(value.getImaginary(), z.getImaginary(), epsilon)) {
@@ -180,7 +180,7 @@ public final class TestUtils {
      * @param z value sought
      * @param epsilon tolerance
      */
-    public static void assertContains(Complex[] values, Complex z, double epsilon) {
+    public static void assertContains(final Complex[] values, final Complex z, final double epsilon) {
         assertContains(null, values, z, epsilon);
     }
 
@@ -192,7 +192,7 @@ public final class TestUtils {
      * @param x value sought
      * @param epsilon tolerance
      */
-    public static void assertContains(String msg, double[] values, double x, double epsilon) {
+    public static void assertContains(final String msg, final double[] values, final double x, final double epsilon) {
         for (final double value : values) {
             if (Precision.equals(value, x, epsilon)) {
                 return;
@@ -208,12 +208,12 @@ public final class TestUtils {
      * @param x value sought
      * @param epsilon tolerance
      */
-    public static void assertContains(double[] values, double x, double epsilon) {
+    public static void assertContains(final double[] values, final double x, final double epsilon) {
         assertContains(null, values, x, epsilon);
     }
 
     /** verifies that two arrays are close (sup norm) */
-    public static void assertEquals(String msg, Complex[] expected, Complex[] observed, double tolerance) {
+    public static void assertEquals(final String msg, final Complex[] expected, final Complex[] observed, final double tolerance) {
         final StringBuilder out = new StringBuilder(msg);
         if (expected.length != observed.length) {
             out.append("\n Arrays not same length. \n");
@@ -255,7 +255,7 @@ public final class TestUtils {
      * Updates observed counts of values in quartiles. counts[0] <-> 1st quartile
      * ... counts[3] <-> top quartile
      */
-    public static void updateCounts(double value, long[] counts, double[] quartiles) {
+    public static void updateCounts(final double value, final long[] counts, final double[] quartiles) {
         if (value < quartiles[0]) {
             counts[0]++;
         } else if (value > quartiles[2]) {
@@ -273,7 +273,7 @@ public final class TestUtils {
      * arrays so that the first <returned value> elements of the input arrays
      * represent the positive mass points.
      */
-    public static int eliminateZeroMassPoints(int[] densityPoints, double[] densityValues) {
+    public static int eliminateZeroMassPoints(final int[] densityPoints, final double[] densityValues) {
         int positiveMassCount = 0;
         for (int i = 0; i < densityValues.length; i++) {
             if (densityValues[i] > 0) {
@@ -326,8 +326,8 @@ public final class TestUtils {
      * @param flaggedDataConsumer the flagged data consumer (can be null)
      * @return the list
      */
-    public static List<Complex[]> loadTestData(String name, TestDataFlagOption option,
-            Consumer<String> flaggedDataConsumer) {
+    public static List<Complex[]> loadTestData(final String name, final TestDataFlagOption option,
+                                               final Consumer<String> flaggedDataConsumer) {
         final List<Complex[]> data = new ArrayList<>();
         try (BufferedReader input = new BufferedReader(
                 new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(name)))) {
@@ -348,7 +348,7 @@ public final class TestUtils {
                 }
                 data.add(numbers);
             }
-        } catch (NumberFormatException | IOException e) {
+        } catch (final NumberFormatException | IOException e) {
             Assertions.fail("Failed to load test data: " + name, e);
         }
         return data;
@@ -358,14 +358,14 @@ public final class TestUtils {
      * Pre-process the next line of data from the input.
      * Returns null when the line should be ignored.
      *
-     * @param input the input
+     * @param line the input
      * @param option the option controlling processing of flagged data
      * @param flaggedDataConsumer the flagged data consumer (can be null)
      * @return the line of data (or null)
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    private static String preprocessTestData(String line, TestDataFlagOption option,
-            Consumer<String> flaggedDataConsumer) {
+    private static String preprocessTestData(String line, final TestDataFlagOption option,
+                                             final Consumer<String> flaggedDataConsumer) {
         // Skip comments and empty lines
         if (line.length() == 0 || line.charAt(0) == '#') {
             return null;

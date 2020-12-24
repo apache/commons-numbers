@@ -79,7 +79,7 @@ class SafeNormTest {
      * @param v Array.
      * @return the norm using direct summation.
      */
-    private double direct(double[] v) {
+    private double direct(final double[] v) {
         double n = 0;
         for (int i = 0; i < v.length; i++) {
             n += v[i] * v[i];

@@ -27,43 +27,43 @@ public abstract class AbstractField<T extends NativeOperators<T>>
     implements Field<T> {
     /** {@inheritDoc} */
     @Override
-    public T add(T a, T b) {
+    public T add(final T a, final T b) {
         return a.add(b);
     }
 
     /** {@inheritDoc} */
     @Override
-    public T subtract(T a, T b) {
+    public T subtract(final T a, final T b) {
         return a.subtract(b);
     }
 
     /** {@inheritDoc} */
     @Override
-    public T negate(T a) {
+    public T negate(final T a) {
         return a.negate();
     }
 
     /** {@inheritDoc} */
     @Override
-    public T multiply(int n, T a) {
+    public T multiply(final int n, final T a) {
         return a.multiply(n);
     }
 
     /** {@inheritDoc} */
     @Override
-    public T multiply(T a, T b) {
+    public T multiply(final T a, final T b) {
         return a.multiply(b);
     }
 
     /** {@inheritDoc} */
     @Override
-    public T divide(T a, T b) {
+    public T divide(final T a, final T b) {
         return a.divide(b);
     }
 
     /** {@inheritDoc} */
     @Override
-    public T reciprocal(T a) {
+    public T reciprocal(final T a) {
         return a.reciprocal();
     }
 }

@@ -38,7 +38,7 @@ public final class InverseErfc {
      * @param x Value.
      * @return t such that {@code x =} {@link Erfc#value(double) Erfc.value(t)}.
      */
-    public static double value(double x) {
+    public static double value(final double x) {
         return InverseErf.value(1 - x);
     }
 }

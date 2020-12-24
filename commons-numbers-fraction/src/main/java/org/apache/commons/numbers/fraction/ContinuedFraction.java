@@ -78,7 +78,7 @@ public abstract class ContinuedFraction {
      *
      * @see #evaluate(double,double,int)
      */
-    public double evaluate(double x, double epsilon) {
+    public double evaluate(final double x, final double epsilon) {
         return evaluate(x, epsilon, Integer.MAX_VALUE);
     }
 
@@ -107,7 +107,7 @@ public abstract class ContinuedFraction {
      * @throws ArithmeticException if the maximal number of iterations is reached
      * before the expected convergence is achieved.
      */
-    public double evaluate(double x, double epsilon, int maxIterations) {
+    public double evaluate(final double x, final double epsilon, final int maxIterations) {
         double hPrev = updateIfCloseToZero(getB(0, x));
 
         int n = 1;
@@ -157,7 +157,7 @@ public abstract class ContinuedFraction {
      * @param value the value
      * @return the value (or small epsilon)
      */
-    private static double updateIfCloseToZero(double value) {
+    private static double updateIfCloseToZero(final double value) {
         return Precision.equals(value, 0.0, SMALL) ? SMALL : value;
     }
 }

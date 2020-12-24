@@ -114,12 +114,12 @@ class BinomialCoefficientTest {
                 boolean didThrow = false;
                 try {
                     ourResult = BinomialCoefficient.value(n, k);
-                } catch (ArithmeticException ex) {
+                } catch (final ArithmeticException ex) {
                     didThrow = true;
                 }
                 try {
                     exactResult = binomialCoefficient(n, k);
-                } catch (ArithmeticException ex) {
+                } catch (final ArithmeticException ex) {
                     shouldThrow = true;
                 }
                 Assertions.assertEquals(exactResult, ourResult, n + " choose " + k);
@@ -166,7 +166,7 @@ class BinomialCoefficientTest {
     /**
      * Exact (caching) recursive implementation to test against.
      */
-    static long binomialCoefficient(int n, int k) {
+    static long binomialCoefficient(final int n, final int k) {
         if (binomialCache.size() > n) {
             final Long cachedResult = binomialCache.get(n).get(Integer.valueOf(k));
             if (cachedResult != null) {

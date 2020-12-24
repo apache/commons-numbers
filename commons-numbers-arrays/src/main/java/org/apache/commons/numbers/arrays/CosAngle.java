@@ -34,8 +34,8 @@ public final class CosAngle {
      * @return the cosine of the angle between the vectors.
      * @throws IllegalArgumentException if the sizes of the input arrays are different
      */
-    public static double value(double[] v1,
-                               double[] v2) {
+    public static double value(final double[] v1,
+                               final double[] v2) {
         return LinearCombination.value(v1, v2) / SafeNorm.value(v1) / SafeNorm.value(v2);
     }
 }

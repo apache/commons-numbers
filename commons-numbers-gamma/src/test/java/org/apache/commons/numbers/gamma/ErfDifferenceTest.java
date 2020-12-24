@@ -30,11 +30,11 @@ class ErfDifferenceTest {
     @Test
     void testTwoArgumentErf() {
         final double[] xi = new double[] {-2, -1, -0.9, -0.1, 0, 0.1, 0.9, 1, 2};
-        for (double x1 : xi) {
-            for (double x2 : xi) {
-                double a = ErfDifference.value(x1, x2);
-                double b = Erf.value(x2) - Erf.value(x1);
-                double c = Erfc.value(x1) - Erfc.value(x2);
+        for (final double x1 : xi) {
+            for (final double x2 : xi) {
+                final double a = ErfDifference.value(x1, x2);
+                final double b = Erf.value(x2) - Erf.value(x1);
+                final double c = Erfc.value(x1) - Erfc.value(x2);
                 Assertions.assertEquals(a, b, 1e-15);
                 Assertions.assertEquals(a, c, 1e-15);
             }

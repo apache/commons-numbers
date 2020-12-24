@@ -38,7 +38,7 @@ public final class FP64 extends Number
     /**
      * @param value Value.
      */
-    private FP64(double value) {
+    private FP64(final double value) {
         this.value = value;
     }
 
@@ -48,13 +48,13 @@ public final class FP64 extends Number
      * @param value Value.
      * @return a new instance.
      */
-    public static FP64 of(double value) {
+    public static FP64 of(final double value) {
         return new FP64(value);
     }
 
     /** {@inheritDoc} */
     @Override
-    public FP64 add(FP64 a) {
+    public FP64 add(final FP64 a) {
         return new FP64(value + a.value);
     }
 
@@ -66,7 +66,7 @@ public final class FP64 extends Number
 
     /** {@inheritDoc} */
     @Override
-    public FP64 multiply(FP64 a) {
+    public FP64 multiply(final FP64 a) {
         return new FP64(value * a.value);
     }
 
@@ -78,25 +78,25 @@ public final class FP64 extends Number
 
     /** {@inheritDoc} */
     @Override
-    public FP64 subtract(FP64 a) {
+    public FP64 subtract(final FP64 a) {
         return new FP64(value - a.value);
     }
 
     /** {@inheritDoc} */
     @Override
-    public FP64 divide(FP64 a) {
+    public FP64 divide(final FP64 a) {
         return new FP64(value / a.value);
     }
 
     /** {@inheritDoc} */
     @Override
-    public FP64 multiply(int n) {
+    public FP64 multiply(final int n) {
         return new FP64(value * n);
     }
 
     /** {@inheritDoc} */
     @Override
-    public FP64 pow(int n) {
+    public FP64 pow(final int n) {
         if (n == 0) {
             return ONE;
         }
@@ -106,7 +106,7 @@ public final class FP64 extends Number
 
     /** {@inheritDoc} */
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (other instanceof FP64) {
             final FP64 o = (FP64) other;
             return Precision.equals(value, o.value, 1);
@@ -154,7 +154,7 @@ public final class FP64 extends Number
 
     /** {@inheritDoc} */
     @Override
-    public int compareTo(FP64 other) {
+    public int compareTo(final FP64 other) {
         return Double.compare(value, other.value);
     }
 

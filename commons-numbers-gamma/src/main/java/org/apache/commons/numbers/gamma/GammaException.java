@@ -35,7 +35,7 @@ class GammaException extends IllegalArgumentException {
      * @param message  the exception message with replaceable parameters
      * @param formatArguments the arguments for formatting the message
      */
-    GammaException(String message, Object... formatArguments) {
+    GammaException(final String message, final Object... formatArguments) {
         super(MessageFormat.format(message, formatArguments));
     }
 }

@@ -52,9 +52,9 @@ class ComplexEdgeCaseTest {
      * @param x Expected real part.
      * @param y Expected imaginary part.
      */
-    private static void assertComplex(double a, double b,
-            String name, UnaryOperator<Complex> operation,
-            double x, double y) {
+    private static void assertComplex(final double a, final double b,
+                                      final String name, final UnaryOperator<Complex> operation,
+                                      final double x, final double y) {
         assertComplex(a, b, name, operation, x, y, 1);
     }
 
@@ -73,9 +73,9 @@ class ComplexEdgeCaseTest {
      * @param y Expected imaginary part.
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertComplex(double a, double b,
-            String name, UnaryOperator<Complex> operation,
-            double x, double y, long maxUlps) {
+    private static void assertComplex(final double a, final double b,
+                                      final String name, final UnaryOperator<Complex> operation,
+                                      final double x, final double y, final long maxUlps) {
         final Complex c = Complex.ofCartesian(a, b);
         final Complex e = Complex.ofCartesian(x, y);
         CReferenceTest.assertComplex(c, name, operation, e, maxUlps);
@@ -96,9 +96,9 @@ class ComplexEdgeCaseTest {
      * @param y Expected imaginary part.
      */
     // CHECKSTYLE: stop ParameterNumberCheck
-    private static void assertComplex(double a, double b, double c, double d,
-            String name, BiFunction<Complex, Complex, Complex> operation,
-            double x, double y) {
+    private static void assertComplex(final double a, final double b, final double c, final double d,
+                                      final String name, final BiFunction<Complex, Complex, Complex> operation,
+                                      final double x, final double y) {
         assertComplex(a, b, c, d, name, operation, x, y, 1);
     }
 
@@ -119,9 +119,9 @@ class ComplexEdgeCaseTest {
      * @param y Expected imaginary part.
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertComplex(double a, double b, double c, double d,
-            String name, BiFunction<Complex, Complex, Complex> operation,
-            double x, double y, long maxUlps) {
+    private static void assertComplex(final double a, final double b, final double c, final double d,
+                                      final String name, final BiFunction<Complex, Complex, Complex> operation,
+                                      final double x, final double y, final long maxUlps) {
         final Complex c1 = Complex.ofCartesian(a, b);
         final Complex c2 = Complex.ofCartesian(c, d);
         final Complex e = Complex.ofCartesian(x, y);
@@ -393,8 +393,8 @@ class ComplexEdgeCaseTest {
         // im = 2 sin(2y) / e^2|x|
         // This can be computed when e^2|x| only just overflows.
         // Set a case where e^2|x| overflows but the imaginary can be computed
-        double x = 709.783 / 2;
-        double y = Math.PI / 4;
+        final double x = 709.783 / 2;
+        final double y = Math.PI / 4;
         Assertions.assertEquals(1.0, Math.sin(2 * y), 1e-16);
         Assertions.assertEquals(Double.POSITIVE_INFINITY, Math.exp(2 * x));
         // As computed by GNU g++
@@ -547,7 +547,7 @@ class ComplexEdgeCaseTest {
      * @param y the imaginary value of the complex
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertLog(double x, double y, long maxUlps) {
+    private static void assertLog(final double x, final double y, final long maxUlps) {
         // Compute the best value we can
         final BigDecimal bx = new BigDecimal(x);
         final BigDecimal by = new BigDecimal(y);

@@ -161,8 +161,8 @@ public final class LogBeta {
      * @return the value of {@code log(Beta(p, q))}, {@code NaN} if
      * {@code p <= 0} or {@code q <= 0}.
      */
-    public static double value(double p,
-                               double q) {
+    public static double value(final double p,
+                               final double q) {
         if (Double.isNaN(p) ||
             Double.isNaN(q) ||
             p <= 0 ||
@@ -267,8 +267,8 @@ public final class LogBeta {
      * @return the value of {@code log(Gamma(b) / Gamma(a + b))}.
      * @throws IllegalArgumentException if {@code a < 0} or {@code b < 10}.
      */
-    private static double logGammaMinusLogGammaSum(double a,
-                                                   double b) {
+    private static double logGammaMinusLogGammaSum(final double a,
+                                                   final double b) {
         if (a < 0) {
             throw new GammaException(GammaException.OUT_OF_RANGE, a, 0, Double.POSITIVE_INFINITY);
         }

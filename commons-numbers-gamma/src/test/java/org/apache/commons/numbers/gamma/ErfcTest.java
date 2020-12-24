@@ -57,7 +57,7 @@ class ErfcTest {
      */
     @Test
     void testErfcMaple() {
-        double[][] ref = new double[][] {
+        final double[][] ref = new double[][] {
             {0.1, 4.60172162722971e-01},
             {1.2, 1.15069670221708e-01},
             {2.3, 1.07241100216758e-02},
