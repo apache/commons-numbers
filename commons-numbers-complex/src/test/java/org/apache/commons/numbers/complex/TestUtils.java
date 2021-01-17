@@ -367,7 +367,7 @@ public final class TestUtils {
     private static String preprocessTestData(String line, TestDataFlagOption option,
             Consumer<String> flaggedDataConsumer) {
         // Skip comments and empty lines
-        if (line.length() == 0 || line.charAt(0) == '#') {
+        if (line.isEmpty() || line.charAt(0) == '#') {
             return null;
         }
         if (line.charAt(0) == ';') {
