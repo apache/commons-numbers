@@ -325,7 +325,7 @@ public final class LinearCombinations {
             final int len = a.length;
             final double[] r = arrayFactory.apply(len * 2);
 
-            // p is the standard scalar product sum initialised with the first product
+            // p is the standard scalar product sum initialized with the first product
             double p = a[0] * b[0];
             r[0] = DoublePrecision.productLow(a[0], b[0], p);
 
