@@ -1431,7 +1431,7 @@ public final class Complex implements Serializable  {
             // Check for over/underflow in |z|
             // When scaling:
             // log(a / b) = log(a) - log(b)
-            // So initialise the result with the log of the scale factor.
+            // So initialize the result with the log of the scale factor.
             re = 0;
             if (x > Double.MAX_VALUE / 2) {
                 // Potential overflow.
