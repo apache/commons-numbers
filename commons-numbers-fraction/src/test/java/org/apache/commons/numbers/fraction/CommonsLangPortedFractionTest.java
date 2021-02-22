@@ -32,7 +32,7 @@ import java.util.function.UnaryOperator;
  * <p>This class is ported from commons lang to demonstrate interoperability of
  * the Fraction class in numbers.</p>
  */
-public class CommonsLangPortedFractionTest {
+class CommonsLangPortedFractionTest {
 
     private static final int SKIP = 500;  //53
 
