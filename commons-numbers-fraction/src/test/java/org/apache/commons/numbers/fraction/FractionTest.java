@@ -629,8 +629,10 @@ class FractionTest {
         Assertions.assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(Integer.MIN_VALUE));
 
         // shall overflow
-        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(2).pow(Integer.MIN_VALUE));
-        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, 2).pow(Integer.MIN_VALUE));
+        final Fraction f2 = Fraction.of(2);
+        Assertions.assertThrows(ArithmeticException.class, () -> f2.pow(Integer.MIN_VALUE));
+        final Fraction f12 = Fraction.of(1, 2);
+        Assertions.assertThrows(ArithmeticException.class, () -> f12.pow(Integer.MIN_VALUE));
     }
 
     /**

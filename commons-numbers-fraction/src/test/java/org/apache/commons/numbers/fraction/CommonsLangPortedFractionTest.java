@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.function.BiFunction;
+import java.util.function.UnaryOperator;
+
 /**
  * Test cases for the {@link Fraction} class.
  *
@@ -35,7 +38,7 @@ public class CommonsLangPortedFractionTest {
 
     //--------------------------------------------------------------------------
     @Test
-    public void testConstants() {
+    void testConstants() {
         assertEquals(0, Fraction.ZERO.getNumerator());
         assertEquals(1, Fraction.ZERO.getDenominator());
 
@@ -80,7 +83,7 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testFactory_int_int() {
+    void testFactory_int_int() {
         Fraction f = null;
 
         // zero
@@ -147,7 +150,7 @@ public class CommonsLangPortedFractionTest {
  *  Removed as not supported in numbers.
  *
  *  @Test
- *  public void testFactory_int_int_int() {
+ *  void testFactory_int_int_int() {
  *      Fraction f = null;
  *
  *      // zero
@@ -202,7 +205,7 @@ public class CommonsLangPortedFractionTest {
  */
 
     @Test
-    public void testReducedFactory_int_int() {
+    void testReducedFactory_int_int() {
         Fraction f = null;
 
         // zero
@@ -284,7 +287,7 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testFactory_double() {
+    void testFactory_double() {
         assertThrows(IllegalArgumentException.class, () -> Fraction.from(Double.NaN));
         assertThrows(IllegalArgumentException.class, () -> Fraction.from(Double.POSITIVE_INFINITY));
         assertThrows(IllegalArgumentException.class, () -> Fraction.from(Double.NEGATIVE_INFINITY));
@@ -351,13 +354,13 @@ public class CommonsLangPortedFractionTest {
  *  Removed as not supported in numbers.
  *
  *  @Test
- *  public void testFactory_String() {
+ *  void testFactory_String() {
  *      assertThrows(NullPointerException.class, () -> Fraction.from(null));
  *  }
  *
  *
  *  @Test
- *  public void testFactory_String_double() {
+ *  void testFactory_String_double() {
  *      Fraction f = null;
  *
  *      f = Fraction.from("0.0");
@@ -382,7 +385,7 @@ public class CommonsLangPortedFractionTest {
  *  }
  *
  *  @Test
- *  public void testFactory_String_proper() {
+ *  void testFactory_String_proper() {
  *      Fraction f = null;
  *
  *      f = Fraction.from("0 0/1");
@@ -418,7 +421,7 @@ public class CommonsLangPortedFractionTest {
  *  }
  *
  *  @Test
- *  public void testFactory_String_improper() {
+ *  void testFactory_String_improper() {
  *      Fraction f = null;
  *
  *      f = Fraction.from("0/1");
@@ -452,7 +455,7 @@ public class CommonsLangPortedFractionTest {
  *  }
  *
  *  @Test
- *  public void testGets() {
+ *  void testGets() {
  *      Fraction f = null;
  *
  *      f = Fraction.of(3, 5, 6);
@@ -475,7 +478,7 @@ public class CommonsLangPortedFractionTest {
  *  }
  *
  *  @Test
- *  public void testConversions() {
+ *  void testConversions() {
  *      Fraction f = null;
  *
  *      f = Fraction.of(3, 7, 8);
@@ -486,7 +489,7 @@ public class CommonsLangPortedFractionTest {
  *  }
  *
  *  @Test
- *  public void testReduce() {
+ *  void testReduce() {
  *      Fraction f = null;
  *
  *      f = Fraction.of(50, 75);
@@ -535,7 +538,7 @@ public class CommonsLangPortedFractionTest {
  *  }
  *
  *  @Test
- *  public void testreciprocal() {
+ *  void testreciprocal() {
  *      Fraction f = null;
  *
  *      f = Fraction.of(50, 75);
@@ -564,7 +567,7 @@ public class CommonsLangPortedFractionTest {
  */
 
     @Test
-    public void testNegate() {
+    void testNegate() {
         Fraction f = null;
 
         f = Fraction.of(50, 75);
@@ -593,7 +596,7 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testAbs() {
+    void testAbs() {
         Fraction f = null;
 
         f = Fraction.of(50, 75);
@@ -626,7 +629,7 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testPow() {
+    void testPow() {
         Fraction f = null;
 
         f = Fraction.of(3, 5);
@@ -703,26 +706,26 @@ public class CommonsLangPortedFractionTest {
         // one to any power is still one.
         f = Fraction.of(1, 1);
         f = f.pow(0);
-        assertEquals(f, Fraction.ONE);
+        assertEquals(Fraction.ONE, f);
         f = f.pow(1);
-        assertEquals(f, Fraction.ONE);
+        assertEquals(Fraction.ONE, f);
         f = f.pow(-1);
-        assertEquals(f, Fraction.ONE);
+        assertEquals(Fraction.ONE, f);
         f = f.pow(Integer.MAX_VALUE);
-        assertEquals(f, Fraction.ONE);
+        assertEquals(Fraction.ONE, f);
         f = f.pow(Integer.MIN_VALUE);
-        assertEquals(f, Fraction.ONE);
+        assertEquals(Fraction.ONE, f);
 
-        assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MAX_VALUE, 1).pow(2));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(Integer.MAX_VALUE, 1), a -> a.pow(2));
 
         // Numerator growing too negative during the pow operation.
-        assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MIN_VALUE, 1).pow(3));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(Integer.MIN_VALUE, 1), a -> a.pow(3));
 
-        assertThrows(ArithmeticException.class, () -> Fraction.of(65536, 1).pow(2));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(65536, 1), a -> a.pow(2));
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         Fraction f = null;
         Fraction f1 = null;
         Fraction f2 = null;
@@ -808,7 +811,7 @@ public class CommonsLangPortedFractionTest {
         assertThrows(ArithmeticException.class, () -> overflower.add(Fraction.ONE)); // should overflow
 
         // denominator should not be a multiple of 2 or 3 to trigger overflow
-        assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MIN_VALUE, 5).add(Fraction.of(-1, 5)));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(Integer.MIN_VALUE, 5), Fraction.of(-1, 5), Fraction::add);
 
         final Fraction maxValue = Fraction.of(-Integer.MAX_VALUE, 1);
         assertThrows(ArithmeticException.class, () -> maxValue.add(maxValue));
@@ -822,7 +825,7 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testSubtract() {
+    void testSubtract() {
         Fraction f = null;
         Fraction f1 = null;
         Fraction f2 = null;
@@ -898,22 +901,22 @@ public class CommonsLangPortedFractionTest {
         assertEquals(1, f.getDenominator());
 
         // Should overflow
-        assertThrows(ArithmeticException.class, () -> Fraction.of(1, Integer.MAX_VALUE).subtract(Fraction.of(1, Integer.MAX_VALUE - 1)));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(1, Integer.MAX_VALUE), Fraction.of(1, Integer.MAX_VALUE - 1), Fraction::subtract);
         f = f1.subtract(f2);
 
         // denominator should not be a multiple of 2 or 3 to trigger overflow
-        assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MIN_VALUE, 5).subtract(Fraction.of(1, 5)));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(Integer.MIN_VALUE, 5), Fraction.of(1, 5), Fraction::subtract);
 
-        assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MIN_VALUE, 1).subtract(Fraction.ONE));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(Integer.MIN_VALUE, 1), Fraction.ONE, Fraction::subtract);
 
-        assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MAX_VALUE, 1).subtract(Fraction.ONE.negate()));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(Integer.MAX_VALUE, 1), Fraction.ONE.negate(), Fraction::subtract);
 
         // Should overflow
-        assertThrows(ArithmeticException.class, () -> Fraction.of(3, 327680).subtract(Fraction.of(2, 59049)));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(3, 327680), Fraction.of(2, 59049), Fraction::subtract);
     }
 
     @Test
-    public void testMultiply() {
+    void testMultiply() {
         Fraction f = null;
         Fraction f1 = null;
         Fraction f2 = null;
@@ -974,7 +977,7 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testDivide() {
+    void testDivide() {
         Fraction f = null;
         Fraction f1 = null;
         Fraction f2 = null;
@@ -985,7 +988,7 @@ public class CommonsLangPortedFractionTest {
         assertEquals(3, f.getNumerator());
         assertEquals(2, f.getDenominator());
 
-        assertThrows(ArithmeticException.class, () -> Fraction.of(3, 5).divide(Fraction.ZERO));
+        assertOperationThrows(ArithmeticException.class, Fraction.of(3, 5), Fraction.ZERO, Fraction::divide);
 
         f1 = Fraction.of(0, 5);
         f2 = Fraction.of(2, 7);
@@ -1012,14 +1015,16 @@ public class CommonsLangPortedFractionTest {
         assertThrows(NullPointerException.class, () -> fr.divide(null));
 
         final Fraction smallest = Fraction.of(1, Integer.MAX_VALUE);
-        assertThrows(ArithmeticException.class, () -> smallest.divide(smallest.reciprocal())); // Should overflow
+        final Fraction smallestReciprocal = smallest.reciprocal();
+        assertThrows(ArithmeticException.class, () -> smallest.divide(smallestReciprocal)); // Should overflow
 
         final Fraction negative = Fraction.of(1, -Integer.MAX_VALUE);
-        assertThrows(ArithmeticException.class, () -> negative.divide(negative.reciprocal())); // Should overflow
+        final Fraction negativeReciprocal = negative.reciprocal();
+        assertThrows(ArithmeticException.class, () -> negative.divide(negativeReciprocal)); // Should overflow
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         Fraction f1 = null;
         Fraction f2 = null;
 
@@ -1042,21 +1047,21 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         final Fraction f1 = Fraction.of(3, 5);
         Fraction f2 = Fraction.of(3, 5);
 
         assertEquals(f1.hashCode(), f2.hashCode());
 
         f2 = Fraction.of(2, 5);
-        assertTrue(f1.hashCode() != f2.hashCode());
+        assertNotEquals(f1.hashCode(), f2.hashCode());
 
         f2 = Fraction.of(6, 10);
         assertEquals(f1.hashCode(), f2.hashCode());
     }
 
     @Test
-    public void testCompareTo() {
+    void testCompareTo() {
         Fraction f1 = null;
         Fraction f2 = null;
 
@@ -1092,7 +1097,7 @@ public class CommonsLangPortedFractionTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         Fraction f = null;
 
         f = Fraction.of(3, 5);
@@ -1123,7 +1128,7 @@ public class CommonsLangPortedFractionTest {
  *  Removed as not supported in numbers.
  *
  *  @Test
- *  public void testToProperString() {
+ *  void testToProperString() {
  *      Fraction f = null;
  *
  *      f = Fraction.of(3, 5);
@@ -1158,4 +1163,37 @@ public class CommonsLangPortedFractionTest {
  *      assertEquals("-1", Fraction.of(-1).toProperString());
  *  }
  */
+
+    /**
+     * Assert the specified operation on the fraction throws the expected type.
+     * This method exists to ensure the fractions are constructed without an exception
+     * and the operation is tested to throw the exception.
+     *
+     * @param <T> the generic type
+     * @param expectedType the expected type
+     * @param f the fraction
+     * @param operation the operation
+     * @return the throwable
+     */
+    private static <T extends Throwable> T assertOperationThrows(Class<T> expectedType,
+            Fraction f, UnaryOperator<Fraction> operation) {
+        return assertThrows(expectedType, () -> operation.apply(f));
+    }
+
+    /**
+     * Assert the specified operation on two fractions throws the expected type.
+     * This method exists to ensure the fractions are constructed without an exception
+     * and the operation is tested to throw the exception.
+     *
+     * @param <T> the generic type
+     * @param expectedType the expected type
+     * @param f1 the first fraction
+     * @param f2 the second fraction
+     * @param operation the operation
+     * @return the throwable
+     */
+    private static <T extends Throwable> T assertOperationThrows(Class<T> expectedType,
+            Fraction f1, Fraction f2, BiFunction<Fraction, Fraction, Fraction> operation) {
+        return assertThrows(expectedType, () -> operation.apply(f1, f2));
+    }
 }
