@@ -500,4 +500,137 @@ public final class Precision {
                                             double delta) {
         return x + delta - x;
     }
+
+    /**
+     * Creates a {@link DoubleEquivalence} instance that uses the given epsilon
+     * value for determining equality.
+     *
+     * @param eps Value to use for determining equality.
+     * @return a new instance.
+     */
+    public static DoubleEquivalence doubleEquivalenceOfEpsilon(final double eps) {
+        if (!Double.isFinite(eps) ||
+            eps < 0d) {
+            throw new IllegalArgumentException("Invalid epsilon value: " + eps);
+        }
+
+        return new DoubleEquivalence() {
+            /** Epsilon value. */
+            private final double epsilon = eps;
+
+            /** {@inheritDoc} */
+            @Override
+            public int compare(double a,
+                               double b) {
+                return Precision.compareTo(a, b, epsilon);
+            }
+        };
+    }
+
+    /**
+     * Interface containing comparison operations for doubles that allow values
+     * to be <em>considered</em> equal even if they are not exactly equal.
+     * It is intended for comparing outputs of a computation where floating
+     * point errors may have occurred.
+     */
+    public interface DoubleEquivalence {
+        /**
+         * Indicates whether given values are considered equal to each other.
+         *
+         * @param a Value.
+         * @param b Value.
+         * @return true if the given values are considered equal.
+         */
+        default boolean eq(double a, double b) {
+            return compare(a, b) == 0;
+        }
+
+        /**
+         * Indicates whether the given value is considered equal to zero.
+         * It is a shortcut for {@code eq(a, 0.0)}.
+         *
+         * @param a Value.
+         * @return true if the argument is considered equal to zero.
+         */
+        default boolean eqZero(double a) {
+            return eq(a, 0d);
+        }
+
+        /**
+         * Indicates whether the first argument is strictly smaller than the second.
+         *
+         * @param a Value.
+         * @param b Value.
+         * @return true if {@code a < b}
+         */
+        default boolean lt(double a, double b) {
+            return compare(a, b) < 0;
+        }
+
+        /**
+         * Indicates whether the first argument is smaller or considered equal to the second.
+         *
+         * @param a Value.
+         * @param b Value.
+         * @return true if {@code a <= b}
+         */
+        default boolean lte(double a, double b) {
+            return compare(a, b) <= 0;
+        }
+
+        /**
+         * Indicates whether the first argument is strictly greater than the second.
+         *
+         * @param a Value.
+         * @param b Value.
+         * @return true if {@code a > b}
+         */
+        default boolean gt(double a, double b) {
+            return compare(a, b) > 0;
+        }
+
+        /**
+         * Indicates whether the first argument is greater than or considered equal to the second.
+         *
+         * @param a Value.
+         * @param b Value.
+         * @return true if {@code a >= b}
+         */
+        default boolean gte(double a, double b) {
+            return compare(a, b) >= 0;
+        }
+
+        /**
+         * Returns the {@link Math#signum(double) sign} of the argument.
+         *
+         * @param a Value.
+         * @return the sign (or {@code a} if {@code eqZero(a)} is true or
+         * {@code a} is NaN).
+         */
+        default double signum(double a) {
+            return a == 0d ||
+                Double.isNaN(a) ?
+                a :
+                eqZero(a) ?
+                Math.copySign(0d, a) :
+                Math.copySign(1d, a);
+        }
+
+        /**
+         * Compares two values.
+         * The returned value is
+         * <ul>
+         *  <li>{@code 0} if the arguments are considered equal,</li>
+         *  <li>{@code -1} if {@code a < b},</li>
+         *  <li>{@code +1} if {@code a > b} or if either value is NaN.</li>
+         * </ul>
+         *
+         * @param a Value.
+         * @param b Value.
+         * @return {@code 0} if the values are considered equal, {@code -1}
+         * if the first is smaller than the second, {@code 1} is the first
+         * is larger than the second or either value is NaN.
+         */
+        int compare(double a, double b);
+    }
 }
