@@ -23,8 +23,8 @@ package org.apache.commons.numbers.arrays;
  * It does so by using specific multiplication and addition algorithms to
  * preserve accuracy and reduce cancellation effects.
  *
- * It is based on the 2005 paper
- * <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
+ * <p>It is based on the 2005 paper
+ * <a href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
  * Accurate Sum and Dot Product</a> by Takeshi Ogita, Siegfried M. Rump,
  * and Shin'ichi Oishi published in <em>SIAM J. Sci. Comput</em>.
  */
@@ -32,15 +32,30 @@ public final class LinearCombination {
     /*
      * Caveat:
      *
-     * The code below is split in many additions/subtractions that may
+     * The code below uses many additions/subtractions that may
      * appear redundant. However, they should NOT be simplified, as they
      * do use IEEE754 floating point arithmetic rounding properties.
-     * The variables naming conventions are that xyzHigh contains the most significant
-     * bits of xyz and xyzLow contains its least significant bits. So theoretically
-     * xyz is the sum xyzHigh + xyzLow, but in many cases below, this sum cannot
-     * be represented in only one double precision number so we preserve two numbers
-     * to hold it as long as we can, combining the high and low order bits together
-     * only at the end, after cancellation may have occurred on high order bits
+     *
+     * Algorithms are based on computing the product or sum of two values x and y in
+     * extended precision. The standard result is stored using a double (high part z) and
+     * the round-off error (or low part zz) is stored in a second double, e.g:
+     * x * y = (z, zz); z + zz = x * y
+     * x + y = (z, zz); z + zz = x + y
+     *
+     * To sum multiple (z, zz) results ideally the parts are sorted in order of
+     * non-decreasing magnitude and summed. This is exact if each number's most significant
+     * bit is below the least significant bit of the next (i.e. does not
+     * overlap). Creating non-overlapping parts requires a rebalancing
+     * of adjacent pairs using a summation z + zz = (z1, zz1) iteratively through the parts
+     * (see Shewchuk (1997) Grow-Expansion and Expansion-Sum [1]).
+     *
+     * In this class the sum of the low parts in computed separately from the sum of the
+     * high parts for an approximate 2-fold increase in precision in the event of cancellation
+     * (sum positives and negatives to a result of much smaller magnitude than the parts).
+     * Uses the dot2s algorithm of Ogita to avoid allocation of an array to store intermediates.
+     *
+     * [1] Shewchuk (1997): Arbitrary Precision Floating-Point Arithmetic
+     * http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps
      */
 
     /** Private constructor. */
@@ -60,57 +75,26 @@ public final class LinearCombination {
             throw new IllegalArgumentException("Dimension mismatch: " + a.length + " != " + b.length);
         }
 
+        // Implement dot2s (Algorithm 5.4) from Ogita et al (2005).
         final int len = a.length;
 
-        if (len == 1) {
-            // Revert to scalar multiplication.
-            return a[0] * b[0];
+        // p is the standard scalar product sum.
+        // s is the sum of round-off parts.
+        double p = a[0] * b[0];
+        double s = ExtendedPrecision.productLow(a[0], b[0], p);
+
+        // Remaining split products added to the current sum and round-off sum.
+        for (int i = 1; i < len; i++) {
+            final double h = a[i] * b[i];
+            final double r = ExtendedPrecision.productLow(a[i], b[i], h);
+
+            final double x = p + h;
+            // s_i = s_(i-1) + (q_i + r_i)
+            s += ExtendedPrecision.twoSumLow(p, h, x) + r;
+            p = x;
         }
 
-        final double[] prodHigh = new double[len];
-        double prodLowSum = 0;
-
-        for (int i = 0; i < len; i++) {
-            final double ai    = a[i];
-            final double aHigh = highPart(ai);
-            final double aLow  = ai - aHigh;
-
-            final double bi    = b[i];
-            final double bHigh = highPart(bi);
-            final double bLow  = bi - bHigh;
-            prodHigh[i] = ai * bi;
-            final double prodLow = prodLow(aLow, bLow, prodHigh[i], aHigh, bHigh);
-            prodLowSum += prodLow;
-        }
-
-
-        final double prodHighCur = prodHigh[0];
-        double prodHighNext = prodHigh[1];
-        double sHighPrev = prodHighCur + prodHighNext;
-        double sPrime = sHighPrev - prodHighNext;
-        double sLowSum = (prodHighNext - (sHighPrev - sPrime)) + (prodHighCur - sPrime);
-
-        final int lenMinusOne = len - 1;
-        for (int i = 1; i < lenMinusOne; i++) {
-            prodHighNext = prodHigh[i + 1];
-            final double sHighCur = sHighPrev + prodHighNext;
-            sPrime = sHighCur - prodHighNext;
-            sLowSum += (prodHighNext - (sHighCur - sPrime)) + (sHighPrev - sPrime);
-            sHighPrev = sHighCur;
-        }
-
-        double result = sHighPrev + (prodLowSum + sLowSum);
-
-        if (Double.isNaN(result)) {
-            // either we have split infinite numbers or some coefficients were NaNs,
-            // just rely on the naive implementation and let IEEE754 handle this
-            result = 0;
-            for (int i = 0; i < len; ++i) {
-                result += a[i] * b[i];
-            }
-        }
-
-        return result;
+        return getSum(p, p + s);
     }
 
     /**
@@ -126,42 +110,17 @@ public final class LinearCombination {
      */
     public static double value(double a1, double b1,
                                double a2, double b2) {
-        // split a1 and b1 as one 26 bits number and one 27 bits number
-        final double a1High     = highPart(a1);
-        final double a1Low      = a1 - a1High;
-        final double b1High     = highPart(b1);
-        final double b1Low      = b1 - b1High;
+        // p/pn are the standard scalar product old/new sum.
+        // s is the sum of round-off parts.
+        final double p = a1 * b1;
+        double s = ExtendedPrecision.productLow(a1, b1, p);
+        final double h = a2 * b2;
+        final double r = ExtendedPrecision.productLow(a2, b2, h);
+        final double pn = p + h;
+        s += ExtendedPrecision.twoSumLow(p, h, pn) + r;
 
-        // accurate multiplication a1 * b1
-        final double prod1High  = a1 * b1;
-        final double prod1Low   = prodLow(a1Low, b1Low, prod1High, a1High, b1High);
-
-        // split a2 and b2 as one 26 bits number and one 27 bits number
-        final double a2High     = highPart(a2);
-        final double a2Low      = a2 - a2High;
-        final double b2High     = highPart(b2);
-        final double b2Low      = b2 - b2High;
-
-        // accurate multiplication a2 * b2
-        final double prod2High  = a2 * b2;
-        final double prod2Low   = prodLow(a2Low, b2Low, prod2High, a2High, b2High);
-
-        // accurate addition a1 * b1 + a2 * b2
-        final double s12High    = prod1High + prod2High;
-        final double s12Prime   = s12High - prod2High;
-        final double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);
-
-        // final rounding, s12 may have suffered many cancellations, we try
-        // to recover some bits from the extra words we have saved up to now
-        double result = s12High + (prod1Low + prod2Low + s12Low);
-
-        if (Double.isNaN(result)) {
-            // either we have split infinite numbers or some coefficients were NaNs,
-            // just rely on the naive implementation and let IEEE754 handle this
-            result = a1 * b1 + a2 * b2;
-        }
-
-        return result;
+        // Final summation
+        return getSum(pn, pn + s);
     }
 
     /**
@@ -180,57 +139,22 @@ public final class LinearCombination {
     public static double value(double a1, double b1,
                                double a2, double b2,
                                double a3, double b3) {
-        // split a1 and b1 as one 26 bits number and one 27 bits number
-        final double a1High     = highPart(a1);
-        final double a1Low      = a1 - a1High;
-        final double b1High     = highPart(b1);
-        final double b1Low      = b1 - b1High;
+        // p/q are the standard scalar product old/new sum (alternating).
+        // s is the sum of round-off parts.
+        // pn is the final scalar product sum.
+        final double p = a1 * b1;
+        double s = ExtendedPrecision.productLow(a1, b1, p);
+        double h = a2 * b2;
+        double r = ExtendedPrecision.productLow(a2, b2, h);
+        final double q = p + h;
+        s += r + ExtendedPrecision.twoSumLow(p, h, q);
+        h = a3 * b3;
+        r = ExtendedPrecision.productLow(a3, b3, h);
+        final double pn = q + h;
+        s += r + ExtendedPrecision.twoSumLow(q, h, pn);
 
-        // accurate multiplication a1 * b1
-        final double prod1High  = a1 * b1;
-        final double prod1Low   = prodLow(a1Low, b1Low, prod1High, a1High, b1High);
-
-        // split a2 and b2 as one 26 bits number and one 27 bits number
-        final double a2High     = highPart(a2);
-        final double a2Low      = a2 - a2High;
-        final double b2High     = highPart(b2);
-        final double b2Low      = b2 - b2High;
-
-        // accurate multiplication a2 * b2
-        final double prod2High  = a2 * b2;
-        final double prod2Low   = prodLow(a2Low, b2Low, prod2High, a2High, b2High);
-
-        // split a3 and b3 as one 26 bits number and one 27 bits number
-        final double a3High     = highPart(a3);
-        final double a3Low      = a3 - a3High;
-        final double b3High     = highPart(b3);
-        final double b3Low      = b3 - b3High;
-
-        // accurate multiplication a3 * b3
-        final double prod3High  = a3 * b3;
-        final double prod3Low   = prodLow(a3Low, b3Low, prod3High, a3High, b3High);
-
-        // accurate addition a1 * b1 + a2 * b2
-        final double s12High    = prod1High + prod2High;
-        final double s12Prime   = s12High - prod2High;
-        final double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);
-
-        // accurate addition a1 * b1 + a2 * b2 + a3 * b3
-        final double s123High   = s12High + prod3High;
-        final double s123Prime  = s123High - prod3High;
-        final double s123Low    = (prod3High - (s123High - s123Prime)) + (s12High - s123Prime);
-
-        // final rounding, s123 may have suffered many cancellations, we try
-        // to recover some bits from the extra words we have saved up to now
-        double result = s123High + (prod1Low + prod2Low + prod3Low + s12Low + s123Low);
-
-        if (Double.isNaN(result)) {
-            // either we have split infinite numbers or some coefficients were NaNs,
-            // just rely on the naive implementation and let IEEE754 handle this
-            result = a1 * b1 + a2 * b2 + a3 * b3;
-        }
-
-        return result;
+        // Final summation
+        return getSum(pn, pn + s);
     }
 
     /**
@@ -252,95 +176,47 @@ public final class LinearCombination {
                                double a2, double b2,
                                double a3, double b3,
                                double a4, double b4) {
-        // split a1 and b1 as one 26 bits number and one 27 bits number
-        final double a1High     = highPart(a1);
-        final double a1Low      = a1 - a1High;
-        final double b1High     = highPart(b1);
-        final double b1Low      = b1 - b1High;
+        // p/q are the standard scalar product old/new sum (alternating).
+        // s is the sum of round-off parts.
+        // pn is the final scalar product sum.
+        double p = a1 * b1;
+        double s = ExtendedPrecision.productLow(a1, b1, p);
+        double h = a2 * b2;
+        double r = ExtendedPrecision.productLow(a2, b2, h);
+        final double q = p + h;
+        s += ExtendedPrecision.twoSumLow(p, h, q) + r;
+        h = a3 * b3;
+        r = ExtendedPrecision.productLow(a3, b3, h);
+        p = q + h;
+        s += ExtendedPrecision.twoSumLow(q, h, p) + r;
+        h = a4 * b4;
+        r = ExtendedPrecision.productLow(a4, b4, h);
+        final double pn = p + h;
+        s += ExtendedPrecision.twoSumLow(p, h, pn) + r;
 
-        // accurate multiplication a1 * b1
-        final double prod1High  = a1 * b1;
-        final double prod1Low   = prodLow(a1Low, b1Low, prod1High, a1High, b1High);
+        // Final summation
+        return getSum(pn, pn + s);
+    }
 
-        // split a2 and b2 as one 26 bits number and one 27 bits number
-        final double a2High     = highPart(a2);
-        final double a2Low      = a2 - a2High;
-        final double b2High     = highPart(b2);
-        final double b2Low      = b2 - b2High;
-
-        // accurate multiplication a2 * b2
-        final double prod2High  = a2 * b2;
-        final double prod2Low   = prodLow(a2Low, b2Low, prod2High, a2High, b2High);
-
-        // split a3 and b3 as one 26 bits number and one 27 bits number
-        final double a3High     = highPart(a3);
-        final double a3Low      = a3 - a3High;
-        final double b3High     = highPart(b3);
-        final double b3Low      = b3 - b3High;
-
-        // accurate multiplication a3 * b3
-        final double prod3High  = a3 * b3;
-        final double prod3Low   = prodLow(a3Low, b3Low, prod3High, a3High, b3High);
-
-        // split a4 and b4 as one 26 bits number and one 27 bits number
-        final double a4High     = highPart(a4);
-        final double a4Low      = a4 - a4High;
-        final double b4High     = highPart(b4);
-        final double b4Low      = b4 - b4High;
-
-        // accurate multiplication a4 * b4
-        final double prod4High  = a4 * b4;
-        final double prod4Low   = prodLow(a4Low, b4Low, prod4High, a4High, b4High);
-
-        // accurate addition a1 * b1 + a2 * b2
-        final double s12High    = prod1High + prod2High;
-        final double s12Prime   = s12High - prod2High;
-        final double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);
-
-        // accurate addition a1 * b1 + a2 * b2 + a3 * b3
-        final double s123High   = s12High + prod3High;
-        final double s123Prime  = s123High - prod3High;
-        final double s123Low    = (prod3High - (s123High - s123Prime)) + (s12High - s123Prime);
-
-        // accurate addition a1 * b1 + a2 * b2 + a3 * b3 + a4 * b4
-        final double s1234High  = s123High + prod4High;
-        final double s1234Prime = s1234High - prod4High;
-        final double s1234Low   = (prod4High - (s1234High - s1234Prime)) + (s123High - s1234Prime);
-
-        // final rounding, s1234 may have suffered many cancellations, we try
-        // to recover some bits from the extra words we have saved up to now
-        double result = s1234High + (prod1Low + prod2Low + prod3Low + prod4Low + s12Low + s123Low + s1234Low);
-
-        if (Double.isNaN(result)) {
-            // either we have split infinite numbers or some coefficients were NaNs,
-            // just rely on the naive implementation and let IEEE754 handle this
-            result = a1 * b1 + a2 * b2 + a3 * b3 + a4 * b4;
+    /**
+     * Gets the final sum. This checks the high precision sum is finite, otherwise
+     * returns the standard precision sum for the IEEE754 result.
+     *
+     * <p>The high precision sum may be non-finite due to input infinite
+     * or NaN numbers or overflow in the summation. In all cases returning the
+     * standard sum ensures the IEEE754 result.
+     *
+     * @param sum Standard sum.
+     * @param hpSum High precision sum.
+     * @return the sum
+     */
+    private static double getSum(double sum, double hpSum) {
+        if (!Double.isFinite(hpSum)) {
+            // Either we have split infinite numbers, some coefficients were NaNs,
+            // or the sum overflowed.
+            // Return the naive implementation for the IEEE754 result.
+            return sum;
         }
-
-        return result;
-    }
-
-    /**
-     * @param value Value.
-     * @return the high part of the value.
-     */
-    private static double highPart(double value) {
-        return Double.longBitsToDouble(Double.doubleToRawLongBits(value) & ((-1L) << 27));
-    }
-
-    /**
-     * @param aLow Low part of first factor.
-     * @param bLow Low part of second factor.
-     * @param prodHigh Product of the factors.
-     * @param aHigh High part of first factor.
-     * @param bHigh High part of second factor.
-     * @return <code>aLow * bLow - (((prodHigh - aHigh * bHigh) - aLow * bHigh) - aHigh * bLow)</code>
-     */
-    private static double prodLow(double aLow,
-                                  double bLow,
-                                  double prodHigh,
-                                  double aHigh,
-                                  double bHigh) {
-        return aLow * bLow - (((prodHigh - aHigh * bHigh) - aLow * bHigh) - aHigh * bLow);
+        return hpSum;
     }
 }

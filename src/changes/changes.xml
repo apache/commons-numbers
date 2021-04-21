@@ -68,6 +68,11 @@ Apache Commons Numbers 1.0-beta1 contains the following library modules:
   commons-numbers-quaternion (requires Java 8+)
   commons-numbers-rootfinder (requires Java 8+)
 ">
+      <action dev="aherbert" type="update" issue="NUMBERS-142" due-to="Alex Herbert">
+        "LinearCombination": Update to use the dot2s algorithm. Avoids construction of an
+        intermediate array for array dot products. Update the hi-lo splitting algorithm
+        to use Dekker's split to ensure the product round-off is computed to exact precision.
+      </action>
       <action dev="aherbert" type="fix" issue="NUMBERS-150" due-to="Jin Xu">
         "Fraction/BigFraction": Fixed pow(int) to handle Integer.MIN_VALUE and throw
         ArithmeticException for negative exponents to a fraction of zero.
