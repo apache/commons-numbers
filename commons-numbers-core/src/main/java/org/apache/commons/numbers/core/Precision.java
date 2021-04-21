@@ -500,4 +500,14 @@ public final class Precision {
                                             double delta) {
         return x + delta - x;
     }
+
+    /** Return a new {@link PrecisionComparator} that uses the given epsilon value
+     * when determining equality.
+     * @param eps epsilon value to use whe determining equality
+     * @return a {@link PrecisionComparator} that uses the given epsilon value
+     *      when determining equality.
+     */
+    public static PrecisionComparator createEpsilonComparator(final double eps) {
+        return new EpsilonPrecisionComparator(eps);
+    }
 }
