@@ -16,6 +16,8 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.math.RoundingMode;
 
 import org.junit.jupiter.api.Assertions;
@@ -278,6 +280,30 @@ class PrecisionTest {
         Assertions.assertTrue(Precision.compareTo(152.33, 152.318, .011) > 0);
         Assertions.assertEquals(0, Precision.compareTo(Double.MIN_VALUE, +0.0, Double.MIN_VALUE));
         Assertions.assertEquals(0, Precision.compareTo(Double.MIN_VALUE, -0.0, Double.MIN_VALUE));
+    }
+
+    @Test
+    void testSortWithCompareTo() {
+        final Double[] array = {Double.NaN, 0.02, 0.01, Double.NaN, 2.0, 1.0};
+        final double eps = 0.1;
+        for (int i = 0; i < 10; i++) {
+            Collections.shuffle(Arrays.asList(array));
+            Arrays.sort(array, (a, b) -> Precision.compareTo(a, b, eps));
+
+            for (int j = 0; j < array.length - 1; j++) {
+                final int c = Precision.compareTo(array[j],
+                                                  array[j + 1],
+                                                  eps);
+                // Check that order is consistent with the comparison function.
+                Assertions.assertNotEquals(c, 1);
+            }
+            Assertions.assertTrue(array[0] == 0.01 || array[0] == 0.02);
+            Assertions.assertTrue(array[1] == 0.01 || array[1] == 0.02);
+            Assertions.assertEquals(1, array[2], 0d);
+            Assertions.assertEquals(2, array[3], 0d);
+            Assertions.assertTrue(Double.isNaN(array[4]));
+            Assertions.assertTrue(Double.isNaN(array[5]));
+        }
     }
 
     @Test

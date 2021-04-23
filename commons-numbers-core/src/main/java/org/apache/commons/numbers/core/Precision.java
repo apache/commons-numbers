@@ -112,8 +112,11 @@ public final class Precision {
             return 0;
         } else if (x < y) {
             return -1;
+        } else if (x > y) {
+            return 1;
         }
-        return 1;
+        // NaN input.
+        return Double.compare(x, y);
     }
 
     /**

@@ -121,14 +121,14 @@ class EpsilonDoubleEquivalenceTest {
         final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(1e-6);
 
         // act/assert
-        Assertions.assertEquals(1, cmp.compare(0, Double.NaN));
+        Assertions.assertEquals(-1, cmp.compare(0, Double.NaN));
         Assertions.assertEquals(1, cmp.compare(Double.NaN, 0));
-        Assertions.assertEquals(1, cmp.compare(Double.NaN, Double.NaN));
+        Assertions.assertEquals(0, cmp.compare(Double.NaN, Double.NaN));
 
-        Assertions.assertEquals(1, cmp.compare(Double.POSITIVE_INFINITY, Double.NaN));
+        Assertions.assertEquals(-1, cmp.compare(Double.POSITIVE_INFINITY, Double.NaN));
         Assertions.assertEquals(1, cmp.compare(Double.NaN, Double.POSITIVE_INFINITY));
 
-        Assertions.assertEquals(1, cmp.compare(Double.NEGATIVE_INFINITY, Double.NaN));
+        Assertions.assertEquals(-1, cmp.compare(Double.NEGATIVE_INFINITY, Double.NaN));
         Assertions.assertEquals(1, cmp.compare(Double.NaN, Double.NEGATIVE_INFINITY));
     }
 
