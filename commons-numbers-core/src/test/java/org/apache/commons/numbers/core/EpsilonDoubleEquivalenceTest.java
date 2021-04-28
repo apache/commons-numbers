@@ -67,6 +67,21 @@ class EpsilonDoubleEquivalenceTest {
     }
 
     @Test
+    void testCompare_simple() {
+        // arrange
+        final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(1e-10);
+
+        // act/assert
+        Assertions.assertEquals(0, cmp.compare(1, 1));
+        Assertions.assertEquals(-1, cmp.compare(1, 2));
+        Assertions.assertEquals(1, cmp.compare(2, 1));
+
+        Assertions.assertEquals(0, cmp.compare(-1, -1));
+        Assertions.assertEquals(1, cmp.compare(-1, -2));
+        Assertions.assertEquals(-1, cmp.compare(-2, -1));
+    }
+
+    @Test
     void testCompare_compareToZero() {
         // arrange
         final double eps = 1e-2;
@@ -145,6 +160,102 @@ class EpsilonDoubleEquivalenceTest {
         Assertions.assertEquals(1, cmp.compare(0, Double.NEGATIVE_INFINITY));
         Assertions.assertEquals(-1, cmp.compare(Double.NEGATIVE_INFINITY, 0));
         Assertions.assertEquals(0, cmp.compare(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY));
+    }
+
+    @Test
+    void testEq() {
+        // arrange
+        final double eps = Math.ulp(1.0);
+        final double twoEps = 2 * eps;
+        final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(eps);
+
+        // act/assert
+        Assertions.assertTrue(cmp.eq(0.0, 0.0));
+
+        Assertions.assertTrue(cmp.eq(1.0, 1.0));
+        Assertions.assertTrue(cmp.eq(1.0, 1.0 + eps));
+        Assertions.assertTrue(cmp.eq(1.0, 1.0 - eps));
+        Assertions.assertFalse(cmp.eq(1.0, 1.0 + twoEps));
+        Assertions.assertFalse(cmp.eq(1.0, 1.0 - twoEps));
+
+        Assertions.assertTrue(cmp.eq(-1.0, -1.0));
+        Assertions.assertTrue(cmp.eq(-1.0, -1.0 + eps));
+        Assertions.assertTrue(cmp.eq(-1.0, -1.0 - eps));
+        Assertions.assertFalse(cmp.eq(-1.0, -1.0 + twoEps));
+        Assertions.assertFalse(cmp.eq(-1.0, -1.0 - twoEps));
+    }
+
+    @Test
+    void testEqZero() {
+        // arrange
+        final double eps = 1e-6;
+        final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(eps);
+
+        // act/assert
+        Assertions.assertTrue(cmp.eqZero(0.0));
+
+        Assertions.assertFalse(cmp.eqZero(Math.nextUp(eps)));
+        Assertions.assertFalse(cmp.eqZero(Math.nextDown(-eps)));
+    }
+
+    @Test
+    void testLt() {
+        // arrange
+        final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(1e-6);
+
+        // act/assert
+        Assertions.assertTrue(cmp.lt(1, 2));
+        Assertions.assertTrue(cmp.lt(-2, -1));
+
+        Assertions.assertFalse(cmp.lt(1, 1));
+        Assertions.assertFalse(cmp.lt(-1, -1));
+        Assertions.assertFalse(cmp.lt(2, 1));
+        Assertions.assertFalse(cmp.lt(-1, -2));
+    }
+
+    @Test
+    void testLte() {
+        // arrange
+        final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(1e-6);
+
+        // act/assert
+        Assertions.assertTrue(cmp.lte(1, 2));
+        Assertions.assertTrue(cmp.lte(-2, -1));
+        Assertions.assertTrue(cmp.lte(1, 1));
+        Assertions.assertTrue(cmp.lte(-1, -1));
+
+        Assertions.assertFalse(cmp.lte(2, 1));
+        Assertions.assertFalse(cmp.lte(-1, -2));
+    }
+
+    @Test
+    void testGt() {
+        // arrange
+        final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(1e-6);
+
+        // act/assert
+        Assertions.assertTrue(cmp.gt(2, 1));
+        Assertions.assertTrue(cmp.gt(-1, -2));
+
+        Assertions.assertFalse(cmp.gt(1, 1));
+        Assertions.assertFalse(cmp.gt(-1, -1));
+        Assertions.assertFalse(cmp.gt(1, 2));
+        Assertions.assertFalse(cmp.gt(-2, -1));
+    }
+
+    @Test
+    void testGte() {
+        // arrange
+        final Precision.DoubleEquivalence cmp = Precision.doubleEquivalenceOfEpsilon(1e-6);
+
+        // act/assert
+        Assertions.assertTrue(cmp.gte(2, 1));
+        Assertions.assertTrue(cmp.gte(-1, -2));
+        Assertions.assertTrue(cmp.gte(1, 1));
+        Assertions.assertTrue(cmp.gte(-1, -1));
+
+        Assertions.assertFalse(cmp.gte(1, 2));
+        Assertions.assertFalse(cmp.gte(-2, -1));
     }
 
     /**
