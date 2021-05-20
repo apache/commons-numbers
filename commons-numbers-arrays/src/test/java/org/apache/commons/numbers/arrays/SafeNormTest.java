@@ -66,6 +66,24 @@ class SafeNormTest {
     }
 
     @Test
+    void testNaN() {
+        final double[] v = new double[] {0, Double.NaN, 0};
+        Assertions.assertEquals(Double.NaN, SafeNorm.value(v));
+    }
+
+    @Test
+    void testInf() {
+        final double[] v = new double[] {0, Double.NEGATIVE_INFINITY, 0};
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, SafeNorm.value(v));
+    }
+
+    @Test
+    void testOverflow() {
+        final double[] v = new double[] {0, Double.MAX_VALUE, Double.MAX_VALUE, 0};
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, SafeNorm.value(v));
+    }
+
+    @Test
     void testTinyAndSmallNormal() {
         // Ensure the sum of the squared values for 'normal' values (1e-19*1e-19)
         // is less than largest tiny value (1e-20)
