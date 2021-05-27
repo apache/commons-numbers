@@ -16,6 +16,8 @@
  */
 package org.apache.commons.numbers.angle;
 
+import java.util.function.UnaryOperator;
+
 /**
  * Represents the <a href="https://en.wikipedia.org/wiki/Angle">angle</a> concept.
  */
@@ -90,31 +92,6 @@ public final class PlaneAngle {
     }
 
     /**
-     * Normalize an angle in an interval of size 1 turn around a
-     * center value.
-     *
-     * @param center Center of the desired interval for the result.
-     * @return {@code a - k} with integer {@code k} such that
-     * {@code center - 0.5 <= a - k < center + 0.5} (in turns).
-     */
-    public PlaneAngle normalize(PlaneAngle center) {
-        final double lowerBound = center.value - HALF_TURN;
-        final double upperBound = center.value + HALF_TURN;
-
-        final double normalized = value - Math.floor(value - lowerBound);
-
-        return normalized < upperBound ?
-            new PlaneAngle(normalized) :
-            // If value is too small to be representable compared to the
-            // floor expression above (ie, if value + x = x), then we may
-            // end up with a number exactly equal to the upper bound here.
-            // In that case, subtract one from the normalized value so that
-            // we can fulfill the contract of only returning results strictly
-            // less than the upper bound.
-            new PlaneAngle(normalized - 1);
-    }
-
-    /**
      * Test for equality with another object.
      * Objects are considered to be equal if the two values are exactly the
      * same, or both are {@code Double.NaN}.
@@ -140,5 +117,55 @@ public final class PlaneAngle {
     @Override
     public int hashCode() {
         return Double.hashCode(value);
+    }
+
+    /**
+     * Normalizes an angle in an interval of size 1 turn around a center value.
+     */
+    public static final class Normalizer implements UnaryOperator<PlaneAngle> {
+        /** Lower bound. */
+        private final double lowerBound;
+        /** Upper bound. */
+        private final double upperBound;
+        /** Normalizer. */
+        private final Reduce reduce;
+
+        /**
+         * @param center Center of the desired interval.
+         */
+        private Normalizer(PlaneAngle center) {
+            lowerBound = center.value - HALF_TURN;
+            upperBound = center.value + HALF_TURN;
+            reduce = new Reduce(lowerBound, 1d);
+        }
+
+        /**
+         * @param a Angle.
+         * @return {@code = a - k} where {@code k} is an integer that satisfies
+         * {@code center - 0.5 <= a - k < center + 0.5} (in turns).
+         */
+        @Override
+        public PlaneAngle apply(PlaneAngle a) {
+            final double normalized = reduce.applyAsDouble(a.value) + lowerBound;
+            return normalized < upperBound ?
+                new PlaneAngle(normalized) :
+                // If value is too small to be representable compared to the
+                // floor expression above (ie, if value + x = x), then we may
+                // end up with a number exactly equal to the upper bound here.
+                // In that case, subtract one from the normalized value so that
+                // we can fulfill the contract of only returning results strictly
+                // less than the upper bound.
+                new PlaneAngle(normalized - 1);
+        }
+    }
+
+    /**
+     * Factory method.
+     *
+     * @param center Center of the desired interval.
+     * @return a {@link Normalizer} instance.
+     */
+    public static Normalizer normalizer(PlaneAngle center) {
+        return new Normalizer(center);
     }
 }

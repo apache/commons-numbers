@@ -98,11 +98,11 @@ class ReduceTest {
         final double period = 2 * Math.PI;
         for (double a = -15; a <= 15; a += 0.5) {
             for (double center = -15; center <= 15; center += 1) {
-                final double nA = PlaneAngleRadians.normalize(a, center);
+                final double nA = PlaneAngleRadians.normalizer(center).applyAsDouble(a);
                 final double offset = center - Math.PI;
                 final Reduce reduce = new Reduce(offset, period);
                 final double r = reduce.applyAsDouble(a) + offset;
-                Assertions.assertEquals(nA, r, 52 * Math.ulp(nA),
+                Assertions.assertEquals(nA, r, 1.1e2 * Math.ulp(nA),
                                         "a=" + a + " center=" + center);
             }
         }

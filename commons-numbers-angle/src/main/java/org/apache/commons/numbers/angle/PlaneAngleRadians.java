@@ -16,6 +16,8 @@
  */
 package org.apache.commons.numbers.angle;
 
+import java.util.function.DoubleUnaryOperator;
+
 /**
  * Utility class where all {@code double} values are assumed to be in
  * radians.
@@ -31,45 +33,46 @@ public final class PlaneAngleRadians {
     public static final double PI_OVER_TWO = 0.5 * PI;
     /** Value of \( 3\pi/2 \): {@value}. */
     public static final double THREE_PI_OVER_TWO = 3 * PI_OVER_TWO;
+    /** Normalizes an angle to be in the range [-&pi;, &pi;). */
+    public static final Normalizer WITHIN_MINUS_PI_AND_PI = new Normalizer(PlaneAngle.ZERO);
+    /** Normalize an angle to be in the range [0, 2&pi;). */
+    public static final Normalizer WITHIN_0_AND_2PI = new Normalizer(PlaneAngle.PI);
 
     /** Utility class. */
     private PlaneAngleRadians() {}
 
     /**
-     * Normalize an angle in an interval of size 2&pi; around a
-     * center value.
-     *
-     * @param angle Value to be normalized.
-     * @param center Center of the desired interval for the result.
-     * @return {@code a - 2 * k} with integer {@code k} such that
-     * {@code center - pi <= a - 2 * k * pi < center + pi}.
+     * Normalizes an angle in an interval of size 2&pi; around a center value.
      */
-    public static double normalize(double angle,
-                                   double center) {
-        final PlaneAngle a = PlaneAngle.ofRadians(angle);
-        final PlaneAngle c = PlaneAngle.ofRadians(center);
-        return a.normalize(c).toRadians();
+    public static final class Normalizer implements DoubleUnaryOperator {
+        /** Underlying normalizer. */
+        private final PlaneAngle.Normalizer normalizer;
+
+        /**
+         * @param center Center (in radians) of the desired interval.
+         */
+        private Normalizer(PlaneAngle center) {
+            normalizer = PlaneAngle.normalizer(center);
+        }
+
+        /**
+         * @param a Angle (in radians).
+         * @return {@code a - 2 * k} with integer {@code k} such that
+         * {@code center - pi <= a - 2 * k * pi < center + pi} (in radians).
+         */
+        @Override
+        public double applyAsDouble(double a) {
+            return normalizer.apply(PlaneAngle.ofRadians(a)).toRadians();
+        }
     }
 
     /**
-     * Normalize an angle to be in the range [-&pi;, &pi;).
+     * Factory method.
      *
-     * @param angle Value to be normalized.
-     * @return {@code a - 2 * k} with integer {@code k} such that
-     * {@code -pi <= a - 2 * k * pi < pi}.
+     * @param center Center (in radians) of the desired interval.
+     * @return a {@link Normalizer} instance.
      */
-    public static double normalizeBetweenMinusPiAndPi(double angle) {
-        return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.ZERO).toRadians();
-    }
-
-    /**
-     * Normalize an angle to be in the range [0, 2&pi;).
-     *
-     * @param angle Value to be normalized.
-     * @return {@code a - 2 * k} with integer {@code k} such that
-     * {@code 0 <= a - 2 * k * pi < 2 * pi}.
-     */
-    public static double normalizeBetweenZeroAndTwoPi(double angle) {
-        return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.PI).toRadians();
+    public static Normalizer normalizer(double center) {
+        return new Normalizer(PlaneAngle.ofRadians(center));
     }
 }
