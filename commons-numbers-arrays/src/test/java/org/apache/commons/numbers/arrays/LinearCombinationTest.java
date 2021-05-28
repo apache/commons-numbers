@@ -16,12 +16,13 @@
  */
 package org.apache.commons.numbers.arrays;
 
+import java.math.BigDecimal;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
-import org.apache.commons.numbers.fraction.BigFraction;
 
 /**
  * Test cases for the {@link LinearCombination} class.
@@ -44,23 +45,33 @@ class LinearCombinationTest {
 
     @Test
     void testTwoSums() {
-        final BigFraction[] aF = new BigFraction[] {
-            BigFraction.of(-1321008684645961L, 268435456L),
-            BigFraction.of(-5774608829631843L, 268435456L),
-            BigFraction.of(-7645843051051357L, 8589934592L)
+        final BigDecimal[] aFN = new BigDecimal[] {
+            BigDecimal.valueOf(-1321008684645961L),
+            BigDecimal.valueOf(-5774608829631843L),
+            BigDecimal.valueOf(-7645843051051357L),
         };
-        final BigFraction[] bF = new BigFraction[] {
-            BigFraction.of(-5712344449280879L, 2097152L),
-            BigFraction.of(-4550117129121957L, 2097152L),
-            BigFraction.of(8846951984510141L, 131072L)
+        final BigDecimal[] aFD = new BigDecimal[] {
+            BigDecimal.valueOf(268435456L),
+            BigDecimal.valueOf(268435456L),
+            BigDecimal.valueOf(8589934592L)
+        };
+        final BigDecimal[] bFN = new BigDecimal[] {
+            BigDecimal.valueOf(-5712344449280879L),
+            BigDecimal.valueOf(-4550117129121957L),
+            BigDecimal.valueOf(8846951984510141L)
+        };
+        final BigDecimal[] bFD = new BigDecimal[] {
+            BigDecimal.valueOf(2097152L),
+            BigDecimal.valueOf(2097152L),
+            BigDecimal.valueOf(131072L)
         };
 
-        final int len = aF.length;
+        final int len = aFN.length;
         final double[] a = new double[len];
         final double[] b = new double[len];
         for (int i = 0; i < len; i++) {
-            a[i] = aF[i].getNumerator().doubleValue() / aF[i].getDenominator().doubleValue();
-            b[i] = bF[i].getNumerator().doubleValue() / bF[i].getDenominator().doubleValue();
+            a[i] = aFN[i].doubleValue() / aFD[i].doubleValue();
+            b[i] = bFN[i].doubleValue() / bFD[i].doubleValue();
         }
 
         // Ensure "array" and "inline" implementations give the same result.
@@ -71,9 +82,9 @@ class LinearCombinationTest {
         Assertions.assertEquals(abSumInline, abSumArray);
 
         // Compare with arbitrary precision computation.
-        BigFraction result = BigFraction.ZERO;
+        BigDecimal result = BigDecimal.ZERO;
         for (int i = 0; i < a.length; i++) {
-            result = result.add(aF[i].multiply(bF[i]));
+            result = result.add(aFN[i].divide(aFD[i]).multiply(bFN[i].divide(bFD[i])));
         }
         final double expected = result.doubleValue();
         Assertions.assertEquals(expected, abSumInline, 1e-15);

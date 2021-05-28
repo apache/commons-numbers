@@ -43,17 +43,13 @@
   </properties>
 
   <dependencies>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-rng-simple</artifactId>
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-numbers-fraction</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
 </project>
