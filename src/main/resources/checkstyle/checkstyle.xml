@@ -157,7 +157,7 @@
     <!-- Checks for common coding problems -->
     <!-- See http://checkstyle.sourceforge.net/config_coding.html -->
     <module name="EmptyStatement" />
-    <module name="EqualsHashCode" />
+    <!-- <module name="EqualsHashCode" /> -->
     <!-- Method parameters and local variables should not hide fields, except in constructors and setters -->
     <module name="HiddenField">
         <property name="ignoreConstructorParameter" value="true" />
