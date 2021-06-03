@@ -216,7 +216,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Deg toDeg() {
-            return Deg.of (value / Angle.TWO_PI * TURN_TO_DEG);
+            return Deg.of(value / Angle.TWO_PI * TURN_TO_DEG);
         }
 
         /**
