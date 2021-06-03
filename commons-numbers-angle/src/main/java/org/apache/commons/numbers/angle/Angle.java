@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.angle;
 
-import java.util.function.UnaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.DoubleSupplier;
 
@@ -90,7 +89,7 @@ public abstract class Angle implements DoubleSupplier {
         /** Zero. */
         public static final Turn ZERO = Turn.of(0d);
         /** Normalizing operator (result will be within the {@code [0, 1[} interval). */
-        public static final UnaryOperator<Turn> WITHIN_0_AND_1 = normalizer(of(0d));
+        public static final DoubleUnaryOperator WITHIN_0_AND_1 = normalizer(0d);
 
         /**
          * @param angle (in turns).
@@ -149,9 +148,9 @@ public abstract class Angle implements DoubleSupplier {
          * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static UnaryOperator<Turn> normalizer(Turn lo) {
-            final Normalizer n = new Normalizer(lo.value, 1d);
-            return (Turn a) -> Turn.of(n.applyAsDouble(a.value));
+        public static DoubleUnaryOperator normalizer(double lo) {
+            final Normalizer n = new Normalizer(lo, 1d);
+            return a -> n.applyAsDouble(a);
         }
     }
 
@@ -166,9 +165,9 @@ public abstract class Angle implements DoubleSupplier {
         /** 2&pi;. */
         public static final Rad TWO_PI = Rad.of(2 * Math.PI);
         /** Normalizing operator (result will be within the <code>[0, 2&pi;[</code> interval). */
-        public static final UnaryOperator<Rad> WITHIN_0_AND_2PI = normalizer(of(0d));
+        public static final DoubleUnaryOperator WITHIN_0_AND_2PI = normalizer(0d);
         /** Normalizing operator (result will be within the <code>[-&pi;, &pi;[</code> interval). */
-        public static final UnaryOperator<Rad> WITHIN_MINUS_PI_AND_PI = normalizer(of(-Math.PI));
+        public static final DoubleUnaryOperator WITHIN_MINUS_PI_AND_PI = normalizer(-Math.PI);
 
         /**
          * @param angle (in radians).
@@ -227,9 +226,9 @@ public abstract class Angle implements DoubleSupplier {
          * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static UnaryOperator<Rad> normalizer(Rad lo) {
-            final Normalizer n = new Normalizer(lo.value, Angle.TWO_PI);
-            return (Rad a) -> Rad.of(n.applyAsDouble(a.value));
+        public static DoubleUnaryOperator normalizer(double lo) {
+            final Normalizer n = new Normalizer(lo, Angle.TWO_PI);
+            return a -> n.applyAsDouble(a);
         }
     }
 
@@ -240,7 +239,7 @@ public abstract class Angle implements DoubleSupplier {
         /** Zero. */
         public static final Deg ZERO = Deg.of(0d);
         /** Normalizing operator (result will be within the {@code [0, 360[} interval). */
-        public static final UnaryOperator<Deg> WITHIN_0_AND_360 = normalizer(of(0d));
+        public static final DoubleUnaryOperator WITHIN_0_AND_360 = normalizer(0d);
 
         /**
          * @param angle (in degrees).
@@ -299,9 +298,9 @@ public abstract class Angle implements DoubleSupplier {
          * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static UnaryOperator<Deg> normalizer(Deg lo) {
-            final Normalizer n = new Normalizer(lo.value, TURN_TO_DEG);
-            return (Deg a) -> Deg.of(n.applyAsDouble(a.value));
+        public static DoubleUnaryOperator normalizer(double lo) {
+            final Normalizer n = new Normalizer(lo, TURN_TO_DEG);
+            return a -> n.applyAsDouble(a);
         }
     }
 

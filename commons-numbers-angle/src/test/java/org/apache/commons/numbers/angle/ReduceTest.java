@@ -16,7 +16,7 @@
  */
 package org.apache.commons.numbers.angle;
 
-import java.util.function.UnaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -99,10 +99,10 @@ class ReduceTest {
     void testReduceComparedWithNormalize() {
         final double period = 2 * Math.PI;
         for (double lo = -15; lo <= 15; lo += 1) {
-            final UnaryOperator<Angle.Rad> n = Angle.Rad.normalizer(Angle.Rad.of(lo));
+            final DoubleUnaryOperator n = Angle.Rad.normalizer(lo);
             final Reduce reduce = new Reduce(lo, period);
             for (double a = -15; a <= 15; a += 0.5) {
-                final double nA = n.apply(Angle.Rad.of(a)).getAsDouble();
+                final double nA = n.applyAsDouble(a);
                 final double r = reduce.applyAsDouble(a) + lo;
                 Assertions.assertEquals(nA, r, Math.ulp(nA),
                                         "a=" + a + " lo=" + lo);

@@ -16,7 +16,7 @@
  */
 package org.apache.commons.numbers.angle;
 
-import java.util.function.UnaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,11 +27,13 @@ import org.junit.jupiter.api.Test;
 class AngleTest {
     @Test
     void testConstants() {
-        Assertions.assertEquals(0d, Angle.Turn.ZERO.getAsDouble(), 0d);
-        Assertions.assertEquals(0d, Angle.Rad.ZERO.getAsDouble(), 0d);
-        Assertions.assertEquals(0d, Angle.Deg.ZERO.getAsDouble(), 0d);
-        Assertions.assertEquals(Math.PI, Angle.Rad.PI.getAsDouble(), 0d);
-        Assertions.assertEquals(2 * Math.PI, Angle.Rad.TWO_PI.getAsDouble(), 0d);
+        Assertions.assertEquals(0d, Angle.Turn.ZERO.getAsDouble());
+        Assertions.assertEquals(0d, Angle.Rad.ZERO.getAsDouble());
+        Assertions.assertEquals(0d, Angle.Deg.ZERO.getAsDouble());
+        Assertions.assertEquals(Math.PI, Angle.Rad.PI.getAsDouble());
+        Assertions.assertEquals(2 * Math.PI, Angle.Rad.TWO_PI.getAsDouble());
+        Assertions.assertEquals(2 * Math.PI, Angle.TWO_PI);
+        Assertions.assertEquals(Math.PI / 2, Angle.PI_OVER_TWO);
     }
 
     @Test
@@ -62,9 +64,7 @@ class AngleTest {
         final double twopi = 2 * Math.PI;
         for (double a = -15.0; a <= 15.0; a += 0.1) {
             for (double b = -15.0; b <= 15.0; b += 0.2) {
-                final Angle.Rad aA = Angle.Rad.of(a);
-                final Angle.Rad aB = Angle.Rad.of(b);
-                final double c = Angle.Rad.normalizer(aB).apply(aA).getAsDouble();
+                final double c = Angle.Rad.normalizer(b).applyAsDouble(a);
                 Assertions.assertTrue(b <= c);
                 Assertions.assertTrue(c <= b + twopi);
                 double twoK = Math.rint((a - c) / Math.PI);
@@ -77,7 +77,7 @@ class AngleTest {
     void testNormalizeAboveZero1() {
         final double value = 1.25;
         final double expected = 0.25;
-        final double actual = Angle.Turn.WITHIN_0_AND_1.apply(Angle.Turn.of(value)).getAsDouble();
+        final double actual = Angle.Turn.WITHIN_0_AND_1.applyAsDouble(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
@@ -85,7 +85,7 @@ class AngleTest {
     void testNormalizeAboveZero2() {
         final double value = -0.75;
         final double expected = 0.25;
-        final double actual = Angle.Turn.WITHIN_0_AND_1.apply(Angle.Turn.of(value)).getAsDouble();
+        final double actual = Angle.Turn.WITHIN_0_AND_1.applyAsDouble(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
@@ -93,7 +93,7 @@ class AngleTest {
     void testNormalizeAboveZero3() {
         final double value = -0.5 + 1e-10;
         final double expected = 0.5 + 1e-10;
-        final double actual = Angle.Turn.WITHIN_0_AND_1.apply(Angle.Turn.of(value)).getAsDouble();
+        final double actual = Angle.Turn.WITHIN_0_AND_1.applyAsDouble(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
@@ -101,53 +101,33 @@ class AngleTest {
     void testNormalizeAroundZero() {
         final double value = 5 * Math.PI / 4;
         final double expected = Math.PI * (1d / 4 - 1);
-        final double actual = Angle.Rad.WITHIN_MINUS_PI_AND_PI.apply(Angle.Rad.of(value)).getAsDouble();
+        final double actual = Angle.Rad.WITHIN_MINUS_PI_AND_PI.applyAsDouble(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
 
     @Test
-    void testNormalizeUpperAndLowerBounds() {
-        final UnaryOperator<Angle.Rad> nZero = Angle.Rad.WITHIN_MINUS_PI_AND_PI;
-        final UnaryOperator<Angle.Rad> nPi = Angle.Rad.WITHIN_0_AND_2PI;
-
-        // act/assert
-        Assertions.assertEquals(-0.5, nZero.apply(Angle.Turn.of(-0.5).toRad()).toTurn().getAsDouble(), 0d);
-        Assertions.assertEquals(-0.5, nZero.apply(Angle.Turn.of(0.5).toRad()).toTurn().getAsDouble(), 0d);
-
-        Assertions.assertEquals(-0.5, nZero.apply(Angle.Turn.of(-1.5).toRad()).toTurn().getAsDouble(), 0d);
-        Assertions.assertEquals(-0.5, nZero.apply(Angle.Turn.of(1.5).toRad()).toTurn().getAsDouble(), 0d);
-
-        Assertions.assertEquals(0.0, nPi.apply(Angle.Turn.of(0).toRad()).toTurn().getAsDouble(), 0d);
-        Assertions.assertEquals(0.0, nPi.apply(Angle.Turn.of(1).toRad()).toTurn().getAsDouble(), 0d);
-
-        Assertions.assertEquals(0.0, nPi.apply(Angle.Turn.of(-1).toRad()).toTurn().getAsDouble(), 0d);
-        Assertions.assertEquals(0.0, nPi.apply(Angle.Turn.of(2).toRad()).toTurn().getAsDouble(), 0d);
-    }
-
-    @Test
     void testNormalizeVeryCloseToBounds() {
-        final UnaryOperator<Angle.Rad> nZero = Angle.Rad.WITHIN_MINUS_PI_AND_PI;
-        final UnaryOperator<Angle.Rad> nPi = Angle.Rad.WITHIN_0_AND_2PI;
+        final DoubleUnaryOperator nZero = Angle.Rad.WITHIN_MINUS_PI_AND_PI;
+        final DoubleUnaryOperator nPi = Angle.Rad.WITHIN_0_AND_2PI;
 
         // arrange
         final double pi = Math.PI;
-        final double twopi = 2 * pi;
-        double small = Math.ulp(twopi);
+        double small = Math.ulp(Angle.TWO_PI);
         double tiny = 5e-17; // pi + tiny = pi (the value is too small to add to pi)
 
         // act/assert
-        Assertions.assertEquals(twopi - small, nPi.apply(Angle.Rad.of(-small)).getAsDouble(), 0d);
-        Assertions.assertEquals(small, nPi.apply(Angle.Rad.of(small)).getAsDouble(), 0d);
+        Assertions.assertEquals(Angle.TWO_PI - small, nPi.applyAsDouble(-small));
+        Assertions.assertEquals(small, nPi.applyAsDouble(small));
 
-        Assertions.assertEquals(pi - small, nZero.apply(Angle.Rad.of(-pi - small)).getAsDouble(), 0d);
-        Assertions.assertEquals(-pi + small, nZero.apply(Angle.Rad.of(pi + small)).getAsDouble(), 0d);
+        Assertions.assertEquals(pi - small, nZero.applyAsDouble(-pi - small));
+        Assertions.assertEquals(-pi + small, nZero.applyAsDouble(pi + small));
 
-        Assertions.assertEquals(0d, nPi.apply(Angle.Rad.of(-tiny)).getAsDouble(), 0d);
-        Assertions.assertEquals(tiny, nPi.apply(Angle.Rad.of(tiny)).getAsDouble(), 0d);
+        Assertions.assertEquals(0d, nPi.applyAsDouble(-tiny));
+        Assertions.assertEquals(tiny, nPi.applyAsDouble(tiny));
 
-        Assertions.assertEquals(-pi, nZero.apply(Angle.Rad.of(-pi - tiny)).getAsDouble(), 0d);
-        Assertions.assertEquals(-pi, nZero.apply(Angle.Rad.of(pi + tiny)).getAsDouble(), 0d);
+        Assertions.assertEquals(-pi, nZero.applyAsDouble(-pi - tiny));
+        Assertions.assertEquals(-pi, nZero.applyAsDouble(pi + tiny));
     }
 
     @Test
@@ -185,14 +165,14 @@ class AngleTest {
         final double belowZero = Math.nextDown(0);
 
         Assertions.assertEquals(aboveZero,
-                                Angle.Rad.WITHIN_MINUS_PI_AND_PI.apply(Angle.Rad.of(aboveZero)).getAsDouble());
+                                Angle.Rad.WITHIN_MINUS_PI_AND_PI.applyAsDouble(aboveZero));
         Assertions.assertEquals(aboveZero,
-                                Angle.Rad.WITHIN_0_AND_2PI.apply(Angle.Rad.of(aboveZero)).getAsDouble());
+                                Angle.Rad.WITHIN_0_AND_2PI.applyAsDouble(aboveZero));
 
         Assertions.assertEquals(belowZero,
-                                Angle.Rad.WITHIN_MINUS_PI_AND_PI.apply(Angle.Rad.of(belowZero)).getAsDouble());
+                                Angle.Rad.WITHIN_MINUS_PI_AND_PI.applyAsDouble(belowZero));
         Assertions.assertEquals(0,
-                                Angle.Rad.WITHIN_0_AND_2PI.apply(Angle.Rad.of(belowZero)).getAsDouble());
+                                Angle.Rad.WITHIN_0_AND_2PI.applyAsDouble(belowZero));
     }
 
     @Test
@@ -201,14 +181,14 @@ class AngleTest {
         final double above = Math.nextUp(x);
         final double below = Math.nextDown(x);
 
-        final UnaryOperator<Angle.Rad> normalizer = Angle.Rad.normalizer(Angle.Rad.of(x));
+        final DoubleUnaryOperator normalizer = Angle.Rad.normalizer(x);
 
-        Assertions.assertEquals(x, normalizer.apply(Angle.Rad.of(x)).getAsDouble());
-        Assertions.assertEquals(above, normalizer.apply(Angle.Rad.of(above)).getAsDouble());
+        Assertions.assertEquals(x, normalizer.applyAsDouble(x));
+        Assertions.assertEquals(above, normalizer.applyAsDouble(above));
 
         // "below" is so close to "x" that below + Math.PI = x + Math.PI
         // In this case, we can't return below + Math.PI because that is exactly equal to the
         // upper bound of the range. Instead, we must return the lower bound of x.
-        Assertions.assertEquals(x, normalizer.apply(Angle.Rad.of(below)).getAsDouble());
+        Assertions.assertEquals(x, normalizer.applyAsDouble(below));
     }
 }
