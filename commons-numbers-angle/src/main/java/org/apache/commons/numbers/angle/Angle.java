@@ -347,11 +347,12 @@ public abstract class Angle implements DoubleSupplier {
             return normalized < hi ?
                 normalized :
                 // If value is too small to be representable compared to the
-                // floor expression above (ie, if value + x = x), then we may
-                // end up with a number exactly equal to the upper bound here.
-                // In that case, subtract one from the normalized value so that
-                // we can fulfill the contract of only returning results strictly
-                // less than the upper bound.
+                // floor expression above (i.e. value + x = x), then we may
+                // end up with a number exactly equal to the upper bound.
+                // In that case, subtract one period from the normalized value
+                // so that the result is strictly less than the upper bound.
+                normalized == hi ?
+                lo : // Ensure that the result is not below the lower bound.
                 normalized - period;
         }
     }

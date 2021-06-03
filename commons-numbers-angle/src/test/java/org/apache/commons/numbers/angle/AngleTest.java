@@ -205,6 +205,10 @@ class AngleTest {
 
         Assertions.assertEquals(x, normalizer.apply(Angle.Rad.of(x)).getAsDouble());
         Assertions.assertEquals(above, normalizer.apply(Angle.Rad.of(above)).getAsDouble());
-        // Assertions.assertEquals(below + 2 * Math.PI, normalizer.apply(Angle.Rad.of(below)).getAsDouble());
+
+        // "below" is so close to "x" that below + Math.PI = x + Math.PI
+        // In this case, we can't return below + Math.PI because that is exactly equal to the
+        // upper bound of the range. Instead, we must return the lower bound of x.
+        Assertions.assertEquals(x, normalizer.apply(Angle.Rad.of(below)).getAsDouble());
     }
 }
