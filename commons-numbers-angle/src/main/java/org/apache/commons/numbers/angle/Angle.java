@@ -216,7 +216,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Deg toDeg() {
-            return Deg.of(toTurn().getAsDouble() * TURN_TO_DEG);
+            return Deg.of (value / Angle.TWO_PI * TURN_TO_DEG);
         }
 
         /**
@@ -282,7 +282,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Rad toRad() {
-            return Rad.of(toTurn().getAsDouble() * Angle.TWO_PI);
+            return Rad.of(value / TURN_TO_DEG * Angle.TWO_PI);
         }
 
         /** {@inheritDoc} */
