@@ -24,8 +24,10 @@ import java.util.function.DoubleSupplier;
  * Represents the <a href="https://en.wikipedia.org/wiki/Angle">angle</a> concept.
  */
 public abstract class Angle implements DoubleSupplier {
-    /** Conversion factor. */
-    private static final double TURN_TO_RAD = 2 * Math.PI;
+    /** 2&pi;. */
+    public static final double TWO_PI = 2 * Math.PI;
+    /** &pi;/2. */
+    public static final double PI_OVER_TWO = 0.5 * Math.PI;
     /** Conversion factor. */
     private static final double TURN_TO_DEG = 360d;
 
@@ -131,7 +133,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Rad toRad() {
-            return Rad.of(value * TURN_TO_RAD);
+            return Rad.of(value * TWO_PI);
         }
 
         /** {@inheritDoc} */
@@ -203,7 +205,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Turn toTurn() {
-            return Turn.of(value / TURN_TO_RAD);
+            return Turn.of(value / Angle.TWO_PI);
         }
 
         /** {@inheritDoc} */
@@ -226,7 +228,7 @@ public abstract class Angle implements DoubleSupplier {
          * @return the normalization operator.
          */
         public static UnaryOperator<Rad> normalizer(Rad lo) {
-            final Normalizer n = new Normalizer(lo.value, TURN_TO_RAD);
+            final Normalizer n = new Normalizer(lo.value, Angle.TWO_PI);
             return (Rad a) -> Rad.of(n.applyAsDouble(a.value));
         }
     }
@@ -281,7 +283,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Rad toRad() {
-            return Rad.of(toTurn().getAsDouble() * TURN_TO_RAD);
+            return Rad.of(toTurn().getAsDouble() * Angle.TWO_PI);
         }
 
         /** {@inheritDoc} */
