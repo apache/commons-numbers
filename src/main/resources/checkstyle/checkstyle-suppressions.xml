@@ -24,6 +24,8 @@
   <suppress checks="FileLengthCheck" files=".*[/\\]Complex(Test)?\.java" />
   <suppress checks="FileLengthCheck" files=".*jmh[/\\]arrays[/\\]LinearCombinations.java" />
   <suppress checks="MethodLength" files=".*[/\\]Complex\.java" />
+  <!-- Method "hashCode()" is defined in the "Angle" parent class; subclasses have no additional fields to include in the hash. -->
+  <suppress checks="EqualsHashCode" files=".*[/\\]Angle\.java" />
 
   <!-- Be more lenient on tests. -->
   <suppress checks="Javadoc" files=".*[/\\]test[/\\].*" />
