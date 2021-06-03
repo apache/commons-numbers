@@ -59,13 +59,14 @@ class AngleTest {
 
     @Test
     void testNormalizeRadians() {
+        final double twopi = 2 * Math.PI;
         for (double a = -15.0; a <= 15.0; a += 0.1) {
             for (double b = -15.0; b <= 15.0; b += 0.2) {
                 final Angle.Rad aA = Angle.Rad.of(a);
                 final Angle.Rad aB = Angle.Rad.of(b);
                 final double c = Angle.Rad.normalizer(aB).apply(aA).getAsDouble();
-                Assertions.assertTrue((b - Math.PI) <= c);
-                Assertions.assertTrue(c <= (b + Math.PI));
+                Assertions.assertTrue(b <= c);
+                Assertions.assertTrue(c <= b + twopi);
                 double twoK = Math.rint((a - c) / Math.PI);
                 Assertions.assertEquals(c, a - twoK * Math.PI, 1e-14);
             }
@@ -73,42 +74,42 @@ class AngleTest {
     }
 
     @Test
-    void testNormalizeAroundZero1() {
+    void testNormalizeAboveZero1() {
         final double value = 1.25;
         final double expected = 0.25;
-        final double actual = Angle.Turn.normalizer(Angle.Turn.ZERO).apply(Angle.Turn.of(value)).getAsDouble();
+        final double actual = Angle.Turn.WITHIN_0_AND_1.apply(Angle.Turn.of(value)).getAsDouble();
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
     @Test
-    void testNormalizeAroundZero2() {
-        final double value = 0.75;
-        final double expected = -0.25;
-        final double actual = Angle.Turn.normalizer(Angle.Turn.ZERO).apply(Angle.Turn.of(value)).getAsDouble();
+    void testNormalizeAboveZero2() {
+        final double value = -0.75;
+        final double expected = 0.25;
+        final double actual = Angle.Turn.WITHIN_0_AND_1.apply(Angle.Turn.of(value)).getAsDouble();
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
     @Test
-    void testNormalizeAroundZero3() {
-        final double value = 0.5 + 1e-10;
-        final double expected = -0.5 + 1e-10;
-        final double actual = Angle.Turn.normalizer(Angle.Turn.ZERO).apply(Angle.Turn.of(value)).getAsDouble();
+    void testNormalizeAboveZero3() {
+        final double value = -0.5 + 1e-10;
+        final double expected = 0.5 + 1e-10;
+        final double actual = Angle.Turn.WITHIN_0_AND_1.apply(Angle.Turn.of(value)).getAsDouble();
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
     @Test
-    void testNormalizeAroundZero4() {
+    void testNormalizeAroundZero() {
         final double value = 5 * Math.PI / 4;
         final double expected = Math.PI * (1d / 4 - 1);
-        final double actual = Angle.Rad.normalizer(Angle.Rad.ZERO).apply(Angle.Rad.of(value)).getAsDouble();
+        final double actual = Angle.Rad.WITHIN_MINUS_PI_AND_PI.apply(Angle.Rad.of(value)).getAsDouble();
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
     }
 
     @Test
     void testNormalizeUpperAndLowerBounds() {
-        final UnaryOperator<Angle.Rad> nZero = Angle.Rad.normalizer(Angle.Rad.ZERO);
-        final UnaryOperator<Angle.Rad> nPi = Angle.Rad.normalizer(Angle.Rad.PI);
+        final UnaryOperator<Angle.Rad> nZero = Angle.Rad.WITHIN_MINUS_PI_AND_PI;
+        final UnaryOperator<Angle.Rad> nPi = Angle.Rad.WITHIN_0_AND_2PI;
 
         // act/assert
         Assertions.assertEquals(-0.5, nZero.apply(Angle.Turn.of(-0.5).toRad()).toTurn().getAsDouble(), 0d);
@@ -126,8 +127,8 @@ class AngleTest {
 
     @Test
     void testNormalizeVeryCloseToBounds() {
-        final UnaryOperator<Angle.Rad> nZero = Angle.Rad.normalizer(Angle.Rad.ZERO);
-        final UnaryOperator<Angle.Rad> nPi = Angle.Rad.normalizer(Angle.Rad.PI);
+        final UnaryOperator<Angle.Rad> nZero = Angle.Rad.WITHIN_MINUS_PI_AND_PI;
+        final UnaryOperator<Angle.Rad> nPi = Angle.Rad.WITHIN_0_AND_2PI;
 
         // arrange
         final double pi = Math.PI;
@@ -176,5 +177,34 @@ class AngleTest {
     @Test
     void testPi() {
         Assertions.assertEquals(Math.PI, Angle.Rad.PI.getAsDouble());
+    }
+
+    @Test
+    void testNormalizeRetainsInputPrecision() {
+        final double aboveZero = Math.nextUp(0);
+        final double belowZero = Math.nextDown(0);
+
+        Assertions.assertEquals(aboveZero,
+                                Angle.Rad.WITHIN_MINUS_PI_AND_PI.apply(Angle.Rad.of(aboveZero)).getAsDouble());
+        Assertions.assertEquals(aboveZero,
+                                Angle.Rad.WITHIN_0_AND_2PI.apply(Angle.Rad.of(aboveZero)).getAsDouble());
+
+        Assertions.assertEquals(belowZero,
+                                Angle.Rad.WITHIN_MINUS_PI_AND_PI.apply(Angle.Rad.of(belowZero)).getAsDouble());
+        Assertions.assertEquals(0,
+                                Angle.Rad.WITHIN_0_AND_2PI.apply(Angle.Rad.of(belowZero)).getAsDouble());
+    }
+
+    @Test
+    void testNormalizePreciseLowerBound() {
+        final double x = Math.PI / 3;
+        final double above = Math.nextUp(x);
+        final double below = Math.nextDown(x);
+
+        final UnaryOperator<Angle.Rad> normalizer = Angle.Rad.normalizer(Angle.Rad.of(x));
+
+        Assertions.assertEquals(x, normalizer.apply(Angle.Rad.of(x)).getAsDouble());
+        Assertions.assertEquals(above, normalizer.apply(Angle.Rad.of(above)).getAsDouble());
+        // Assertions.assertEquals(below + 2 * Math.PI, normalizer.apply(Angle.Rad.of(below)).getAsDouble());
     }
 }

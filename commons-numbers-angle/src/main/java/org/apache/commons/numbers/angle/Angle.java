@@ -87,6 +87,8 @@ public abstract class Angle implements DoubleSupplier {
     public static final class Turn extends Angle {
         /** Zero. */
         public static final Turn ZERO = Turn.of(0d);
+        /** Normalizing operator (result will be within the {@code [0, 1[} interval). */
+        public static final UnaryOperator<Turn> WITHIN_0_AND_1 = normalizer(of(0d));
 
         /**
          * @param angle (in turns).
@@ -140,13 +142,13 @@ public abstract class Angle implements DoubleSupplier {
 
         /**
          * Creates an operator for normalizing/reducing an angle.
-         * The output will be within the {@code [c - 0.5, c + 0.5[} interval.
+         * The output will be within the {@code [lo, lo + 1[} interval.
          *
-         * @param c Center.
+         * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static UnaryOperator<Turn> normalizer(Turn c) {
-            final Normalizer n = new Normalizer(c.value, 1d);
+        public static UnaryOperator<Turn> normalizer(Turn lo) {
+            final Normalizer n = new Normalizer(lo.value, 1d);
             return (Turn a) -> Turn.of(n.applyAsDouble(a.value));
         }
     }
@@ -161,6 +163,10 @@ public abstract class Angle implements DoubleSupplier {
         public static final Rad PI = Rad.of(Math.PI);
         /** 2&pi;. */
         public static final Rad TWO_PI = Rad.of(2 * Math.PI);
+        /** Normalizing operator (result will be within the <code>[0, 2&pi;[</code> interval). */
+        public static final UnaryOperator<Rad> WITHIN_0_AND_2PI = normalizer(of(0d));
+        /** Normalizing operator (result will be within the <code>[-&pi;, &pi;[</code> interval). */
+        public static final UnaryOperator<Rad> WITHIN_MINUS_PI_AND_PI = normalizer(of(-Math.PI));
 
         /**
          * @param angle (in radians).
@@ -214,13 +220,13 @@ public abstract class Angle implements DoubleSupplier {
 
         /**
          * Creates an operator for normalizing/reducing an angle.
-         * The output will be within the <code> [c - &pi;, c + &pi;[</code> interval.
+         * The output will be within the <code> [lo, lo + 2&pi;[</code> interval.
          *
-         * @param c Center.
+         * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static UnaryOperator<Rad> normalizer(Rad c) {
-            final Normalizer n = new Normalizer(c.value, TURN_TO_RAD);
+        public static UnaryOperator<Rad> normalizer(Rad lo) {
+            final Normalizer n = new Normalizer(lo.value, TURN_TO_RAD);
             return (Rad a) -> Rad.of(n.applyAsDouble(a.value));
         }
     }
@@ -231,6 +237,8 @@ public abstract class Angle implements DoubleSupplier {
     public static final class Deg extends Angle {
         /** Zero. */
         public static final Deg ZERO = Deg.of(0d);
+        /** Normalizing operator (result will be within the {@code [0, 360[} interval). */
+        public static final UnaryOperator<Deg> WITHIN_0_AND_360 = normalizer(of(0d));
 
         /**
          * @param angle (in degrees).
@@ -284,13 +292,13 @@ public abstract class Angle implements DoubleSupplier {
 
         /**
          * Creates an operator for normalizing/reducing an angle.
-         * The output will be within the {@code [c - 180, c + 180[} interval.
+         * The output will be within the {@code [c, c + 360[} interval.
          *
-         * @param c Center.
+         * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static UnaryOperator<Deg> normalizer(Deg c) {
-            final Normalizer n = new Normalizer(c.value, TURN_TO_DEG);
+        public static UnaryOperator<Deg> normalizer(Deg lo) {
+            final Normalizer n = new Normalizer(lo.value, TURN_TO_DEG);
             return (Deg a) -> Deg.of(n.applyAsDouble(a.value));
         }
     }
@@ -300,9 +308,9 @@ public abstract class Angle implements DoubleSupplier {
      */
     private static final class Normalizer implements DoubleUnaryOperator {
         /** Lower bound. */
-        private final double lowerBound;
+        private final double lo;
         /** Upper bound. */
-        private final double upperBound;
+        private final double hi;
         /** Period. */
         private final double period;
         /** Normalizer. */
@@ -311,27 +319,32 @@ public abstract class Angle implements DoubleSupplier {
         /**
          * Note: It is assumed that both arguments have the same unit.
          *
-         * @param center Center of the desired interval.
+         * @param lo Lower bound of the desired interval.
          * @param period Circonference of the circle.
          */
-        Normalizer(double center,
+        Normalizer(double lo,
                    double period) {
-            final double halfPeriod = 0.5 * period;
             this.period = period;
-            lowerBound = center - halfPeriod;
-            upperBound = center + halfPeriod;
-            reduce = new Reduce(lowerBound, period);
+            this.lo = lo;
+            this.hi = lo + period;
+            reduce = new Reduce(lo, period);
         }
 
         /**
          * @param a Angle.
          * @return {@code = a - k} where {@code k} is an integer that satisfies
-         * {@code center - 0.5 <= a - k < center + 0.5} (in turns).
+         * {@code lo <= a - k < lo + period}.
          */
         @Override
         public double applyAsDouble(double a) {
-            final double normalized = reduce.applyAsDouble(a) + lowerBound;
-            return normalized < upperBound ?
+            if (lo <= a &&
+                a < hi) {
+                // Already within the main interval.
+                return a;
+            }
+
+            final double normalized = reduce.applyAsDouble(a) + lo;
+            return normalized < hi ?
                 normalized :
                 // If value is too small to be representable compared to the
                 // floor expression above (ie, if value + x = x), then we may
