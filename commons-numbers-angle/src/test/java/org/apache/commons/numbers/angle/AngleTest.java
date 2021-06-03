@@ -37,26 +37,40 @@ class AngleTest {
     }
 
     @Test
-    void testConversionTurns() {
-        final double value = 12.3456;
-        final Angle a = Angle.Turn.of(value);
-        Assertions.assertEquals(value, a.getAsDouble());
+    void testConversions() {
+        final double a = 12.3456;
+        final double tol = 1e-14;
+        Assertions.assertEquals(a, Angle.Turn.of(a).toRad().toDeg().toTurn().getAsDouble(), tol);
+        Assertions.assertEquals(a, Angle.Rad.of(a).toTurn().toDeg().toRad().getAsDouble(), tol);
+        Assertions.assertEquals(a, Angle.Deg.of(a).toTurn().toRad().toDeg().getAsDouble(), tol);
     }
 
     @Test
-    void testConversionRadians() {
-        final double one = 2 * Math.PI;
-        final double value = 12.3456 * one;
-        final Angle a = Angle.Rad.of(value);
-        Assertions.assertEquals(value, a.toRad().getAsDouble());
-    }
+    void testEquals() {
+        final double value = -12.3456789;
+        final double nextValue = Math.nextUp(value);
 
-    @Test
-    void testConversionDegrees() {
-        final double one = 360;
-        final double value = 12.3456 * one;
-        final Angle a = Angle.Deg.of(value);
-        Assertions.assertEquals(value, a.toDeg().getAsDouble());
+        final Angle.Turn asTurn = Angle.Turn.of(value);
+        Assertions.assertEquals(Angle.Turn.of(value), asTurn);
+        Assertions.assertEquals(asTurn, asTurn);
+        Assertions.assertNotEquals(asTurn, Angle.Turn.of(nextValue));
+        Assertions.assertFalse(asTurn.equals(null));
+
+        final Angle.Rad asRad = Angle.Rad.of(value);
+        Assertions.assertEquals(Angle.Rad.of(value), asRad);
+        Assertions.assertEquals(asRad, asRad);
+        Assertions.assertNotEquals(asRad, Angle.Rad.of(nextValue));
+        Assertions.assertFalse(asRad.equals(null));
+
+        final Angle.Deg asDeg = Angle.Deg.of(value);
+        Assertions.assertEquals(Angle.Deg.of(value), asDeg);
+        Assertions.assertEquals(asDeg, asDeg);
+        Assertions.assertNotEquals(asDeg, Angle.Deg.of(nextValue));
+        Assertions.assertFalse(asDeg.equals(null));
+
+        Assertions.assertNotEquals(asDeg, asTurn);
+        Assertions.assertNotEquals(asTurn, asRad);
+        Assertions.assertNotEquals(asRad, asDeg);
     }
 
     @Test
@@ -137,17 +151,6 @@ class AngleTest {
         final int expected = Double.valueOf(value).hashCode();
         final int actual = Angle.Turn.of(value).hashCode();
         Assertions.assertEquals(actual, expected);
-    }
-
-    @Test
-    void testEquals() {
-        final double value = 12345.6789;
-        final Angle a = Angle.Rad.of(value);
-        Assertions.assertTrue(a.equals(a));
-        Assertions.assertTrue(a.equals(Angle.Rad.of(value)));
-        Assertions.assertFalse(a.equals(Angle.Rad.of(Math.nextUp(value))));
-        Assertions.assertFalse(a.equals(new Object()));
-        Assertions.assertFalse(a.equals(null));
     }
 
     @Test
