@@ -102,6 +102,23 @@ class ExtendedPrecisionTest {
         final double lo2 = a - hi2;
         Assertions.assertEquals(a, hi2);
         Assertions.assertEquals(0, lo2);
+
         Assertions.assertTrue(Math.abs(hi2) > Math.abs(lo2));
+    }
+
+    @Test
+    void testSquareLowUnscaled() {
+        assertSquareLowUnscaled(0.0, 1.0);
+        assertSquareLowUnscaled(0.0, -1.0);
+        assertSquareLowUnscaled(Math.fma(Math.PI, Math.PI, -Math.PI * Math.PI), Math.PI);
+
+        assertSquareLowUnscaled(Double.NaN, Double.POSITIVE_INFINITY);
+        assertSquareLowUnscaled(Double.NaN, Double.NEGATIVE_INFINITY);
+        assertSquareLowUnscaled(Double.NaN, Double.NaN);
+        assertSquareLowUnscaled(Double.NaN, Double.MAX_VALUE);
+    }
+
+    private static void assertSquareLowUnscaled(final double expected, final double x) {
+        Assertions.assertEquals(expected, ExtendedPrecision.squareLowUnscaled(x, x * x));
     }
 }

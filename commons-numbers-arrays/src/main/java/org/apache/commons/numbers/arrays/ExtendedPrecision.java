@@ -206,6 +206,27 @@ final class ExtendedPrecision {
 
     /**
      * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * square of {@code x} using Dekker's mult12 algorithm. The standard precision product
+     * {@code x*x} must be provided. The number {@code x} is split into high and low parts
+     * using Dekker's algorithm.
+     *
+     * <p>Warning: This method does not perform scaling in Dekker's split and large
+     * finite numbers can create NaN results.
+     *
+     * @param x Number to square
+     * @param xx Standard precision product {@code x*x}
+     * @return the low part of the square double length number
+     */
+    static double squareLowUnscaled(double x, double xx) {
+        // Split the numbers using Dekker's algorithm without scaling
+        final double hx = highPartUnscaled(x);
+        final double lx = x - hx;
+
+        return productLow(hx, lx, hx, lx, xx);
+    }
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
      * product of {@code x} and {@code y} using Dekker's mult12 algorithm. The standard
      * precision product {@code x*y} must be provided. The numbers {@code x} and {@code y}
      * should already be split into low and high parts.

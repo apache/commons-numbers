@@ -644,6 +644,15 @@
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
             <version>${commons.coveralls.version}</version>
+            <!-- Workaround for coveralls plugin JDK 9 compatibility issue.
+              https://github.com/trautonen/coveralls-maven-plugin/issues/112 -->
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                    <version>2.2.3</version>
+                </dependency>
+            </dependencies>
             <configuration>
               <timestampFormat>${commons.coveralls.timestampFormat}</timestampFormat>
             </configuration>

@@ -80,6 +80,10 @@
   </dependencies>
 
   <properties>
+    <!-- JDK 9+ required for BigDecimal.sqrt() method. -->
+    <maven.compiler.source>1.9</maven.compiler.source>
+    <maven.compiler.target>1.9</maven.compiler.target>
+
     <!-- OSGi -->
     <commons.osgi.symbolicName>org.apache.commons.numbers.examples.jmh</commons.osgi.symbolicName>
     <commons.osgi.export>org.apache.commons.numbers.examples.jmh</commons.osgi.export>
@@ -96,7 +100,42 @@
     <project.mainClass>org.openjdk.jmh.Main</project.mainClass>
     <!-- Disable analysis for benchmarking code. -->
     <pmd.skip>true</pmd.skip>
+    <!-- Disable JDK compatibility check for benchmarking code. Also required since no signature
+    projects exist for JDK 9+. -->
+    <animal.sniffer.skip>true</animal.sniffer.skip>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- NOTE: javadoc config must also be set under <reporting> -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
+          <source>1.8</source>
+          <!--  Enable MathJax -->
+          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <!-- NOTE: javadoc config must also be set under <build> -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
+          <source>1.8</source>
+          <!--  Enable MathJax -->
+          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <profiles>
     <profile>

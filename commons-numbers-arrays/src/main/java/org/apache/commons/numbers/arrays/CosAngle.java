@@ -36,7 +36,7 @@ public final class CosAngle {
      */
     public static double value(double[] v1,
                                double[] v2) {
-        return LinearCombination.value(v1, v2) / SafeNorm.value(v1) / SafeNorm.value(v2);
+        return LinearCombination.value(v1, v2) / Norms.euclidean(v1) / Norms.euclidean(v2);
     }
 }
 

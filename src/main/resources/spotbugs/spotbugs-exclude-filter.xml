@@ -41,7 +41,7 @@
     <Method name="sqrt"/>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
-  <Match>
+    <Match>
     <Class name="org.apache.commons.numbers.angle.Angle$Normalizer"/>
     <Method name="applyAsDouble"/>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
