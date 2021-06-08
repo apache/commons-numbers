@@ -18,66 +18,36 @@ package org.apache.commons.numbers.gamma;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
  * Tests for {@link Erf}.
  */
 class ErfTest {
-    @Test
-    void testErf0() {
-        double actual = Erf.value(0);
-        double expected = 0;
-        Assertions.assertEquals(expected, actual, 1e-15);
-        Assertions.assertEquals(1 - expected, Erfc.value(0), 1e-15);
-    }
+    /**
+     * Test standard values of the error function.
+     *
+     * <p>The expected values are the probabilities that a Gaussian distribution with mean 0
+     * and standard deviation 1 contains a value Y in the range [-x, x].
+     * This is equivalent to erf(x / root(2)).
+     *
+     * @param x the value multiplied by root(2)
+     * @param expected the expected error function
+     */
+    @ParameterizedTest
+    @CsvSource({
+        "0, 0",
+        "1.960, 0.95",
+        "2.576, 0.99",
+        "2.807, 0.995",
+        "3.291, 0.999",
+    })
+    void testErf(double x, double expected) {
+        // Input must be divided by root(2)
+        x /= Math.sqrt(2);
 
-    @Test
-    void testErf1960() {
-        double x = 1.960 / Math.sqrt(2);
         double actual = Erf.value(x);
-        double expected = 0.95;
-        Assertions.assertEquals(expected, actual, 1e-5);
-        Assertions.assertEquals(1 - actual, Erfc.value(x), 1e-15);
-
-        actual = Erf.value(-x);
-        expected = -expected;
-        Assertions.assertEquals(expected, actual, 1e-5);
-        Assertions.assertEquals(1 - actual, Erfc.value(-x), 1e-15);
-    }
-
-    @Test
-    void testErf2576() {
-        double x = 2.576 / Math.sqrt(2);
-        double actual = Erf.value(x);
-        double expected = 0.99;
-        Assertions.assertEquals(expected, actual, 1e-5);
-        Assertions.assertEquals(1 - actual, Erfc.value(x), 1e-15);
-
-        actual = Erf.value(-x);
-        expected = -expected;
-        Assertions.assertEquals(expected, actual, 1e-5);
-        Assertions.assertEquals(1 - actual, Erfc.value(-x), 1e-15);
-    }
-
-    @Test
-    void testErf2807() {
-        double x = 2.807 / Math.sqrt(2);
-        double actual = Erf.value(x);
-        double expected = 0.995;
-        Assertions.assertEquals(expected, actual, 1e-5);
-        Assertions.assertEquals(1 - actual, Erfc.value(x), 1e-15);
-
-        actual = Erf.value(-x);
-        expected = -expected;
-        Assertions.assertEquals(expected, actual, 1e-5);
-        Assertions.assertEquals(1 - actual, Erfc.value(-x), 1e-15);
-    }
-
-    @Test
-    void testErf3291() {
-        double x = 3.291 / Math.sqrt(2);
-        double actual = Erf.value(x);
-        double expected = 0.999;
         Assertions.assertEquals(expected, actual, 1e-5);
         Assertions.assertEquals(1 - expected, Erfc.value(x), 1e-5);
 
