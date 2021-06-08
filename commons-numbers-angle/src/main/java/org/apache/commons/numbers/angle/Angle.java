@@ -27,16 +27,20 @@ public abstract class Angle implements DoubleSupplier {
     public static final double TWO_PI = 2 * Math.PI;
     /** &pi;/2. */
     public static final double PI_OVER_TWO = 0.5 * Math.PI;
-    /** Conversion factor. */
+    /** Turns to degrees conversion factor. */
     private static final double TURN_TO_DEG = 360d;
+    /** Radians to degrees conversion factor. */
+    private static final double RAD_TO_DEG = 180.0 / Math.PI;
+    /** Degrees to radians conversion factor. */
+    private static final double DEG_TO_RAD = Math.PI / 180.0;
 
     /** Value (unit depends on concrete instance). */
-    protected final double value;
+    private final double value;
 
     /**
      * @param value Value in turns.
      */
-    private Angle(double value) {
+    private Angle(final double value) {
         this.value = value;
     }
 
@@ -50,6 +54,23 @@ public abstract class Angle implements DoubleSupplier {
     @Override
     public int hashCode() {
         return Double.hashCode(value);
+    }
+
+    /**
+     * Test for equality with another object.
+     * Objects are considered to be equal if their concrete types are
+     * equal and their values are exactly the same (or both are {@code Double.NaN}).
+     *
+     * @param other Object to test for equality with this instance.
+     * @return {@code true} if the objects are equal, {@code false} if
+     * {@code other} is {@code null}, not of the same type as this instance,
+     * or not equal to this instance.
+     */
+    @Override
+    public boolean equals(final Object other) {
+        return other != null &&
+                getClass().equals(other.getClass()) &&
+                Double.doubleToLongBits(value) == Double.doubleToLongBits(((Angle) other).value);
     }
 
     /**
@@ -68,21 +89,6 @@ public abstract class Angle implements DoubleSupplier {
     public abstract Deg toDeg();
 
     /**
-     * Objects are considered to be equal if their values are exactly
-     * the same, or both are {@code Double.NaN}.
-     * Caveat: Method should be called only on instances of the same
-     * concrete type in order to avoid that angles with the same value
-     * but different units are be considered equal.
-     *
-     * @param other Angle.
-     * @return {@code true} if the two instances have the same {@link #value}.
-     */
-    protected boolean isSame(Angle other) {
-        return this == other ||
-            Double.doubleToLongBits(value) == Double.doubleToLongBits(other.value);
-    }
-
-    /**
      * Unit: <a href="https://en.wikipedia.org/wiki/Turn_%28geometry%29">turns</a>.
      */
     public static final class Turn extends Angle {
@@ -94,7 +100,7 @@ public abstract class Angle implements DoubleSupplier {
         /**
          * @param angle (in turns).
          */
-        private Turn(double angle) {
+        private Turn(final double angle) {
             super(angle);
         }
 
@@ -102,25 +108,8 @@ public abstract class Angle implements DoubleSupplier {
          * @param angle (in turns).
          * @return a new intance.
          */
-        public static Turn of(double angle) {
+        public static Turn of(final double angle) {
             return new Turn(angle);
-        }
-
-        /**
-         * Test for equality with another object.
-         * Objects are considered to be equal if their values are exactly
-         * the same, or both are {@code Double.NaN}.
-         *
-         * @param other Object to test for equality with this instance.
-         * @return {@code true} if the objects are equal, {@code false} if
-         * {@code other} is {@code null}, not an instance of {@code Turn},
-         * or not equal to this instance.
-         */
-        @Override
-        public boolean equals(Object other) {
-            return other instanceof Turn ?
-                isSame((Turn) other) :
-                false;
         }
 
         /** {@inheritDoc} */
@@ -132,13 +121,13 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Rad toRad() {
-            return Rad.of(value * TWO_PI);
+            return Rad.of(getAsDouble() * TWO_PI);
         }
 
         /** {@inheritDoc} */
         @Override
         public Deg toDeg() {
-            return Deg.of(value * TURN_TO_DEG);
+            return Deg.of(getAsDouble() * TURN_TO_DEG);
         }
 
         /**
@@ -148,9 +137,8 @@ public abstract class Angle implements DoubleSupplier {
          * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static DoubleUnaryOperator normalizer(double lo) {
-            final Normalizer n = new Normalizer(lo, 1d);
-            return a -> n.applyAsDouble(a);
+        public static DoubleUnaryOperator normalizer(final double lo) {
+            return new Normalizer(lo, 1d);
         }
     }
 
@@ -163,7 +151,7 @@ public abstract class Angle implements DoubleSupplier {
         /** &pi;. */
         public static final Rad PI = Rad.of(Math.PI);
         /** 2&pi;. */
-        public static final Rad TWO_PI = Rad.of(2 * Math.PI);
+        public static final Rad TWO_PI = Rad.of(Angle.TWO_PI);
         /** Normalizing operator (result will be within the <code>[0, 2&pi;[</code> interval). */
         public static final DoubleUnaryOperator WITHIN_0_AND_2PI = normalizer(0d);
         /** Normalizing operator (result will be within the <code>[-&pi;, &pi;[</code> interval). */
@@ -172,7 +160,7 @@ public abstract class Angle implements DoubleSupplier {
         /**
          * @param angle (in radians).
          */
-        private Rad(double angle) {
+        private Rad(final double angle) {
             super(angle);
         }
 
@@ -180,31 +168,14 @@ public abstract class Angle implements DoubleSupplier {
          * @param angle (in radians).
          * @return a new intance.
          */
-        public static Rad of(double angle) {
+        public static Rad of(final double angle) {
             return new Rad(angle);
-        }
-
-        /**
-         * Test for equality with another object.
-         * Objects are considered to be equal if their values are exactly
-         * the same, or both are {@code Double.NaN}.
-         *
-         * @param other Object to test for equality with this instance.
-         * @return {@code true} if the objects are equal, {@code false} if
-         * {@code other} is {@code null}, not an instance of {@code Rad},
-         * or not equal to this instance.
-         */
-        @Override
-        public boolean equals(Object other) {
-            return other instanceof Rad ?
-                isSame((Rad) other) :
-                false;
         }
 
         /** {@inheritDoc} */
         @Override
         public Turn toTurn() {
-            return Turn.of(value / Angle.TWO_PI);
+            return Turn.of(getAsDouble() / Angle.TWO_PI);
         }
 
         /** {@inheritDoc} */
@@ -216,7 +187,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Deg toDeg() {
-            return Deg.of(value / Angle.TWO_PI * TURN_TO_DEG);
+            return Deg.of(getAsDouble() * RAD_TO_DEG);
         }
 
         /**
@@ -226,9 +197,8 @@ public abstract class Angle implements DoubleSupplier {
          * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static DoubleUnaryOperator normalizer(double lo) {
-            final Normalizer n = new Normalizer(lo, Angle.TWO_PI);
-            return a -> n.applyAsDouble(a);
+        public static DoubleUnaryOperator normalizer(final double lo) {
+            return new Normalizer(lo, Angle.TWO_PI);
         }
     }
 
@@ -244,7 +214,7 @@ public abstract class Angle implements DoubleSupplier {
         /**
          * @param angle (in degrees).
          */
-        private Deg(double angle) {
+        private Deg(final double angle) {
             super(angle);
         }
 
@@ -252,37 +222,20 @@ public abstract class Angle implements DoubleSupplier {
          * @param angle (in degrees).
          * @return a new intance.
          */
-        public static Deg of(double angle) {
+        public static Deg of(final double angle) {
             return new Deg(angle);
-        }
-
-        /**
-         * Test for equality with another object.
-         * Objects are considered to be equal if their values are exactly
-         * the same, or both are {@code Double.NaN}.
-         *
-         * @param other Object to test for equality with this instance.
-         * @return {@code true} if the objects are equal, {@code false} if
-         * {@code other} is {@code null}, not an instance of {@code Deg},
-         * or not equal to this instance.
-         */
-        @Override
-        public boolean equals(Object other) {
-            return other instanceof Deg ?
-                isSame((Deg) other) :
-                false;
         }
 
         /** {@inheritDoc} */
         @Override
         public Turn toTurn() {
-            return Turn.of(value / TURN_TO_DEG);
+            return Turn.of(getAsDouble() / TURN_TO_DEG);
         }
 
         /** {@inheritDoc} */
         @Override
         public Rad toRad() {
-            return Rad.of(value / TURN_TO_DEG * Angle.TWO_PI);
+            return Rad.of(getAsDouble() * DEG_TO_RAD);
         }
 
         /** {@inheritDoc} */
@@ -298,9 +251,8 @@ public abstract class Angle implements DoubleSupplier {
          * @param lo Lower bound of the normalized interval.
          * @return the normalization operator.
          */
-        public static DoubleUnaryOperator normalizer(double lo) {
-            final Normalizer n = new Normalizer(lo, TURN_TO_DEG);
-            return a -> n.applyAsDouble(a);
+        public static DoubleUnaryOperator normalizer(final double lo) {
+            return new Normalizer(lo, TURN_TO_DEG);
         }
     }
 
@@ -323,8 +275,8 @@ public abstract class Angle implements DoubleSupplier {
          * @param lo Lower bound of the desired interval.
          * @param period Circonference of the circle.
          */
-        Normalizer(double lo,
-                   double period) {
+        Normalizer(final double lo,
+                   final double period) {
             this.period = period;
             this.lo = lo;
             this.hi = lo + period;
@@ -337,7 +289,7 @@ public abstract class Angle implements DoubleSupplier {
          * {@code lo <= a - k < lo + period}.
          */
         @Override
-        public double applyAsDouble(double a) {
+        public double applyAsDouble(final double a) {
             if (lo <= a &&
                 a < hi) {
                 // Already within the main interval.
@@ -351,10 +303,9 @@ public abstract class Angle implements DoubleSupplier {
                 // floor expression above (i.e. value + x = x), then we may
                 // end up with a number exactly equal to the upper bound.
                 // In that case, subtract one period from the normalized value
-                // so that the result is strictly less than the upper bound.
-                normalized == hi ?
-                lo : // Ensure that the result is not below the lower bound.
-                normalized - period;
+                // so that the result is strictly less than the upper bound. (We also
+                // want to ensure that we do not return anything less than the lower bound.)
+                Math.max(lo, normalized - period);
         }
     }
 }

@@ -41,11 +41,6 @@
     <Method name="sqrt"/>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
-    <Match>
-    <Class name="org.apache.commons.numbers.angle.Angle$Normalizer"/>
-    <Method name="applyAsDouble"/>
-    <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
-  </Match>
 
   <Match>
     <!-- Benchmark state classes can expose internal representations -->
