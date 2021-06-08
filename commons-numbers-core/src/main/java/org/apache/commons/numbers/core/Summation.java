@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.arrays;
+package org.apache.commons.numbers.core;
 
 /** Class providing accurate floating-point summations. The methods provided
  * use a compensated summation technique to reduce numerical errors.

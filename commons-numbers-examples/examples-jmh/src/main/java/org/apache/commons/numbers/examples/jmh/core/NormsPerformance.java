@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.examples.jmh.arrays;
+package org.apache.commons.numbers.examples.jmh.core;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.ToDoubleFunction;
 
-import org.apache.commons.numbers.arrays.Norms;
+import org.apache.commons.numbers.core.Norms;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
 import org.openjdk.jmh.annotations.Benchmark;

@@ -14,29 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.arrays;
 
 /**
- * Computes the cosine of the angle between two vectors.
+ * Benchmarks for the {@code org.apache.commons.numbers.core} components.
  */
-public final class CosAngle {
-
-    /** Private constructor. */
-    private CosAngle() {
-        // intentionally empty.
-    }
-
-    /**
-     * Computes the cosine of the angle between {@code v1} and {@code v2}.
-     *
-     * @param v1 Cartesian coordinates of the first vector.
-     * @param v2 Cartesian coordinates of the second vector.
-     * @return the cosine of the angle between the vectors.
-     * @throws IllegalArgumentException if the sizes of the input arrays are different
-     */
-    public static double value(double[] v1,
-                               double[] v2) {
-        return LinearCombination.value(v1, v2) / Norms.euclidean(v1) / Norms.euclidean(v2);
-    }
-}
-
+package org.apache.commons.numbers.examples.jmh.core;

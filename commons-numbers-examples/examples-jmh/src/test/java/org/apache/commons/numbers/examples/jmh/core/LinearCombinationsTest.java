@@ -14,12 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.examples.jmh.arrays;
+package org.apache.commons.numbers.examples.jmh.core;
 
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.FourD;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ND;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ThreeD;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.TwoD;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.util.SplittableRandom;
+import java.util.stream.Stream;
+
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.FourD;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ND;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ThreeD;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.TwoD;
 import org.apache.commons.numbers.fraction.BigFraction;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
@@ -28,12 +34,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.util.SplittableRandom;
-import java.util.stream.Stream;
 
 /**
  * Test each implementation of the LinearCombination interface.

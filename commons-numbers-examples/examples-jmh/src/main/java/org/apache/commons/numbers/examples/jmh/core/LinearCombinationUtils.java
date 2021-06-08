@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.examples.jmh.arrays;
-
-import org.apache.commons.rng.UniformRandomProvider;
+package org.apache.commons.numbers.examples.jmh.core;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+
+import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Utility class to create data for linear combinations.

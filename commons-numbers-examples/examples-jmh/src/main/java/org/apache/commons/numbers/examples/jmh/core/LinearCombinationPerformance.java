@@ -15,13 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.commons.numbers.examples.jmh.arrays;
+package org.apache.commons.numbers.examples.jmh.core;
 
-import org.apache.commons.numbers.arrays.LinearCombination;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.FourD;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ND;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ThreeD;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.TwoD;
+import java.math.MathContext;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import java.util.function.IntFunction;
+
+import org.apache.commons.numbers.core.LinearCombination;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.FourD;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ND;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ThreeD;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.TwoD;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -36,11 +41,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-
-import java.math.MathContext;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-import java.util.function.IntFunction;
 
 /**
  * Executes a benchmark to measure the speed of operations in the {@link LinearCombination} class.

@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.examples.jmh.arrays;
-
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.FourD;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ND;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ThreeD;
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.TwoD;
+package org.apache.commons.numbers.examples.jmh.core;
 
 import java.math.BigDecimal;
 import java.util.function.IntFunction;
+
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.FourD;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ND;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ThreeD;
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.TwoD;
 
 /**
  * Provides implementations to computes linear combinations as the the sum of
@@ -272,7 +272,7 @@ public final class LinearCombinations {
      * same number of operations as {@link ExtendedPrecision} and users should switch to the
      * {@link ExtendedPrecision} class. For example 3D combinations should use {@code k} up to
      * 3 or else switch to using {@link ExtendedPrecision}. This rule does not apply to the
-     * {@link org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ND ND}
+     * {@link org.apache.commons.numbers.examples.jmh.core.LinearCombination.ND ND}
      * implementations as {@link ExtendedPrecision} eliminates redundant operations
      * on zeros. In this case equivalent performance will be observed when {@code k <= n+1}.
      * Choice of implementation must consider performance and accuracy on real-world data.

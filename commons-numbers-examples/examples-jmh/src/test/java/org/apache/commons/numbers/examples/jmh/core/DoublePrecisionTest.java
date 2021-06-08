@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.arrays;
+package org.apache.commons.numbers.examples.jmh.core;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test cases for the {@link ExtendedPrecision} class.
+ * Tests for {@link DoublePrecision}.
  */
-class ExtendedPrecisionTest {
+class DoublePrecisionTest {
     @Test
     void testSplitAssumptions() {
         // The multiplier used to split the double value into high and low parts.
@@ -40,17 +40,27 @@ class ExtendedPrecisionTest {
     }
 
     @Test
+    void testHighPart() {
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPart(Double.POSITIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPart(Double.NEGATIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPart(Double.NaN));
+        // Any finite number should be split to a finite number
+        Assertions.assertTrue(Double.isFinite(DoublePrecision.highPart(Double.MAX_VALUE)));
+        Assertions.assertTrue(Double.isFinite(DoublePrecision.highPart(-Double.MAX_VALUE)));
+    }
+
+    @Test
     void testHighPartUnscaled() {
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.POSITIVE_INFINITY));
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.NEGATIVE_INFINITY));
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.NaN));
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(Double.POSITIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(Double.NEGATIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(Double.NaN));
         // Large finite numbers will overflow during the split
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.MAX_VALUE));
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(-Double.MAX_VALUE));
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(Double.MAX_VALUE));
+        Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(-Double.MAX_VALUE));
     }
 
     /**
-     * Test {@link ExtendedPrecision#productLow(double, double, double)} computes the same
+     * Test {@link DoublePrecision#productLow(double, double, double)} computes the same
      * result as JDK 9 Math.fma(x, y, -x * y) for edge cases.
      */
     @Test
@@ -66,59 +76,19 @@ class ExtendedPrecisionTest {
 
     private static void assertProductLow(double expected, double x, double y) {
         // Requires a delta of 0.0 to assert -0.0 == 0.0
-        Assertions.assertEquals(expected, ExtendedPrecision.productLow(x, y, x * y), 0.0);
+        Assertions.assertEquals(expected, DoublePrecision.productLow(x, y, x * y), 0.0);
     }
 
     @Test
     void testIsNotNormal() {
         for (double a : new double[] {Double.MAX_VALUE, 1.0, Double.MIN_NORMAL}) {
-            Assertions.assertFalse(ExtendedPrecision.isNotNormal(a));
-            Assertions.assertFalse(ExtendedPrecision.isNotNormal(-a));
+            Assertions.assertFalse(DoublePrecision.isNotNormal(a));
+            Assertions.assertFalse(DoublePrecision.isNotNormal(-a));
         }
         for (double a : new double[] {Double.POSITIVE_INFINITY, 0.0,
                                       Math.nextDown(Double.MIN_NORMAL), Double.NaN}) {
-            Assertions.assertTrue(ExtendedPrecision.isNotNormal(a));
-            Assertions.assertTrue(ExtendedPrecision.isNotNormal(-a));
+            Assertions.assertTrue(DoublePrecision.isNotNormal(a));
+            Assertions.assertTrue(DoublePrecision.isNotNormal(-a));
         }
-    }
-
-    /**
-     * This demonstrates splitting a sub normal number with no information in the upper 26 bits
-     * of the mantissa.
-     */
-    @Test
-    void testSubNormalSplit() {
-        final double a = Double.longBitsToDouble(1L << 25);
-
-        // A split using masking of the mantissa bits computes the high part incorrectly
-        final double hi1 = Double.longBitsToDouble(Double.doubleToRawLongBits(a) & ((-1L) << 27));
-        final double lo1 = a - hi1;
-        Assertions.assertEquals(0, hi1);
-        Assertions.assertEquals(a, lo1);
-        Assertions.assertFalse(Math.abs(hi1) > Math.abs(lo1));
-
-        // Dekker's split
-        final double hi2 = ExtendedPrecision.highPartUnscaled(a);
-        final double lo2 = a - hi2;
-        Assertions.assertEquals(a, hi2);
-        Assertions.assertEquals(0, lo2);
-
-        Assertions.assertTrue(Math.abs(hi2) > Math.abs(lo2));
-    }
-
-    @Test
-    void testSquareLowUnscaled() {
-        assertSquareLowUnscaled(0.0, 1.0);
-        assertSquareLowUnscaled(0.0, -1.0);
-        assertSquareLowUnscaled(Math.fma(Math.PI, Math.PI, -Math.PI * Math.PI), Math.PI);
-
-        assertSquareLowUnscaled(Double.NaN, Double.POSITIVE_INFINITY);
-        assertSquareLowUnscaled(Double.NaN, Double.NEGATIVE_INFINITY);
-        assertSquareLowUnscaled(Double.NaN, Double.NaN);
-        assertSquareLowUnscaled(Double.NaN, Double.MAX_VALUE);
-    }
-
-    private static void assertSquareLowUnscaled(final double expected, final double x) {
-        Assertions.assertEquals(expected, ExtendedPrecision.squareLowUnscaled(x, x * x));
     }
 }

@@ -15,7 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.commons.numbers.examples.jmh.arrays;
+package org.apache.commons.numbers.examples.jmh.core;
+
+import java.util.concurrent.TimeUnit;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
@@ -31,11 +36,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoublePredicate;
-import java.util.function.DoubleUnaryOperator;
 
 /**
  * Executes a benchmark to measure the speed of operations in the {@link LinearCombination} class.

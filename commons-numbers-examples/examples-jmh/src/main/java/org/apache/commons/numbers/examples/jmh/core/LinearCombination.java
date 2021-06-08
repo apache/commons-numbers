@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.examples.jmh.arrays;
+package org.apache.commons.numbers.examples.jmh.core;
 
 /**
  * Computes linear combinations as the the sum of the products of two sequences of numbers

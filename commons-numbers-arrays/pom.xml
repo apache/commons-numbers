@@ -32,10 +32,6 @@
   <description>Array utilities.</description>
 
   <properties>
-    <!-- JDK 9+ required for BigDecimal.sqrt() method in unit tests. -->
-    <maven.compiler.testSource>1.9</maven.compiler.testSource>
-    <maven.compiler.testTarget>1.9</maven.compiler.testTarget>
-
     <!-- The Java Module System Name -->
     <commons.module.name>org.apache.commons.numbers.arrays</commons.module.name>
     <!-- This value must reflect the current name of the base package. -->
@@ -45,15 +41,5 @@
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
   </properties>
-
-  <dependencies>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-rng-simple</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
 
 </project>

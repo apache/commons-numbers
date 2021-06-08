@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.angle;
 
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Represents the <a href="https://en.wikipedia.org/wiki/Angle">angle</a> concept.

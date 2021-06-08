@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.examples.jmh.arrays;
+package org.apache.commons.numbers.examples.jmh.core;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -370,7 +370,7 @@ public final class EuclideanNormAlgorithms {
                 }
                 rescale = 0x1.0p-600;
             }
-            return Math.sqrt(org.apache.commons.numbers.arrays.LinearCombination.value(x, x)) * rescale;
+            return Math.sqrt(org.apache.commons.numbers.core.LinearCombination.value(x, x)) * rescale;
         }
     }
 

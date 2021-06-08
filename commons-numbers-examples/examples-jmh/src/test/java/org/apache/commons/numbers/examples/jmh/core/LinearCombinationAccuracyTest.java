@@ -14,17 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.examples.jmh.arrays;
-
-import org.apache.commons.numbers.examples.jmh.arrays.LinearCombination.ND;
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.simple.RandomSource;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+package org.apache.commons.numbers.examples.jmh.core;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,6 +25,16 @@ import java.util.Collections;
 import java.util.Formatter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ND;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.simple.RandomSource;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test the accuracy of each implementation of {@link LinearCombination}.
