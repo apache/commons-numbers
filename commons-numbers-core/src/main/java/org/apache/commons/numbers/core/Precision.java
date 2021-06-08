@@ -605,16 +605,26 @@ public final class Precision {
 
         /**
          * Returns the {@link Math#signum(double) sign} of the argument.
+         * The returned value is
+         * <ul>
+         *  <li>{@code -0.0} if {@code a} is considered equal to zero and negatively signed,</li>
+         *  <li>{@code +0.0} if {@code a} is considered equal to zero and positively signed,</li>
+         *  <li>{@code -1.0} if {@code a} is considered less than zero,</li>
+         *  <li>{@code +1.0} if {@code a} is considered greater than zero.</li>
+         * </ul>
+         *
+         * <p>The equality with zero uses the {@link #eqZero(double) eqZero} method.
          *
          * @param a Value.
-         * @return the sign (or {@code a} if {@code eqZero(a)} is true or
+         * @return the sign (or {@code a} if {@code a == 0} or
          * {@code a} is NaN).
+         * @see #eqZero(double)
          */
         default double signum(double a) {
-            return a == 0d ||
-                Double.isNaN(a) ?
-                a :
-                eqZero(a) ?
+            if (a == 0d || Double.isNaN(a)) {
+                return a;
+            }
+            return eqZero(a) ?
                 Math.copySign(0d, a) :
                 Math.copySign(1d, a);
         }
