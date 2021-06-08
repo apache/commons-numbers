@@ -295,7 +295,7 @@ class PrecisionTest {
                                                   array[j + 1],
                                                   eps);
                 // Check that order is consistent with the comparison function.
-                Assertions.assertNotEquals(c, 1);
+                Assertions.assertNotEquals(1, c);
             }
             Assertions.assertTrue(array[0] == 0.01 || array[0] == 0.02);
             Assertions.assertTrue(array[1] == 0.01 || array[1] == 0.02);
