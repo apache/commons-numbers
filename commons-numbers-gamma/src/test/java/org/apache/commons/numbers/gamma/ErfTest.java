@@ -32,8 +32,8 @@ class ErfTest {
      * and standard deviation 1 contains a value Y in the range [-x, x].
      * This is equivalent to erf(x / root(2)).
      *
-     * @param x the value multiplied by root(2)
-     * @param expected the expected error function
+     * @param x the value
+     * @param expected the expected value of erf(x / root(2))
      */
     @ParameterizedTest
     @CsvSource({
