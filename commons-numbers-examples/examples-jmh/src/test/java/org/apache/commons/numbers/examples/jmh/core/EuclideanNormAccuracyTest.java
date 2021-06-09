@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test the accuracy of the algorithms in the {@link EuclideanNorms} class.
+ * Test the accuracy of the algorithms in the {@link EuclideanNormAlgorithms} class.
  */
 class EuclideanNormAccuracyTest {
 
