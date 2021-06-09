@@ -96,7 +96,7 @@ public class EuclideanNormEvaluator {
 
         BigDecimal sum = BigDecimal.ZERO;
         for (final double v : vec) {
-            sum = sum.add(BigDecimal.valueOf(v).pow(2), ctx);
+            sum = sum.add(new BigDecimal(v).pow(2), ctx);
         }
 
         return sum.sqrt(ctx).doubleValue();

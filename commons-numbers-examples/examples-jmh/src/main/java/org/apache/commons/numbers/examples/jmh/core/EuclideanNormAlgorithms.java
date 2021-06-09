@@ -40,7 +40,7 @@ public final class EuclideanNormAlgorithms {
             BigDecimal sum = BigDecimal.ZERO;
             BigDecimal n;
             for (int i = 0; i < v.length; ++i) {
-                n = BigDecimal.valueOf(Double.isFinite(v[i]) ? v[i] : 0d);
+                n = Double.isFinite(v[i]) ? new BigDecimal(v[i]) : BigDecimal.ZERO;
                 sum = sum.add(n.multiply(n, ctx), ctx);
             }
 

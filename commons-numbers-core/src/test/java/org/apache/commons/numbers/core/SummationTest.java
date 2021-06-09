@@ -275,7 +275,7 @@ class SummationTest {
     private static double computeExact(final double... values) {
         BigDecimal sum = BigDecimal.ZERO;
         for (double value : values) {
-            sum = sum.add(BigDecimal.valueOf(value), MathContext.UNLIMITED);
+            sum = sum.add(new BigDecimal(value), MathContext.UNLIMITED);
         }
 
         return sum.doubleValue();
