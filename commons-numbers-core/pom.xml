@@ -33,8 +33,8 @@
 
   <properties>
     <!-- JDK 9+ required for BigDecimal.sqrt() method in unit tests. -->
-    <maven.compiler.testSource>1.9</maven.compiler.testSource>
-    <maven.compiler.testTarget>1.9</maven.compiler.testTarget>
+    <maven.compiler.testSource>9</maven.compiler.testSource>
+    <maven.compiler.testTarget>9</maven.compiler.testTarget>
 
     <!-- The Java Module System Name -->
     <commons.module.name>org.apache.commons.numbers.core</commons.module.name>
