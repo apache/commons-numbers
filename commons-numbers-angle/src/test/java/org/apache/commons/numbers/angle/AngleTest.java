@@ -40,15 +40,15 @@ class AngleTest {
     void testConversions() {
         final double a = 12.3456;
         final double tol = 1e-14;
-        Assertions.assertEquals(a, Angle.Turn.of(a).toRad().toDeg().toTurn().getAsDouble(), tol);
-        Assertions.assertEquals(a, Angle.Rad.of(a).toTurn().toDeg().toRad().getAsDouble(), tol);
-        Assertions.assertEquals(a, Angle.Deg.of(a).toTurn().toRad().toDeg().getAsDouble(), tol);
-        Angle.Turn t = Angle.Turn.of(1.23);
+        Angle.Turn t = Angle.Turn.of(a);
+        Angle.Rad r = Angle.Rad.of(a);
+        Angle.Deg d = Angle.Deg.of(a);
         Assertions.assertSame(t, t.toTurn());
-        Angle.Rad r = Angle.Rad.of(1.23);
         Assertions.assertSame(r, r.toRad());
-        Angle.Deg d = Angle.Deg.of(1.23);
         Assertions.assertSame(d, d.toDeg());
+        Assertions.assertEquals(a, t.toRad().toDeg().toTurn().getAsDouble(), tol);
+        Assertions.assertEquals(a, r.toTurn().toDeg().toRad().getAsDouble(), tol);
+        Assertions.assertEquals(a, d.toTurn().toRad().toDeg().getAsDouble(), tol);
     }
 
     @Test
