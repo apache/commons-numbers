@@ -231,7 +231,7 @@ class NormTest {
 
         // compute the std devs
         final UlpErrorStats hypotStats = computeUlpErrorStats(inputs, exactResults, v -> Math.hypot(v[0], v[1]));
-        final UlpErrorStats normStats = computeUlpErrorStats(inputs, exactResults, v -> Norm.L2.of(v));
+        final UlpErrorStats normStats = computeUlpErrorStats(inputs, exactResults, v -> Norm.L2.of(v[0], v[1]));
 
         // ensure that we are within the ballpark of Math.hypot
         Assertions.assertTrue(normStats.getMean() <= (hypotStats.getMean() + HYPOT_COMPARE_EPS),
