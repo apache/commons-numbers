@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -110,7 +111,9 @@ class ExtendedPrecisionTest {
     void testSquareLowUnscaled() {
         assertSquareLowUnscaled(0.0, 1.0);
         assertSquareLowUnscaled(0.0, -1.0);
-        assertSquareLowUnscaled(Math.fma(Math.PI, Math.PI, -Math.PI * Math.PI), Math.PI);
+        final double expected = new BigDecimal(Math.PI).pow(2)
+                .subtract(new BigDecimal(Math.PI * Math.PI)).doubleValue();
+        assertSquareLowUnscaled(expected, Math.PI);
 
         assertSquareLowUnscaled(Double.NaN, Double.POSITIVE_INFINITY);
         assertSquareLowUnscaled(Double.NaN, Double.NEGATIVE_INFINITY);
