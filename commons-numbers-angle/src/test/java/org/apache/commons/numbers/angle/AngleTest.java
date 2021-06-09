@@ -43,6 +43,12 @@ class AngleTest {
         Assertions.assertEquals(a, Angle.Turn.of(a).toRad().toDeg().toTurn().getAsDouble(), tol);
         Assertions.assertEquals(a, Angle.Rad.of(a).toTurn().toDeg().toRad().getAsDouble(), tol);
         Assertions.assertEquals(a, Angle.Deg.of(a).toTurn().toRad().toDeg().getAsDouble(), tol);
+        Angle.Turn t = Angle.Turn.of(1.23);
+        Assertions.assertSame(t, t.toTurn());
+        Angle.Rad r = Angle.Rad.of(1.23);
+        Assertions.assertSame(r, r.toRad());
+        Angle.Deg d = Angle.Deg.of(1.23);
+        Assertions.assertSame(d, d.toDeg());
     }
 
     @Test
