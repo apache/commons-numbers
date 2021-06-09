@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for {@link Precision#DoubleEquivalence} instances created with
+ * Tests for {@link Precision.DoubleEquivalence} instances created with
  * {@link Precision#doubleEquivalenceOfEpsilon(double)}.
  */
 class EpsilonDoubleEquivalenceTest {
