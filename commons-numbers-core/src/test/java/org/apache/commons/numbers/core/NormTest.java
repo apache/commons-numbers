@@ -38,6 +38,15 @@ class NormTest {
 
     private static final double HYPOT_COMPARE_EPS = 1e-2;
 
+    private static final BigDecimal BD_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
+    private static final BigDecimal BD_MIN_NORMAL = new BigDecimal(Double.MIN_NORMAL);
+
+    /** The scale, used to scale the sqrt of the sum of squares. */
+    private static final double SCALE = 0x1.0p200;
+
+    /** The scale squared, used to scale the sum of squares. */
+    private static final BigDecimal SCALE2 = new BigDecimal(SCALE * SCALE);
+
     @Test
     void testManhattan_2d() {
         // act/assert
@@ -185,7 +194,7 @@ class NormTest {
     void testEuclidean_2d_vsHypot() {
         // arrange
         final int samples = 1000;
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, 2L);
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, 3L);
 
         // act/assert
         assertEuclidean2dVersusHypot(-10, +10, samples, rng);
@@ -531,10 +540,32 @@ class NormTest {
 
         BigDecimal sum = BigDecimal.ZERO;
         for (final double d : v) {
-            sum = sum.add(BigDecimal.valueOf(d).pow(2), ctx);
+            sum = sum.add(new BigDecimal(d).pow(2), ctx);
+        }
+        if (sum.equals(BigDecimal.ZERO)) {
+            return 0;
         }
 
-        return sum.sqrt(ctx).doubleValue();
+        // Java 9+:
+        // sum.sqrt(ctx).doubleValue()
+
+        // Require the sum to be in the range of a double for conversion before sqrt().
+        // We scale by a power of 2. Rescaling uses the square root of this which is also
+        // a power of 2 and can be accumulated for exact rescaling.
+        double rescale = 1.0;
+        if (sum.compareTo(BD_MIN_NORMAL) < 0) {
+            while (sum.compareTo(BD_MIN_NORMAL) < 0) {
+                sum = sum.multiply(SCALE2);
+                rescale /= SCALE;
+            }
+        } else if (sum.compareTo(BD_MAX_VALUE) > 0) {
+            while (sum.compareTo(BD_MAX_VALUE) > 0) {
+                sum = sum.divide(SCALE2);
+                rescale *= SCALE;
+            }
+        }
+
+        return Math.sqrt(sum.doubleValue()) * rescale;
     }
 
     /** Compute statistics for the ulp error of {@code fn} for the given inputs and
