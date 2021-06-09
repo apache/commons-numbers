@@ -68,8 +68,13 @@ Apache Commons Numbers 1.0-beta1 contains the following library modules:
   commons-numbers-quaternion (requires Java 8+)
   commons-numbers-rootfinder (requires Java 8+)
 ">
+      <action dev="mattjuntunen" type="update" issue="NUMBERS-159" due-to="Matt Juntunen">
+        Moved "Norms", "LinearCombination", and "Summation" from commons-numbers-arrays module
+        to commons-numbers-core module. Moved "CosAngle" from commons-numbers-arrays module to
+        commons-numbers-angle module.
+      </action>
       <action dev="mattjuntunen" type="update" issue="NUMBERS-156" due-to="Matt Juntunen">
-        Replacing "SafeNorm" with "Norms". Adding "Summation" class for extended
+        Replaced "SafeNorm" with "Norms". Added "Summation" class for extended
         precision summation.
       </action>
       <action dev="erans" type="update" issue="NUMBERS-161">
