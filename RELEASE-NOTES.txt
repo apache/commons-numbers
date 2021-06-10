@@ -22,6 +22,9 @@ Apache Commons Numbers 1.0-beta1 contains the following library modules:
  commons-numbers-quaternion (requires Java 8+)
  commons-numbers-rootfinder (requires Java 8+)
 
+N.B. the Performance testing module requires Java 9+.
+(The unit tests require Java 8+)
+
 No changes defined in this version.
 
 For complete information on Apache Commons Numbers, including instructions on how to submit bug
