@@ -117,4 +117,26 @@ class MultidimensionalCounterTest {
         final MultidimensionalCounter c = MultidimensionalCounter.of(sizes);
         Assertions.assertEquals(Arrays.toString(sizes), c.toString());
     }
+
+    // Illustrates how to recover the iterator functionality that existed
+    // in Commons Math (v3.6.1) but was not ported to "Commons Numbers".
+    @Test
+    void testCommonsMathIterator() {
+        final int[] sizes = new int[] {3, 2, 5};
+        final org.apache.commons.math3.util.MultidimensionalCounter.Iterator cmIter =
+            new org.apache.commons.math3.util.MultidimensionalCounter(sizes).iterator();
+
+        final MultidimensionalCounter counter = MultidimensionalCounter.of(sizes);
+
+        Assertions.assertTrue(cmIter.hasNext());
+        Assertions.assertTrue(counter.getSize() > 0);
+
+        for (int i = 0; i < counter.getSize(); i++) {
+            cmIter.next();
+            Assertions.assertTrue(Arrays.equals(cmIter.getCounts(),
+                                                counter.toMulti(i)));
+        }
+
+        Assertions.assertFalse(cmIter.hasNext());
+    }
 }
