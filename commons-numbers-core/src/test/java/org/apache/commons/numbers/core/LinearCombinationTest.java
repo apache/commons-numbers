@@ -413,4 +413,56 @@ class LinearCombinationTest {
         Assertions.assertEquals(expected, LinearCombination.value(a1, b1, a2, b2, 0, 0, 0, 0));
         Assertions.assertEquals(expected, LinearCombination.value(new double[] {a1, a2}, new double[] {b1, b2}));
     }
+
+    @Test
+    void testAccumulator() {
+        final double a1 = Math.PI;
+        final double b1 = Math.nextDown(1d);
+
+        final double a2 = Math.E;
+        final double b2 = Math.nextUp(1d);
+
+        final double a3 = 0.5 * Math.PI;
+        final double b3 = 1e-10;
+
+        final double a4 = 0.3 * Math.PI;
+
+        final double b5 = 0.1 * Math.E;
+
+        final LinearCombination.Accumulator acc = LinearCombination.accumulator();
+
+        Assertions.assertEquals(0d, acc.getAsDouble());
+
+        Assertions.assertSame(acc, acc.add(a1, b1));
+        Assertions.assertEquals(a1 * b1, acc.getAsDouble());
+
+        acc.add(a2, b2).add(a3, b3);
+        Assertions.assertEquals(LinearCombination.value(a1, b1, a2, b2, a3, b3), acc.getAsDouble());
+
+        acc.add(a4).add(b5);
+        Assertions.assertEquals(LinearCombination.value(
+                new double[] {a1, a2, a3, a4, 1},
+                new double[] {b1, b2, b3, 1, b5}), acc.getAsDouble());
+    }
+
+    @Test
+    void testAccumulator_NaNAndInfinite() {
+        Assertions.assertEquals(Double.NaN, LinearCombination.accumulator()
+                .add(Double.NaN).getAsDouble());
+        Assertions.assertEquals(Double.NaN, LinearCombination.accumulator()
+                .add(1, Double.NaN).getAsDouble());
+
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.accumulator()
+                .add(Double.POSITIVE_INFINITY).getAsDouble());
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.accumulator()
+                .add(1, Double.POSITIVE_INFINITY).getAsDouble());
+
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY, LinearCombination.accumulator()
+                .add(Double.NEGATIVE_INFINITY).getAsDouble());
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY, LinearCombination.accumulator()
+                .add(1, Double.NEGATIVE_INFINITY).getAsDouble());
+
+        Assertions.assertEquals(Double.POSITIVE_INFINITY * Double.NEGATIVE_INFINITY, LinearCombination.accumulator()
+                .add(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY).getAsDouble());
+    }
 }

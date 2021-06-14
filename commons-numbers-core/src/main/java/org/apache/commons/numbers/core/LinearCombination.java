@@ -16,6 +16,8 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.util.function.DoubleSupplier;
+
 /**
  * Computes linear combinations accurately.
  * This method computes the sum of the products
@@ -198,6 +200,14 @@ public final class LinearCombination {
         return getSum(pn, pn + s);
     }
 
+    /** Return a new {@link Accumulator} instance for computing a running
+     * sum of linear combination terms.
+     * @return accumulator instance
+     */
+    public static Accumulator accumulator() {
+        return new Accumulator();
+    }
+
     /**
      * Gets the final sum. This checks the high precision sum is finite, otherwise
      * returns the standard precision sum for the IEEE754 result.
@@ -218,5 +228,54 @@ public final class LinearCombination {
             return sum;
         }
         return hpSum;
+    }
+
+    /** Class for computing the linear combination of an arbitrary number of terms with
+     * high accuracy. The algorithm used is the same as that for the static {@link LinearCombination}
+     * methods.
+     */
+    public static final class Accumulator implements DoubleSupplier {
+        /** Standard scalar product sum. */
+        private double p;
+        /** Value of round-off errors. */
+        private double s;
+
+        /** Add the single term {@code t} to the accumulator. This is
+         * equivalent to calling {@code accumulator.add(1.0, t)}.
+         * @param t term to add
+         * @return this instance
+         */
+        public Accumulator add(final double t) {
+            final double x = p + t;
+            s += ExtendedPrecision.twoSumLow(p, t, x);
+            p = x;
+
+            return this;
+        }
+
+        /** Add the product \(a * b\) to the accumulator.
+         * @param a first factor
+         * @param b second factor
+         * @return this instance
+         */
+        public Accumulator add(final double a, final double b) {
+            final double h = a * b;
+            final double r = ExtendedPrecision.productLow(a, b, h);
+
+            final double x = p + h;
+            s += ExtendedPrecision.twoSumLow(p, h, x) + r;
+            p = x;
+
+            return this;
+        }
+
+        /** Get the value of the linear combination. Values may still be
+         * added to the instance after this method is called.
+         * @return value of the linear combination
+         */
+        @Override
+        public double getAsDouble() {
+            return getSum(p, p + s);
+        }
     }
 }

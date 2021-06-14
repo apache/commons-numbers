@@ -18,6 +18,7 @@ package org.apache.commons.numbers.core;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -234,6 +235,65 @@ class SummationTest {
 
         assertArrayValue(a, -b, c, -d, e, f);
         assertArrayValue(f, -e, d, -c, b, -a);
+    }
+
+    @Test
+    void testAccumulator_factoryMethods() {
+        // act/assert
+        Assertions.assertEquals(0d, Summation.accumulator().getAsDouble());
+        Assertions.assertEquals(-1d, Summation.accumulator(-1d).getAsDouble());
+    }
+
+    @Test
+    void testAccumulator() {
+        // arrange
+        final double a = 9.999999999;
+        final double b = Math.scalb(a, -53);
+        final double c = Math.scalb(a, -53);
+        final double d = Math.scalb(a, -27);
+        final double e = Math.scalb(a, -27);
+        final double f = Math.scalb(a, -50);
+
+        final Summation.Accumulator acc = Summation.accumulator();
+
+        // act/assert
+        Assertions.assertEquals(0d, acc.getAsDouble());
+
+        Assertions.assertSame(acc, acc.add(a));
+        Assertions.assertEquals(a, acc.getAsDouble());
+
+        acc.add(b).add(c);
+        Assertions.assertEquals(Summation.value(a, b, c), acc.getAsDouble());
+
+        acc.accept(d);
+        Assertions.assertEquals(Summation.value(a, b, c, d), acc.getAsDouble());
+
+        Arrays.stream(new double[] {e, f}).forEach(acc);
+        Assertions.assertEquals(Summation.value(a, b, c, d, e, f), acc.getAsDouble());
+    }
+
+    @Test
+    void testAccumulator_NaNAndInfinity() {
+        // act/assert
+        Assertions.assertEquals(Double.NaN, Summation.accumulator().add(Double.NaN).getAsDouble());
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
+                Summation.accumulator().add(Double.POSITIVE_INFINITY).getAsDouble());
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
+                Summation.accumulator().add(Double.NEGATIVE_INFINITY).getAsDouble());
+        Assertions.assertEquals(Double.NaN,
+                Summation.accumulator().add(Double.NEGATIVE_INFINITY).add(Double.POSITIVE_INFINITY).getAsDouble());
+
+        Assertions.assertEquals(Double.NaN, Summation.accumulator().add(10).add(Double.NaN).getAsDouble());
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
+                Summation.accumulator().add(10).add(Double.POSITIVE_INFINITY).getAsDouble());
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
+                Summation.accumulator().add(10).add(Double.NEGATIVE_INFINITY).getAsDouble());
+
+        Assertions.assertEquals(Double.NaN, Summation.accumulator().add(Double.NaN).add(10).getAsDouble());
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
+                Summation.accumulator().add(Double.POSITIVE_INFINITY).add(10).getAsDouble());
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
+                Summation.accumulator().add(Double.NEGATIVE_INFINITY).add(10).getAsDouble());
     }
 
     private static void assertValue(final double a, final double b, final double c) {

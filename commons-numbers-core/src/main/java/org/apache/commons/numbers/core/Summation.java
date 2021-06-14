@@ -16,6 +16,9 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
+
 /** Class providing accurate floating-point summations. The methods provided
  * use a compensated summation technique to reduce numerical errors.
  * The approach is based on the <em>Sum2S</em> algorithm described in the
@@ -164,6 +167,24 @@ public final class Summation {
         return summationResult(sum, comp);
     }
 
+    /** Return a new {@link Accumulator} instance for computing a
+     * running sum of values. The returned instance contains an
+     * initial value of zero.
+     * @return accumulator instance for computing a running sum of values
+     */
+    public static Accumulator accumulator() {
+        return accumulator(0d);
+    }
+
+    /** Return a new {@link Accumulator} instance for computing a running
+     * sum of values.
+     * @param initial initial value of the accumulator
+     * @return accumulator instance for computing a running sum of values
+     */
+    public static Accumulator accumulator(final double initial) {
+        return new Accumulator(initial);
+    }
+
     /** Return the final result from a summation operation.
      * @param sum standard sum value
      * @param comp compensation value
@@ -175,5 +196,53 @@ public final class Summation {
         return Double.isFinite(comp) ?
                 sum + comp :
                 sum;
+    }
+
+    /** Class for computing a high-accuracy running sum of values. The algorithm used is
+     * the same as that for the static {@link Summation} methods.
+     */
+    public static final class Accumulator implements DoubleSupplier, DoubleConsumer {
+        /** Sum value. */
+        private double sum;
+        /** Compensation value. */
+        private double comp;
+
+        /** Construct a new instance with the given initial value.
+         * @param initial initial value
+         */
+        private Accumulator(final double initial) {
+            sum = initial;
+        }
+
+        /** Add a value to the summation.
+         * @param a value to add
+         * @return this instance
+         */
+        public Accumulator add(final double a) {
+            final double t = sum + a;
+            comp += ExtendedPrecision.twoSumLow(sum, a, t);
+            sum = t;
+
+            return this;
+        }
+
+        /** Add a value to the summation. This is equivalent
+         * to {@link #add(double)} but without the current instance
+         * as the return value.
+         * @param value value to add
+         */
+        @Override
+        public void accept(final double value) {
+            add(value);
+        }
+
+        /** Get the summation result. Values can still be added
+         * to the instance after calling this method.
+         * @return summation result
+         */
+        @Override
+        public double getAsDouble() {
+            return summationResult(sum, comp);
+        }
     }
 }
