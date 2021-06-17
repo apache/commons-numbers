@@ -43,7 +43,7 @@ public enum SortInPlace implements BiConsumer<double[], double[][]> {
     /** Sort in ascending order. */
     ASCENDING((o1, o2) -> Double.compare(o1.key(), o2.key())),
     /** Sort in descending order. */
-    DESCENDING(ASCENDING.comparator.reversed());
+    DESCENDING((o1, o2) -> Double.compare(o2.key(), o1.key()));
 
     /** Comparator. */
     private final Comparator<PairDoubleInteger> comparator;
