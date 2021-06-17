@@ -184,7 +184,7 @@ public class NormPerformance {
         eval(v -> Math.hypot(v[0], v[1]), input, bh);
     }
 
-    /** Compute the performance of the {@link Norm.L2#value(double, double)} method.
+    /** Compute the performance of the {@link Norm#of(double, double)} method.
      * @param input benchmark input
      * @param bh blackhole
      */
@@ -193,7 +193,7 @@ public class NormPerformance {
         eval(v -> Norm.L2.of(v[0], v[1]), input, bh);
     }
 
-    /** Compute the performance of the {@link Norm.L2#value(double, double, double)} method.
+    /** Compute the performance of the {@link Norm#of(double, double, double)} method.
      * @param input benchmark input
      * @param bh blackhole
      */
@@ -202,7 +202,7 @@ public class NormPerformance {
         eval(v -> Norm.L2.of(v[0], v[1], v[2]), input, bh);
     }
 
-    /** Compute the performance of the {@link Norm.L2#value(double[])} method.
+    /** Compute the performance of the {@link Norm#of(double[])} method.
      * @param input benchmark input
      * @param bh blackhole
      */
