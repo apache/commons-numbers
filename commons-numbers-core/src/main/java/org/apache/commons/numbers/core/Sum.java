@@ -154,6 +154,15 @@ public final class Sum implements DoubleSupplier, DoubleConsumer {
         return new Sum();
     }
 
+    /** Return a new sum instance containing a single value.
+     * @param a value
+     * @return new sum instance
+     * @see #add(double)
+     */
+    public static Sum of(final double a) {
+        return new Sum(a);
+    }
+
     /** Return a new sum instance containing the value \(a + b\).
      * @param a first term
      * @param b second term
