@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.angle;
 
-import org.apache.commons.numbers.core.LinearCombination;
 import org.apache.commons.numbers.core.Norm;
+import org.apache.commons.numbers.core.Sum;
 
 /**
  * Computes the cosine of the angle between two vectors.
@@ -39,7 +39,6 @@ public final class CosAngle {
      */
     public static double value(double[] v1,
                                double[] v2) {
-        return LinearCombination.value(v1, v2) / Norm.L2.of(v1) / Norm.L2.of(v2);
+        return Sum.ofProducts(v1, v2).getAsDouble() / Norm.L2.of(v1) / Norm.L2.of(v2);
     }
 }
-
