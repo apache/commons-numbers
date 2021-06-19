@@ -107,7 +107,7 @@ class SumTest {
         // act/assert
         final Sum sum = Sum.create();
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> sum.addProducts(new double[1], new double[2]));
+            () -> sum.addProducts(new double[1], new double[2]));
 
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Sum.ofProducts(new double[1], new double[2]));
