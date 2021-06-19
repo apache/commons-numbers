@@ -78,10 +78,10 @@ public class SumPerformance {
         @Param("26")
         private int expRange;
 
-        /** First input arrays. */
+        /** First set of input arrays. */
         private double[][] a;
 
-        /** Second input arrays. */
+        /** Second set of input arrays. */
         private double[][] b;
 
         /** Get the first set of input arrays.
