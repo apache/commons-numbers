@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.function.ToDoubleFunction;
 
+import org.apache.commons.numbers.core.Sum;
+
 /** Class containing various Euclidean norm computation methods for comparison.
  */
 public final class EuclideanNormAlgorithms {
@@ -370,7 +372,7 @@ public final class EuclideanNormAlgorithms {
                 }
                 rescale = 0x1.0p-600;
             }
-            return Math.sqrt(org.apache.commons.numbers.core.LinearCombination.value(x, x)) * rescale;
+            return Math.sqrt(Sum.ofProducts(x, x).getAsDouble()) * rescale;
         }
     }
 
