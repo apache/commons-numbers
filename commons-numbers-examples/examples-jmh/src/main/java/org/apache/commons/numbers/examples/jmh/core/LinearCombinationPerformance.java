@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
 
-import org.apache.commons.numbers.core.LinearCombination;
+import org.apache.commons.numbers.core.Sum;
 import org.apache.commons.numbers.examples.jmh.core.LinearCombination.FourD;
 import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ND;
 import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ThreeD;
@@ -230,10 +230,15 @@ public class LinearCombinationPerformance {
         @Setup
         public void setup() {
             if ("current".endsWith(name)) {
-                twod = LinearCombination::value;
-                threed = LinearCombination::value;
-                fourd = LinearCombination::value;
-                nd = LinearCombination::value;
+                twod = (a1, b1, a2, b2) -> Sum.ofProducts(a1, b1, a2, b2).getAsDouble();
+                threed = (a1, b1, a2, b2, a3, b3) -> Sum.ofProducts(a1, b1, a2, b2, a3, b3).getAsDouble();
+                fourd = (a1, b1, a2, b2, a3, b3, a4, b4) ->
+                    Sum.create()
+                        .addProduct(a1, b1)
+                        .addProduct(a2, b2)
+                        .addProduct(a3, b3)
+                        .addProduct(a4, b4).getAsDouble();
+                nd = (a, b) -> Sum.ofProducts(a, b).getAsDouble();
                 return;
             }
             // All implementations below are expected to implement all the interfaces.

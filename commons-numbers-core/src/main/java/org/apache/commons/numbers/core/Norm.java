@@ -219,9 +219,9 @@ public enum Norm {
     private static double manhattan(final double x,
                                     final double y,
                                     final double z) {
-        return Summation.value(Math.abs(x),
-                               Math.abs(y),
-                               Math.abs(z));
+        return Sum.of(Math.abs(x),
+                      Math.abs(y),
+                      Math.abs(z)).getAsDouble();
     }
 
     /** Computes the Manhattan norm.
@@ -234,17 +234,13 @@ public enum Norm {
      * @see #of(double[])
      */
     private static double manhattan(final double[] v) {
-        double sum = 0d;
-        double comp = 0d;
+        final Sum sum = Sum.create();
 
         for (int i = 0; i < v.length; ++i) {
-            final double x = Math.abs(v[i]);
-            final double sx = sum + x;
-            comp += ExtendedPrecision.twoSumLow(sum, x, sx);
-            sum = sx;
+            sum.add(Math.abs(v[i]));
         }
 
-        return Summation.summationResult(sum, comp);
+        return sum.getAsDouble();
     }
 
     /** Computes the Euclidean norm.

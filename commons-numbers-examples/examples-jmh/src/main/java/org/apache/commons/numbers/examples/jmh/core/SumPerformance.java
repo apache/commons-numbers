@@ -21,7 +21,6 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 
 import org.apache.commons.numbers.core.Sum;
-import org.apache.commons.numbers.core.Summation;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -180,23 +179,5 @@ public class SumPerformance {
     @Benchmark
     public void sumOfProducts(final ArrayInput input, final Blackhole bh) {
         runDouble(input, bh, (a, b) -> Sum.ofProducts(a, b).getAsDouble());
-    }
-
-    /** Benchmark testing {@link Summation} addition performance.
-     * @param input benchmark input
-     * @param bh data sink
-     */
-    @Benchmark
-    public void summation(final ArrayInput input, final Blackhole bh) {
-        runSingle(input, bh, Summation::value);
-    }
-
-    /** Benchmark testing {@link org.apache.commons.numbers.core.LinearCombination} performance.
-     * @param input benchmark input
-     * @param bh data sink
-     */
-    @Benchmark
-    public void linearCombination(final ArrayInput input, final Blackhole bh) {
-        runDouble(input, bh, org.apache.commons.numbers.core.LinearCombination::value);
     }
 }

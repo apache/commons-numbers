@@ -352,7 +352,7 @@ class SumTest {
         final double x = Math.nextDown(2.0);
         final double y = -Math.nextDown(x);
         final double xxMxy = x * x + x * y;
-        final double xxMxyHighPrecision = LinearCombination.value(x, x, x, y);
+        final double xxMxyHighPrecision = Sum.ofProducts(x, x, x, y).getAsDouble();
         Assertions.assertNotEquals(xxMxy, xxMxyHighPrecision, "High precision result should be different");
 
         // Scale it close to max value.
