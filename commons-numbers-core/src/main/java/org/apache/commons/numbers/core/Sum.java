@@ -74,7 +74,7 @@ public final class Sum implements DoubleSupplier, DoubleConsumer {
         return this;
     }
 
-    /** Add the product \(a b\) to this sum.
+    /** Add the high-accuracy product \(a b\) to this sum.
      * @param a first factor
      * @param b second factor
      * @return this instance
@@ -116,8 +116,8 @@ public final class Sum implements DoubleSupplier, DoubleConsumer {
      * @return this instance
      */
     public Sum add(final Sum other) {
-        // pull both values first in order to support
-        // adding a sum to itself
+        // pull both values first to ensure there are
+        // no issues when adding a sum to itself
         final double s = other.sum;
         final double c = other.comp;
 
