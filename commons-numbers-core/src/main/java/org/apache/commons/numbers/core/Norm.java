@@ -219,9 +219,10 @@ public enum Norm {
     private static double manhattan(final double x,
                                     final double y,
                                     final double z) {
-        return Sum.of(Math.abs(x),
-                      Math.abs(y),
-                      Math.abs(z)).getAsDouble();
+        return Sum.of(Math.abs(x))
+            .add(Math.abs(y))
+            .add(Math.abs(z))
+            .getAsDouble();
     }
 
     /** Computes the Manhattan norm.

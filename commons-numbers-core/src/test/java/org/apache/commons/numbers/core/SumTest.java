@@ -193,9 +193,7 @@ class SumTest {
         }
 
         // act
-        final double sum = Sum.ofProducts(scaledA[0], scaledB[0],
-                                          scaledA[1], scaledB[1],
-                                          scaledA[2], scaledB[2]).getAsDouble();
+        final double sum = Sum.ofProducts(scaledA, scaledB).getAsDouble();
 
         // assert
         Assertions.assertEquals(-1.8551294182586248737720779899, sum, 1e-15);
@@ -352,7 +350,7 @@ class SumTest {
         final double x = Math.nextDown(2.0);
         final double y = -Math.nextDown(x);
         final double xxMxy = x * x + x * y;
-        final double xxMxyHighPrecision = Sum.ofProducts(x, x, x, y).getAsDouble();
+        final double xxMxyHighPrecision = Sum.create().addProduct(x, x).addProduct(x, y).getAsDouble();
         Assertions.assertNotEquals(xxMxy, xxMxyHighPrecision, "High precision result should be different");
 
         // Scale it close to max value.
@@ -509,16 +507,6 @@ class SumTest {
 
     private static void assertSumOfProducts(final double expected, final double[] a, final double[] b) {
         final int len = a.length;
-
-        // check non-array method variants
-        if (len == 2) {
-            Assertions.assertEquals(expected, Sum.ofProducts(a[0], b[0],
-                                                             a[1], b[1]).getAsDouble());
-        } else if (len == 3) {
-            Assertions.assertEquals(expected, Sum.ofProducts(a[0], b[0],
-                                                             a[1], b[1],
-                                                             a[2], b[2]).getAsDouble());
-        }
 
         // check use of addProduct()
         final Sum accumulator = Sum.create();
