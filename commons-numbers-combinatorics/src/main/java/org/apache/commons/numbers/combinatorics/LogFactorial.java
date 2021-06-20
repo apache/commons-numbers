@@ -62,8 +62,8 @@ public final class LogFactorial {
         }
 
         // Copy available values.
-        for (int i = beginCopy; i < endCopy; i++) {
-            logFactorials[i] = cache[i];
+        if (endCopy - 2 >= 0) {
+            System.arraycopy(cache, beginCopy, logFactorials, beginCopy, endCopy - 2);
         }
 
         // Precompute.
