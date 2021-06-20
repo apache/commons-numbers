@@ -43,14 +43,14 @@ class FP64Test {
         final FP64 b = FP64.of(4.56);
 
         // Same instance
-        Assertions.assertTrue(a.equals(a));
+        Assertions.assertEquals(a, a);
         // Same value
-        Assertions.assertTrue(a.equals(FP64.of(a.doubleValue())));
+        Assertions.assertEquals(a, FP64.of(a.doubleValue()));
         // Different value
-        Assertions.assertFalse(a.equals(b));
+        Assertions.assertNotEquals(a, b);
         // Different object
-        Assertions.assertFalse(a.equals(new Object()));
-        Assertions.assertFalse(a.equals(null));
+        Assertions.assertNotEquals(a, new Object());
+        Assertions.assertNotEquals(a, null);
     }
 
     @Test
@@ -103,6 +103,6 @@ class FP64Test {
         Assertions.assertTrue(FP64.of(1).compareTo(FP64.of(2)) < 0);
 
         final double v = 123.45;
-        Assertions.assertTrue(FP64.of(v).compareTo(FP64.of(v)) == 0);
+        Assertions.assertEquals(0, FP64.of(v).compareTo(FP64.of(v)));
     }
 }

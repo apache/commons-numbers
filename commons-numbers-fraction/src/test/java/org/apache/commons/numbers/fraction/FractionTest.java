@@ -463,10 +463,10 @@ class FractionTest {
     @Test
     void testEqualsAndHashCode() {
         final Fraction zero = Fraction.of(0, 1);
-        Assertions.assertTrue(zero.equals(zero));
-        Assertions.assertFalse(zero.equals(null));
-        Assertions.assertFalse(zero.equals(new Object()));
-        Assertions.assertFalse(zero.equals(Double.valueOf(0)));
+        Assertions.assertEquals(zero, zero);
+        Assertions.assertNotEquals(zero, null);
+        Assertions.assertNotEquals(zero, new Object());
+        Assertions.assertNotEquals(zero, Double.valueOf(0));
 
         // Equal to same rational number
         final Fraction zero2 = Fraction.of(0, 2);

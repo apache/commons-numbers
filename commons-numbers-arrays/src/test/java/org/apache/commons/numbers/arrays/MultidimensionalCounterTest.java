@@ -133,8 +133,7 @@ class MultidimensionalCounterTest {
 
         for (int i = 0; i < counter.getSize(); i++) {
             cmIter.next();
-            Assertions.assertTrue(Arrays.equals(cmIter.getCounts(),
-                                                counter.toMulti(i)));
+            Assertions.assertArrayEquals(cmIter.getCounts(), counter.toMulti(i));
         }
 
         Assertions.assertFalse(cmIter.hasNext());

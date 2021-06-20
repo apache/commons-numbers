@@ -1722,13 +1722,13 @@ class ComplexTest {
     @Test
     void testEqualsWithNull() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertFalse(x.equals(null));
+        Assertions.assertNotEquals(x, null);
     }
 
     @Test
     void testEqualsWithAnotherClass() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertFalse(x.equals(new Object()));
+        Assertions.assertNotEquals(x, new Object());
     }
 
     @Test
