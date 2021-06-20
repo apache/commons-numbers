@@ -64,7 +64,7 @@ public final class FactorialDouble {
         }
 
         // Copy available values.
-        if (endCopy - 2 >= 0) {
+        if (endCopy - beginCopy >= 0) {
             System.arraycopy(cache, beginCopy, factorialsDouble, beginCopy, endCopy - 2);
         }
 
