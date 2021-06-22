@@ -180,13 +180,14 @@ public enum Norm {
      *  <li>If any value is {@link Double#NaN}, then the result is {@link Double#NaN}.</li>
      *  <li>If any value is infinite and no value is not {@link Double#NaN}, then the
      *   result is {@link Double#POSITIVE_INFINITY}.</li>
-     *  <li>If the array is empty, then the result is 0.</li>
      * </ul>
      *
      * @param v Argument.
      * @return the norm.
+     * @throws IllegalArgumentException if the array is empty.
      */
     public final double of(double[] v) {
+        ensureNonEmpty(v);
         return array.of(v);
     }
 
@@ -556,5 +557,15 @@ public enum Norm {
             max = Math.max(max, Math.abs(v[i]));
         }
         return max;
+    }
+
+    /**
+     * @param a Array.
+     * @throws IllegalArgumentException for zero-size array.
+     */
+    private static void ensureNonEmpty(double[] a) {
+        if (a.length == 0) {
+            throw new IllegalArgumentException("Empty array");
+        }
     }
 }

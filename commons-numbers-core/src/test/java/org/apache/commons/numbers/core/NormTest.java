@@ -89,7 +89,8 @@ class NormTest {
     @Test
     void testManhattan_array() {
         // act/assert
-        Assertions.assertEquals(0d, Norm.L1.of(new double[0]));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Norm.L1.of(new double[0]));
+
         Assertions.assertEquals(0d, Norm.L1.of(new double[] {0d, -0d}));
         Assertions.assertEquals(6d, Norm.L1.of(new double[] {-1d, 2d, -3d}));
         Assertions.assertEquals(10d, Norm.L1.of(new double[] {-1d, 2d, -3d, 4d}));
@@ -323,7 +324,8 @@ class NormTest {
     @Test
     void testEuclidean_array_simple() {
         // act/assert
-        Assertions.assertEquals(0d, Norm.L2.of(new double[0]));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Norm.L2.of(new double[0]));
+
         Assertions.assertEquals(5d, Norm.L2.of(new double[] {-3d, 4d}));
 
         Assertions.assertEquals(Math.sqrt(2), Norm.L2.of(new double[] {1d, -1d}));
@@ -428,7 +430,8 @@ class NormTest {
     @Test
     void testMaximum_array() {
         // act/assert
-        Assertions.assertEquals(0d, Norm.LINF.of(new double[0]));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Norm.LINF.of(new double[0]));
+
         Assertions.assertEquals(0d, Norm.LINF.of(new double[] {0d, -0d}));
         Assertions.assertEquals(3d, Norm.LINF.of(new double[] {-1d, 2d, -3d}));
         Assertions.assertEquals(4d, Norm.LINF.of(new double[] {-1d, 2d, -3d, 4d}));
