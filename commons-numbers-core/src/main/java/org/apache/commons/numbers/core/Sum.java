@@ -21,16 +21,66 @@ import java.util.function.DoubleSupplier;
 
 /**
  * Class providing accurate floating-point sums and linear combinations.
+ * This class uses techniques to mitigate round off errors resulting from
+ * standard floating-point operations, increasing the overall accuracy of
+ * results at the cost of a moderate increase in the number of computations.
+ * This functionality can be viewed as filling the gap between standard
+ * floating point operations (fast but prone to round off errors) and
+ * {@link java.math.BigDecimal} (perfectly accurate but slow).
  *
- * In order to reduce errors, compensated summations and multiplications
- * are performed according to the <em>Sum2S</em> and <em>Dot2S</em>
- * algorithms described in
+ * <p><strong>Usage</strong>
+ * <p>This class use a builder pattern in order to maximize the flexibility
+ * of the API. Typical use involves constructing an instance from one
+ * of the factory methods, adding any number of {@link #add(double) single value terms}
+ * and/or {@link #addProduct(double, double) products}, and then extracting the
+ * computed sum. Convenience methods exist for adding multiple values or products at once.
+ * The examples below demonstrate some simple use cases.
+ *
+ * <pre>
+ * // compute the sum a1 + a2 + a3 + a4
+ * Sum sum = Sum.of(a1);
+ *      .add(a2)
+ *      .add(a3)
+ *      .add(a4);
+ * double result = sum.getAsDouble();
+ *
+ * // same as above but using the varargs factory method
+ * double result = Sum.of(a1, a2, a3, a4).getAsDouble();
+ *
+ * // compute the dot product of two arrays of the same length, a and b
+ * Sum sum = Sum.create();
+ * for (int i = 0; i &lt; a.length; ++i) {
+ *      sum.addProduct(a[i], b[i]);
+ * }
+ * double result = sum.getAsDouble();
+ *
+ * // same as above but using a convenience factory method
+ * double result = Sum.ofProducts(a, b).getAsDouble();
+ * </pre>
+ *
+ * <p>It is worth noting that this class is designed to reduce floating point errors
+ * <em>across a sequence of operations</em> and not just a single add or multiply. The
+ * standard IEEE floating point operations already produce the most accurate results
+ * possible given two arguments and this class does not improve on them. Rather, it tracks
+ * the errors inherent with each operation and uses them to reduce the error of the overall
+ * result. Therefore, this class is only beneficial in cases involving 3 or more floating point
+ * operations. Code such as {@code Sum.of(a, b).getAsDouble()} and
+ * {@code Sum.create().addProduct(a, b).getAsDouble()} only adds overhead with no benefit.
+ *
+ * <p><strong>Implementation Notes</strong>
+ * <p>This class internally uses the <em>Sum2S</em> and <em>Dot2S</em> algorithms described in
  * <a href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
  * Accurate Sum and Dot Product</a> by Takeshi Ogita, Siegfried M. Rump,
- * and Shin'ichi Oishi (<em>SIAM J. Sci. Comput</em>, 2005).
+ * and Shin'ichi Oishi (<em>SIAM J. Sci. Comput</em>, 2005). These are compensated
+ * summation and multiplication algorithms chosen here for their good
+ * balance of precision and performance. Future releases may choose to use
+ * different algorithms.
  *
  * <p>Results follow the IEEE 754 rules for addition: For example, if any
  * input value is {@link Double#NaN}, the result is {@link Double#NaN}.
+ *
+ * <p>Instances of this class are mutable and not safe for use by multiple
+ * threads.
  */
 public final class Sum
     implements DoubleSupplier,
