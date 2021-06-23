@@ -230,8 +230,15 @@ public class LinearCombinationPerformance {
         @Setup
         public void setup() {
             if ("current".endsWith(name)) {
-                twod = (a1, b1, a2, b2) -> Sum.ofProducts(a1, b1, a2, b2).getAsDouble();
-                threed = (a1, b1, a2, b2, a3, b3) -> Sum.ofProducts(a1, b1, a2, b2, a3, b3).getAsDouble();
+                twod = (a1, b1, a2, b2) ->
+                    Sum.create()
+                        .addProduct(a1, b1)
+                        .addProduct(a2, b2).getAsDouble();
+                threed = (a1, b1, a2, b2, a3, b3) ->
+                    Sum.create()
+                        .addProduct(a1, b1)
+                        .addProduct(a2, b2)
+                        .addProduct(a3, b3).getAsDouble();
                 fourd = (a1, b1, a2, b2, a3, b3, a4, b4) ->
                     Sum.create()
                         .addProduct(a1, b1)
