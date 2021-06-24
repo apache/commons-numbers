@@ -72,6 +72,9 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="mattjuntunen" type="update" issue="NUMBERS-163" due-to="Matt Juntunen">
+        Combined "LinearCombination" and "Summation" into single "Sum" class.
+      </action>
       <action dev="mattjuntunen" type="update" issue="NUMBERS-159" due-to="Matt Juntunen">
         Moved "Norms", "LinearCombination", and "Summation" from commons-numbers-arrays module
         to commons-numbers-core module. Moved "CosAngle" from commons-numbers-arrays module to
