@@ -1029,7 +1029,7 @@ class CommonsLangPortedFractionTest {
         Fraction f2 = null;
 
         f1 = Fraction.of(3, 5);
-        assertNotEquals(null, f1);
+        assertNotEquals(f1, null);
         assertNotEquals(f1, new Object());
         assertNotEquals(f1, Integer.valueOf(6));
 
