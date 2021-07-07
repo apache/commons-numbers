@@ -60,19 +60,19 @@ class AngleTest {
         Assertions.assertEquals(Angle.Turn.of(value), asTurn);
         Assertions.assertEquals(asTurn, asTurn);
         Assertions.assertNotEquals(asTurn, Angle.Turn.of(nextValue));
-        Assertions.assertFalse(asTurn.equals(null));
+        Assertions.assertNotEquals(asTurn, null);
 
         final Angle.Rad asRad = Angle.Rad.of(value);
         Assertions.assertEquals(Angle.Rad.of(value), asRad);
         Assertions.assertEquals(asRad, asRad);
         Assertions.assertNotEquals(asRad, Angle.Rad.of(nextValue));
-        Assertions.assertFalse(asRad.equals(null));
+        Assertions.assertNotEquals(asRad, null);
 
         final Angle.Deg asDeg = Angle.Deg.of(value);
         Assertions.assertEquals(Angle.Deg.of(value), asDeg);
         Assertions.assertEquals(asDeg, asDeg);
         Assertions.assertNotEquals(asDeg, Angle.Deg.of(nextValue));
-        Assertions.assertFalse(asDeg.equals(null));
+        Assertions.assertNotEquals(asDeg, null);
 
         Assertions.assertNotEquals(asDeg, asTurn);
         Assertions.assertNotEquals(asTurn, asRad);

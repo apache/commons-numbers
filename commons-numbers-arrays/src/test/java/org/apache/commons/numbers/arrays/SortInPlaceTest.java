@@ -17,7 +17,6 @@
 
 package org.apache.commons.numbers.arrays;
 
-import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,9 +37,9 @@ class SortInPlaceTest {
         final double[] yE = {9, 1, 4, 16, 25};
         final double[] zE = {27, 1, 8, 64, -125};
 
-        Assertions.assertTrue(Arrays.equals(xE, x));
-        Assertions.assertTrue(Arrays.equals(yE, y));
-        Assertions.assertTrue(Arrays.equals(zE, z));
+        Assertions.assertArrayEquals(xE, x);
+        Assertions.assertArrayEquals(yE, y);
+        Assertions.assertArrayEquals(zE, z);
     }
 
     @Test
@@ -55,9 +54,9 @@ class SortInPlaceTest {
         final double[] yE = {25, 16, 4, 1, 9};
         final double[] zE = {-125, 64, 8, 1, 27};
 
-        Assertions.assertTrue(Arrays.equals(xE, x));
-        Assertions.assertTrue(Arrays.equals(yE, y));
-        Assertions.assertTrue(Arrays.equals(zE, z));
+        Assertions.assertArrayEquals(xE, x);
+        Assertions.assertArrayEquals(yE, y);
+        Assertions.assertArrayEquals(zE, z);
     }
 
     // Example in Javadoc.
@@ -73,9 +72,9 @@ class SortInPlaceTest {
         final double[] yE = {2, 3, 1};
         final double[] zE = {5, 7, 0};
 
-        Assertions.assertTrue(Arrays.equals(xE, x));
-        Assertions.assertTrue(Arrays.equals(yE, y));
-        Assertions.assertTrue(Arrays.equals(zE, z));
+        Assertions.assertArrayEquals(xE, x);
+        Assertions.assertArrayEquals(yE, y);
+        Assertions.assertArrayEquals(zE, z);
     }
 
     @Test
