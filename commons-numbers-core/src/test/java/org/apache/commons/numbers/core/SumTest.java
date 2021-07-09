@@ -425,7 +425,7 @@ class SumTest {
     }
 
     @Test
-    public void testUnityValuesInProduct() {
+    void testUnityValuesInProduct() {
         // arrange
         final double a = 9.999999999;
         final double b = Math.scalb(a, -53);

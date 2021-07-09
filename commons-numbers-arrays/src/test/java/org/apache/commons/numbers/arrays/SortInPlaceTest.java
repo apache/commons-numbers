@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
  */
 class SortInPlaceTest {
     @Test
-    public void testAscending() {
+    void testAscending() {
         final double[] x = {2, 5, -3, 1,  4};
         final double[] y = {4, 25, 9, 1, 16};
         final double[] z = {8, -125, 27, 1, 64};
@@ -43,7 +43,7 @@ class SortInPlaceTest {
     }
 
     @Test
-    public void testDescending() {
+    void testDescending() {
         final double[] x = {2, 5, -3, 1, 4};
         final double[] y = {4, 25, 9, 1, 16};
         final double[] z = {8, -125, 27, 1, 64};
@@ -61,7 +61,7 @@ class SortInPlaceTest {
 
     // Example in Javadoc.
     @Test
-    public void testJavadocExample() {
+    void testJavadocExample() {
         final double[] x = {3, 1, 2};
         final double[] y = {1, 2, 3};
         final double[] z = {0, 5, 7};
@@ -78,7 +78,7 @@ class SortInPlaceTest {
     }
 
     @Test
-    public void testPreconditions() {
+    void testPreconditions() {
         final double[] nullArray = null;
         final double[] one = {1};
         final double[] two = {1, 2};
