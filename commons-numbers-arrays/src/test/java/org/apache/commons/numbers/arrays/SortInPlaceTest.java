@@ -31,7 +31,7 @@ class SortInPlaceTest {
         final double[] y = {4, 25, 9, 1, 16};
         final double[] z = {8, -125, 27, 1, 64};
 
-        SortInPlace.ASCENDING.accept(x, y, z);
+        SortInPlace.ASCENDING.apply(x, y, z);
 
         final double[] xE = {-3, 1, 2, 4, 5};
         final double[] yE = {9, 1, 4, 16, 25};
@@ -48,7 +48,7 @@ class SortInPlaceTest {
         final double[] y = {4, 25, 9, 1, 16};
         final double[] z = {8, -125, 27, 1, 64};
 
-        SortInPlace.DESCENDING.accept(x, y, z);
+        SortInPlace.DESCENDING.apply(x, y, z);
 
         final double[] xE = {5, 4, 2, 1, -3};
         final double[] yE = {25, 16, 4, 1, 9};
@@ -66,7 +66,7 @@ class SortInPlaceTest {
         final double[] y = {1, 2, 3};
         final double[] z = {0, 5, 7};
 
-        SortInPlace.ASCENDING.accept(x, y, z);
+        SortInPlace.ASCENDING.apply(x, y, z);
 
         final double[] xE = {1, 2, 3};
         final double[] yE = {2, 3, 1};
@@ -84,8 +84,8 @@ class SortInPlaceTest {
         final double[] two = {1, 2};
         final double[] onep = {2};
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> SortInPlace.ASCENDING.accept(one, two));
-        Assertions.assertThrows(NullPointerException.class, () -> SortInPlace.ASCENDING.accept(one, nullArray));
-        Assertions.assertThrows(NullPointerException.class, () -> SortInPlace.ASCENDING.accept(one, onep, nullArray));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> SortInPlace.ASCENDING.apply(one, two));
+        Assertions.assertThrows(NullPointerException.class, () -> SortInPlace.ASCENDING.apply(one, nullArray));
+        Assertions.assertThrows(NullPointerException.class, () -> SortInPlace.ASCENDING.apply(one, onep, nullArray));
     }
 }

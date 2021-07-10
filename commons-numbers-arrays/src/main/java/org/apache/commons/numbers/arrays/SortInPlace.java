@@ -17,12 +17,11 @@
 
 package org.apache.commons.numbers.arrays;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Arrays;
-import java.util.function.BiConsumer;
 
 /**
  * Sort an array and perform the same reordering of entries on other arrays.
@@ -32,14 +31,14 @@ import java.util.function.BiConsumer;
  *  <li>{@code y = [1, 2, 3]}</li>
  *  <li>{@code z = [0, 5, 7]}</li>
  * </ul>
- * then {@code Sort.ASCENDING.accept(x, y, z)} will update those arrays:
+ * then {@code Sort.ASCENDING.apply(x, y, z)} will update those arrays:
  * <ul>
  *  <li>{@code x = [1, 2, 3]}</li>
  *  <li>{@code y = [2, 3, 1]}</li>
  *  <li>{@code z = [5, 7, 0]}</li>
  * </ul>
  */
-public enum SortInPlace implements BiConsumer<double[], double[][]> {
+public enum SortInPlace {
     /** Sort in ascending order. */
     ASCENDING((o1, o2) -> Double.compare(o1.key(), o2.key())),
     /** Sort in descending order. */
@@ -64,9 +63,8 @@ public enum SortInPlace implements BiConsumer<double[], double[][]> {
      * those performed on {@code x}.
      * @throws IllegalArgumentException if not all arrays have the same size.
      */
-    @Override
-    public void accept(double[] x,
-                       double[]... yList) {
+    public void apply(double[] x,
+                      double[]... yList) {
         final int yListLen = yList.length;
         final int len = x.length;
 
