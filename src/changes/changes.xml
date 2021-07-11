@@ -50,12 +50,10 @@ If the output is not quite correct, check for invisible trailing spaces!
     <title>Apache Commons Numbers Release Notes</title>
   </properties>
   <body>
-    <release version="1.0-beta2" date="TBD" description="
-This is a beta release of Apache Commons Numbers. No guarantees are
-made regarding the stability of the API or compatibility with future
-releases.
+    <release version="1.0" date="2021-07-17" description="
+This is the first official release of Apache Commons Numbers.
 
-Apache Commons Numbers 1.0-beta1 contains the following library modules:
+Apache Commons Numbers 1.0 contains the following library modules:
   commons-numbers-angle (requires Java 8+)
   commons-numbers-arrays (requires Java 8+)
   commons-numbers-combinatorics (requires Java 8+)

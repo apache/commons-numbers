@@ -25,7 +25,7 @@
   </parent>
 
   <artifactId>commons-numbers-parent</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>pom</packaging>
   <name>Apache Commons Numbers</name>
   <description>The Apache Commons Numbers project provides number types and utilities.</description>
@@ -45,7 +45,7 @@
     <!-- OSGi -->
     <commons.osgi.export>org.apache.commons.numbers</commons.osgi.export>
     <!-- do not use snapshot suffix here -->
-    <commons.release.version>1.0-beta1</commons.release.version>
+    <commons.release.version>1.0</commons.release.version>
     <commons.release.desc>(requires Java 8+)</commons.release.desc>
     <commons.rc.version>RC1</commons.rc.version>
     <commons.binary.suffix>-bin</commons.binary.suffix>
@@ -686,6 +686,11 @@
       <name>Alex Herbert</name>
       <id>aherbert</id>
       <email>aherbert at apache dot org</email>
+    </developer>
+    <developer>
+      <name>Matt Juntunen</name>
+      <id>mattjuntunen</id>
+      <email>mattjuntunen at apache dot org</email>
     </developer>
   </developers>
 
