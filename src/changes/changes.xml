@@ -75,6 +75,9 @@ N.B. the Performance testing module requires Java 9+.
       <action dev="mattjuntunen" type="update" issue="NUMBERS-163" due-to="Matt Juntunen">
         Combined "LinearCombination" and "Summation" into single "Sum" class.
       </action>
+      <action dev="erans" type="update" issue="NUMBERS-164" due-to="Gilles Sadowski">
+        Added SortInPlace utility, original from Commons Math.
+      </action>
       <action dev="mattjuntunen" type="update" issue="NUMBERS-159" due-to="Matt Juntunen">
         Moved "Norms", "LinearCombination", and "Summation" from commons-numbers-arrays module
         to commons-numbers-core module. Moved "CosAngle" from commons-numbers-arrays module to
@@ -84,24 +87,40 @@ N.B. the Performance testing module requires Java 9+.
         Replaced "SafeNorm" with "Norms". Added "Summation" class for extended
         precision summation.
       </action>
-      <action dev="erans" type="update" issue="NUMBERS-161">
+      <action dev="erans" type="update" issue="NUMBERS-161" due-to="Gilles Sadowski">
         "Angle" replaces "PlaneAngle" and "PlaneAngleRadians".
+      </action>
+      <action dev="erans" type="fix" issue="NUMBERS-153" due-to="Gilles Sadowski">
+        Use iterative implementation of "trigamma" function. Thanks to Dmitriy Golovashkin
+        for reporting.
+      </action>
+      <action dev="erans" type="update" issue="NUMBERS-158" due-to="Gilles Sadowski">
+        Replace angle normalize method with normalizer method that returns operator instance.
+      </action>
+      <action dev="erans" type="update" issue="NUMBERS-157" due-to="Gilles Sadowski">
+        Adding Reduce operation originally from Commons Math to commons-numbers-angle module.
       </action>
       <action dev="aherbert" type="update" issue="NUMBERS-142" due-to="Alex Herbert">
         "LinearCombination": Update to use the dot2s algorithm. Avoids construction of an
         intermediate array for array dot products. Update the hi-lo splitting algorithm
         to use Dekker's split to ensure the product round-off is computed to exact precision.
       </action>
-      <action dev="aherbert" type="fix" issue="NUMBERS-150" due-to="Jin Xu">
-        "Fraction/BigFraction": Fixed pow(int) to handle Integer.MIN_VALUE and throw
-        ArithmeticException for negative exponents to a fraction of zero.
-      </action>
-      <action dev="aherbert" type="update" issue="NUMBERS-151" due-to="Jin Xu">
-        "ArithmeticUtils": Refine pow(int, int) and pow(long, int) for edge cases.
+      <action dev="erans" type="update" issue="NUMBERS-154" due-to="Gilles Sadowski">
+        Precision compareTo method now handles NaN properly to ensure consistent sorting.
       </action>
       <action dev="aherbert" type="update" issue="NUMBERS-149" due-to="Jin Xu">
         "Fraction": Port tests from commons-lang Fraction to demonstrate functional compatibility
         between the lang and numbers implementation of Fraction.
+      </action>
+      <action dev="aherbert" type="update" issue="NUMBERS-151" due-to="Jin Xu">
+        "ArithmeticUtils": Refine pow(int, int) and pow(long, int) for edge cases.
+      </action>
+      <action dev="aherbert" type="fix" issue="NUMBERS-150" due-to="Jin Xu">
+        "Fraction/BigFraction": Fixed pow(int) to handle Integer.MIN_VALUE and throw
+        ArithmeticException for negative exponents to a fraction of zero.
+      </action>
+      <action dev="aherbert" type="fix" issue="NUMBERS-147" due-to"Alex Herbert">
+        Fixed Fraction/BigFraction from(double, int) to support Integer.MIN_VALUE as max denominator.
       </action>
     </release>
 
