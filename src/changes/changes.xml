@@ -119,7 +119,7 @@ N.B. the Performance testing module requires Java 9+.
         "Fraction/BigFraction": Fixed pow(int) to handle Integer.MIN_VALUE and throw
         ArithmeticException for negative exponents to a fraction of zero.
       </action>
-      <action dev="aherbert" type="fix" issue="NUMBERS-147" due-to"Alex Herbert">
+      <action dev="aherbert" type="fix" issue="NUMBERS-147" due-to="Alex Herbert">
         Fixed Fraction/BigFraction from(double, int) to support Integer.MIN_VALUE as max denominator.
       </action>
     </release>
