@@ -17,13 +17,13 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * Computes \( log_e \Beta(p, q) \).
+ * Computes \( log_e B(p, q) \).
  * <p>
  * This class is immutable.
  * </p>
  */
 public final class LogBeta {
-    /** The threshold value of 10 where the series expansion of the Δ function applies. */
+    /** The threshold value of 10 where the series expansion of the \( \Delta \) function applies. */
     private static final double TEN = 10;
     /** The threshold value of 2 for algorithm switch. */
     private static final double TWO = 2;
@@ -34,24 +34,18 @@ public final class LogBeta {
     private static final double HALF_LOG_TWO_PI = 0.9189385332046727;
 
     /**
-     * The coefficients of the series expansion of the Δ function. This function
-     * is defined as follows:
-     * <pre>
-     * Δ(x) = log Γ(x) - (x - 0.5) log a + a - 0.5 log 2π,
-     * </pre>
+     * The coefficients of the series expansion of the \( \Delta \) function.
+     * This function is defined as follows:
+     * \[
+     *  \Delta(x) = \log \Gamma(x) - (x - \frac{1}{2}) \log a + a - \frac{1}{2} \log 2\pi,
+     * \]
      * <p>
      * See equation (23) in Didonato and Morris (1992). The series expansion,
-     * which applies for x ≥ 10, reads
+     * which applies for \( x \geq 10 \), reads
      * </p>
-     * <pre>
-     *                 14
-     *                ====
-     *             1  \                2 n
-     *     Δ(x) = ---  >    d  (10 / x)
-     *             x  /      n
-     *                ====
-     *                n = 0
-     * </pre>
+     * \[
+     *  \Delta(x) = \frac{1}{x} \sum_{n = 0}^{14} d_n (\frac{10}{x})^{2 n}
+     * \]
      */
     private static final double[] DELTA = {
         .833333333333333333333333333333E-01,
@@ -77,12 +71,13 @@ public final class LogBeta {
     }
 
     /**
-     * Returns the value of Δ(b) - Δ(a + b), with 0 ≤ a ≤ b and b ≥ 10. Based
-     * on equations (26), (27) and (28) in Didonato and Morris (1992).
+     * Returns the value of \( \Delta(b) - \Delta(a + b) \),
+     * with \( 0 \leq a \leq b \) and \( b \geq 10 \).
+     * Based on equations (26), (27) and (28) in Didonato and Morris (1992).
      *
      * @param a First argument.
      * @param b Second argument.
-     * @return the value of {@code Delta(b) - Delta(a + b)}
+     * @return the value of \( \Delta(b) - \Delta(a + b) \)
      * @throws IllegalArgumentException if {@code a < 0} or {@code a > b}
      * @throws IllegalArgumentException if {@code b < 10}
      */
@@ -121,13 +116,14 @@ public final class LogBeta {
     }
 
     /**
-     * Returns the value of Δ(p) + Δ(q) - Δ(p + q), with p, q ≥ 10.
+     * Returns the value of \( \Delta(p) + \Delta(q) - \Delta(p + q) \),
+     * with \( p, q \geq 10 \).
      * Based on the <em>NSWC Library of Mathematics Subroutines</em> implementation,
      * {@code DBCORR}.
      *
      * @param p First argument.
      * @param q Second argument.
-     * @return the value of {@code Delta(p) + Delta(q) - Delta(p + q)}.
+     * @return the value of \( \Delta(p) + \Delta(q) - \Delta(p + q) \).
      * @throws IllegalArgumentException if {@code p < 10} or {@code q < 10}.
      */
     private static double sumDeltaMinusDeltaSum(final double p,
@@ -152,13 +148,13 @@ public final class LogBeta {
     }
 
     /**
-     * Returns the value of {@code log B(p, q)} for {@code 0 ≤ x ≤ 1} and {@code p, q > 0}.
+     * Returns the value of \( \log B(p, q) \) for \( 0 \leq x \leq 1 \) and \( p, q &gt; 0 \).
      * Based on the <em>NSWC Library of Mathematics Subroutines</em> implementation,
      * {@code DBETLN}.
      *
      * @param p First argument.
      * @param q Second argument.
-     * @return the value of {@code log(Beta(p, q))}, {@code NaN} if
+     * @return the value of \( \log B(p, q) \), or {@code NaN} if
      * {@code p <= 0} or {@code q <= 0}.
      */
     public static double value(double p,
@@ -258,13 +254,14 @@ public final class LogBeta {
     }
 
     /**
-     * Returns the value of log[Γ(b) / Γ(a + b)] for a ≥ 0 and b ≥ 10.
+     * Returns the value of \( \log ( \Gamma(b) / \Gamma(a + b) ) \)
+     * for \( a \geq 0 \) and \( b \geq 10 \).
      * Based on the <em>NSWC Library of Mathematics Subroutines</em> implementation,
      * {@code DLGDIV}.
      *
      * @param a First argument.
      * @param b Second argument.
-     * @return the value of {@code log(Gamma(b) / Gamma(a + b))}.
+     * @return the value of \( \log(\Gamma(b) / \Gamma(a + b) \).
      * @throws IllegalArgumentException if {@code a < 0} or {@code b < 10}.
      */
     private static double logGammaMinusLogGammaSum(double a,
