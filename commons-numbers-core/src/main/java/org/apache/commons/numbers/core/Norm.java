@@ -33,7 +33,7 @@ public enum Norm {
     L1(Norm::manhattan, Norm::manhattan, Norm::manhattan),
     /** Alias for {@link #L1}. */
     MANHATTAN(L1),
-    /** @see <a href="https://en.wikipedia.org/wiki/Norm_(mathematics)#Euclidean_norm">Euclidean norm</a>. */
+    /** <a href="https://en.wikipedia.org/wiki/Norm_(mathematics)#Euclidean_norm">Euclidean norm</a>. */
     L2(Norm::euclidean, Norm::euclidean, Norm::euclidean),
     /** Alias for {@link #L2}. */
     EUCLIDEAN(L2),
