@@ -46,7 +46,7 @@ Apache Commons Numbers Field
 [![Build Status](https://travis-ci.org/apache/commons-numbers.svg)](https://travis-ci.org/apache/commons-numbers)
 [![Coverage Status](https://coveralls.io/repos/apache/commons-numbers/badge.svg)](https://coveralls.io/r/apache/commons-numbers)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-field/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-field/)
-[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-field/1.0-beta1.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-field/1.0-beta1)
+[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-field/1.0.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-field/1.0)
 
 Utilities related to the concept of field.
 
@@ -67,7 +67,7 @@ Alternatively you can pull it from the central Maven repositories:
 <dependency>
   <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-field</artifactId>
-  <version>1.0-beta1</version>
+  <version>1.0</version>
 </dependency>
 ```
 

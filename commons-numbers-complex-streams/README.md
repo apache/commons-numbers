@@ -46,7 +46,7 @@ Apache Commons Numbers Complex Streams
 [![Build Status](https://travis-ci.org/apache/commons-numbers.svg)](https://travis-ci.org/apache/commons-numbers)
 [![Coverage Status](https://coveralls.io/repos/apache/commons-numbers/badge.svg)](https://coveralls.io/r/apache/commons-numbers)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex-streams/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex-streams/)
-[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-complex-streams/1.0-beta1.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-complex-streams/1.0-beta1)
+[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-complex-streams/1.0.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-complex-streams/1.0)
 
 Arrays, streams and collections of complex numbers.
 
