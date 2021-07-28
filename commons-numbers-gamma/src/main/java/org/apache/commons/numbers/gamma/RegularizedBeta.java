@@ -100,7 +100,7 @@ public final class RegularizedBeta {
                 /** {@inheritDoc} */
                 @Override
                 protected double getA(int n, double x) {
-                    if (n % 2 == 0) { // even
+                    if ((n & 0x1) == 0) { // even
                         final double m = n / 2d;
                         return (m * (b - m) * x) /
                             ((a + (2 * m) - 1) * (a + (2 * m)));
