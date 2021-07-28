@@ -106,9 +106,8 @@ public final class ArithmeticUtils {
         if (negatedGcd == Integer.MIN_VALUE) {
             throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
                                               p, q);
-        } else {
-            return -negatedGcd;
         }
+        return -negatedGcd;
     }
 
     /**

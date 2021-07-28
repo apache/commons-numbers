@@ -104,11 +104,10 @@ public final class RegularizedBeta {
                         final double m = n / 2d;
                         return (m * (b - m) * x) /
                             ((a + (2 * m) - 1) * (a + (2 * m)));
-                    } else {
-                        final double m = (n - 1d) / 2d;
-                        return -((a + m) * (a + b + m) * x) /
-                            ((a + (2 * m)) * (a + (2 * m) + 1));
                     }
+                    final double m = (n - 1d) / 2d;
+                    return -((a + m) * (a + b + m) * x) /
+                        ((a + (2 * m)) * (a + (2 * m) + 1));
                 }
 
                 /** {@inheritDoc} */

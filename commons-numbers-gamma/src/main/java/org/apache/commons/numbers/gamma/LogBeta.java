@@ -176,9 +176,8 @@ public final class LogBeta {
             final double v = b * Math.log1p(h);
             if (u <= v) {
                 return (((-0.5 * Math.log(b) + HALF_LOG_TWO_PI) + w) - u) - v;
-            } else {
-                return (((-0.5 * Math.log(b) + HALF_LOG_TWO_PI) + w) - v) - u;
             }
+            return (((-0.5 * Math.log(b) + HALF_LOG_TWO_PI) + w) - v) - u;
         } else if (a > TWO) {
             if (b > THOUSAND) {
                 final int n = (int) Math.floor(a - 1);
@@ -191,32 +190,30 @@ public final class LogBeta {
                 return (Math.log(prod) - n * Math.log(b)) +
                         (LogGamma.value(ared) +
                          logGammaMinusLogGammaSum(ared, b));
-            } else {
-                double prod1 = 1;
-                double ared = a;
-                while (ared > 2) {
-                    ared -= 1;
-                    final double h = ared / b;
-                    prod1 *= h / (1 + h);
-                }
-                if (b < TEN) {
-                    double prod2 = 1;
-                    double bred = b;
-                    while (bred > 2) {
-                        bred -= 1;
-                        prod2 *= bred / (ared + bred);
-                    }
-                    return Math.log(prod1) +
-                           Math.log(prod2) +
-                           (LogGamma.value(ared) +
-                           (LogGamma.value(bred) -
-                            LogGammaSum.value(ared, bred)));
-                } else {
-                    return Math.log(prod1) +
-                           LogGamma.value(ared) +
-                           logGammaMinusLogGammaSum(ared, b);
-                }
             }
+            double prod1 = 1;
+            double ared = a;
+            while (ared > 2) {
+                ared -= 1;
+                final double h = ared / b;
+                prod1 *= h / (1 + h);
+            }
+            if (b < TEN) {
+                double prod2 = 1;
+                double bred = b;
+                while (bred > 2) {
+                    bred -= 1;
+                    prod2 *= bred / (ared + bred);
+                }
+                return Math.log(prod1) +
+                       Math.log(prod2) +
+                       (LogGamma.value(ared) +
+                       (LogGamma.value(bred) -
+                        LogGammaSum.value(ared, bred)));
+            }
+            return Math.log(prod1) +
+                   LogGamma.value(ared) +
+                   logGammaMinusLogGammaSum(ared, b);
         } else if (a >= 1) {
             if (b > TWO) {
                 if (b < TEN) {
@@ -230,26 +227,23 @@ public final class LogBeta {
                            (LogGamma.value(a) +
                             (LogGamma.value(bred) -
                              LogGammaSum.value(a, bred)));
-                } else {
-                    return LogGamma.value(a) +
-                        logGammaMinusLogGammaSum(a, b);
                 }
-            } else {
                 return LogGamma.value(a) +
-                       LogGamma.value(b) -
-                       LogGammaSum.value(a, b);
+                    logGammaMinusLogGammaSum(a, b);
             }
+            return LogGamma.value(a) +
+                   LogGamma.value(b) -
+                   LogGammaSum.value(a, b);
         } else {
             if (b >= TEN) {
                 return LogGamma.value(a) +
                        logGammaMinusLogGammaSum(a, b);
-            } else {
-                // The original NSWC implementation was
-                //   LogGamma.value(a) + (LogGamma.value(b) - LogGamma.value(a + b));
-                // but the following command turned out to be more accurate.
-                return Math.log(Gamma.value(a) * Gamma.value(b) /
-                                Gamma.value(a + b));
             }
+            // The original NSWC implementation was
+            //   LogGamma.value(a) + (LogGamma.value(b) - LogGamma.value(a + b));
+            // but the following command turned out to be more accurate.
+            return Math.log(Gamma.value(a) * Gamma.value(b) /
+                            Gamma.value(a + b));
         }
     }
 

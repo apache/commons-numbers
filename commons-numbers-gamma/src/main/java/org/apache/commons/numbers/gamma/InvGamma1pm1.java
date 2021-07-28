@@ -147,44 +147,41 @@ final class InvGamma1pm1 {
             c = INV_GAMMA1P_M1_C + t * c;
             if (x > 0.5) {
                 return t * c / x;
-            } else {
-                return x * ((c + 0.5) + 0.5);
             }
-        } else {
-            double p = INV_GAMMA1P_M1_P6;
-            p = INV_GAMMA1P_M1_P5 + t * p;
-            p = INV_GAMMA1P_M1_P4 + t * p;
-            p = INV_GAMMA1P_M1_P3 + t * p;
-            p = INV_GAMMA1P_M1_P2 + t * p;
-            p = INV_GAMMA1P_M1_P1 + t * p;
-            p = INV_GAMMA1P_M1_P0 + t * p;
-
-            double q = INV_GAMMA1P_M1_Q4;
-            q = INV_GAMMA1P_M1_Q3 + t * q;
-            q = INV_GAMMA1P_M1_Q2 + t * q;
-            q = INV_GAMMA1P_M1_Q1 + t * q;
-            q = 1.0 + t * q;
-
-            double c = INV_GAMMA1P_M1_C13 + (p / q) * t;
-            c = INV_GAMMA1P_M1_C12 + t * c;
-            c = INV_GAMMA1P_M1_C11 + t * c;
-            c = INV_GAMMA1P_M1_C10 + t * c;
-            c = INV_GAMMA1P_M1_C9 + t * c;
-            c = INV_GAMMA1P_M1_C8 + t * c;
-            c = INV_GAMMA1P_M1_C7 + t * c;
-            c = INV_GAMMA1P_M1_C6 + t * c;
-            c = INV_GAMMA1P_M1_C5 + t * c;
-            c = INV_GAMMA1P_M1_C4 + t * c;
-            c = INV_GAMMA1P_M1_C3 + t * c;
-            c = INV_GAMMA1P_M1_C2 + t * c;
-            c = INV_GAMMA1P_M1_C1 + t * c;
-            c = INV_GAMMA1P_M1_C0 + t * c;
-
-            if (x > 0.5) {
-                return (t / x) * ((c - 0.5) - 0.5);
-            } else {
-                return x * c;
-            }
+            return x * ((c + 0.5) + 0.5);
         }
+        double p = INV_GAMMA1P_M1_P6;
+        p = INV_GAMMA1P_M1_P5 + t * p;
+        p = INV_GAMMA1P_M1_P4 + t * p;
+        p = INV_GAMMA1P_M1_P3 + t * p;
+        p = INV_GAMMA1P_M1_P2 + t * p;
+        p = INV_GAMMA1P_M1_P1 + t * p;
+        p = INV_GAMMA1P_M1_P0 + t * p;
+
+        double q = INV_GAMMA1P_M1_Q4;
+        q = INV_GAMMA1P_M1_Q3 + t * q;
+        q = INV_GAMMA1P_M1_Q2 + t * q;
+        q = INV_GAMMA1P_M1_Q1 + t * q;
+        q = 1.0 + t * q;
+
+        double c = INV_GAMMA1P_M1_C13 + (p / q) * t;
+        c = INV_GAMMA1P_M1_C12 + t * c;
+        c = INV_GAMMA1P_M1_C11 + t * c;
+        c = INV_GAMMA1P_M1_C10 + t * c;
+        c = INV_GAMMA1P_M1_C9 + t * c;
+        c = INV_GAMMA1P_M1_C8 + t * c;
+        c = INV_GAMMA1P_M1_C7 + t * c;
+        c = INV_GAMMA1P_M1_C6 + t * c;
+        c = INV_GAMMA1P_M1_C5 + t * c;
+        c = INV_GAMMA1P_M1_C4 + t * c;
+        c = INV_GAMMA1P_M1_C3 + t * c;
+        c = INV_GAMMA1P_M1_C2 + t * c;
+        c = INV_GAMMA1P_M1_C1 + t * c;
+        c = INV_GAMMA1P_M1_C0 + t * c;
+
+        if (x > 0.5) {
+            return (t / x) * ((c - 0.5) - 0.5);
+        }
+        return x * c;
     }
 }

@@ -75,40 +75,37 @@ public final class Gamma {
                     prod *= t;
                 }
                 return prod / (1 + InvGamma1pm1.value(t - 1));
-            } else {
-                /*
-                 * From the recurrence relation
-                 * Gamma(x) = Gamma(x + n + 1) / [x * (x + 1) * ... * (x + n)]
-                 * then
-                 * Gamma(x + n + 1) = 1 / [1 + InvGamma1pm1.value(x + n)],
-                 * which requires -0.5 <= x + n <= 1.5.
-                 */
-                double prod = x;
-                double t = x;
-                while (t < -0.5) {
-                    t += 1;
-                    prod *= t;
-                }
-                return 1 / (prod * (1 + InvGamma1pm1.value(t)));
             }
-        } else {
-            final double y = absX + LanczosApproximation.g() + 0.5;
-            final double gammaAbs = SQRT_TWO_PI / absX *
-                                    Math.pow(y, absX + 0.5) *
-                                    Math.exp(-y) * LanczosApproximation.value(absX);
-            if (x > 0) {
-                return gammaAbs;
-            } else {
-                /*
-                 * From the reflection formula
-                 * Gamma(x) * Gamma(1 - x) * sin(pi * x) = pi,
-                 * and the recurrence relation
-                 * Gamma(1 - x) = -x * Gamma(-x),
-                 * it is found
-                 * Gamma(x) = -pi / [x * sin(pi * x) * Gamma(-x)].
-                 */
-                return -Math.PI / (x * Math.sin(Math.PI * x) * gammaAbs);
+            /*
+             * From the recurrence relation
+             * Gamma(x) = Gamma(x + n + 1) / [x * (x + 1) * ... * (x + n)]
+             * then
+             * Gamma(x + n + 1) = 1 / [1 + InvGamma1pm1.value(x + n)],
+             * which requires -0.5 <= x + n <= 1.5.
+             */
+            double prod = x;
+            double t = x;
+            while (t < -0.5) {
+                t += 1;
+                prod *= t;
             }
+            return 1 / (prod * (1 + InvGamma1pm1.value(t)));
         }
+        final double y = absX + LanczosApproximation.g() + 0.5;
+        final double gammaAbs = SQRT_TWO_PI / absX *
+                                Math.pow(y, absX + 0.5) *
+                                Math.exp(-y) * LanczosApproximation.value(absX);
+        if (x > 0) {
+            return gammaAbs;
+        }
+        /*
+         * From the reflection formula
+         * Gamma(x) * Gamma(1 - x) * sin(pi * x) = pi,
+         * and the recurrence relation
+         * Gamma(1 - x) = -x * Gamma(-x),
+         * it is found
+         * Gamma(x) = -pi / [x * sin(pi * x) * Gamma(-x)].
+         */
+        return -Math.PI / (x * Math.sin(Math.PI * x) * gammaAbs);
     }
 }
