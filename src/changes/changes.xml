@@ -72,6 +72,9 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="fix" due-to="Arturo Bernal">
+        Fix wrong javadoc.
+      </action>
     </release>
 
     <release version="1.0" date="2021-07-17" description="
