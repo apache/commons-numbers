@@ -249,7 +249,7 @@ public enum Norm {
      *
      * <p><strong>Comparison with Math.hypot()</strong>
      * While not guaranteed to return the same result, this method provides
-     * similar error bounds as {@link Math#hypot()} (and may run faster on
+     * similar error bounds as {@link Math#hypot(double, double)} (and may run faster on
      * some JVM).
      *
      * @param x first input

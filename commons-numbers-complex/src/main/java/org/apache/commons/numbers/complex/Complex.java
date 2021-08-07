@@ -3304,7 +3304,7 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Check that an absolute value is finite. Used to replace {@link Double#isFinite()}
+     * Check that an absolute value is finite. Used to replace {@link Double#isFinite(double)}
      * when the input value is known to be positive (i.e. in the case where it has been
      * set using {@link Math#abs(double)}).
      *

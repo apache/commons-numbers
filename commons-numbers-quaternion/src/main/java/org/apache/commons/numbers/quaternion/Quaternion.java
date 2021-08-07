@@ -94,7 +94,7 @@ public final class Quaternion implements Serializable {
         private final ToDoubleFunction<Quaternion> normSq;
         /** {@link Quaternion#norm()}. */
         private final ToDoubleFunction<Quaternion> norm;
-        /** {@link Quaternion#isUnit()}. */
+        /** {@link Quaternion#isUnit(double)}. */
         private final BiPredicate<Quaternion, Double> testIsUnit;
 
         /** Default implementations. */
@@ -107,7 +107,7 @@ public final class Quaternion implements Serializable {
             private static final ToDoubleFunction<Quaternion> NORM = q ->
                 Math.sqrt(NORMSQ.applyAsDouble(q));
 
-            /** {@link Quaternion#isUnit()}. */
+            /** {@link Quaternion#isUnit(double)}. */
             private static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) ->
                 Precision.equals(NORM.applyAsDouble(q), 1d, eps);
         }
