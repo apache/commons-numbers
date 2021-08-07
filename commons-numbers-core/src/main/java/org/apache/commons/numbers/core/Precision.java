@@ -182,7 +182,7 @@ public final class Precision {
         final boolean yIsNan = Float.isNaN(y);
         // Combine the booleans with bitwise OR
         return (xIsNan | yIsNan) ?
-            !(xIsNan ^ yIsNan) :
+            xIsNan == yIsNan :
             equals(x, y, 1);
     }
 
@@ -285,7 +285,7 @@ public final class Precision {
         final boolean yIsNan = Float.isNaN(y);
         // Combine the booleans with bitwise OR
         return (xIsNan | yIsNan) ?
-            !(xIsNan ^ yIsNan) :
+            xIsNan == yIsNan :
             equals(x, y, maxUlps);
     }
 
@@ -314,7 +314,7 @@ public final class Precision {
         final boolean yIsNan = Double.isNaN(y);
         // Combine the booleans with bitwise OR
         return (xIsNan | yIsNan) ?
-            !(xIsNan ^ yIsNan) :
+            xIsNan == yIsNan :
             equals(x, y, 1);
     }
 
@@ -440,7 +440,7 @@ public final class Precision {
         final boolean yIsNan = Double.isNaN(y);
         // Combine the booleans with bitwise OR
         return (xIsNan | yIsNan) ?
-            !(xIsNan ^ yIsNan) :
+            xIsNan == yIsNan :
             equals(x, y, maxUlps);
     }
 
