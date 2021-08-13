@@ -90,6 +90,10 @@
     <numbers.jgit.buildnumber.version>1.2.10</numbers.jgit.buildnumber.version>
     <implementation.build>${git.revision}; ${maven.build.timestamp}</implementation.build>
 
+    <!-- Workaround to avoid the SVN site checkout in all modules.
+         This flag should be deactivated by child modules. -->
+    <perform.site.checkout>true</perform.site.checkout>
+
     <!--
         Override so that "mvn commons:download-page" will generates a web page
         referring to the files created by the "dist-archive" module.
