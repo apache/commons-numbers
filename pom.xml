@@ -596,6 +596,7 @@ This is avoided by creating an empty directory when svn is not available.
                 <configuration>
                   <target name="remove-checkout">
                     <delete dir="${commons.scmPubCheckoutDirectory}" quiet="true"/>
+                    <delete file="${commons.scmPubCheckoutDirectory}.README" quiet="true"/>
                   </target>
                 </configuration>
               </execution>
