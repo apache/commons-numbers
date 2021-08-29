@@ -389,7 +389,7 @@ All these files are not maven artifacts but rather distribution archives: They
 belong elsewhere; hence they must also been removed from the Nexus staging
 repository.
 
-As a measure of sanity check, the Nexus repository must be manually "closed"
+As a final validity check, the Nexus repository must be manually "closed"
 before other people review the deliverables just created.
 How to "close" the staging repository is explained at this page:
   http://www.apache.org/dev/publishing-maven-artifacts.html#close-stage
