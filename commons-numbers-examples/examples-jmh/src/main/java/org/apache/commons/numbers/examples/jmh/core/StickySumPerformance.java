@@ -237,7 +237,7 @@ public class StickySumPerformance {
      */
     private static double fastSumWithStickyBitBranched(double a, double b) {
         double sum = a + b;
-        // bVitual = sum - a
+        // bVirtual = sum - a
         // b - bVirtual == b round-off
         final double r = b - (sum - a);
 
@@ -298,7 +298,7 @@ public class StickySumPerformance {
      */
     private static double fastSumWithStickyBitBranchless(double a, double b) {
         final double sum = a + b;
-        // bVitual = sum - a
+        // bVirtual = sum - a
         // b - bVirtual == b round-off
         final double r = b - (sum - a);
 
@@ -404,7 +404,7 @@ public class StickySumPerformance {
      */
     private static double fastSumWithStickyBitBranchedOnHigh(double a, double b) {
         final double sum = a + b;
-        // bVitual = sum - a
+        // bVirtual = sum - a
         // b - bVirtual == b round-off
         final double r = b - (sum - a);
 
@@ -509,7 +509,7 @@ public class StickySumPerformance {
      */
     private static double fastSumWithStickyBitBranchedOnLow(double a, double b) {
         final double sum = a + b;
-        // bVitual = sum - a
+        // bVirtual = sum - a
         // b - bVirtual == b round-off
         final double r = b - (sum - a);
 

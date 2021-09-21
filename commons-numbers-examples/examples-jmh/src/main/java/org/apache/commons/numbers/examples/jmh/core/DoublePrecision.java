@@ -678,7 +678,7 @@ final class DoublePrecision {
      * Shewchuk (1997) Theorum 6</a>
      */
     static double fastTwoSumLow(double a, double b, double sum) {
-        // bVitual = sum - a
+        // bVirtual = sum - a
         // b - bVirtual == b round-off
         return b - (sum - a);
     }

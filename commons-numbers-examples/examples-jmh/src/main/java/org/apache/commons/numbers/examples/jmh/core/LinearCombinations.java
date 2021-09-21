@@ -1305,7 +1305,7 @@ public final class LinearCombinations {
              */
             static double fastSumWithStickyBit(double a, double b) {
                 double sum = a + b;
-                // bVitual = sum - a
+                // bVirtual = sum - a
                 // b - bVirtual == b round-off
                 final double r = b - (sum - a);
 
