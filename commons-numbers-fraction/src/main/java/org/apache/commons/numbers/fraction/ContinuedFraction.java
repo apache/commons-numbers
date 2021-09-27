@@ -126,13 +126,9 @@ public abstract class ContinuedFraction {
             final double deltaN = cN * dN;
             hN = hPrev * deltaN;
 
-            if (Double.isInfinite(hN)) {
+            if (!Double.isFinite(hN)) {
                 throw new FractionException(
-                    "Continued fraction convergents diverged to +/- infinity for value {0}", x);
-            }
-            if (Double.isNaN(hN)) {
-                throw new FractionException(
-                    "Continued fraction diverged to NaN for value {0}", x);
+                    "Continued fraction diverged to %s for value %s", hN, x);
             }
 
             if (Math.abs(deltaN - 1) < epsilon) {
@@ -145,7 +141,7 @@ public abstract class ContinuedFraction {
             ++n;
         }
 
-        throw new FractionException("maximal count ({0}) exceeded", maxIterations);
+        throw new FractionException("Maximum iterations (%d) exceeded", maxIterations);
     }
 
     /**
