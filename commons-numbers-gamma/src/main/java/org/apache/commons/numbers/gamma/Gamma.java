@@ -53,7 +53,7 @@ public final class Gamma {
      */
     public static double value(final double x) {
 
-        if ((x == Math.rint(x)) && (x <= 0.0)) {
+        if (x == Math.rint(x) && x <= 0.0) {
             return Double.NaN;
         }
 

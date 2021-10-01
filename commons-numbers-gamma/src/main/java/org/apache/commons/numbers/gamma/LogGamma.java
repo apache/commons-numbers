@@ -52,7 +52,7 @@ public final class LogGamma {
      * @return \( \ln \Gamma(x) \), or {@code NaN} if {@code x <= 0}.
      */
     public static double value(double x) {
-        if (Double.isNaN(x) || (x <= 0.0)) {
+        if (Double.isNaN(x) || x <= 0.0) {
             return Double.NaN;
         } else if (x < 0.5) {
             return LogGamma1p.value(x) - Math.log(x);
