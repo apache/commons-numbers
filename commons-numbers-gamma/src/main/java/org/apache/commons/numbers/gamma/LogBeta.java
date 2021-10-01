@@ -67,7 +67,7 @@ public final class LogBeta {
 
     /** Private constructor. */
     private LogBeta() {
-        // intentional empty.
+        // intentionally empty.
     }
 
     /**

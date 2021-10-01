@@ -37,7 +37,7 @@ public final class Trigamma {
 
     /** Private constructor. */
     private Trigamma() {
-        // intentional empty.
+        // intentionally empty.
     }
 
     /**

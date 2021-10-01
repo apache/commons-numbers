@@ -25,7 +25,7 @@ public final class Erf {
 
     /** Private constructor. */
     private Erf() {
-        // intentional empty.
+        // intentionally empty.
     }
 
     /**

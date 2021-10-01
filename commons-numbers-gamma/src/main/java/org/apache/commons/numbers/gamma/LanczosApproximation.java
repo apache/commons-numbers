@@ -55,7 +55,7 @@ public final class LanczosApproximation {
 
     /** Private constructor. */
     private LanczosApproximation() {
-        // intentional empty.
+        // intentionally empty.
     }
 
     /**

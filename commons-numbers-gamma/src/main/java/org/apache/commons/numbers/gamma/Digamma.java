@@ -43,7 +43,7 @@ public final class Digamma {
 
     /** Private constructor. */
     private Digamma() {
-        // intentional empty.
+        // intentionally empty.
     }
 
     /**
