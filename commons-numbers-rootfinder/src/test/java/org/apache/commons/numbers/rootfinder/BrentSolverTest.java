@@ -260,4 +260,31 @@ class BrentSolverTest {
         Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
         Assertions.assertEquals(1, f.getCallsCount());
     }
+
+    /**
+     * Test that a change in sign is detected with sub-normal numbers.
+     * See NUMBERS-168.
+     */
+    @Test
+    void testSubNormalBracket() {
+        final double lower = Double.MIN_VALUE;
+        final double initial = lower * 5;
+        final double upper = lower * 10;
+        // Using zero for the accuracy will only terminate the solver if the root
+        // equals 0.0 within 1 ULP.
+        final BrentSolver solver = new BrentSolver(0.0,
+                                                   0.0,
+                                                   0.0);
+        // Target below the initial estimate
+        final double target1 = lower * 2;
+        final DoubleUnaryOperator func1 = x -> x - target1;
+        final double result1 = solver.findRoot(func1, lower, initial, upper);
+        Assertions.assertEquals(target1, result1, Math.ulp(target1));
+
+        // Target above the initial estimate
+        final double target2 = lower * 7;
+        final DoubleUnaryOperator func2 = x -> x - target2;
+        final double result2 = solver.findRoot(func2, lower, initial, upper);
+        Assertions.assertEquals(target2, result2, Math.ulp(target2));
+    }
 }

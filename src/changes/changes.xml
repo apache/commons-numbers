@@ -72,6 +72,9 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="fix" issue="NUMBERS-168">
+        "BrentSolver": Identify brackets with small objective values.
+      </action>
       <action dev="aherbert" type="fix" due-to="Arturo Bernal">
         Fix wrong javadoc.
       </action>

@@ -115,7 +115,7 @@ public class BrentSolver {
         }
 
         // Reduce interval if min and initial bracket the root.
-        if (yInitial * yMin < 0) {
+        if (Double.compare(yInitial * yMin, 0.0) < 0) {
             return brent(func, min, initial, yMin, yInitial);
         }
 
@@ -126,7 +126,7 @@ public class BrentSolver {
         }
 
         // Reduce interval if initial and max bracket the root.
-        if (yInitial * yMax < 0) {
+        if (Double.compare(yInitial * yMax, 0.0) < 0) {
             return brent(func, initial, max, yInitial, yMax);
         }
 
