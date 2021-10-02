@@ -16,30 +16,29 @@
  */
 package org.apache.commons.numbers.rootfinder;
 
-import java.text.MessageFormat;
-
 /**
  * Package private exception class with constants for frequently used messages.
  */
 class SolverException extends IllegalArgumentException {
     /** Error message for "too large" condition. */
-    static final String TOO_LARGE = "{0} > {1}";
+    static final String TOO_LARGE = "%s > %s";
     /** Error message for "out of range" condition. */
-    static final String OUT_OF_RANGE = "{0} is out of range [{1}, {2}]";
+    static final String OUT_OF_RANGE = "%s is out of range [%s, %s]";
     /** Error message for "failed bracketing" condition. */
-    static final String BRACKETING = "No bracketing: f({0})={1}, f({2})={3}";
+    static final String BRACKETING = "No bracketing: f(%s)=%s, f(%s)=%s";
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190602L;
 
     /**
      * Create an exception where the message is constructed by applying
-     * the {@code format()} method from {@code java.text.MessageFormat}.
+     * the {@code format()} method from {@code String}.
      *
      * @param message  the exception message with replaceable parameters
      * @param formatArguments the arguments for formatting the message
+     * @see String#format(String, Object...)
      */
     SolverException(String message, Object... formatArguments) {
-        super(MessageFormat.format(message, formatArguments));
+        super(String.format(message, formatArguments));
     }
 }
