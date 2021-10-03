@@ -35,8 +35,8 @@ class BrentSolverTest {
         // order derivative is zero, which means linar approximating methods will
         // still converge quadratically.
         final DoubleUnaryOperator func = new Sin();
-        final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
-                                                   DEFAULT_RELATIVE_ACCURACY,
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
         double result;
@@ -65,8 +65,8 @@ class BrentSolverTest {
         // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
         // intervals containing these values are harder for the solvers.
         final DoubleUnaryOperator func = new QuinticFunction();
-        final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
-                                                   DEFAULT_RELATIVE_ACCURACY,
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
         double result;
@@ -142,8 +142,8 @@ class BrentSolverTest {
     @Test
     void testTooManyCalls() {
         final DoubleUnaryOperator func = new QuinticFunction();
-        final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
-                                                   DEFAULT_RELATIVE_ACCURACY,
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
         // Very large bracket around 1 for testing fast growth behavior.
@@ -162,8 +162,8 @@ class BrentSolverTest {
     @Test
     void testRootEndpoints() {
         final DoubleUnaryOperator f = new Sin();
-        final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
-                                                   DEFAULT_RELATIVE_ACCURACY,
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
         // Endpoint is root.
@@ -183,8 +183,8 @@ class BrentSolverTest {
     @Test
     void testBadEndpoints() {
         final DoubleUnaryOperator f = new Sin();
-        final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
-                                                   DEFAULT_RELATIVE_ACCURACY,
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
         try {  // Bad interval.
             solver.findRoot(f, 1, -1);
@@ -212,8 +212,8 @@ class BrentSolverTest {
     @Test
     void testBadInitialGuess() {
         final DoubleUnaryOperator func = new QuinticFunction();
-        final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
-                                                   DEFAULT_RELATIVE_ACCURACY,
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
         try {
@@ -229,8 +229,8 @@ class BrentSolverTest {
     @Test
     void testInitialGuess() {
         final DoubleUnaryOperator func = new QuinticFunction();
-        final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
-                                                   DEFAULT_RELATIVE_ACCURACY,
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
         double result;
         MonitoredFunction f;
