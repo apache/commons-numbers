@@ -92,6 +92,21 @@ public final class RegularizedBeta {
             a <= 0 ||
             b <= 0) {
             return Double.NaN;
+        } else if (x == 0) {
+            return 0.0;
+        } else if (x == 1) {
+            return 1.0;
+        } else if (b == 1) {
+            return Math.pow(x, a);
+        } else if (a == 1) {
+            // 1 - (1-x)^b
+            // When x >= 0.5 then 1-x is exact
+            if (x >= 0.5) {
+                return 1.0 - Math.pow(1 - x, b);
+            }
+            // Otherwise support very small x with high-precision exp/log functions
+            // 1 - exp(b * log(1-x))
+            return -Math.expm1(b * Math.log1p(-x));
         } else if (x > (a + 1) / (2 + b + a) &&
                    1 - x <= (b + 1) / (2 + b + a)) {
             return 1 - value(1 - x, b, a, epsilon, maxIterations);

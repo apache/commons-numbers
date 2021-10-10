@@ -72,6 +72,10 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="fix" issue="170">
+        "RegularizedBeta": Detect edge cases for arguments that can be evaluated by
+        exploiting properties of the regularized beta function.
+      </action>
       <action dev="aherbert" type="fix" issue="NUMBERS-168">
         "BrentSolver": Identify brackets with small objective values.
       </action>
