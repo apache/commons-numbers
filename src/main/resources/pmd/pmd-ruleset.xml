@@ -67,6 +67,13 @@
 
   <!-- Rule customisations. -->
 
+  <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters">
+    <properties>
+      <!-- The ported method follows the original C++ usage of the 'invert' flag. -->
+      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
+    </properties>
+  </rule>
+
   <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
       <!-- TODO: Current regex effectively disables this rule. -->
@@ -88,6 +95,12 @@
       <!-- Naming conventions preserved from the original Boost C++ code -->
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/codestyle.xml/ConfusingTernary">
+    <properties>
+      <!-- Use the original C++ code logic for identifying the erf domain. -->
+      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
     </properties>
   </rule>
 

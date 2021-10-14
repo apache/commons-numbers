@@ -46,6 +46,8 @@ class BoostErfTest {
      * This is a utility to identify if the function is an odd function: f(x) = -f(-x).
      */
     private enum TestFunction {
+        ERF(BoostErf::erf, true),
+        ERFC(BoostErf::erfc, false),
         ERF_INV(BoostErf::erfInv, true),
         ERFC_INV(BoostErf::erfcInv, false);
 
@@ -94,10 +96,33 @@ class BoostErfTest {
      * pass. Spot checks on larger errors have been verified against the reference
      * implementation compiled with promotion of double <strong>disabled</strong>.
      *
+     * <p>For the erf and erfc functions the Boost error is due to the accuracy of
+     * exponentiation. From the Boost test_erf.cpp:
+     * <pre>
+     * "On MacOS X erfc has much higher error levels than
+     * expected: given that the implementation is basically
+     * just a rational function evaluation combined with
+     * exponentiation, we conclude that exp and pow are less
+     * accurate on this platform, especially when the result
+     * is outside the range of a double."
+     * </pre>
+     *
      * @see <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/relative_error.html">Relative error</a>
      * @see <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/pol_tutorial/policy_tut_defaults.html">Policy defaults</a>
      */
     private enum TestCase {
+        /** Erf Boost data. */
+        ERF(TestFunction.ERF, 1.4, 0.25),
+        /** Erfc Boost data. */
+        ERFC(TestFunction.ERFC, 2.2, 0.5),
+        /** Erf Boost large data (simple case where all z>8, p=1.0). */
+        ERF_LARGE(TestFunction.ERF, 0, 0.0),
+        /** Erfc Boost large data. */
+        ERFC_LARGE(TestFunction.ERFC, 1.99, 0.75),
+        /** Erf Boost small data (no exponentiation required). */
+        ERF_SMALL(TestFunction.ERF, 1.2, 0.25),
+        /** Erfc Boost small data (no exponentiation required: ulp=0). */
+        ERFC_SMALL(TestFunction.ERFC, 0, 0.0),
         /** Inverse Erf Boost data. */
         ERF_INV(TestFunction.ERF_INV, 1.8, 0.65),
         /** Inverse Erfc Boost data. */
@@ -232,6 +257,132 @@ class BoostErfTest {
 
     @ParameterizedTest
     @CsvSource({
+        "-Infinity, -1",
+        "Infinity, 1",
+        "0, 0",
+        // Odd function
+        "-0.0, -0.0",
+        "NaN, NaN",
+        // Realistic limits
+        "-6, -1",
+        "6, 1",
+    })
+    void testErfEdgeCases(double z, double p) {
+        Assertions.assertEquals(p, BoostErf.erf(z));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "-Infinity, 2",
+        "Infinity, 0",
+        "0, 1",
+        "NaN, NaN",
+        // Realistic limits
+        "-6, 2",
+        "28, 0",
+    })
+    void testErfcEdgeCases(double z, double q) {
+        Assertions.assertEquals(q, BoostErf.erfc(z));
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erf_data.csv")
+    void testErf(double z, BigDecimal p, double q) {
+        assertErf(TestCase.ERF, z, p);
+    }
+
+    @Test
+    @Order(1010)
+    void testErfRMS() {
+        assertRms(TestCase.ERF);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erf_data.csv")
+    void testErfc(double z, double p, BigDecimal q) {
+        assertErf(TestCase.ERFC, z, q);
+    }
+
+    @Test
+    @Order(1020)
+    void testErfcRMS() {
+        assertRms(TestCase.ERFC);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erf_large_data.csv")
+    void testErfLarge(double z, BigDecimal p, double q) {
+        assertErf(TestCase.ERF_LARGE, z, p);
+    }
+
+    @Test
+    @Order(1030)
+    void testErfLargeRMS() {
+        assertRms(TestCase.ERF_LARGE);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erf_large_data.csv")
+    void testErfcLarge(double z, double p, BigDecimal q) {
+        assertErf(TestCase.ERFC_LARGE, z, q);
+    }
+
+    @Test
+    @Order(1040)
+    void testErfcLargeRMS() {
+        assertRms(TestCase.ERFC_LARGE);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erf_small_data.csv")
+    void testErfSmall(double z, BigDecimal p, double q) {
+        assertErf(TestCase.ERF_SMALL, z, p);
+    }
+
+    @Test
+    @Order(1050)
+    void testErfSmallRMS() {
+        assertRms(TestCase.ERF_SMALL);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erf_small_data.csv")
+    void testErfcSmall(double z, double p, BigDecimal q) {
+        assertErf(TestCase.ERFC_SMALL, z, q);
+    }
+
+    @Test
+    @Order(1060)
+    void testErfcSmallRMS() {
+        assertRms(TestCase.ERFC_SMALL);
+    }
+
+    /**
+     * This tests the erf function as the result approaches 1.0. The Boost threshold
+     * for large z is 5.8f. This is too low and results in 2 ulp errors when z is
+     * just above 5.8 and the result is 0.9999999999999998.
+     *
+     * @param z Value to test
+     * @param p Expected p
+     */
+    @ParameterizedTest
+    @CsvFileSource(resources = "erf_close_to_1_data.csv")
+    void testErfCloseTo1(double z, double p) {
+        Assertions.assertTrue(5.8 < z, () -> "z not above Boost threshold: " + z);
+        Assertions.assertTrue(z < 5.95, () -> "z not close to Boost threhsold: " + z);
+        Assertions.assertTrue(p <= 1.0, () -> "p not <= 1: " + p);
+        Assertions.assertEquals(1.0, p, 0x1.0p-52, "Value not with 2 ulp of 1.0");
+        Assertions.assertEquals(p, BoostErf.erf(z));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
         "0, 0",
         // Odd function
         "-0.0, -0.0",
@@ -331,10 +482,10 @@ class BoostErfTest {
     @Test
     void testErfRoundTrip() {
         assertRoundTrip("erf(erfInv(x))",
-            x -> Erf.value(BoostErf.erfInv(x)),
+            x -> BoostErf.erf(BoostErf.erfInv(x)),
             // Inverse Erf domain: [-1, 1]
             -0.95, 1, 0.125,
-            5L, 2.99);
+            2L, 0.99);
     }
 
     /**
@@ -343,10 +494,10 @@ class BoostErfTest {
     @Test
     void testErfcRoundTrip() {
         assertRoundTrip("erfc(erfcInv(x))",
-            x -> Erfc.value(BoostErf.erfcInv(x)),
+            x -> BoostErf.erfc(BoostErf.erfcInv(x)),
             // Inverse Erfc domain: [0, 2]
             0.125, 2, 0.125,
-            15L, 3.99);
+            2L, 0.99);
     }
 
     /**

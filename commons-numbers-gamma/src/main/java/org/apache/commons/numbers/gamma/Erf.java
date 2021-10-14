@@ -17,42 +17,35 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * <a href="http://mathworld.wolfram.com/Erf.html">Error function</a>.
+ * <a href="https://mathworld.wolfram.com/Erf.html">Error function</a>.
+ *
+ * <p>\[ \operatorname{erf}(z) = \frac{2}{\sqrt\pi}\int_0^z e^{-t^2}\,dt \]
  */
 public final class Erf {
-    /** The threshold value for returning the extreme value. */
-    private static final double EXTREME_VALUE_BOUND = 40;
-
     /** Private constructor. */
     private Erf() {
         // intentionally empty.
     }
 
     /**
-     * <p>
-     * This implementation computes erf(x) using the
-     * {@link RegularizedGamma.P#value(double, double, double, int) regularized gamma function},
-     * following <a href="http://mathworld.wolfram.com/Erf.html"> Erf</a>, equation (3)
-     * </p>
+     * Returns the error function.
      *
-     * <p>
-     * The returned value is always between -1 and 1 (inclusive).
-     * If {@code abs(x) > 40}, then {@code Erf.value(x)} is indistinguishable from
-     * either 1 or -1 at {@code double} precision, so the appropriate extreme value
-     * is returned.
-     * </p>
+     * <p>The returned value is always between -1 and 1 (inclusive).
+     * The appropriate extreme is returned when {@code erf(x)} is
+     * indistinguishable from either -1 or 1 at {@code double} precision.
+     *
+     * <p>Special cases:
+     * <ul>
+     * <li>If the argument is 0, then the result is 0.
+     * <li>If the argument is {@code > 6}, then the result is 1.
+     * <li>If the argument is {@code < 6}, then the result is -1.
+     * <li>If the argument is nan, then the result is nan.
+     * </ul>
      *
      * @param x the value.
      * @return the error function.
-     * @throws ArithmeticException if the algorithm fails to converge.
-     *
-     * @see RegularizedGamma.P#value(double, double, double, int)
      */
     public static double value(double x) {
-        if (Math.abs(x) > EXTREME_VALUE_BOUND) {
-            return x > 0 ? 1 : -1;
-        }
-        final double ret = RegularizedGamma.P.value(0.5, x * x, 1e-15, 10000);
-        return x < 0 ? -ret : ret;
+        return BoostErf.erf(x);
     }
 }

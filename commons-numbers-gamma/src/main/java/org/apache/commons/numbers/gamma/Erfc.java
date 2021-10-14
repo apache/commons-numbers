@@ -17,45 +17,39 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * <a href="http://mathworld.wolfram.com/Erfc.html">Complementary error function</a>.
+ * <a href="https://mathworld.wolfram.com/Erfc.html">Complementary error function</a>.
+ *
+ * <p>\[ \begin{aligned} \operatorname{erfc}(z)
+ *       &amp;= 1 - \operatorname{erf}(z) \\
+ *       &amp;= \frac{2}{\sqrt\pi}\int_z^{\infty} e^{-t^2}\,dt
+ *       \end{aligned} \]
  */
 public final class Erfc {
-    /** The threshold value for returning the extreme value. */
-    private static final double EXTREME_VALUE_BOUND = 40;
-
     /** Private constructor. */
     private Erfc() {
         // intentionally empty.
     }
 
     /**
-     * <p>
-     * This implementation computes erfc(x) using the
-     * {@link RegularizedGamma.Q#value(double, double, double, int) regularized gamma function},
-     * following <a href="http://mathworld.wolfram.com/Erf.html">Erf</a>, equation (3).
-     * </p>
+     * Returns the complementary error function.
      *
-     * <p>
-     * The value returned is always between 0 and 2 (inclusive).
-     * If {@code abs(x) > 40}, then {@code erf(x)} is indistinguishable from
-     * either 0 or 2 at {@code double} precision, so the appropriate extreme
-     * value is returned.
-     * </p>
+     * <p>The value returned is always between 0 and 2 (inclusive).
+     * The appropriate extreme is returned when {@code erfc(x)} is
+     * indistinguishable from either 0 or 2 at {@code double} precision.
+     *
+     * <p>Special cases:
+     * <ul>
+     * <li>If the argument is 0, then the result is 1.
+     * <li>If the argument is {@code > 28}, then the result is 0.
+     * <li>If the argument is {@code < 6}, then the result is 2.
+     * <li>If the argument is nan, then the result is nan.
+     * </ul>
      *
      * @param x Value.
      * @return the complementary error function.
-     * @throws ArithmeticException if the algorithm fails to converge.
-     *
-     * @see RegularizedGamma.Q#value(double, double, double, int)
      */
     public static double value(double x) {
-        if (Math.abs(x) > EXTREME_VALUE_BOUND) {
-            return x > 0 ? 0 : 2;
-        }
-        final double ret = RegularizedGamma.Q.value(0.5, x * x, 1e-15, 10000);
-        return x < 0 ?
-            2 - ret :
-            ret;
+        return BoostErf.erfc(x);
     }
 }
 

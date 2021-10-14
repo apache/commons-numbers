@@ -34,6 +34,14 @@ package org.apache.commons.numbers.gamma;
  * Boost C++ Error functions</a>
  */
 final class BoostErf {
+    /**
+     * The multiplier used to split the double value into high and low parts. From
+     * Dekker (1971): "The constant should be chosen equal to 2^(p - p/2) + 1,
+     * where p is the number of binary digits in the mantissa". Here p is 53
+     * and the multiplier is {@code 2^27 + 1}.
+     */
+    private static final double MULTIPLIER = 1.0 + 0x1.0p27;
+
     /** Private constructor. */
     private BoostErf() {
         // intentionally empty.
@@ -51,6 +59,12 @@ final class BoostErf {
     // - Explicitly inline the polynomial function evaluation
     //   using Horner's method (https://en.wikipedia.org/wiki/Horner%27s_method)
     // - Support odd function for f(0.0) = -f(-0.0)
+    // Erf:
+    // - Change extended precision z*z to compute the square round-off
+    //   using Dekker's method
+    // - Change the erf threshold for z when p=1 from
+    //   z > 5.8f to z > 5.930664
+    // - Change edge case detection for integer z
     // Inverse erf:
     // - Change inverse erf edge case detection to include NaN
     //
@@ -59,6 +73,211 @@ final class BoostErf {
     // representable as a float, e.g.
     // assert 0.0891314744949340820313f == 0.0891314744949340820313;
     // The values are unchanged from the Boost reference.
+
+    /**
+     * Returns the complementary error function.
+     *
+     * @param x the value.
+     * @return the complementary error function.
+     */
+    static double erfc(double x) {
+        return erfImp(x, true);
+    }
+
+    /**
+     * Returns the error function.
+     *
+     * @param x the value.
+     * @return the error function.
+     */
+    static double erf(double x) {
+        return erfImp(x, false);
+    }
+
+    /**
+     * 53-bit implementation for the error function.
+     *
+     * @param z Point to evaluate
+     * @param invert true to invert the result (for the complementary error function)
+     * @return the error function result
+     */
+    private static double erfImp(double z, boolean invert) {
+        if (Double.isNaN(z)) {
+            return Double.NaN;
+        }
+
+        if (z < 0) {
+            if (!invert) {
+                return -erfImp(-z, invert);
+            } else if (z < -0.5) {
+                return 2 - erfImp(-z, invert);
+            } else {
+                return 1 + erfImp(-z, false);
+            }
+        }
+
+        double result;
+
+        //
+        // Big bunch of selection statements now to pick
+        // which implementation to use,
+        // try to put most likely options first:
+        //
+        if (z < 0.5) {
+            //
+            // We're going to calculate erf:
+            //
+            if (z < 1e-10) {
+                if (z == 0) {
+                    result = z;
+                } else {
+                    final double c = 0.003379167095512573896158903121545171688;
+                    result = z * 1.125f + z * c;
+                }
+            } else {
+                // Maximum Deviation Found:                      1.561e-17
+                // Expected Error Term:                          1.561e-17
+                // Maximum Relative Change in Control Points:    1.155e-04
+                // Max Error found at double precision =         2.961182e-17
+
+                final double Y = 1.044948577880859375f;
+                final double zz = z * z;
+                double P;
+                P = -0.000322780120964605683831;
+                P =  -0.00772758345802133288487 + P * zz;
+                P =   -0.0509990735146777432841 + P * zz;
+                P =    -0.338165134459360935041 + P * zz;
+                P =    0.0834305892146531832907 + P * zz;
+                double Q;
+                Q = 0.000370900071787748000569;
+                Q =  0.00858571925074406212772 + Q * zz;
+                Q =   0.0875222600142252549554 + Q * zz;
+                Q =    0.455004033050794024546 + Q * zz;
+                Q =                        1.0 + Q * zz;
+                result = z * (Y + P / Q);
+            }
+        // Note: Boost threshold of 5.8f has been raised to approximately 5.93 (6073 / 1024)
+        } else if (invert ? (z < 28) : (z < 5.9306640625f)) {
+            //
+            // We'll be calculating erfc:
+            //
+            invert = !invert;
+            if (z < 1.5f) {
+                // Maximum Deviation Found:                     3.702e-17
+                // Expected Error Term:                         3.702e-17
+                // Maximum Relative Change in Control Points:   2.845e-04
+                // Max Error found at double precision =        4.841816e-17
+                final double Y = 0.405935764312744140625f;
+                final double zm = z - 0.5;
+                double P;
+                P = 0.00180424538297014223957;
+                P =  0.0195049001251218801359 + P * zm;
+                P =  0.0888900368967884466578 + P * zm;
+                P =   0.191003695796775433986 + P * zm;
+                P =   0.178114665841120341155 + P * zm;
+                P =  -0.098090592216281240205 + P * zm;
+                double Q;
+                Q = 0.337511472483094676155e-5;
+                Q =   0.0113385233577001411017 + Q * zm;
+                Q =     0.12385097467900864233 + Q * zm;
+                Q =    0.578052804889902404909 + Q * zm;
+                Q =     1.42628004845511324508 + Q * zm;
+                Q =     1.84759070983002217845 + Q * zm;
+                Q =                        1.0 + Q * zm;
+                result = Y + P / Q;
+                result *= Math.exp(-z * z) / z;
+            } else if (z < 2.5f) {
+                // Max Error found at double precision =        6.599585e-18
+                // Maximum Deviation Found:                     3.909e-18
+                // Expected Error Term:                         3.909e-18
+                // Maximum Relative Change in Control Points:   9.886e-05
+                final double Y = 0.50672817230224609375f;
+                final double zm = z - 1.5;
+                double P;
+                P = 0.000235839115596880717416;
+                P =  0.00323962406290842133584 + P * zm;
+                P =   0.0175679436311802092299 + P * zm;
+                P =     0.04394818964209516296 + P * zm;
+                P =   0.0386540375035707201728 + P * zm;
+                P =  -0.0243500476207698441272 + P * zm;
+                double Q;
+                Q = 0.00410369723978904575884;
+                Q =  0.0563921837420478160373 + Q * zm;
+                Q =   0.325732924782444448493 + Q * zm;
+                Q =   0.982403709157920235114 + Q * zm;
+                Q =    1.53991494948552447182 + Q * zm;
+                Q =                       1.0 + Q * zm;
+                result = Y + P / Q;
+                final double sq = z * z;
+                final double errSqr = squareLowUnscaled(z, sq);
+                result *= Math.exp(-sq) * Math.exp(-errSqr) / z;
+            } else if (z < 4.5f) {
+                // Maximum Deviation Found:                     1.512e-17
+                // Expected Error Term:                         1.512e-17
+                // Maximum Relative Change in Control Points:   2.222e-04
+                // Max Error found at double precision =        2.062515e-17
+                final double Y = 0.5405750274658203125f;
+                final double zm = z - 3.5;
+                double P;
+                P = 0.113212406648847561139e-4;
+                P = 0.000250269961544794627958 + P * zm;
+                P =  0.00212825620914618649141 + P * zm;
+                P =  0.00840807615555585383007 + P * zm;
+                P =   0.0137384425896355332126 + P * zm;
+                P =  0.00295276716530971662634 + P * zm;
+                double Q;
+                Q = 0.000479411269521714493907;
+                Q =   0.0105982906484876531489 + Q * zm;
+                Q =   0.0958492726301061423444 + Q * zm;
+                Q =    0.442597659481563127003 + Q * zm;
+                Q =     1.04217814166938418171 + Q * zm;
+                Q =                        1.0 + Q * zm;
+                result = Y + P / Q;
+                final double sq = z * z;
+                final double errSqr = squareLowUnscaled(z, sq);
+                result *= Math.exp(-sq) * Math.exp(-errSqr) / z;
+            } else {
+                // Max Error found at double precision =        2.997958e-17
+                // Maximum Deviation Found:                     2.860e-17
+                // Expected Error Term:                         2.859e-17
+                // Maximum Relative Change in Control Points:   1.357e-05
+                final double Y = 0.5579090118408203125f;
+                final double iz = 1 / z;
+                double P;
+                P =    -2.8175401114513378771;
+                P =   -3.22729451764143718517 + P * iz;
+                P =    -2.5518551727311523996 + P * iz;
+                P =  -0.687717681153649930619 + P * iz;
+                P =  -0.212652252872804219852 + P * iz;
+                P =  0.0175389834052493308818 + P * iz;
+                P = 0.00628057170626964891937 + P * iz;
+                double Q;
+                Q = 5.48409182238641741584;
+                Q = 13.5064170191802889145 + Q * iz;
+                Q = 22.9367376522880577224 + Q * iz;
+                Q =  15.930646027911794143 + Q * iz;
+                Q = 11.0567237927800161565 + Q * iz;
+                Q = 2.79257750980575282228 + Q * iz;
+                Q =                    1.0 + Q * iz;
+                result = Y + P / Q;
+                final double sq = z * z;
+                final double errSqr = squareLowUnscaled(z, sq);
+                result *= Math.exp(-sq) * Math.exp(-errSqr) / z;
+            }
+        } else {
+            //
+            // Any value of z larger than 28 will underflow to zero:
+            //
+            result = 0;
+            invert = !invert;
+        }
+
+        if (invert) {
+            result = 1 - result;
+        }
+
+        return result;
+    }
 
     /**
      * Returns the inverse complementary error function.
@@ -367,6 +586,88 @@ final class BoostErf {
             }
         }
         return result;
+    }
+
+    // Extended precision multiplication specialised for the square adapted from:
+    // org.apache.commons.numbers.core.ExtendedPrecision
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * square of {@code x} using Dekker's mult12 algorithm. The standard precision product
+     * {@code x*x} must be provided. The number {@code x} is split into high and low parts
+     * using Dekker's algorithm.
+     *
+     * <p>Warning: This method does not perform scaling in Dekker's split and large
+     * finite numbers can create NaN results.
+     *
+     * @param x Number to square
+     * @param xx Standard precision product {@code x*x}
+     * @return the low part of the square double length number
+     */
+    private static double squareLowUnscaled(double x, double xx) {
+        // Split the numbers using Dekker's algorithm without scaling
+        final double hx = highPartUnscaled(x);
+        final double lx = x - hx;
+
+        return squareLow(hx, lx, xx);
+    }
+
+    /**
+     * Implement Dekker's method to split a value into two parts. Multiplying by (2^s + 1) creates
+     * a big value from which to derive the two split parts.
+     * <pre>
+     * c = (2^s + 1) * a
+     * a_big = c - a
+     * a_hi = c - a_big
+     * a_lo = a - a_hi
+     * a = a_hi + a_lo
+     * </pre>
+     *
+     * <p>The multiplicand allows a p-bit value to be split into
+     * (p-s)-bit value {@code a_hi} and a non-overlapping (s-1)-bit value {@code a_lo}.
+     * Combined they have (p-1) bits of significand but the sign bit of {@code a_lo}
+     * contains a bit of information. The constant is chosen so that s is ceil(p/2) where
+     * the precision p for a double is 53-bits (1-bit of the mantissa is assumed to be
+     * 1 for a non sub-normal number) and s is 27.
+     *
+     * <p>This conversion does not use scaling and the result of overflow is NaN. Overflow
+     * may occur when the exponent of the input value is above 996.
+     *
+     * <p>Splitting a NaN or infinite value will return NaN.
+     *
+     * @param value Value.
+     * @return the high part of the value.
+     * @see Math#getExponent(double)
+     */
+    private static double highPartUnscaled(double value) {
+        final double c = MULTIPLIER * value;
+        return c - (c - value);
+    }
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * square of {@code x} using Dekker's mult12 algorithm. The standard
+     * precision product {@code x*x} must be provided. The number {@code x}
+     * should already be split into low and high parts.
+     *
+     * <p>Note: This uses the high part of the result {@code (z,zz)} as {@code x * x} and not
+     * {@code hx * hx + hx * lx + lx * hx} as specified in Dekker's original paper.
+     * See Shewchuk (1997) for working examples.
+     *
+     * @param hx High part of factor.
+     * @param lx Low part of factor.
+     * @param xx Square of the factor.
+     * @return <code>lx * ly - (((xy - hx * hy) - lx * hy) - hx * ly)</code>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 18</a>
+     */
+    private static double squareLow(double hx, double lx, double xx) {
+        // Compute the multiply low part:
+        // err1 = xy - hx * hy
+        // err2 = err1 - lx * hy
+        // err3 = err2 - hx * ly
+        // low = lx * ly - err3
+        return lx * lx - ((xx - hx * hx) - 2 * lx * hx);
     }
 }
 
