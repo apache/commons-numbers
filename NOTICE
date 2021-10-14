@@ -14,3 +14,9 @@ The org.apache.commons.numbers.complex package contains derivative
 work originating from the "Boost C++ Libraries" <boost/math/complex>.
 https://www.boost.org/
 Copyright 2005 John Maddock 2005.
+
+For portions of the Commons Numbers Gamma component
+The org.apache.commons.numbers.gamma package contains derivative
+work originating from the "Boost C++ Libraries" <boost/math/special_functions>.
+https://www.boost.org/
+Copyright 2006-7 John Maddock 2006-7.

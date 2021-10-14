@@ -24,6 +24,10 @@
   <suppress checks="FileLengthCheck" files=".*[/\\]Complex(Test)?\.java" />
   <suppress checks="FileLengthCheck" files=".*jmh[/\\]core[/\\]LinearCombinations.java" />
   <suppress checks="MethodLength" files=".*[/\\]Complex\.java" />
+  <!-- Naming and method logic preserved from the original Boost C++ code -->
+  <suppress checks="MethodLength" files=".*[/\\]BoostErf\.java" />
+  <suppress checks="LocalVariableName" files=".*[/\\]BoostErf\.java" />
+  <suppress checks="LocalFinalVariableName" files=".*[/\\]BoostErf\.java" />
   <!-- Method "hashCode()" is defined in the "Angle" parent class; subclasses have no additional fields to include in the hash. -->
   <suppress checks="EqualsHashCode" files=".*[/\\]Angle\.java" />
 

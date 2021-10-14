@@ -156,6 +156,11 @@
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
+        <artifactId>commons-numbers-gamma</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
         <artifactId>commons-numbers-arrays</artifactId>
         <version>${project.version}</version>
       </dependency>

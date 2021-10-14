@@ -18,13 +18,6 @@ package org.apache.commons.numbers.gamma;
 
 /**
  * Inverse of the <a href="http://mathworld.wolfram.com/Erfc.html">complementary error function</a>.
- * <p>
- * This implementation is described in the paper:
- * <a href="http://people.maths.ox.ac.uk/gilesm/files/gems_erfinv.pdf">Approximating
- * the erfinv function</a> by Mike Giles, Oxford-Man Institute of Quantitative Finance,
- * which was published in GPU Computing Gems, volume 2, 2010.
- * The source code is available <a href="http://gpucomputing.net/?q=node/1828">here</a>.
- * </p>
  */
 public final class InverseErfc {
     /** Private constructor. */
@@ -35,10 +28,19 @@ public final class InverseErfc {
     /**
      * Returns the inverse complementary error function.
      *
-     * @param x Value.
+     * <p>Special cases:
+     * <ul>
+     * <li>If the argument is 1, then the result is 0.
+     * <li>If the argument is 0, then the result is positive infinity.
+     * <li>If the argument is 2, then the result is negative infinity.
+     * <li>If the argument is outside the interval {@code [0, 2]}, then the result is nan.
+     * <li>If the argument is nan, then the result is nan.
+     * </ul>
+     *
+     * @param x Value (in {@code [0, 2]})
      * @return t such that {@code x =} {@link Erfc#value(double) Erfc.value(t)}.
      */
     public static double value(double x) {
-        return InverseErf.value(1 - x);
+        return BoostErf.erfcInv(x);
     }
 }

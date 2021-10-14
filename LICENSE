@@ -215,6 +215,13 @@ component:
    * Part of Complex is licensed under the Freely Distributable Math
      Library License and the Boost Software License Version 1.0
 
+For the Commons Numbers Gamma (commons-numbers-gamma-x.x.x.jar)
+component:
+
+   * Part of the gamma package is licensed under the
+     Boost Software License Version 1.0
+
+
 Freely Distributable Math Library License
 
 Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
