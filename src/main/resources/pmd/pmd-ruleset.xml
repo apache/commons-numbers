@@ -70,7 +70,7 @@
   <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
       <!-- TODO: Current regex effectively disables this rule. -->
-      <property name="violationSuppressXPath" value="//ClassOrInterfaceType[matches(@Image, '^.*$')]"/>
+      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[matches(@SimpleName, '^.*$')]"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ClassNamingConventions">
@@ -93,24 +93,24 @@
   <rule ref="category/java/design.xml/ExcessivePublicCount">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex'
-               or @Image='Fraction'
-               or @Image='BigFraction']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+               or @SimpleName='Fraction'
+               or @SimpleName='BigFraction']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/ExcessiveClassLength">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex'
-               or @Image='Fraction'
-               or @Image='BigFraction']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+               or @SimpleName='Fraction'
+               or @SimpleName='BigFraction']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/GodClass">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Fraction'
-               or @Image='BigFraction']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='Fraction'
+               or @SimpleName='BigFraction']"/>
     </properties>
   </rule>
 
@@ -118,19 +118,20 @@
     <properties>
       <property name="ignoreMagicNumbers" value="-1,0,1" />
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='LogGamma'
-               or @Image='LogGammaSum'
-               or @Image='InverseErf'
-               or @Image='InvGamma1pm1']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='LogGamma'
+               or @SimpleName='LogGammaSum'
+               or @SimpleName='InverseErf'
+               or @SimpleName='InvGamma1pm1'
+               or @SimpleName='RegularizedBeta']"/>
     </properties>
   </rule>
 
   <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex'
-               or @Image='Fraction'
-               or @Image='BigFraction']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+               or @SimpleName='Fraction'
+               or @SimpleName='BigFraction']"/>
     </properties>
   </rule>
 
@@ -138,8 +139,9 @@
   <rule ref="category/java/design.xml/ExcessiveMethodLength">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex'
-               or @Image='BigFraction']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+               or @SimpleName='BigFraction'
+               or @SimpleName='Fraction']"/>
     </properties>
   </rule>
 
@@ -148,13 +150,13 @@
   <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
     </properties>
   </rule>
   <rule ref="category/java/bestpractices.xml/PreserveStackTrace">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
     </properties>
   </rule>
 
