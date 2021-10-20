@@ -23,8 +23,11 @@ import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * Cartesian representation of a complex number, i.e. a number which has both a
- * real and imaginary part.
+ * Cartesian representation of a complex number. The complex number is expressed
+ * in the form \( a + ib \) where \( a \) and \( b \) are real numbers and \( i \)
+ * is the imaginary unit which satisfies the equation \( i^2 = -1 \). For the
+ * complex number \( a + ib \), \( a \) is called the <em>real part</em> and
+ * \( b \) is called the <em>imaginary part</em>.
  *
  * <p>This class is immutable. All arithmetic will create a new instance for the
  * result.</p>
