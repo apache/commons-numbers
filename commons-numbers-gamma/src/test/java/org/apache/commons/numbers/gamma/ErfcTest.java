@@ -45,7 +45,7 @@ class ErfcTest {
 
         double x = -10;
         for (int i = 0; i < 41; i++) {
-            Assertions.assertEquals(gnuValues[i], Erfc.value(x), tol);
+            Assertions.assertEquals(gnuValues[i], Erfc.value(x), gnuValues[i] * tol);
             x += 0.5d;
         }
     }
@@ -78,8 +78,7 @@ class ErfcTest {
 
         for (int i = 0; i < 15; i++) {
             final double result = 0.5 * Erfc.value(ref[i][0] / Math.sqrt(2));
-            Assertions.assertEquals(ref[i][1], result, 1e-15);
-            Assertions.assertEquals(1, ref[i][1] / result, 1e-13);
+            Assertions.assertEquals(ref[i][1], result, ref[i][1] * 1e-13);
         }
     }
 }

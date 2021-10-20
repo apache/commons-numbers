@@ -103,7 +103,7 @@ class ErfTest {
 
         double x = -10;
         for (int i = 0; i < 41; i++) {
-            Assertions.assertEquals(gnuValues[i], Erf.value(x), tol);
+            Assertions.assertEquals(gnuValues[i], Erf.value(x), Math.abs(gnuValues[i]) * tol);
             x += 0.5d;
         }
     }
