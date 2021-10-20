@@ -43,9 +43,24 @@
   </Match>
 
   <Match>
-    <!-- Benchmark state classes can expose internal representations -->
-    <Class name="~org.apache.commons.numbers.examples.jmh..*Performance.*"/>
+    <Or>
+      <!-- Benchmark state classes can expose internal representations -->
+      <Class name="~org.apache.commons.numbers.examples.jmh..*Performance.*"/>
+      <!-- False positive exposure of immutable field. -->
+      <Class name="org.apache.commons.numbers.field.FP64Field"/>
+      <Class name="org.apache.commons.numbers.field.FP64"/>
+    </Or>
     <BugPattern name="EI_EXPOSE_REP"/>
+  </Match>
+
+  <Match>
+    <Or>
+      <!-- False positive exposure of immutable field. -->
+      <Class name="org.apache.commons.numbers.field.FP64Field"/>
+      <Class name="org.apache.commons.numbers.field.FractionField"/>
+      <Class name="org.apache.commons.numbers.field.BigFractionField"/>
+    </Or>
+    <BugPattern name="MS_EXPOSE_REP"/>
   </Match>
 
 </FindBugsFilter>
