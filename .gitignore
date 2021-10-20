@@ -3,7 +3,7 @@
 **/.settings/
 **/.checkstyle
 bin
-target/
+**/target/
 /build
 /lib
 site-content*
