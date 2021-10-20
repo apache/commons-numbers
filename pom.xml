@@ -78,8 +78,10 @@
        to collect the artifacts from other modules. -->
     <commons.jxr.version>2.5</commons.jxr.version>
 
-    <!-- Override CP 47 -->
-    <commons.spotbugs.version>3.1.8</commons.spotbugs.version>
+    <!-- Override commons parent 51 to allow build on JDK 17.  -->
+    <commons.spotbugs.version>4.4.2</commons.spotbugs.version>
+    <commons.jacoco.version>0.8.7</commons.jacoco.version>
+    <commons.japicmp.version>0.15.3</commons.japicmp.version>
 
     <commons.site.path>numbers</commons.site.path>
     <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-numbers</commons.scmPubUrl>
