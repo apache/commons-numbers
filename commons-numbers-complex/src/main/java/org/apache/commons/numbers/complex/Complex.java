@@ -272,8 +272,9 @@ public final class Complex implements Serializable  {
      * Creates a complex number from its polar representation using modulus {@code rho} (\( \rho \))
      * and phase angle {@code theta} (\( \theta \)).
      *
-     * \[ x = \rho \cos(\theta) \\
-     *    y = \rho \sin(\theta) \]
+     * \[ \begin{aligned}
+     *    x &amp;= \rho \cos(\theta) \\
+     *    y &amp;= \rho \sin(\theta) \end{aligned} \]
      *
      * <p>Requires that {@code rho} is non-negative and non-NaN and {@code theta} is finite;
      * otherwise returns a complex with NaN real and imaginary parts. A {@code rho} value of
@@ -647,8 +648,9 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
      * \( \overline{z} \) of this complex number \( z \).
      *
-     * <p>\[ z           = a + i b \\
-     *      \overline{z} = a - i b \]
+     * <p>\[ \begin{aligned}
+     *                z  &amp;= a + i b \\
+     *      \overline{z} &amp;= a - i b \end{aligned}\]
      *
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
@@ -660,8 +662,9 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is the negation of both the real and imaginary parts
      * of complex number \( z \).
      *
-     * <p>\[ z  =  a + i b \\
-     *      -z  = -a - i b \]
+     * <p>\[ \begin{aligned}
+     *       z  &amp;=  a + i b \\
+     *      -z  &amp;= -a - i b \end{aligned} \]
      *
      * @return \( -z \).
      */
@@ -1025,8 +1028,9 @@ public final class Complex implements Serializable  {
      * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
      * {@link #multiply(Complex) multiply(Complex.I)} with or without {@link #negate() negation}:</p>
      *
-     * \[ iz = (-b + i a) \\
-     *   -iz = (b - i a) \]
+     * \[ \begin{aligned}
+     *    iz &amp;= (-b + i a) \\
+     *   -iz &amp;= (b - i a) \end{aligned} \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * imaginary-only and complex numbers.</p>
@@ -1779,9 +1783,10 @@ public final class Complex implements Serializable  {
      *
      * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
      *
-     * <p>\[ \sin^{-1}(z) = \sin^{-1}(B) + i\ \text{sgn}(y)\ln \left(A + \sqrt{A^2-1} \right) \\
-     *   A = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
-     *   B = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \]
+     * <p>\[ \begin{aligned}
+     *   \sin^{-1}(z) &amp;= \sin^{-1}(B) + i\ \text{sgn}(y)\ln \left(A + \sqrt{A^2-1} \right) \\
+     *   A &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
+     *   B &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \end{aligned} \]
      *
      * <p>where \( \text{sgn}(y) \) is the sign function implemented using
      * {@link Math#copySign(double,double) copySign(1.0, y)}.
@@ -1973,9 +1978,10 @@ public final class Complex implements Serializable  {
      *
      * <p>This function is implemented using real \( x \) and imaginary \( y \) parts:
      *
-     * <p>\[ \cos^{-1}(z) = \cos^{-1}(B) - i\ \text{sgn}(y) \ln\left(A + \sqrt{A^2-1}\right) \\
-     *   A = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
-     *   B = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \]
+     * <p>\[ \begin{aligned}
+     *   \cos^{-1}(z) &amp;= \cos^{-1}(B) - i\ \text{sgn}(y) \ln\left(A + \sqrt{A^2-1}\right) \\
+     *   A &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
+     *   B &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \end{aligned} \]
      *
      * <p>where \( \text{sgn}(y) \) is the sign function implemented using
      * {@link Math#copySign(double,double) copySign(1.0, y)}.
