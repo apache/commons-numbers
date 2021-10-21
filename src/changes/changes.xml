@@ -72,6 +72,17 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="update" issue="NUMBERS-172">
+        "Erf/Erfc": Use a rational function approximation accurate to 53-bits of precision.
+        This replaces the use of the regularized gamma functions P and Q and increases accuracy
+        at extreme limits of the function. Execution speed is improved.
+        Functionality is ported from the Boost C++ library.
+      </action>
+      <action dev="aherbert" type="update" issue="NUMBERS-171">
+        "InverseErfc": Support full range of [0, 2]. This lowers the supported
+        minimum value from 2^-53 to double min value. Execution speed is improved.
+        Functionality is ported from the Boost C++ library.
+      </action>
       <action dev="aherbert" type="fix" issue="170">
         "RegularizedBeta": Detect edge cases for arguments that can be evaluated by
         exploiting properties of the regularized beta function.
