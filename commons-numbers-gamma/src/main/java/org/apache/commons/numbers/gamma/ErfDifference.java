@@ -25,13 +25,13 @@ public final class ErfDifference {
      * More precisely, the current implementations of
      * {@link Erf#value(double)} and {@link Erfc#value(double)} satisfy:
      * <ul>
-     *  <li>{@code Erf.value(X_CRIT) < 0.5},</li>
-     *  <li>{@code Erf.value(Math.nextUp(X_CRIT) > 0.5},</li>
-     *  <li>{@code Erfc.value(X_CRIT) = 0.5}, and</li>
-     *  <li>{@code Erfc.value(Math.nextUp(X_CRIT) < 0.5}</li>
+     *  <li>{@code Erf.value(X_CRIT) == 0.5},</li>
+     *  <li>{@code Erf.value(Math.nextUp(X_CRIT)) > 0.5},</li>
+     *  <li>{@code Erfc.value(X_CRIT) == 0.5}, and</li>
+     *  <li>{@code Erfc.value(Math.nextUp(X_CRIT)) < 0.5}</li>
      * </ul>
      */
-    private static final double X_CRIT = 0.4769362762044697;
+    private static final double X_CRIT = 0.47693627620446993;
 
     /** Private constructor. */
     private ErfDifference() {
