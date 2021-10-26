@@ -23,10 +23,11 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * Implementation of the inverse of the <a href="http://mathworld.wolfram.com/Erf.html">error function</a>.
+ * Implementation of the <a href="http://mathworld.wolfram.com/Erf.html">error function</a> and
+ * its inverse.
  *
  * <p>This code has been adapted from the <a href="https://www.boost.org/">Boost</a>
- * {@code c++} implementation {@code <boost/math/cspecial_functions/erf.hpp>}.
+ * {@code c++} implementation {@code <boost/math/special_functions/erf.hpp>}.
  * All work is copyright John Maddock 2006 and subject to the Boost Software License.
  *
  * @see
