@@ -16,26 +16,24 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import java.text.MessageFormat;
-
 /**
  * Package private exception class with constants for frequently used messages.
  */
 class GammaException extends IllegalArgumentException {
     /** Error message for "out of range" condition. */
-    static final String OUT_OF_RANGE = "Number {0} is out of range [{1}, {2}]";
+    static final String OUT_OF_RANGE = "Number %s is out of range [%s, %s]";
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170505L;
 
     /**
      * Create an exception where the message is constructed by applying
-     * the {@code format()} method from {@code java.text.MessageFormat}.
+     * the {@code format()} method from {@code java.lang.String}.
      *
      * @param message  the exception message with replaceable parameters
      * @param formatArguments the arguments for formatting the message
      */
     GammaException(String message, Object... formatArguments) {
-        super(MessageFormat.format(message, formatArguments));
+        super(String.format(message, formatArguments));
     }
 }

@@ -86,8 +86,11 @@ class InvGamma1pm1Test {
 
     @Test
     void testInvGamma1pm1Precondition2() {
-        Assertions.assertThrows(GammaException.class,
-            () -> InvGamma1pm1.value(1.51)
+        final double x = Math.nextUp(1.5);
+        GammaException ex = Assertions.assertThrows(GammaException.class,
+            () -> InvGamma1pm1.value(x)
         );
+        Assertions.assertTrue(ex.getMessage().contains(Double.toString(x)),
+            () -> ex.getMessage() + " missing " + Double.toString(x));
     }
 }
