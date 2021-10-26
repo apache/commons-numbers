@@ -135,7 +135,7 @@ class BoostErfTest {
         ERFC_INV_LIMIT(TestFunction.ERFC_INV, 1.2, 0.5);
 
         /** Sum of the squared ULP error and count n. */
-        private final RMS rms = new RMS();
+        private final TestUtils.ErrorStatistics stats = new TestUtils.ErrorStatistics();
 
         /** The function. */
         private final TestFunction fun;
@@ -175,25 +175,25 @@ class BoostErfTest {
          * @param ulp error in ulp
          */
         void addError(double ulp) {
-            rms.add(ulp);
+            stats.add(ulp);
         }
 
         /**
          * @return Root Mean Squared measured error
          */
         double getRMSError() {
-            return rms.getRMS();
+            return stats.getRMS();
         }
 
         /**
-         * @return maximum measured error
+         * @return maximum absolute measured error
          */
-        double getMaxError() {
-            return rms.getMax();
+        double getMaxAbsError() {
+            return stats.getMaxAbs();
         }
 
         /**
-         * @return maximum allowed error
+         * @return maximum allowed absolute error
          */
         double getTolerance() {
             return maxUlp;
@@ -204,54 +204,6 @@ class BoostErfTest {
          */
         double getRmsTolerance() {
             return rmsUlp;
-        }
-    }
-
-    /**
-     * Class to compute the root mean squared error (RMS).
-     * @see <a href="https://en.wikipedia.org/wiki/Root_mean_square">Wikipedia: RMS</a>
-     */
-    private static class RMS {
-        private double ss;
-        private double max;
-        private int n;
-
-        /**
-         * @param x Value (assumed to be positive)
-         */
-        void add(double x) {
-            // Overflow is not supported.
-            // Assume the expected and actual are quite close when measuring the RMS.
-            ss += x * x;
-            n++;
-            // Assume absolute error when detecting the maximum
-            max = max < x ? x : max;
-        }
-
-        /**
-         * Gets the maximum error.
-         *
-         * <p>This is not used for assertions. It can be used to set maximum ULP thresholds
-         * for test data if the TestUtils.assertEquals method is used with a large maxUlps
-         * to measure the ulp (and effectively ignore failures) and the maximum reported
-         * as the end of testing.
-         *
-         * @return maximum error
-         */
-        double getMax() {
-            return max;
-        }
-
-        /**
-         * Gets the root mean squared error (RMS).
-         *
-         * <p> Note: If no data has been added this will return 0/0 = nan.
-         * This prevents using in assertions without adding data.
-         *
-         * @return root mean squared error (RMS)
-         */
-        double getRMS() {
-            return Math.sqrt(ss / n);
         }
     }
 
@@ -515,7 +467,7 @@ class BoostErfTest {
             DoubleUnaryOperator fun,
             double low, double high, double increment,
             long tolerance, double rmsUlp) {
-        final RMS data = new RMS();
+        final TestUtils.ErrorStatistics data = new TestUtils.ErrorStatistics();
         for (double p = low; p <= high; p += increment) {
             final double pp = fun.applyAsDouble(p);
             TestUtils.assertEquals(p, pp, tolerance, ulp -> data.add(ulp), () -> name);
@@ -547,7 +499,7 @@ class BoostErfTest {
      */
     private static void assertRms(TestCase tc) {
         final double rms = tc.getRMSError();
-        debugRms(tc.toString(), tc.getMaxError(), rms);
+        debugRms(tc.toString(), tc.getMaxAbsError(), rms);
         Assertions.assertTrue(rms <= tc.getRmsTolerance(),
             () -> String.format("%s RMS %s < %s", tc, rms, tc.getRmsTolerance()));
     }
@@ -559,9 +511,9 @@ class BoostErfTest {
      * @param data Test data
      * @param rmsTolerance RMS tolerance
      */
-    private static void assertRms(String name, RMS data, double rmsTolerance) {
+    private static void assertRms(String name, TestUtils.ErrorStatistics data, double rmsTolerance) {
         final double rms = data.getRMS();
-        debugRms(name, data.getMax(), rms);
+        debugRms(name, data.getMaxAbs(), rms);
         Assertions.assertTrue(rms <= rmsTolerance,
             () -> String.format("%s RMS %s < %s", name, rms, rmsTolerance));
     }

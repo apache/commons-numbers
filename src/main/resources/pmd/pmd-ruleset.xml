@@ -70,7 +70,9 @@
   <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters">
     <properties>
       <!-- The ported method follows the original C++ usage of the 'invert' flag. -->
-      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf'
+               or @SimpleName='BoostGamma']"/>
     </properties>
   </rule>
 
@@ -94,7 +96,7 @@
     <properties>
       <!-- Naming conventions preserved from the original Boost C++ code -->
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf' or @SimpleName='BoostGamma']"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ConfusingTernary">
@@ -103,11 +105,26 @@
       <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
     </properties>
   </rule>
+  <rule ref="category/java/codestyle.xml/PrematureDeclaration">
+    <properties>
+      <!-- False positive declaring the numerator a0. -->
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostTools']"/>
+    </properties>
+  </rule>
 
   <rule ref="category/java/design.xml/CyclomaticComplexity">
     <properties>
       <!-- Increase from default of 10 -->
       <property name="methodReportLevel" value="20"/>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/design.xml/NPathComplexity">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/ExcessivePublicCount">
@@ -123,14 +140,16 @@
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
-               or @SimpleName='BigFraction']"/>
+               or @SimpleName='BigFraction'
+               or @SimpleName='BoostGamma']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/GodClass">
     <properties>
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@SimpleName='Fraction'
-               or @SimpleName='BigFraction']"/>
+               or @SimpleName='BigFraction'
+               or @SimpleName='BoostGamma']"/>
     </properties>
   </rule>
 
@@ -143,7 +162,10 @@
                or @SimpleName='InverseErf'
                or @SimpleName='InvGamma1pm1'
                or @SimpleName='RegularizedBeta'
-               or @SimpleName='BoostErf']"/>
+               or @SimpleName='BoostErf'
+               or @SimpleName='BoostGamma'
+               or @SimpleName='BoostTools'
+               or @SimpleName='BoostMath']"/>
     </properties>
   </rule>
 
@@ -163,7 +185,9 @@
         value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='BigFraction'
                or @SimpleName='Fraction'
-               or @SimpleName='BoostErf']"/>
+               or @SimpleName='BoostErf'
+               or @SimpleName='BoostGamma'
+               or @SimpleName='SpecialMath']"/>
     </properties>
   </rule>
 

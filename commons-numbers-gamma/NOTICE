@@ -7,4 +7,7 @@ The Apache Software Foundation (http://www.apache.org/).
 The org.apache.commons.numbers.gamma package contains derivative
 work originating from the "Boost C++ Libraries" <boost/math/special_functions>.
 https://www.boost.org/
-Copyright 2006-7 John Maddock 2006-7.
+Copyright 2006-7, 2013-14 John Maddock.
+Copyright 2007, 2013-14 Paul A. Bristow.
+Copyright 2013-14 Nikhar Agrawal.
+Copyright 2013-14, 2020 Christopher Kormanyos.
