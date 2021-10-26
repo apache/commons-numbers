@@ -65,7 +65,7 @@ public final class Digamma {
      * is larger.
      */
     public static double value(double x) {
-        if (Double.isNaN(x) || Double.isInfinite(x)) {
+        if (!Double.isFinite(x)) {
             return x;
         }
 
