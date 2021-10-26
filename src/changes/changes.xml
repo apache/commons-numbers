@@ -72,6 +72,10 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="fix">
+        "FactorialDouble": Prevent caching values that are infinite. The cache will support
+        factorials up to 170.
+      </action>
       <action dev="aherbert" type="update" issue="NUMBERS-172">
         "Erf/Erfc": Use a rational function approximation accurate to 53-bits of precision.
         This replaces the use of the regularized gamma functions P and Q and increases accuracy

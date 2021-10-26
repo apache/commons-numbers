@@ -46,6 +46,14 @@ class FactorialDoubleTest {
     @Test
     void testFactorialDoubleTooLarge() {
         final int n = 171;
+        // Verify the limit. Start at the largest representable factorial as a long: 20!
+        double f = 2432902008176640000L;
+        for (int i = 21; i < n; i++) {
+            f *= i;
+        }
+        Assertions.assertTrue(Double.isFinite(f), "170! is finite");
+        f *= n;
+        Assertions.assertFalse(Double.isFinite(f), "171! is infinite");
         Assertions.assertEquals(
                 Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), () -> n + "!");
     }

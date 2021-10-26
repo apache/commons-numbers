@@ -29,6 +29,10 @@ public final class FactorialDouble {
      */
     private static final int FACTORIALS_LONG_CACHE_SIZE = 21;
     /**
+     * Maximum representable factorial. Any factorial above this will overflow a {@code double}.
+     */
+    private static final int MAX_FACTORIAL = 170;
+    /**
      * Precomputed values of the function: {@code factorialsDouble[i] = i!}.
      */
     private final double[] factorialsDouble;
@@ -46,9 +50,12 @@ public final class FactorialDouble {
             throw new CombinatoricsException(CombinatoricsException.NEGATIVE, numValues);
         }
 
-        factorialsDouble = new double[numValues];
+        // Avoid caching values that are infinite
+        final int num = Math.min(numValues, MAX_FACTORIAL + 1);
+
+        factorialsDouble = new double[num];
         // Initialize first two entries.
-        final int max = numValues < 2 ? numValues : 2;
+        final int max = num < 2 ? num : 2;
         for (int i = 0; i < max; i++) {
             factorialsDouble[i] = 1;
         }
@@ -57,10 +64,10 @@ public final class FactorialDouble {
         int endCopy;
         if (cache == null || cache.length <= beginCopy) {
             endCopy = beginCopy;
-        } else if (cache.length <= numValues) {
+        } else if (cache.length <= num) {
             endCopy = cache.length;
         } else {
-            endCopy = numValues;
+            endCopy = num;
         }
 
         // Copy available values.
@@ -69,7 +76,7 @@ public final class FactorialDouble {
         }
 
         // Precompute.
-        for (int i = endCopy; i < numValues; i++) {
+        for (int i = endCopy; i < num; i++) {
             factorialsDouble[i] = i * factorialsDouble[i - 1];
         }
     }
@@ -124,6 +131,10 @@ public final class FactorialDouble {
      * @return {@code n!} (approximated as a {@code double}).
      */
     private double compute(int n) {
+        if (n > MAX_FACTORIAL) {
+            return Double.POSITIVE_INFINITY;
+        }
+
         int start = 2;
         double result = 1;
 
