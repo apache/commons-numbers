@@ -51,9 +51,9 @@ class ErfDifferenceTest {
         // Value copied from the ErfDifference class.
         // This was identified by a binary search.
         final double x = 0.47693627620446993;
-        Assertions.assertTrue(Erf.value(x) == 0.5);
+        Assertions.assertEquals(0.5, Erf.value(x));
         Assertions.assertTrue(Erf.value(Math.nextUp(x)) > 0.5);
-        Assertions.assertTrue(Erfc.value(x) == 0.5);
+        Assertions.assertEquals(0.5, Erfc.value(x));
         Assertions.assertTrue(Erfc.value(Math.nextUp(x)) < 0.5);
     }
 }
