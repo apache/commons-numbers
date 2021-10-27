@@ -47,7 +47,7 @@ class TestUtilsTest {
         Assertions.assertEquals(2, TestUtils.assertEquals(x - ulp, x + ulp, 2));
 
         // Opposite signs
-        Assertions.assertThrows(AssertionError.class, () -> TestUtils.assertEquals(-x, x, 500000));
+        Assertions.assertThrows(AssertionError.class, () -> TestUtils.assertEquals(x, -x, 500000));
     }
 
     @Test
@@ -109,7 +109,7 @@ class TestUtilsTest {
         Assertions.assertEquals(30, TestUtils.assertEquals(bdx, x - 30 * ulp, 30));
 
         // Opposite signs
-        Assertions.assertThrows(AssertionError.class, () -> TestUtils.assertEquals(bdx.negate(), x, 500000));
+        Assertions.assertThrows(AssertionError.class, () -> TestUtils.assertEquals(bdx, -x, 500000));
 
         // High precision: Add 1/4 ulp to the value:
         //    ---|----------|----------|-----
