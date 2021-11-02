@@ -45,6 +45,8 @@ public abstract class ContinuedFraction {
      * eps * |b_n|, e.g., 1e-50".
      */
     private static final double SMALL = 1e-50;
+    /** Minimum allowed relative error epsilon. Equal to Math.ulp(1.0). */
+    private static final double MIN_EPSILON = 0x1.0p-52;
 
     /**
      * Defines the <a href="https://mathworld.wolfram.com/ContinuedFraction.html">
@@ -70,7 +72,7 @@ public abstract class ContinuedFraction {
      * Evaluates the continued fraction.
      *
      * @param x the evaluation point.
-     * @param epsilon Maximum error allowed.
+     * @param epsilon Maximum relative error allowed.
      * @return the value of the continued fraction evaluated at {@code x}.
      * @throws ArithmeticException if the algorithm fails to converge.
      * @throws ArithmeticException if the maximal number of iterations is reached
@@ -100,7 +102,7 @@ public abstract class ContinuedFraction {
      * </ul>
      *
      * @param x Point at which to evaluate the continued fraction.
-     * @param epsilon Maximum error allowed.
+     * @param epsilon Maximum relative error allowed.
      * @param maxIterations Maximum number of iterations.
      * @return the value of the continued fraction evaluated at {@code x}.
      * @throws ArithmeticException if the algorithm fails to converge.
@@ -108,6 +110,10 @@ public abstract class ContinuedFraction {
      * before the expected convergence is achieved.
      */
     public double evaluate(double x, double epsilon, int maxIterations) {
+        // Relative error epsilon must not be zero.
+        // Do not use Math.max as NaN would be returned for a NaN epsilon.
+        final double eps =  epsilon > MIN_EPSILON ? epsilon : MIN_EPSILON;
+
         double hPrev = updateIfCloseToZero(getB(0, x));
 
         int n = 1;
@@ -131,7 +137,7 @@ public abstract class ContinuedFraction {
                     "Continued fraction diverged to %s for value %s", hN, x);
             }
 
-            if (Math.abs(deltaN - 1) < epsilon) {
+            if (Math.abs(deltaN - 1) < eps) {
                 return hN;
             }
 

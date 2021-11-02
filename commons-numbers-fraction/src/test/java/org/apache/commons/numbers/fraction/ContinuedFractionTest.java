@@ -19,11 +19,15 @@ package org.apache.commons.numbers.fraction;
 import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Tests for {@link ContinuedFraction}.
  */
 class ContinuedFractionTest {
+    /** Golden ratio constant. */
+    private static final double GOLDEN_RATIO = 1.618033988749894848204586834365638117720309;
 
     @Test
     void testGoldenRatio() throws Exception {
@@ -42,6 +46,30 @@ class ContinuedFractionTest {
         final double eps = 1e-8;
         double gr = cf.evaluate(0, eps);
         Assertions.assertEquals(1.61803399, gr, eps);
+    }
+
+    /**
+     * Test an invalid epsilon (zero, negative or NaN).
+     * See NUMBERS-173.
+     *
+     * @param epsilon the epsilon
+     */
+    @ParameterizedTest
+    @ValueSource(doubles = {0, -1, Double.NaN})
+    void testGoldenRatioEpsilonZero(double epsilon) {
+        ContinuedFraction cf = new ContinuedFraction() {
+            @Override
+            public double getA(int n, double x) {
+                return 1;
+            }
+
+            @Override
+            public double getB(int n, double x) {
+                return 1;
+            }
+        };
+
+        Assertions.assertEquals(GOLDEN_RATIO, cf.evaluate(0, epsilon), Math.ulp(GOLDEN_RATIO));
     }
 
     @Test

@@ -72,6 +72,10 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="fix" issue="173">
+        "ContinuedFraction": Set a minimum bound on the relative error epsilon. Prevents
+        an infinite loop when the epsilon is zero.
+      </action>
       <action dev="aherbert" type="fix">
         "FactorialDouble": Prevent caching values that are infinite. The cache will support
         factorials up to 170.
