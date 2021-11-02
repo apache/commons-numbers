@@ -29,47 +29,67 @@ class ContinuedFractionTest {
     /** Golden ratio constant. */
     private static final double GOLDEN_RATIO = 1.618033988749894848204586834365638117720309;
 
+    /**
+     * Evaluates the golden ratio.
+     *
+     * <pre>
+     * 1 +        1
+     *     ----------------
+     *     1 +      1
+     *         ------------
+     *         1 +     1
+     *              -------
+     *              1 + ...
+     * </pre>
+     *
+     * <p>This is used to test various conditions for the {@link ContinuedFraction}.
+     *
+     * @see <a href="https://mathworld.wolfram.com/GoldenRatio.html">MathWorld Golden
+     * Ratio equation 17</a>
+     */
+    private static class GoldenRatio extends ContinuedFraction {
+        private static final GoldenRatio INSTANCE = new GoldenRatio();
+
+        /**
+         * @return single instance of GoldenRatio
+         */
+        static GoldenRatio getInstance() {
+            return INSTANCE;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public double getA(int n, double x) {
+            return 1;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public double getB(int n, double x) {
+            return 1;
+        }
+    }
+
     @Test
     void testGoldenRatio() throws Exception {
-        ContinuedFraction cf = new ContinuedFraction() {
-            @Override
-            public double getA(int n, double x) {
-                return 1;
-            }
-
-            @Override
-            public double getB(int n, double x) {
-                return 1;
-            }
-        };
-
         final double eps = 1e-8;
-        double gr = cf.evaluate(0, eps);
-        Assertions.assertEquals(1.61803399, gr, eps);
+        final double gr = GoldenRatio.getInstance().evaluate(0, eps);
+        Assertions.assertEquals(GOLDEN_RATIO, gr, GOLDEN_RATIO * eps);
     }
 
     /**
      * Test an invalid epsilon (zero, negative or NaN).
      * See NUMBERS-173.
      *
-     * @param epsilon the epsilon
+     * @param epsilon Epsilon
      */
     @ParameterizedTest
     @ValueSource(doubles = {0, -1, Double.NaN})
     void testGoldenRatioEpsilonZero(double epsilon) {
-        ContinuedFraction cf = new ContinuedFraction() {
-            @Override
-            public double getA(int n, double x) {
-                return 1;
-            }
-
-            @Override
-            public double getB(int n, double x) {
-                return 1;
-            }
-        };
-
-        Assertions.assertEquals(GOLDEN_RATIO, cf.evaluate(0, epsilon), Math.ulp(GOLDEN_RATIO));
+        // An invalid epsilon is set to the minimum epsilon.
+        // It should converge to 1 ULP.
+        final double tolerance = Math.ulp(GOLDEN_RATIO);
+        Assertions.assertEquals(GOLDEN_RATIO, GoldenRatio.getInstance().evaluate(0, epsilon), tolerance);
     }
 
     @Test
@@ -84,7 +104,7 @@ class ContinuedFractionTest {
         //                    7
         //      = [4; 2, 6, 7]
 
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
                 return n <= 3 ? 1 : 0;
@@ -93,45 +113,39 @@ class ContinuedFractionTest {
             @Override
             public double getB(int n, double x) {
                 switch (n) {
-                    case 0: return 4;
-                    case 1: return 2;
-                    case 2: return 6;
-                    case 3: return 7;
-                    default: return 1;
+                case 0:
+                    return 4;
+                case 1:
+                    return 2;
+                case 2:
+                    return 6;
+                case 3:
+                    return 7;
+                default:
+                    return 1;
                 }
             }
         };
 
         final double eps = 1e-8;
-        double gr = cf.evaluate(0, eps, 5);
+        final double gr = cf.evaluate(0, eps, 5);
         Assertions.assertEquals(415.0 / 93.0, gr, eps);
     }
 
     @Test
     void testMaxIterationsThrows() throws Exception {
-        ContinuedFraction cf = new ContinuedFraction() {
-            @Override
-            public double getA(int n, double x) {
-                return 1;
-            }
-
-            @Override
-            public double getB(int n, double x) {
-                return 1;
-            }
-        };
+        final ContinuedFraction cf = GoldenRatio.getInstance();
 
         final double eps = 1e-8;
         final int maxIterations = 3;
-        final Throwable t = Assertions.assertThrows(FractionException.class,
-            () -> cf.evaluate(0, eps, maxIterations));
+        final Throwable t = Assertions.assertThrows(FractionException.class, () -> cf.evaluate(0, eps, maxIterations));
         assertExceptionMessageContains(t, "max");
     }
 
     @Test
     void testNaNThrows() throws Exception {
         // Create a NaN during the iteration
-        ContinuedFraction cf = new ContinuedFraction() {
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
                 return 1;
@@ -144,16 +158,15 @@ class ContinuedFractionTest {
         };
 
         final double eps = 1e-8;
-        final Throwable t = Assertions.assertThrows(FractionException.class,
-            () -> cf.evaluate(0, eps, 5));
+        final Throwable t = Assertions.assertThrows(FractionException.class, () -> cf.evaluate(0, eps, 5));
         assertExceptionMessageContains(t, "nan");
     }
 
     @Test
     void testInfThrows() throws Exception {
         // Create an infinity during the iteration:
-        // a / cPrev  => a_1 / b_0 => Double.MAX_VALUE / 0.5
-        ContinuedFraction cf = new ContinuedFraction() {
+        // a / cPrev => a_1 / b_0 => Double.MAX_VALUE / 0.5
+        final ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
                 return n == 0 ? 1 : Double.MAX_VALUE;
@@ -166,8 +179,7 @@ class ContinuedFractionTest {
         };
 
         final double eps = 1e-8;
-        final Throwable t = Assertions.assertThrows(FractionException.class,
-            () -> cf.evaluate(0, eps, 5));
+        final Throwable t = Assertions.assertThrows(FractionException.class, () -> cf.evaluate(0, eps, 5));
         assertExceptionMessageContains(t, "infinity");
     }
 
@@ -179,40 +191,18 @@ class ContinuedFractionTest {
     // NUMBERS-46
     @Test
     void testOneIteration() {
-        ContinuedFraction cf = new ContinuedFraction() {
-            @Override
-            public double getA(int n, double x) {
-                return 1;
-            }
-
-            @Override
-            public double getB(int n, double x) {
-                return 1;
-            }
-        };
-
         final double eps = 10;
-        double gr = cf.evaluate(0, eps, 1);
-        Assertions.assertEquals(1.61, gr, eps);
+        final double gr = GoldenRatio.getInstance().evaluate(0, eps, 1);
+        // Expected: 1 + 1 / 1
+        Assertions.assertEquals(2.0, gr);
     }
 
     // NUMBERS-46
     @Test
     void testTwoIterations() {
-        ContinuedFraction cf = new ContinuedFraction() {
-            @Override
-            public double getA(int n, double x) {
-                return 1;
-            }
-
-            @Override
-            public double getB(int n, double x) {
-                return 1;
-            }
-        };
-
         final double eps = 0.5;
-        double gr = cf.evaluate(0, eps, 2);
+        final double gr = GoldenRatio.getInstance().evaluate(0, eps, 2);
+        // Expected: 1 + 1 / (1 + 1 / 1)
         Assertions.assertEquals(1.5, gr);
     }
 }
