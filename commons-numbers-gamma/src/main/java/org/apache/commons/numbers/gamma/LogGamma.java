@@ -17,59 +17,49 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * Function \( \ln \Gamma(x) \).
+ * Natural logarithm of the absolute value of \( \Gamma(x) \).
  *
- * Class is immutable.
+ * <p>\[ \operatorname{lgamma}(z) = \ln \lvert \Gamma(x) \rvert \]
+ *
+ * <p>This code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+ * {@code c++} implementation {@code <boost/math/special_functions/gamma.hpp>}.
+ *
+ * @see
+ * <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_gamma/lgamma.html">
+ * Boost C++ Log Gamma functions</a>
  */
 public final class LogGamma {
-    /** Lanczos constant. */
-    private static final double LANCZOS_G = 607d / 128d;
-    /** Performance. */
-    private static final double HALF_LOG_2_PI = 0.5 * Math.log(2.0 * Math.PI);
-
     /** Private constructor. */
     private LogGamma() {
         // intentionally empty.
     }
 
     /**
-     * Computes the function \( \ln \Gamma(x) \) for {@code x >= 0}.
-     *
-     * For {@code x <= 8}, the implementation is based on the double precision
-     * implementation in the <em>NSWC Library of Mathematics Subroutines</em>,
-     * {@code DGAMLN}. For {@code x >= 8}, the implementation is based on
-     * <ul>
-     * <li><a href="http://mathworld.wolfram.com/GammaFunction.html">Gamma
-     *     Function</a>, equation (28).</li>
-     * <li><a href="http://mathworld.wolfram.com/LanczosApproximation.html">
-     *     Lanczos Approximation</a>, equations (1) through (5).</li>
-     * <li><a href="http://my.fit.edu/~gabdo/gamma.txt">Paul Godfrey, A note on
-     *     the computation of the convergent Lanczos complex Gamma
-     *     approximation</a></li>
-     * </ul>
+     * Computes the function \( \ln \lvert \Gamma(x) \rvert \), the natural
+     * logarithm of the absolute value of \( \Gamma(x) \).
      *
      * @param x Argument.
-     * @return \( \ln \Gamma(x) \), or {@code NaN} if {@code x <= 0}.
+     * @return \( \ln \lvert \Gamma(x) \rvert \), or {@code NaN} if {@code x <= 0}
+     * and is an integer.
      */
     public static double value(double x) {
-        if (Double.isNaN(x) || x <= 0.0) {
-            return Double.NaN;
-        } else if (x < 0.5) {
-            return LogGamma1p.value(x) - Math.log(x);
-        } else if (x <= 2.5) {
-            return LogGamma1p.value((x - 0.5) - 0.5);
-        } else if (x <= 8.0) {
-            final int n = (int) Math.floor(x - 1.5);
-            double prod = 1.0;
-            for (int i = 1; i <= n; i++) {
-                prod *= x - i;
-            }
-            return LogGamma1p.value(x - (n + 1)) + Math.log(prod);
-        } else {
-            final double sum = LanczosApproximation.value(x);
-            final double tmp = x + LANCZOS_G + .5;
-            return ((x + .5) * Math.log(tmp)) - tmp +
-                HALF_LOG_2_PI + Math.log(sum / x);
-        }
+        return BoostGamma.lgamma(x);
+    }
+
+    /**
+     * Computes the function \( \ln \lvert \Gamma(x) \rvert \), the natural
+     * logarithm of the absolute value of \( \Gamma(x) \).
+     *
+     * <p>The sign output is set to 1 if the sign of gamma(x) is positive or zero;
+     * otherwise it is set to -1.
+     *
+     * @param x Argument.
+     * @param sign Sign output. If a non-zero length the first index {@code sign[0]} is
+     * set on output to the sign of gamma(z).
+     * @return \( \ln \lvert \Gamma(x) \rvert \), or {@code NaN} if {@code x <= 0}
+     * and is an integer.
+     */
+    public static double value(double x, int[] sign) {
+        return BoostGamma.lgamma(x, sign);
     }
 }

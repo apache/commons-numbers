@@ -18,25 +18,27 @@ package org.apache.commons.numbers.gamma;
 
 
 /**
- * <a href="http://mathworld.wolfram.com/GammaFunction.html">Gamma
- * function</a>.
- * <p>
- * The <a href="http://mathworld.wolfram.com/GammaFunction.html">gamma
+ * <a href="https://mathworld.wolfram.com/GammaFunction.html">Gamma
+ * function</a> \( \Gamma(x) \).
+ *
+ * <p>The <a href="https://mathworld.wolfram.com/GammaFunction.html">gamma
  * function</a> can be seen to extend the factorial function to cover real and
  * complex numbers, but with its argument shifted by {@code -1}. This
  * implementation supports real numbers.
- * </p>
- * <p>
- * This class is immutable.
- * </p>
+ *
+ * <p>This code has been adapted from:
+ * <ul>
+ *  <li>The <a href="https://www.boost.org/">Boost</a>
+ *      {@code c++} implementation {@code <boost/math/special_functions/gamma.hpp>}.
+ *  <li>The <em>NSWC Library of Mathematics Subroutines</em> double
+ *      precision implementation, {@code DGAMMA}.
+ * </ul>
+ *
+ * @see
+ * <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_gamma/tgamma.html">
+ * Boost C++ Gamma functions</a>
  */
 public final class Gamma {
-    /** The threshold value for choosing the Lanczos approximation. */
-    private static final double LANCZOS_THRESHOLD = 20;
-
-    /** &radic;(2&pi;). */
-    private static final double SQRT_TWO_PI = 2.506628274631000502;
-
     /** Private constructor. */
     private Gamma() {
         // intentionally empty.
@@ -44,68 +46,11 @@ public final class Gamma {
 
     /**
      * Computes the value of \( \Gamma(x) \).
-     * <p>
-     * Based on the <em>NSWC Library of Mathematics Subroutines</em> double
-     * precision implementation, {@code DGAMMA}.
      *
      * @param x Argument.
      * @return \( \Gamma(x) \)
      */
     public static double value(final double x) {
-
-        if (x == Math.rint(x) && x <= 0.0) {
-            return Double.NaN;
-        }
-
-        final double absX = Math.abs(x);
-        if (absX <= LANCZOS_THRESHOLD) {
-            if (x >= 1) {
-                /*
-                 * From the recurrence relation
-                 * Gamma(x) = (x - 1) * ... * (x - n) * Gamma(x - n),
-                 * then
-                 * Gamma(t) = 1 / [1 + InvGamma1pm1.value(t - 1)],
-                 * where t = x - n. This means that t must satisfy
-                 * -0.5 <= t - 1 <= 1.5.
-                 */
-                double prod = 1;
-                double t = x;
-                while (t > 2.5) {
-                    t -= 1;
-                    prod *= t;
-                }
-                return prod / (1 + InvGamma1pm1.value(t - 1));
-            }
-            /*
-             * From the recurrence relation
-             * Gamma(x) = Gamma(x + n + 1) / [x * (x + 1) * ... * (x + n)]
-             * then
-             * Gamma(x + n + 1) = 1 / [1 + InvGamma1pm1.value(x + n)],
-             * which requires -0.5 <= x + n <= 1.5.
-             */
-            double prod = x;
-            double t = x;
-            while (t < -0.5) {
-                t += 1;
-                prod *= t;
-            }
-            return 1 / (prod * (1 + InvGamma1pm1.value(t)));
-        }
-        final double y = absX + LanczosApproximation.g() + 0.5;
-        final double gammaAbs = SQRT_TWO_PI / absX *
-                                Math.pow(y, absX + 0.5) *
-                                Math.exp(-y) * LanczosApproximation.value(absX);
-        if (x > 0) {
-            return gammaAbs;
-        }
-        /*
-         * From the reflection formula
-         * Gamma(x) * Gamma(1 - x) * sin(pi * x) = pi,
-         * and the recurrence relation
-         * Gamma(1 - x) = -x * Gamma(-x),
-         * it is found
-         * Gamma(x) = -pi / [x * sin(pi * x) * Gamma(-x)].
-         */
-        return -Math.PI / (x * Math.sin(Math.PI * x) * gammaAbs);
+        return BoostGamma.tgamma(x);
     }
 }

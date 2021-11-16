@@ -16,37 +16,41 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import java.text.MessageFormat;
-
-import org.apache.commons.numbers.fraction.ContinuedFraction;
+import org.apache.commons.numbers.gamma.BoostGamma.Policy;
 
 /**
- * <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+ * <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
  * Regularized Gamma functions</a>.
  *
- * Class is immutable.
+ * <p>By definition, the lower and upper regularized gamma functions satisfy:
+ *
+ * <p>\[ 1 = P(a, x) + Q(a, x) \]
+ *
+ * <p>This code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+ * {@code c++} implementation {@code <boost/math/special_functions/gamma.hpp>}.
+ *
+ * @see
+ * <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_gamma/igamma.html">
+ * Boost C++ Incomplete Gamma functions</a>
  */
 public final class RegularizedGamma {
-    /** Maximum allowed numerical error. */
-    private static final double DEFAULT_EPSILON = 1e-15;
-
     /** Private constructor. */
     private RegularizedGamma() {
         // intentionally empty.
     }
 
     /**
-     * \( P(a, x) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
-     * regularized Gamma function</a>.
+     * <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+     * Lower regularized Gamma function</a> \( P(a, x) \).
      *
-     * Class is immutable.
+     * <p>\[ P(a,x) = 1 - Q(a,x) = \frac{\gamma(a,x)}{\Gamma(a)} = \frac{1}{\Gamma(a)} \int_0^x t^{a-1}\,e^{-t}\,dt \]
      */
     public static final class P {
         /** Prevent instantiation. */
         private P() {}
 
         /**
-         * Computes the regularized gamma function \( P(a, x) \).
+         * Computes the lower regularized gamma function \( P(a, x) \).
          *
          * @param a Argument.
          * @param x Argument.
@@ -55,156 +59,97 @@ public final class RegularizedGamma {
          */
         public static double value(double a,
                                    double x) {
-            return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
+            return BoostGamma.gammaP(a, x);
         }
 
         /**
-         * Computes the regularized gamma function \( P(a, x) \).
-         *
-         * The implementation of this method is based on:
-         * <ul>
-         *  <li>
-         *   <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
-         *   Regularized Gamma Function</a>, equation (1)
-         *  </li>
-         *  <li>
-         *   <a href="http://mathworld.wolfram.com/IncompleteGammaFunction.html">
-         *   Incomplete Gamma Function</a>, equation (4).
-         *  </li>
-         *  <li>
-         *   <a href="http://mathworld.wolfram.com/ConfluentHypergeometricFunctionoftheFirstKind.html">
-         *   Confluent Hypergeometric Function of the First Kind</a>, equation (1).
-         *  </li>
-         * </ul>
+         * Computes the lower regularized gamma function \( P(a, x) \).
          *
          * @param a Argument.
          * @param x Argument.
-         * @param epsilon Tolerance in continued fraction evaluation.
-         * @param maxIterations Maximum number of iterations in continued fraction evaluation.
+         * @param epsilon Tolerance in series evaluation.
+         * @param maxIterations Maximum number of iterations in series evaluation.
          * @return \( P(a, x) \).
-         * @throws ArithmeticException if the continued fraction fails to converge.
+         * @throws ArithmeticException if the series evaluation fails to converge.
          */
         public static double value(double a,
                                    double x,
                                    double epsilon,
                                    int maxIterations) {
-            if (Double.isNaN(a) ||
-                Double.isNaN(x) ||
-                a <= 0 ||
-                x < 0) {
-                return Double.NaN;
-            } else if (x == 0) {
-                return 0;
-            } else if (x >= a + 1) {
-                // Q should converge faster in this case.
-                return 1 - RegularizedGamma.Q.value(a, x, epsilon, maxIterations);
-            } else {
-                // Series.
-                double n = 0; // current element index
-                double an = 1 / a; // n-th element in the series
-                double sum = an; // partial sum
-                while (Math.abs(an / sum) > epsilon &&
-                       n < maxIterations &&
-                       sum < Double.POSITIVE_INFINITY) {
-                    // compute next element in the series
-                    n += 1;
-                    an *= x / (a + n);
+            return BoostGamma.gammaP(a, x, new Policy(epsilon, maxIterations));
+        }
 
-                    // update partial sum
-                    sum += an;
-                }
-                if (n >= maxIterations) {
-                    throw new ArithmeticException(
-                            MessageFormat.format("Failed to converge within {0} iterations", maxIterations));
-                } else if (Double.isInfinite(sum)) {
-                    return 1;
-                } else {
-                    // Ensure result is in the range [0, 1]
-                    final double result = Math.exp(-x + (a * Math.log(x)) - LogGamma.value(a)) * sum;
-                    return result > 1.0 ? 1.0 : result;
-                }
-            }
+        /**
+         * Computes the derivative of the lower regularized gamma function \( P(a, x) \).
+         *
+         * <p>\[ \frac{\delta}{\delta x} P(a,x) = \frac{e^{-x} x^{a-1}}{\Gamma(a)} \]
+         *
+         * <p>This function has uses in some statistical distributions.
+         *
+         * @param a Argument.
+         * @param x Argument.
+         * @return derivative of \( P(a,x) \) with respect to x.
+         */
+        public static double derivative(double a,
+                                        double x) {
+            return BoostGamma.gammaPDerivative(a, x);
         }
     }
 
     /**
-     * Creates the \( Q(a, x) \equiv 1 - P(a, x) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
-     * regularized Gamma function</a>.
+     * <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+     * Upper regularized Gamma function</a> \( Q(a, x) \).
      *
-     * Class is immutable.
+     * <p>\[ Q(a,x) = 1 - P(a,x) = \frac{\Gamma(a,x)}{\Gamma(a)} = \frac{1}{\Gamma(a)} \int_x^{\infty} t^{a-1}\,e^{-t}\,dt \]
      */
     public static final class Q {
         /** Prevent instantiation. */
         private Q() {}
 
         /**
-         * Computes the regularized gamma function \( Q(a, x) = 1 - P(a, x) \).
+         * Computes the upper regularized gamma function \( Q(a, x) \).
          *
          * @param a Argument.
          * @param x Argument.
          * @return \( Q(a, x) \).
-         * @throws ArithmeticException if the continued fraction fails to converge.
+         * @throws ArithmeticException if the series evaluation fails to converge.
          */
         public static double value(double a,
                                    double x) {
-            return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
+            return BoostGamma.gammaQ(a, x);
         }
 
         /**
-         * Computes the regularized gamma function \( Q(a, x) = 1 - P(a, x) \).
-         *
-         * The implementation of this method is based on:
-         * <ul>
-         *  <li>
-         *   <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
-         *   Regularized Gamma Function</a>, equation (1).
-         *  </li>
-         *  <li>
-         *   <a href="http://functions.wolfram.com/GammaBetaErf/GammaRegularized/10/0003/">
-         *   Regularized incomplete gamma function: Continued fraction representations
-         *   (formula 06.08.10.0003)</a>
-         *  </li>
-         * </ul>
+         * Computes the upper regularized gamma function \( Q(a, x) \).
          *
          * @param a Argument.
          * @param x Argument.
-         * @param epsilon Tolerance in continued fraction evaluation.
-         * @param maxIterations Maximum number of iterations in continued fraction evaluation.
-         * @throws ArithmeticException if the continued fraction fails to converge.
+         * @param epsilon Tolerance in series evaluation.
+         * @param maxIterations Maximum number of iterations in series evaluation.
          * @return \( Q(a, x) \).
+         * @throws ArithmeticException if the series evaluation fails to converge.
          */
         public static double value(final double a,
                                    double x,
                                    double epsilon,
                                    int maxIterations) {
-            if (Double.isNaN(a) ||
-                Double.isNaN(x) ||
-                a <= 0 ||
-                x < 0) {
-                return Double.NaN;
-            } else if (x == 0) {
-                return 1;
-            } else if (x < a + 1) {
-                // P should converge faster in this case.
-                return 1 - RegularizedGamma.P.value(a, x, epsilon, maxIterations);
-            } else {
-                final ContinuedFraction cf = new ContinuedFraction() {
-                        /** {@inheritDoc} */
-                        @Override
-                        protected double getA(int n, double x) {
-                            return n * (a - n);
-                        }
+            return BoostGamma.gammaQ(a, x, new Policy(epsilon, maxIterations));
+        }
 
-                        /** {@inheritDoc} */
-                        @Override
-                        protected double getB(int n, double x) {
-                            return ((2 * n) + 1) - a + x;
-                        }
-                    };
-
-                return Math.exp(-x + (a * Math.log(x)) - LogGamma.value(a)) /
-                    cf.evaluate(x, epsilon, maxIterations);
-            }
+        /**
+         * Computes the derivative of the upper regularized gamma function \( Q(a, x) \).
+         *
+         * <p>\[ \frac{\delta}{\delta x} Q(a,x) = -\frac{e^{-x} x^{a-1}}{\Gamma(a)} \]
+         *
+         * <p>This function has uses in some statistical distributions.
+         *
+         * @param a Argument.
+         * @param x Argument.
+         * @return derivative of \( Q(a,x) \) with respect to x.
+         */
+        public static double derivative(double a,
+                                        double x) {
+            return -BoostGamma.gammaPDerivative(a, x);
         }
     }
 }
