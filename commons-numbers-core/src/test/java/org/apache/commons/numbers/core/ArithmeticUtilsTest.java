@@ -442,6 +442,10 @@ class ArithmeticUtilsTest {
 
     @Test
     void testIsPowerOfTwo() {
+        Assertions.assertFalse(ArithmeticUtils.isPowerOfTwo(-1));
+        Assertions.assertFalse(ArithmeticUtils.isPowerOfTwo(Integer.MIN_VALUE));
+
+        // Small numbers in [0, 1024]
         final int n = 1025;
         final boolean[] expected = new boolean[n];
         Arrays.fill(expected, false);
@@ -449,8 +453,19 @@ class ArithmeticUtilsTest {
             expected[i] = true;
         }
         for (int i = 0; i < expected.length; i++) {
-            final boolean actual = ArithmeticUtils.isPowerOfTwo(i);
-            Assertions.assertEquals(expected[i], actual, Integer.toString(i));
+            final int value = i;
+            final boolean actual = ArithmeticUtils.isPowerOfTwo(value);
+            Assertions.assertEquals(expected[i], actual, () -> Integer.toString(value));
+        }
+
+        // All powers up to 2^62
+        for (int i = 0; i <= 62; i++) {
+            final long value = 1L << i;
+            Assertions.assertTrue(ArithmeticUtils.isPowerOfTwo(value), () -> Long.toString(value));
+            if (value >= 4) {
+                Assertions.assertFalse(ArithmeticUtils.isPowerOfTwo(value + 1), () -> Long.toString(value + 1));
+                Assertions.assertFalse(ArithmeticUtils.isPowerOfTwo(value - 1), () -> Long.toString(value - 1));
+            }
         }
     }
 

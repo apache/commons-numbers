@@ -74,7 +74,8 @@ N.B. the Performance testing module requires Java 9+.
 ">
       <action dev="aherbert" type="add" issue="175">
         "GeneralizedContinuedFraction": A continued fraction class to compute using a generator.
-        Allows evaluation of continued fractions from a regular series.
+        Allows evaluation of continued fractions from a regular series where coefficients can
+        be computed iteratively from the previous coefficients.
       </action>
       <action dev="aherbert" type="fix" issue="173">
         "ContinuedFraction": Set a minimum bound on the relative error epsilon. Prevents
