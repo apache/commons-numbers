@@ -78,6 +78,31 @@ class ContinuedFractionTest {
     }
 
     /**
+     * Test a continued fraction where the leading term is zero.
+     * Evaluates the reciprocal of the golden ratio.
+     */
+    @Test
+    void testGoldenRatioReciprocal() throws Exception {
+        final double eps = 1e-8;
+        final ContinuedFraction cf = new ContinuedFraction() {
+            @Override
+            public double getA(int n, double x) {
+                // Check this is not called with n=0
+                Assertions.assertNotEquals(0, n, "a0 should never require evaluation");
+                return 1;
+            }
+
+            @Override
+            public double getB(int n, double x) {
+                // b0 = 0
+                return n == 0 ? 0 : 1;
+            }
+        };
+        final double gr = cf.evaluate(0, eps);
+        Assertions.assertEquals(1 / GOLDEN_RATIO, gr, eps / GOLDEN_RATIO);
+    }
+
+    /**
      * Test an invalid epsilon (zero, negative or NaN).
      * See NUMBERS-173.
      *
@@ -191,7 +216,7 @@ class ContinuedFractionTest {
     // NUMBERS-46
     @Test
     void testOneIteration() {
-        final double eps = 10;
+        final double eps = 0.5;
         final double gr = GoldenRatio.getInstance().evaluate(0, eps, 1);
         // Expected: 1 + 1 / 1
         Assertions.assertEquals(2.0, gr);
@@ -200,7 +225,7 @@ class ContinuedFractionTest {
     // NUMBERS-46
     @Test
     void testTwoIterations() {
-        final double eps = 0.5;
+        final double eps = 0.25;
         final double gr = GoldenRatio.getInstance().evaluate(0, eps, 2);
         // Expected: 1 + 1 / (1 + 1 / 1)
         Assertions.assertEquals(1.5, gr);

@@ -59,7 +59,9 @@ public final class GeneralizedContinuedFraction {
      * <p>"The parameter small should be some non-zero number less than typical values of
      * eps * |b_n|, e.g., 1e-50".
      */
-    private static final double SMALL = 1e-50;
+    static final double SMALL = 1e-50;
+    /** Default maximum number of iterations. */
+    static final int DEFAULT_ITERATIONS = Integer.MAX_VALUE;
     /**
      * Minimum relative error epsilon. Equal to 1 - Math.nextDown(1.0), or 2^-53.
      *
@@ -86,8 +88,6 @@ public final class GeneralizedContinuedFraction {
     /** Default absolute difference threshold for change in magnitude. Precomputed using MIN_EPSILON.
      * Equal to {@code 1 / (1 - 2^-53) = 2^-52}. */
     private static final double DEFAULT_EPS = 0x1.0p-52;
-    /** Default maximum number of iterations. */
-    private static final int DEFAULT_ITERATIONS = Integer.MAX_VALUE;
 
     /**
      * Defines the <a href="https://mathworld.wolfram.com/GeneralizedContinuedFraction.html">
@@ -358,7 +358,7 @@ public final class GeneralizedContinuedFraction {
      * @throws ArithmeticException if the algorithm fails to converge or if the maximal number
      * of iterations is reached before the expected convergence is achieved.
      */
-    private static double evaluate(double b0, Supplier<Coefficient> gen, double epsilon, int maxIterations) {
+    static double evaluate(double b0, Supplier<Coefficient> gen, double epsilon, int maxIterations) {
         // Relative error epsilon should not be zero to prevent drift in the event
         // that the update ratio never achieves 1.0.
 

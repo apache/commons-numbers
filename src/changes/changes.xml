@@ -72,17 +72,20 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
-      <action dev="aherbert" type="update" issue="174">
+      <action dev="aherbert" type="update" issue="NUMBERS-176">
+        "ContinuedFraction": Update to use a shared implementation with GeneralizedContinuedFraction.
+      </action>
+      <action dev="aherbert" type="update" issue="NUMBERS-174">
         "Gamma/LogGamma/RegularizedGamma": Update the gamma function implementations to
         increase accuracy and support for extreme values.
         Functionality is ported from the Boost C++ library.
       </action>
-      <action dev="aherbert" type="add" issue="175">
+      <action dev="aherbert" type="add" issue="NUMBERS-175">
         "GeneralizedContinuedFraction": A continued fraction class to compute using a generator.
         Allows evaluation of continued fractions from a regular series where coefficients can
         be computed iteratively from the previous coefficients.
       </action>
-      <action dev="aherbert" type="fix" issue="173">
+      <action dev="aherbert" type="fix" issue="NUMBERS-173">
         "ContinuedFraction": Set a minimum bound on the relative error epsilon. Prevents
         an infinite loop when the epsilon is zero.
       </action>
@@ -101,7 +104,7 @@ N.B. the Performance testing module requires Java 9+.
         minimum value from 2^-53 to double min value. Execution speed is improved.
         Functionality is ported from the Boost C++ library.
       </action>
-      <action dev="aherbert" type="fix" issue="170">
+      <action dev="aherbert" type="fix" issue="NUMBERS-170">
         "RegularizedBeta": Detect edge cases for arguments that can be evaluated by
         exploiting properties of the regularized beta function.
       </action>
