@@ -75,12 +75,22 @@ Where can I get the latest release?
 -----------------------------------
 You can download source and binaries from our [download page](https://commons.apache.org/proper/commons-numbers/download_numbers.cgi).
 
-Alternatively you can pull it from the central Maven repositories:
+Alternatively you can pull it from the central Maven repositories, for example:
 
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers-parent</artifactId>
+  <artifactId>commons-numbers-core</artifactId>
+  <version>1.0</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-numbers-complex</artifactId>
+  <version>1.0</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-numbers-quaternion</artifactId>
   <version>1.0</version>
 </dependency>
 ```
