@@ -72,6 +72,11 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="update" issue="174">
+        "Gamma/LogGamma/RegularizedGamma": Update the gamma function implementations to
+        increase accuracy and support for extreme values.
+        Functionality is ported from the Boost C++ library.
+      </action>
       <action dev="aherbert" type="add" issue="175">
         "GeneralizedContinuedFraction": A continued fraction class to compute using a generator.
         Allows evaluation of continued fractions from a regular series where coefficients can
