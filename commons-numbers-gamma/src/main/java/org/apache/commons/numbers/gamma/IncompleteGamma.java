@@ -32,6 +32,7 @@ import org.apache.commons.numbers.gamma.BoostGamma.Policy;
  * @see
  * <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_gamma/igamma.html">
  * Boost C++ Incomplete Gamma functions</a>
+ * @since 1.1
  */
 public final class IncompleteGamma {
     /** No instances. */
@@ -42,6 +43,7 @@ public final class IncompleteGamma {
      * Lower incomplete Gamma function</a> \( \gamma(a, x) \).
      *
      * <p>\[ \gamma(a,x) = \int_0^x t^{a-1}\,e^{-t}\,dt \]
+     * @since 1.1
      */
     public static final class Lower {
         /** No instances. */
@@ -83,6 +85,7 @@ public final class IncompleteGamma {
      * Upper incomplete Gamma function</a> \( \Gamma(a, x) \).
      *
      * <p>\[ \Gamma(a,x) = \int_x^{\infty} t^{a-1}\,e^{-t}\,dt \]
+     * @since 1.1
      */
     public static final class Upper {
         /** No instances. */

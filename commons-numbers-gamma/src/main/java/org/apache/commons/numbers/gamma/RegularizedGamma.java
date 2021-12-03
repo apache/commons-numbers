@@ -89,6 +89,7 @@ public final class RegularizedGamma {
          * @param a Argument.
          * @param x Argument.
          * @return derivative of \( P(a,x) \) with respect to x.
+         * @since 1.1
          */
         public static double derivative(double a,
                                         double x) {
@@ -146,6 +147,7 @@ public final class RegularizedGamma {
          * @param a Argument.
          * @param x Argument.
          * @return derivative of \( Q(a,x) \) with respect to x.
+         * @since 1.1
          */
         public static double derivative(double a,
                                         double x) {

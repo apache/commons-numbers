@@ -58,6 +58,7 @@ public final class LogGamma {
      * set on output to the sign of gamma(z).
      * @return \( \ln \lvert \Gamma(x) \rvert \), or {@code NaN} if {@code x <= 0}
      * and is an integer.
+     * @since 1.1
      */
     public static double value(double x, int[] sign) {
         return BoostGamma.lgamma(x, sign);
