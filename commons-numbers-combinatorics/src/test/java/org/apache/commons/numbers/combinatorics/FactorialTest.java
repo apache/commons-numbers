@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
+import java.math.BigInteger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -23,40 +24,61 @@ import org.junit.jupiter.api.Test;
  * Test cases for the {@link Factorial} class.
  */
 class FactorialTest {
+    /** The largest representable factorial using a long (n=20). */
+    private static final int MAX_N_LONG = 20;
+    /** The largest representable factorial using a double (n=170). */
+    private static final int MAX_N_DOUBLE = 170;
+
     @Test
     void testFactorialZero() {
         Assertions.assertEquals(1, Factorial.value(0), "0!");
+        Assertions.assertEquals(1.0, Factorial.doubleValue(0), "0!");
+    }
+
+    @Test
+    void testFactorialNonPositiveArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> Factorial.value(-1)
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> Factorial.doubleValue(-1)
+        );
+    }
+
+    @Test
+    void testFactorialArgumentTooLarge() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> Factorial.value(MAX_N_LONG + 1)
+        );
+    }
+
+    @Test
+    void testFactorialDoubleValueArgumentTooLarge() {
+        // Long avoids overflow to negative
+        for (long n = MAX_N_DOUBLE + 1; n < Integer.MAX_VALUE; n *= 2) {
+            Assertions.assertEquals(Double.POSITIVE_INFINITY, Factorial.doubleValue((int) n));
+        }
     }
 
     @Test
     void testFactorial() {
-        for (int i = 1; i < 21; i++) {
-            Assertions.assertEquals(factorial(i), Factorial.value(i), i + "!");
+        // Start at 0!
+        long value = 1;
+        for (int n = 1; n <= MAX_N_LONG; n++) {
+            // n! = (n-1)! * n
+            value *= n;
+            Assertions.assertEquals(value, Factorial.value(n));
         }
     }
 
     @Test
-    void testPrecondition1() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-            () -> Factorial.value(-1)
-        );
-    }
-
-    @Test
-    void testPrecondition2() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-            () -> Factorial.value(21)
-        );
-    }
-
-    /**
-     * Direct multiplication implementation.
-     */
-    private long factorial(int n) {
-        long result = 1;
-        for (int i = 2; i <= n; i++) {
-            result *= i;
+    void testFactorialDoubleValue() {
+        // Start at 0!
+        BigInteger value = BigInteger.ONE;
+        for (int n = 1; n <= MAX_N_DOUBLE; n++) {
+            // n! = (n-1)! * n
+            value = value.multiply(BigInteger.valueOf(n));
+            Assertions.assertEquals(value.doubleValue(), Factorial.doubleValue(n));
         }
-        return result;
     }
 }

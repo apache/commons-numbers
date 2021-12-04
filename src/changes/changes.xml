@@ -73,9 +73,9 @@ N.B. the Performance testing module requires Java 9+.
 
 ">
       <action dev="aherbert" type="update" issue="NUMBERS-178">
-        "FactorialDouble": Tabulate all representable factorials. This change deprecates the
-        caching of iteratively computed values with exact 64-bit double representations of
-        n! up to n=170.
+        "Factorial/FactorialDouble": Tabulate all factorials with exact 64-bit double
+        representations of n! up to n=170. This change deprecates the FactorialDouble
+        class and removes obsolete caching functionality.
       </action>
       <action dev="aherbert" type="update" issue="NUMBERS-176">
         "ContinuedFraction": Update to use a shared implementation with GeneralizedContinuedFraction.

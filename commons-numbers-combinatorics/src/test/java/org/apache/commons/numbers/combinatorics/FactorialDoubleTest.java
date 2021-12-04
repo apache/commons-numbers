@@ -16,21 +16,16 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
-import java.math.BigInteger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link FactorialDouble} class.
  */
+@SuppressWarnings("deprecation")
 class FactorialDoubleTest {
     /** The largest representable factorial (n=170). */
     private static final int MAX_N = 170;
-
-    @Test
-    void testFactorialZero() {
-        Assertions.assertEquals(1, FactorialDouble.create().value(0), "0!");
-    }
 
     @Test
     void testNonPositiveArgument() {
@@ -42,21 +37,11 @@ class FactorialDoubleTest {
     @Test
     void testFactorials() {
         final FactorialDouble f = FactorialDouble.create();
-        // Start at 0!
-        BigInteger value = BigInteger.ONE;
-        for (int n = 1; n <= MAX_N; n++) {
-            // n! = (n-1)! * n
-            value = value.multiply(BigInteger.valueOf(n));
-            Assertions.assertEquals(value.doubleValue(), f.value(n));
+        for (int n = 0; n <= MAX_N; n++) {
+            Assertions.assertEquals(Factorial.doubleValue(n), f.value(n));
         }
-    }
-
-    @Test
-    void testFactorialDoubleTooLarge() {
-        final FactorialDouble f = FactorialDouble.create();
-        // Long avoids overflow to negative
-        for (long n = MAX_N + 1; n < Integer.MAX_VALUE; n *= 2) {
-            Assertions.assertEquals(Double.POSITIVE_INFINITY, f.value((int) n));
+        for (final int n : new int[] {MAX_N + 1, 678, Integer.MAX_VALUE}) {
+            Assertions.assertEquals(Factorial.doubleValue(n), f.value(n));
         }
     }
 
@@ -65,7 +50,6 @@ class FactorialDoubleTest {
      * This method was deprecated since 1.1.
      * It now allows calling the method with an invalid cache size.
      */
-    @SuppressWarnings("deprecation")
     @Test
     void testWithCacheReturnsThis() {
         final FactorialDouble f = FactorialDouble.create();
