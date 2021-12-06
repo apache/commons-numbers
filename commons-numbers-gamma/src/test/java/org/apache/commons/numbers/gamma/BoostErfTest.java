@@ -49,7 +49,8 @@ class BoostErfTest {
         ERF(BoostErf::erf, true),
         ERFC(BoostErf::erfc, false),
         ERF_INV(BoostErf::erfInv, true),
-        ERFC_INV(BoostErf::erfcInv, false);
+        ERFC_INV(BoostErf::erfcInv, false),
+        ERFCX(BoostErf::erfcx, false);
 
         /** The function. */
         private final DoubleUnaryOperator fun;
@@ -112,13 +113,13 @@ class BoostErfTest {
      */
     private enum TestCase {
         /** Erf Boost data. */
-        ERF(TestFunction.ERF, 1.4, 0.25),
+        ERF(TestFunction.ERF, 1.3, 0.2),
         /** Erfc Boost data. */
         ERFC(TestFunction.ERFC, 2.2, 0.5),
         /** Erf Boost large data (simple case where all z>8, p=1.0). */
         ERF_LARGE(TestFunction.ERF, 0, 0.0),
         /** Erfc Boost large data. */
-        ERFC_LARGE(TestFunction.ERFC, 1.99, 0.75),
+        ERFC_LARGE(TestFunction.ERFC, 1.75, 0.7),
         /** Erf Boost small data (no exponentiation required). */
         ERF_SMALL(TestFunction.ERF, 1.2, 0.25),
         /** Erfc Boost small data (no exponentiation required: ulp=0). */
@@ -132,7 +133,19 @@ class BoostErfTest {
         /** Inverse Erf limit data. */
         ERF_INV_LIMIT(TestFunction.ERF_INV, 1.4, 0.5),
         /** Inverse Erfc limit data. */
-        ERFC_INV_LIMIT(TestFunction.ERFC_INV, 1.2, 0.5);
+        ERFC_INV_LIMIT(TestFunction.ERFC_INV, 1.2, 0.5),
+        /** Erfcx negative medium data. */
+        ERFCX_NEG_MEDIUM(TestFunction.ERFCX, 1.7, 0.55),
+        /** Erfcx negative small data. */
+        ERFCX_NEG_SMALL(TestFunction.ERFCX, 0.7, 0.061),
+        /** Erfcx small data. */
+        ERFCX_SMALL(TestFunction.ERFCX, 0.6, 0.073),
+        /** Erfcx medium data. */
+        ERFCX_MED(TestFunction.ERFCX, 1.2, 0.5),
+        /** Erfcx large data. */
+        ERFCX_LARGE(TestFunction.ERFCX, 1.1, 0.45),
+        /** Erfcx huge data. */
+        ERFCX_HUGE(TestFunction.ERFCX, 1.25, 0.45);
 
         /** Sum of the squared ULP error and count n. */
         private final TestUtils.ErrorStatistics stats = new TestUtils.ErrorStatistics();
@@ -205,6 +218,111 @@ class BoostErfTest {
         double getRmsTolerance() {
             return rmsUlp;
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "0, 1",
+        // Reference data from GCC libquadmath expq(z*z)
+        // Cases from known max ulp errors for:
+        // a = z*z; b = z*z round-off
+        // exp(a+b) = exp(a) * exp(b) = exp(a) * expm1(b) + exp(a)
+        "0.042876182518572857, 1.00184005785999452616485960307584103",
+        "0.12332761808971203,  1.01532595755115384513226892929687518",
+        "0.23492402237866017,  1.05674063282543772769083554593703693",
+        "0.5005007866910639,   1.28466892274154983265904587935363446",
+        "0.6079329058333609,   1.44713019294681595655835657289687865",
+        "0.70256943723915932,  1.6382093968128949474570450121807659",
+        "0.82241395271131823,  1.96671514042639717092581737392007089",
+        "1.1676941591314409,   3.90989159781783456283136476225348036",
+        "1.2872328693421708,   5.24339117555116565213868516013500793",
+        "1.763493621168525,    22.4190210354395450203564424019491017",
+        "2.2911777554159483,   190.470153340296021320752950876036293",
+        "2.6219566826446719,   967.443326246348231629933262201707317",
+        "3.0037511703473512,   8287.64469163961117832508854092931197",
+        "4.9612493700241904,   48946578790.7631709834358118976268355",
+        "9.3076562180806182,   4.20727779143532487527563444483221012e+37",
+        "14.323050579907544,   1.24570874136900582743589942668130243e+89",
+        "19.789244604728378,   1.19093202729437857229577485425178318e+170",
+        "25.264725343479071,   1.63276667418921707391087152900497326e+277",
+        "26.471453083170552,   2.12115354204783587764203142231215649e+304",
+        "26.628235718509234,   8.7522773171090885282464768100291983e+307",
+        // Limit.
+        // The next double up (26.64174755704633) has
+        // exp(x*x) = 1.79769313486244732925408679719502907e+308 = Infinity
+        // This is computed as NaN due to lack of overflow checks.
+        "26.641747557046327,   1.79769313486210702414246567679413232e+308",
+    })
+    void testExpxx(double z, BigDecimal expected) {
+        final double actual = BoostErf.expxx(z);
+        TestUtils.assertEquals(expected, actual, 1.0);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        // Known cases where exp(x*x) is infinite and the round-off is zero or negative
+        "27,                 3.98728526204259656354686104733435016e+316",
+        "27.45162436,        1.79769313486244732925408679719502907e+308",
+        // Next double after 26.641747557046327
+        "26.64174755704633,  1.79769313486244732925408679719502907e+308",
+    })
+    void testExpxxOverflow(double z, double expected) {
+        final double e = Math.exp(z * z);
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, e);
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, expected);
+        Assertions.assertEquals(Double.NaN, BoostErf.expxx(z), "No overflow checks");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "0, 1",
+        // Reference data from GCC libquadmath expq(-z*z)
+        // Cases from known max ulp errors for:
+        // a = z*z; b = z*z round-off
+        // exp(a+b) = exp(a) * exp(b) = exp(a) * expm1(b) + exp(a)
+        "0.018888546570790723, 0.999643286445856926713199201695735708",
+        "0.044040879540028978, 0.998062280736064566626960146268218869",
+        "0.14252706610502067,  0.979890973955195922461144945194213951",
+        "0.21644880196960639,  0.954230441398827896658935167789523746",
+        "0.38611178653477424,  0.861498200598095608584361373395644347",
+        "0.48918821106359167,  0.78717467413707227187574762653633039",
+        "0.69762286071744906,  0.614665134758267412066486574992456239",
+        "0.74212965000887676,  0.576513560506426682539710563714000483",
+        "0.83549504832885912,  0.497553606822144444881962542058093636",
+        "0.93551572137564831,  0.416782963065511995785537520046193978",
+        "1.1557980830683314,   0.262929535430060880774643925549236367",
+        "1.4043799106718902,   0.139138848619574074162424456941838826",
+        "1.76928217755289,     0.0437020868591733321664690441540917611",
+        "3.030043930000375,    0.000102960388874918024753918581478636755",
+        "6.8941333932059292,   2.28236391243884653067874490191517352e-21",
+        "12.150966601450184,   7.55373161692552909052687379129491314e-65",
+        "18.145618649215113,   1.00621134630738394627962504745954853e-143",
+        "22.58677686154909,    2.74945208846365015258084878726170577e-222",
+        "25.307715003447811,   6.96433586576952601048539830338695099e-279",
+        "26.314662520770881,   1.85270995749302588464727454552962812e-301",
+        "26.550566379026709,   7.1067746279803211201902681713374704e-307",
+        // Limit
+        "27.297128403953796,   2.47032822920651974943004172315065178e-324",
+        // exp(-z*z) = 0
+        "27.2971284039538,     2.47032822920604061009296400001395168e-324",
+    })
+    void testExpmxx(double z, BigDecimal expected) {
+        final double actual = BoostErf.expmxx(z);
+        TestUtils.assertEquals(expected, actual, 1.0);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        // Reference data from GCC libquadmath expq(z)
+        // exp(z) is nearly sub-normal
+        "26.589967471163597, 8.75686990774305433076998380040492953e-308",
+        "26.592726991055095, 7.56157741629803260538530412232841961e-308",
+        "26.593224983876986, 7.36392883240998076191982506525092463e-308",
+        "26.596608821043414, 6.15095812619805721349676447899566968e-308",
+    })
+    void testExpmxxCloseToSubNormal(double z, BigDecimal expected) {
+        final double actual = BoostErf.expmxx(z);
+        TestUtils.assertEquals(expected, actual, 1.3);
     }
 
     @ParameterizedTest
@@ -473,6 +591,148 @@ class BoostErfTest {
             TestUtils.assertEquals(p, pp, tolerance, ulp -> data.add(ulp), () -> name);
         }
         assertRms(name, data, rmsUlp);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "NaN, NaN",
+        "0, 1",
+        "-0.0, 1",
+        "1e-100, 1",
+        // expected 1.0000000000000002
+        "-2.220446049250313E-16, 1.0000000000000002505505",
+        // expected 1.0
+        "-1.1102230246251565E-16, 1.000000000000000125275",
+        "1.734723475976807e-17, 0.99999999999999998042574169",
+        // expected 0.9999999999999999
+        "5.551115123125783e-17, 0.99999999999999993736237340916",
+        // max value
+        "1.7976931348623157e308, 3.13840873398544321279297017922274491e-309",
+        "Infinity, 0",
+        "-27, Infinity",
+        "-26.62873571375149, 1.7976931348622485388617592502115433e+308",
+        // This is infinite as a double: matlab erfcx = Inf
+        "-26.628735713751492, 1.79769313486258867776818776259144527e+308",
+    })
+    void testErfcxEdgeCases(double z, double expected) {
+        final double actual = BoostErf.erfcx(z);
+        // Workaround for NaN not having a valid ulp
+        if (Double.isFinite(expected)) {
+            Assertions.assertEquals(expected, actual, Math.ulp(expected));
+        } else {
+            Assertions.assertEquals(expected, actual);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        // matlab: fprintf("%.17g\n, erfcx(z))
+        "-24.356, 8.5293595881160216e+257",
+        "-12.34, 2.7132062210034015e+66",
+        "-6.89, 8.2775358436372447e+20",
+        "-1.11134, 6.4783098090861095",
+        "-0.67868, 2.6356650381821858",
+        "-0.1234, 1.156008270595601",
+        "0.1234, 0.87467990946395457",
+        "0.2836, 0.74601996202714793",
+        "0.7521364, 0.5061525663103037",
+        "1.678, 0.2947001506216585",
+        "2.67868, 0.19827490572168827",
+        "5.6788, 0.09787639472753934",
+        "10.67182, 0.052638121464397732",
+        "15.678, 0.035913308816213706",
+        "23.975, 0.023511995366729203",
+        "26.8989, 0.020959983993738648",
+        "27.1678, 0.020752808901245822",
+        "27.789, 0.020289502724156101",
+        "28.4567, 0.019814028635674531",
+        "33.67868, 0.016744753846685077",
+        "56.567, 0.0099722712078122132",
+        "101.101, 0.0055801820870247853",
+        "234.7, 0.0024038536962965006",
+        "678658.678, 8.3133039013043281e-07",
+    })
+    void testErfcxSpotTests(double z, double expected) {
+        final double actual = BoostErf.erfcx(z);
+        Assertions.assertEquals(expected, actual, Math.ulp(expected));
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erfcx_neg_medium_data.csv")
+    void testErfcxNegMedium(double z, BigDecimal expected) {
+        assertErf(TestCase.ERFCX_NEG_MEDIUM, z, expected);
+    }
+
+    @Test
+    @Order(3010)
+    void testErfcxNegMediumRMS() {
+        assertRms(TestCase.ERFCX_NEG_MEDIUM);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erfcx_neg_small_data.csv")
+    void testErfcxNegSmall(double z, BigDecimal expected) {
+        assertErf(TestCase.ERFCX_NEG_SMALL, z, expected);
+    }
+
+    @Test
+    @Order(3020)
+    void testErfcxNegSmallRMS() {
+        assertRms(TestCase.ERFCX_NEG_SMALL);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erfcx_small_data.csv")
+    void testErfcxSmall(double z, BigDecimal expected) {
+        assertErf(TestCase.ERFCX_SMALL, z, expected);
+    }
+
+    @Test
+    @Order(3030)
+    void testErfcxSmallRMS() {
+        assertRms(TestCase.ERFCX_SMALL);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erfcx_medium_data.csv")
+    void testErfcxMedium(double z, BigDecimal expected) {
+        assertErf(TestCase.ERFCX_MED, z, expected);
+    }
+
+    @Test
+    @Order(3040)
+    void testErfcxMediumRMS() {
+        assertRms(TestCase.ERFCX_MED);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erfcx_large_data.csv")
+    void testErfcxLarge(double z, BigDecimal expected) {
+        assertErf(TestCase.ERFCX_LARGE, z, expected);
+    }
+
+    @Test
+    @Order(3050)
+    void testErfcxLargeRMS() {
+        assertRms(TestCase.ERFCX_LARGE);
+    }
+
+    @ParameterizedTest
+    @Order(1)
+    @CsvFileSource(resources = "erfcx_huge_data.csv")
+    void testErfcxHuge(double z, BigDecimal expected) {
+        assertErf(TestCase.ERFCX_HUGE, z, expected);
+    }
+
+    @Test
+    @Order(3060)
+    void testErfcxHugeRMS() {
+        assertRms(TestCase.ERFCX_HUGE);
     }
 
     /**

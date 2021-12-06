@@ -28,7 +28,11 @@ package org.apache.commons.numbers.gamma;
  *
  * <p>This code has been adapted from the <a href="https://www.boost.org/">Boost</a>
  * {@code c++} implementation {@code <boost/math/special_functions/erf.hpp>}.
- * All work is copyright John Maddock 2006 and subject to the Boost Software License.
+ * The erf/erfc functions and their inverses are copyright John Maddock 2006 and subject to
+ * the Boost Software License.
+ *
+ * <p>Additions made to support the erfcx function are original work under the Apache software
+ * license.
  *
  * @see
  * <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_erf/error_function.html">
@@ -42,6 +46,23 @@ final class BoostErf {
      * and the multiplier is {@code 2^27 + 1}.
      */
     private static final double MULTIPLIER = 1.0 + 0x1.0p27;
+    /** 1 / sqrt(pi). Used for the scaled complementary error function erfcx. */
+    private static final double ONE_OVER_ROOT_PI = 0.5641895835477562869480794515607725858;
+    /** Threshold for the scaled complementary error function erfcx
+     * where the approximation {@code (1 / sqrt(pi)) / x} can be used. */
+    private static final double ERFCX_APPROX = 6.71e7;
+    /** Threshold for the erf implementation for |x| where the computation
+     * uses {@code erf(x)}; otherwise {@code erfc(x)} is computed. The final result is
+     * achieved by suitable application of symmetry. */
+    private static final double COMPUTE_ERF = 0.5;
+    /** Threshold for the scaled complementary error function erfcx for negative x
+     * where {@code 2 * exp(x*x)} will overflow. Value is 26.62873571375149. */
+    private static final double ERFCX_NEG_X_MAX = Math.sqrt(Math.log(Double.MAX_VALUE / 2));
+    /** Threshold for the scaled complementary error function erfcx for x
+     * where {@code exp(x*x) == 1; x <= t}. Value is (1 + 5/16) * 2^-27 = 9.778887033462524E-9.
+     * <p>Note: This is used for performance. If set to 0 then the result is computed
+     * using expm1(x*x) with the same final result. */
+    private static final double EXP_XX_1 = 0x1.5p-27;
 
     /** Private constructor. */
     private BoostErf() {
@@ -60,14 +81,21 @@ final class BoostErf {
     // - Explicitly inline the polynomial function evaluation
     //   using Horner's method (https://en.wikipedia.org/wiki/Horner%27s_method)
     // - Support odd function for f(0.0) = -f(-0.0)
+    // - Support the scaled complementary error function erfcx
     // Erf:
     // - Change extended precision z*z to compute the square round-off
     //   using Dekker's method
-    // - Change the erf threshold for z when p=1 from
+    // - Change extended precision exp(-z*z) to compute using a
+    //   round-off addition to the standard exp result (see NUMBERS-177)
+    // - Change the erf threshold for z when erf(z)=1 from
     //   z > 5.8f to z > 5.930664
-    // - Change edge case detection for integer z
+    // - Change the erfc threshold for z when erfc(z)=0 from
+    //   z < 28 to z < 27.3
+    // - Change rational function approximation for z > 4 to a function
+    //   suitable for erfcx (see NUMBERS-177)
     // Inverse erf:
     // - Change inverse erf edge case detection to include NaN
+    // - Change edge case detection for integer z
     //
     // Note:
     // Constants using the 'f' suffix are machine
@@ -82,7 +110,7 @@ final class BoostErf {
      * @return the complementary error function.
      */
     static double erfc(double x) {
-        return erfImp(x, true);
+        return erfImp(x, true, false);
     }
 
     /**
@@ -92,28 +120,34 @@ final class BoostErf {
      * @return the error function.
      */
     static double erf(double x) {
-        return erfImp(x, false);
+        return erfImp(x, false, false);
     }
 
     /**
      * 53-bit implementation for the error function.
      *
+     * <p>Note: The {@code scaled} flag only applies when
+     * {@code z >= 0.5} and {@code invert == true}.
+     * This functionality is used to compute erfcx(z) for positive z.
+     *
      * @param z Point to evaluate
      * @param invert true to invert the result (for the complementary error function)
+     * @param scaled true to compute the scaled complementary error function
      * @return the error function result
      */
-    private static double erfImp(double z, boolean invert) {
+    private static double erfImp(double z, boolean invert, boolean scaled) {
         if (Double.isNaN(z)) {
             return Double.NaN;
         }
 
         if (z < 0) {
+            // Here the scaled flag is ignored.
             if (!invert) {
-                return -erfImp(-z, invert);
+                return -erfImp(-z, invert, false);
             } else if (z < -0.5) {
-                return 2 - erfImp(-z, invert);
+                return 2 - erfImp(-z, invert, false);
             } else {
-                return 1 + erfImp(-z, false);
+                return 1 + erfImp(-z, false, false);
             }
         }
 
@@ -124,10 +158,11 @@ final class BoostErf {
         // which implementation to use,
         // try to put most likely options first:
         //
-        if (z < 0.5) {
+        if (z < COMPUTE_ERF) {
             //
             // We're going to calculate erf:
             //
+            // Here the scaled flag is ignored.
             if (z < 1e-10) {
                 if (z == 0) {
                     result = z;
@@ -157,11 +192,13 @@ final class BoostErf {
                 Q =                        1.0 + Q * zz;
                 result = z * (Y + P / Q);
             }
-        // Note: Boost threshold of 5.8f has been raised to approximately 5.93 (6073 / 1024)
-        } else if (invert ? (z < 28) : (z < 5.9306640625f)) {
+        // Note: Boost threshold of 5.8f has been raised to approximately 5.93 (6073 / 1024);
+        // threshold of 28 has been lowered to approximately 27.3 (6989/256) where exp(-z*z) = 0.
+        } else if (scaled || (invert ? (z < 27.300781f) : (z < 5.9306640625f))) {
             //
             // We'll be calculating erfc:
             //
+            // Here the scaled flag is used.
             invert = !invert;
             if (z < 1.5f) {
                 // Maximum Deviation Found:                     3.702e-17
@@ -186,7 +223,11 @@ final class BoostErf {
                 Q =     1.84759070983002217845 + Q * zm;
                 Q =                        1.0 + Q * zm;
                 result = Y + P / Q;
-                result *= Math.exp(-z * z) / z;
+                if (scaled) {
+                    result /= z;
+                } else {
+                    result *= expmxx(z) / z;
+                }
             } else if (z < 2.5f) {
                 // Max Error found at double precision =        6.599585e-18
                 // Maximum Deviation Found:                     3.909e-18
@@ -209,10 +250,14 @@ final class BoostErf {
                 Q =    1.53991494948552447182 + Q * zm;
                 Q =                       1.0 + Q * zm;
                 result = Y + P / Q;
-                final double sq = z * z;
-                final double errSqr = squareLowUnscaled(z, sq);
-                result *= Math.exp(-sq) * Math.exp(-errSqr) / z;
-            } else if (z < 4.5f) {
+                if (scaled) {
+                    result /= z;
+                } else {
+                    result *= expmxx(z) / z;
+                }
+            // Lowered Boost threshold from 4.5 to 4.0 as this is the limit
+            // for the Cody erfc approximation
+            } else if (z < 4.0f) {
                 // Maximum Deviation Found:                     1.512e-17
                 // Expected Error Term:                         1.512e-17
                 // Maximum Relative Change in Control Points:   2.222e-04
@@ -234,50 +279,130 @@ final class BoostErf {
                 Q =     1.04217814166938418171 + Q * zm;
                 Q =                        1.0 + Q * zm;
                 result = Y + P / Q;
-                final double sq = z * z;
-                final double errSqr = squareLowUnscaled(z, sq);
-                result *= Math.exp(-sq) * Math.exp(-errSqr) / z;
+                if (scaled) {
+                    result /= z;
+                } else {
+                    result *= expmxx(z) / z;
+                }
             } else {
-                // Max Error found at double precision =        2.997958e-17
-                // Maximum Deviation Found:                     2.860e-17
-                // Expected Error Term:                         2.859e-17
-                // Maximum Relative Change in Control Points:   1.357e-05
-                final double Y = 0.5579090118408203125f;
-                final double iz = 1 / z;
-                double P;
-                P =    -2.8175401114513378771;
-                P =   -3.22729451764143718517 + P * iz;
-                P =    -2.5518551727311523996 + P * iz;
-                P =  -0.687717681153649930619 + P * iz;
-                P =  -0.212652252872804219852 + P * iz;
-                P =  0.0175389834052493308818 + P * iz;
-                P = 0.00628057170626964891937 + P * iz;
-                double Q;
-                Q = 5.48409182238641741584;
-                Q = 13.5064170191802889145 + Q * iz;
-                Q = 22.9367376522880577224 + Q * iz;
-                Q =  15.930646027911794143 + Q * iz;
-                Q = 11.0567237927800161565 + Q * iz;
-                Q = 2.79257750980575282228 + Q * iz;
-                Q =                    1.0 + Q * iz;
-                result = Y + P / Q;
-                final double sq = z * z;
-                final double errSqr = squareLowUnscaled(z, sq);
-                result *= Math.exp(-sq) * Math.exp(-errSqr) / z;
+                // Rational function approximation for erfc(x > 4.0)
+                //
+                // This approximation is not the Boost implementation.
+                // The Boost function is suitable for [4.5 < z < 28].
+                //
+                // This function is suitable for erfcx(z) as it asymptotes
+                // to (1 / sqrt(pi)) / z at large z.
+                //
+                // Taken from "Rational Chebyshev approximations for the error function"
+                // by W. J. Cody, Math. Comp., 1969, PP. 631-638.
+                //
+                // See NUMBERS-177.
+
+                final double izz = 1 / (z * z);
+                double p;
+                p = 1.63153871373020978498e-2;
+                p = 3.05326634961232344035e-1 + p * izz;
+                p = 3.60344899949804439429e-1 + p * izz;
+                p = 1.25781726111229246204e-1 + p * izz;
+                p = 1.60837851487422766278e-2 + p * izz;
+                p = 6.58749161529837803157e-4 + p * izz;
+                double q;
+                q = 1;
+                q = 2.56852019228982242072e00 + q * izz;
+                q = 1.87295284992346047209e00 + q * izz;
+                q = 5.27905102951428412248e-1 + q * izz;
+                q = 6.05183413124413191178e-2 + q * izz;
+                q = 2.33520497626869185443e-3 + q * izz;
+
+                result = izz * p / q;
+                result = (ONE_OVER_ROOT_PI - result) / z;
+
+                if (!scaled) {
+                    // exp(-z*z) can be sub-normal so
+                    // multiply by any sub-normal after divide by z
+                    result *= expmxx(z);
+                }
             }
         } else {
             //
-            // Any value of z larger than 28 will underflow to zero:
+            // Any value of z larger than 27.3 will underflow to zero:
             //
             result = 0;
             invert = !invert;
         }
 
         if (invert) {
+            // Note: If 0.5 <= z < 28 and the scaled flag is true then
+            // invert will have been flipped to false and the
+            // the result is unchanged as erfcx(z)
             result = 1 - result;
         }
 
         return result;
+    }
+
+    /**
+     * Returns the scaled complementary error function.
+     * <pre>
+     * erfcx(x) = exp(x^2) * erfc(x)
+     * </pre>
+     *
+     * @param x the value.
+     * @return the scaled complementary error function.
+     */
+    static double erfcx(double x) {
+        if (Double.isNaN(x)) {
+            return Double.NaN;
+        }
+
+        // For |z| < 0.5 erfc is computed using erf
+        final double ax = Math.abs(x);
+        if (ax < COMPUTE_ERF) {
+            // Use the erf(x) result.
+            // (1 - erf(x)) * exp(x*x)
+
+            final double erfx = erf(x);
+            if (ax < EXP_XX_1) {
+                // No exponential required
+                return 1 - erfx;
+            }
+
+            // exp(x*x) - exp(x*x) * erf(x)
+            // Avoid use of exp(x*x) with expm1:
+            // exp(x*x) - 1 - (erf(x) * (exp(x*x) - 1)) - erf(x) + 1
+
+            // Sum small to large: |erf(x)| > expm1(x*x)
+            // -erf(x) * expm1(x*x) + expm1(x*x) - erf(x) + 1
+            // Negative x: erf(x) < 0, summed terms are positive, no cancellation occurs.
+            // Positive x: erf(x) > 0 so cancellation can occur.
+            // When terms are ordered by absolute magnitude the magnitude of the next term
+            // is above the round-off from adding the previous term to the sum. Thus
+            // cancellation is negligible compared to errors in the largest computed term (erf(x)).
+
+            final double em1 = Math.expm1(x * x);
+            return -erfx * em1 + em1 - erfx + 1;
+        }
+
+        // Handle negative arguments
+        if (x < 0) {
+            // erfcx(x) = 2*exp(x*x) - erfcx(-x)
+
+            if (x < -ERFCX_NEG_X_MAX) {
+                // Overflow
+                return Double.POSITIVE_INFINITY;
+            }
+
+            final double e = expxx(x);
+            return e - erfImp(-x, true, true) + e;
+        }
+
+        // Approximation for large positive x
+        if (x > ERFCX_APPROX) {
+            return ONE_OVER_ROOT_PI / x;
+        }
+
+        // Compute erfc scaled
+        return erfImp(x, true, true);
     }
 
     /**
@@ -587,6 +712,85 @@ final class BoostErf {
             }
         }
         return result;
+    }
+
+    /**
+     * Compute {@code exp(x*x)} with high accuracy. This is performed using
+     * information in the round-off from {@code x*x}.
+     *
+     * <p>This is accurate at large x to 1 ulp.
+     *
+     * <p>At small x the accuracy cannot be improved over using exp(x*x).
+     * This occurs at {@code x <= 1}.
+     *
+     * <p>Warning: This has no checks for overflow. The method is never called
+     * when {@code x*x > log(MAX_VALUE/2)}.
+     *
+     * @param x Value
+     * @return exp(x*x)
+     */
+    static double expxx(double x) {
+        // Note: If exp(a) overflows this can create NaN if the
+        // round-off b is negative or zero:
+        // exp(a) * exp1m(b) + exp(a)
+        // inf * 0 + inf   or   inf * -b  + inf
+        final double a = x * x;
+        final double b = squareLowUnscaled(x, a);
+        return expxx(a, b);
+    }
+
+    /**
+     * Compute {@code exp(-x*x)} with high accuracy. This is performed using
+     * information in the round-off from {@code x*x}.
+     *
+     * <p>This is accurate at large x to 1 ulp until exp(-x*x) is close to
+     * sub-normal. For very small exp(-x*x) the adjustment is sub-normal and
+     * bits can be lost in the adjustment for a max observed error of {@code < 2} ulp.
+     *
+     * <p>At small x the accuracy cannot be improved over using exp(-x*x).
+     * This occurs at {@code x <= 1}.
+     *
+     * @param x Value
+     * @return exp(-x*x)
+     */
+    static double expmxx(double x) {
+        final double a = x * x;
+        final double b = squareLowUnscaled(x, a);
+        return expxx(-a, -b);
+    }
+
+    /**
+     * Compute {@code exp(a+b)} with high accuracy assuming {@code a+b = a}.
+     *
+     * <p>This is accurate at large positive a to 1 ulp. If a is negative and exp(a) is
+     * close to sub-normal a bit of precision may be lost when adjusting result
+     * as the adjustment is sub-normal (max observed error {@code < 2} ulp).
+     * For the use case of multiplication of a number less than 1 by exp(-x*x), a = -x*x,
+     * the result will be sub-normal and the rounding error is lost.
+     *
+     * <p>At small |a| the accuracy cannot be improved over using exp(a) as the
+     * round-off is too small to create terms that can adjust the standard result by
+     * more than 0.5 ulp. This occurs at {@code |a| <= 1}.
+     *
+     * @param a High bits of a split number
+     * @param b Low bits of a split number
+     * @return exp(a+b)
+     */
+    private static double expxx(double a, double b) {
+        // exp(a+b) = exp(a) * exp(b)
+        //          = exp(a) * (exp(b) - 1) + exp(a)
+        // Assuming:
+        // 1. -746 < a < 710 for no under/overflow of exp(a)
+        // 2. a+b = a
+        // As b -> 0 then exp(b) -> 1; expm1(b) -> b
+        // The round-off b is limited to ~ 0.5 * ulp(746) ~ 5.68e-14
+        // and we can use an approximation for expm1 (x/1! + x^2/2! + ...)
+        // The second term is required for the expm1 result but the
+        // bits are not significant to change the product with exp(a)
+
+        final double ea = Math.exp(a);
+        // b ~ expm1(b)
+        return ea * b + ea;
     }
 
     // Extended precision multiplication specialised for the square adapted from:
