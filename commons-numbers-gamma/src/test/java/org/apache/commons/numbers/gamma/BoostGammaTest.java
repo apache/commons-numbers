@@ -217,7 +217,7 @@ class BoostGammaTest {
         TGAMMAP1M1(BoostGamma::tgamma1pm1, "gamma1pm1_data.csv", 1.8, 0.6),
 
         /** log(1+x) - 1  data. */
-        LOG1PMX(SpecialMath::log1pmx, "log1pmx_data.csv", 0.9, 0.15);
+        LOG1PMX(SpecialMath::log1pmx, "log1pmx_data.csv", -0.9, 0.15);
 
         /** The function. */
         private final DoubleUnaryOperator fun;
@@ -801,7 +801,7 @@ class BoostGammaTest {
      * @param x Argument x
      */
     @ParameterizedTest
-    @ValueSource(doubles = {-1.1, -1, 0, 1, 1.5, 2, 3})
+    @ValueSource(doubles = {-1.1, -1, -0.9, 0, 1, 1.5, 2, 3})
     void testLog1pmxStandard(double x) {
         Assertions.assertEquals(Math.log1p(x) - x, SpecialMath.log1pmx(x));
     }
