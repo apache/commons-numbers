@@ -1824,8 +1824,7 @@ final class BoostGamma {
         double prefix;
         final double d = ((z - a) - Lanczos.gmh()) / agh;
 
-
-        if ((Math.abs(d * d * a) <= 100) && (a > 150)) {
+        if ((Math.abs(d * d * a) <= 100) && (a > 100)) {
             // special case for large a and a ~ z.
             // When a and x are large, we end up with a very large exponent with a base near one:
             // this will not be computed accurately via the pow function, and taking logs simply
