@@ -1794,6 +1794,27 @@ final class BoostGamma {
             return Math.pow(z, a) * Math.exp(-z) / tgamma(a);
         }
 
+        // Update to the Boost code.
+        // Use some of the logic from fullIgammaPrefix(a, z) to use the direct
+        // computation if it is valid. Assuming pow and exp are accurate to 1 ULP it
+        // puts most of the the error in evaluation of tgamma(a). This is accurate
+        // enough that this reduces max error on the current test data.
+        //
+        // Overflow cases fall-through to the Lanczos approximation that incorporates
+        // the pow and exp terms used in the tgamma(a) computation with the terms
+        // z^a and e^-z into a single evaluation of pow and exp. See equation 15:
+        // https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_gamma/igamma.html
+        if (a <= MAX_GAMMA_Z) {
+            final double alz1 = a * Math.log(z);
+            if (z >= 1) {
+                if ((alz1 < LOG_MAX_VALUE) && (-z > LOG_MIN_VALUE)) {
+                    return Math.pow(z, a) * Math.exp(-z) / tgamma(a);
+                }
+            } else if (alz1 > LOG_MIN_VALUE) {
+                return Math.pow(z, a) * Math.exp(-z) / tgamma(a);
+            }
+        }
+
         //
         // For smallish a and x combining the power terms with the Lanczos approximation
         // gives the greatest accuracy
@@ -1803,6 +1824,7 @@ final class BoostGamma {
         double prefix;
         final double d = ((z - a) - Lanczos.gmh()) / agh;
 
+
         if ((Math.abs(d * d * a) <= 100) && (a > 150)) {
             // special case for large a and a ~ z.
             // When a and x are large, we end up with a very large exponent with a base near one:
@@ -1811,27 +1833,6 @@ final class BoostGamma {
             prefix = a * SpecialMath.log1pmx(d) + z * -Lanczos.gmh() / agh;
             prefix = Math.exp(prefix);
         } else {
-            // Update to the Boost code.
-            // Use some of the logic from fullIgammaPrefix(a, z) to use the direct
-            // computation if it is valid. Assuming pow and exp are accurate to 1 ULP it
-            // puts most of the the error in evaluation of tgamma(a). This is accurate
-            // enough that this reduces max error on the current test data.
-            //
-            // Overflow cases fall-through to the Lanczos approximation that incorporates
-            // the pow and exp terms used in the tgamma(a) computation with the terms
-            // z^a and e^-z into a single evaluation of pow and exp. See equation 15:
-            // https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_gamma/igamma.html
-            if (a <= MAX_GAMMA_Z) {
-                final double alz1 = a * Math.log(z);
-                if (z >= 1) {
-                    if ((alz1 < LOG_MAX_VALUE) && (-z > LOG_MIN_VALUE)) {
-                        return Math.pow(z, a) * Math.exp(-z) / tgamma(a);
-                    }
-                } else if (alz1 > LOG_MIN_VALUE) {
-                    return Math.pow(z, a) * Math.exp(-z) / tgamma(a);
-                }
-            }
-
             //
             // general case.
             // direct computation is most accurate, but use various fallbacks
