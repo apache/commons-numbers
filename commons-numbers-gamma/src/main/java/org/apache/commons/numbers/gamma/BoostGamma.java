@@ -1822,46 +1822,54 @@ final class BoostGamma {
 
         final double agh = a + Lanczos.gmh();
         double prefix;
-        final double d = ((z - a) - Lanczos.gmh()) / agh;
 
-        if ((Math.abs(d * d * a) <= 100) && (a > 100)) {
-            // special case for large a and a ~ z.
-            // When a and x are large, we end up with a very large exponent with a base near one:
-            // this will not be computed accurately via the pow function, and taking logs simply
-            // leads to cancellation errors.
-            prefix = a * SpecialMath.log1pmx(d) + z * -Lanczos.gmh() / agh;
-            prefix = Math.exp(prefix);
-        } else {
-            //
-            // general case.
-            // direct computation is most accurate, but use various fallbacks
-            // for different parts of the problem domain:
-            //
+        final double factor = Math.sqrt(agh / Math.E) / Lanczos.lanczosSumExpGScaled(a);
 
-            final double alz = a * Math.log(z / agh);
-            final double amz = a - z;
-            if ((Math.min(alz, amz) <= LOG_MIN_VALUE) || (Math.max(alz, amz) >= LOG_MAX_VALUE)) {
-                final double amza = amz / a;
-                if ((Math.min(alz, amz) / 2 > LOG_MIN_VALUE) && (Math.max(alz, amz) / 2 < LOG_MAX_VALUE)) {
-                    // compute square root of the result and then square it:
-                    final double sq = Math.pow(z / agh, a / 2) * Math.exp(amz / 2);
-                    prefix = sq * sq;
-                } else if ((Math.min(alz, amz) / 4 > LOG_MIN_VALUE) &&
-                        (Math.max(alz, amz) / 4 < LOG_MAX_VALUE) && (z > a)) {
-                    // compute the 4th root of the result then square it twice:
-                    final double sq = Math.pow(z / agh, a / 4) * Math.exp(amz / 4);
-                    prefix = sq * sq;
-                    prefix *= prefix;
-                } else if ((amza > LOG_MIN_VALUE) && (amza < LOG_MAX_VALUE)) {
-                    prefix = Math.pow((z * Math.exp(amza)) / agh, a);
-                } else {
-                    prefix = Math.exp(alz + amz);
-                }
-            } else {
-                prefix = Math.pow(z / agh, a) * Math.exp(amz);
+        // Update to the Boost code.
+        // Lower threshold for large a from 150 to 128 and compute d on demand.
+        // See NUMBERS-179.
+        if (a > 128) {
+            final double d = ((z - a) - Lanczos.gmh()) / agh;
+            if (Math.abs(d * d * a) <= 100) {
+                // special case for large a and a ~ z.
+                // When a and x are large, we end up with a very large exponent with a base near one:
+                // this will not be computed accurately via the pow function, and taking logs simply
+                // leads to cancellation errors.
+                prefix = a * SpecialMath.log1pmx(d) + z * -Lanczos.gmh() / agh;
+                prefix = Math.exp(prefix);
+                return prefix * factor;
             }
         }
-        prefix *= Math.sqrt(agh / Math.E) / Lanczos.lanczosSumExpGScaled(a);
+
+        //
+        // general case.
+        // direct computation is most accurate, but use various fallbacks
+        // for different parts of the problem domain:
+        //
+
+        final double alz = a * Math.log(z / agh);
+        final double amz = a - z;
+        if ((Math.min(alz, amz) <= LOG_MIN_VALUE) || (Math.max(alz, amz) >= LOG_MAX_VALUE)) {
+            final double amza = amz / a;
+            if ((Math.min(alz, amz) / 2 > LOG_MIN_VALUE) && (Math.max(alz, amz) / 2 < LOG_MAX_VALUE)) {
+                // compute square root of the result and then square it:
+                final double sq = Math.pow(z / agh, a / 2) * Math.exp(amz / 2);
+                prefix = sq * sq;
+            } else if ((Math.min(alz, amz) / 4 > LOG_MIN_VALUE) &&
+                    (Math.max(alz, amz) / 4 < LOG_MAX_VALUE) && (z > a)) {
+                // compute the 4th root of the result then square it twice:
+                final double sq = Math.pow(z / agh, a / 4) * Math.exp(amz / 4);
+                prefix = sq * sq;
+                prefix *= prefix;
+            } else if ((amza > LOG_MIN_VALUE) && (amza < LOG_MAX_VALUE)) {
+                prefix = Math.pow((z * Math.exp(amza)) / agh, a);
+            } else {
+                prefix = Math.exp(alz + amz);
+            }
+        } else {
+            prefix = Math.pow(z / agh, a) * Math.exp(amz);
+        }
+        prefix *= factor;
         return prefix;
     }
 
