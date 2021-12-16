@@ -287,4 +287,32 @@ class BrentSolverTest {
         final double result2 = solver.findRoot(func2, lower, initial, upper);
         Assertions.assertEquals(target2, result2, Math.ulp(target2));
     }
+
+    @Test
+    void testOverflowInInitialValue() {
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
+                                                   DEFAULT_FUNCTION_ACCURACY);
+        // Linear function close to positive infinity
+        final double lower1 = Double.MAX_VALUE / 2;
+        final double upper1 = Double.MAX_VALUE;
+        final double target1 = lower1 + 0.5 * (upper1 - lower1);
+        final DoubleUnaryOperator func1 = x -> x - target1;
+        final double result1 = solver.findRoot(func1, lower1, upper1);
+        Assertions.assertEquals(target1, result1, Math.ulp(target1));
+
+        // Linear function close to negative infinity
+        final double lower2 = -Double.MAX_VALUE;
+        final double upper2 = -Double.MAX_VALUE / 2;
+        final double target2 = lower2 + 0.5 * (upper2 - lower2);
+        final DoubleUnaryOperator func2 = x -> x - target2;
+        final double result2 = solver.findRoot(func2, lower2, upper2);
+        Assertions.assertEquals(target2, result2, Math.ulp(target2));
+
+        // Linear function across the entire finite range of a double
+        final double target3 = Double.MAX_VALUE / 2;
+        final DoubleUnaryOperator func3 = x -> x - target3;
+        final double result3 = solver.findRoot(func3, -Double.MAX_VALUE, Double.MAX_VALUE);
+        Assertions.assertEquals(target3, result3, Math.ulp(target3));
+    }
 }

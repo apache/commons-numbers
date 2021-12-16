@@ -73,7 +73,8 @@ public class BrentSolver {
     public double findRoot(DoubleUnaryOperator func,
                            double min,
                            double max) {
-        return findRoot(func, min, 0.5 * (min + max), max);
+        // Avoid overflow computing the initial value: 0.5 * (min + max)
+        return findRoot(func, min, 0.5 * min + 0.5 * max, max);
     }
 
     /**
