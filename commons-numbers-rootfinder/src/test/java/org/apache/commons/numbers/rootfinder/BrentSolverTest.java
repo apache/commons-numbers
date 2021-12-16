@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.rootfinder;
 
+import java.util.Locale;
 import java.util.function.DoubleUnaryOperator;
 
 import org.junit.jupiter.api.Assertions;
@@ -314,5 +315,30 @@ class BrentSolverTest {
         final DoubleUnaryOperator func3 = x -> x - target3;
         final double result3 = solver.findRoot(func3, -Double.MAX_VALUE, Double.MAX_VALUE);
         Assertions.assertEquals(target3, result3, Math.ulp(target3));
+    }
+
+    @Test
+    void testMinValueNoBracket() {
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
+                                                   DEFAULT_ABSOLUTE_ACCURACY,
+                                                   DEFAULT_FUNCTION_ACCURACY);
+        final double min = Double.MIN_VALUE;
+
+        // No bracket
+        final DoubleUnaryOperator func1 = x -> 1;
+        SolverException ex1 = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(func1, min, min));
+        Assertions.assertTrue(ex1.getMessage().toLowerCase(Locale.ROOT).contains("no bracket"));
+
+        // Still no bracket but the function is within the function accuracy of zero
+        final DoubleUnaryOperator func2 = x -> 1e-100;
+        Assertions.assertEquals(min, solver.findRoot(func2, min, min));
+
+        // Ensure the correct exception is raised for a bad bracket
+        final double lo = 2;
+        final double hi = 1;
+        SolverException ex2 = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(func1, lo, hi));
+        Assertions.assertEquals(String.format(SolverException.TOO_LARGE, lo, hi), ex2.getMessage());
     }
 }

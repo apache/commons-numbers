@@ -74,7 +74,12 @@ public class BrentSolver {
                            double min,
                            double max) {
         // Avoid overflow computing the initial value: 0.5 * (min + max)
-        return findRoot(func, min, 0.5 * min + 0.5 * max, max);
+        // Note: This sum is invalid if min == max == Double.MIN_VALUE
+        // so detect this edge case. It will raise a bracketing exception
+        // if min is not the root within the configured function accuracy;
+        // otherwise min is returned.
+        final double initial = min == max ? min : 0.5 * min + 0.5 * max;
+        return findRoot(func, min, initial, max);
     }
 
     /**
