@@ -193,7 +193,7 @@ public class BrentSolver {
                 d = m;
                 e = d;
             } else {
-                double s = fb / fa;
+                final double s = fb / fa;
                 double p;
                 double q;
                 // The equality test (a == c) is intentional,
@@ -215,16 +215,15 @@ public class BrentSolver {
                 } else {
                     p = -p;
                 }
-                s = e;
-                e = d;
                 if (p >= 1.5 * m * q - Math.abs(tol * q) ||
-                    p >= Math.abs(0.5 * s * q)) {
+                    p >= Math.abs(0.5 * e * q)) {
                     // Inverse quadratic interpolation gives a value
                     // in the wrong direction, or progress is slow.
                     // Fall back to bisection.
                     d = m;
                     e = d;
                 } else {
+                    e = d;
                     d = p / q;
                 }
             }
