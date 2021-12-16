@@ -17,7 +17,6 @@
 package org.apache.commons.numbers.rootfinder;
 
 import java.util.function.DoubleUnaryOperator;
-import org.apache.commons.numbers.core.Precision;
 
 /**
  * This class implements the <a href="http://mathworld.wolfram.com/BrentsMethod.html">
@@ -185,7 +184,7 @@ public class BrentSolver {
             final double m = 0.5 * (c - b);
 
             if (Math.abs(m) <= tol ||
-                Precision.equals(fb, 0))  {
+                equalsZero(fb))  {
                 return b;
             }
             if (Math.abs(e) < tol ||
@@ -248,5 +247,15 @@ public class BrentSolver {
                 e = d;
             }
         }
+    }
+
+    /**
+     * Return true if the value is within 1 ULP of zero.
+     *
+     * @param value Value
+     * @return true if zero within a 1 ULP tolerance
+     */
+    private static boolean equalsZero(double value) {
+        return Math.abs(value) <= Double.MIN_VALUE;
     }
 }
