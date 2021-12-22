@@ -44,4 +44,5 @@
   <suppress checks="MethodName" files=".*[/\\]test[/\\].*" />
   <suppress checks="ConstantName" files=".*[/\\]test[/\\].*" />
   <suppress checks="MethodLength" files=".*/LinearCombination.*Test.java" />
+  <suppress checks="FileLengthCheck" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
 </suppressions>

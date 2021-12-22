@@ -376,7 +376,21 @@ class BoostGammaTest {
         /** gamma Q where the asymptotic approximation applies and <em>is</em> used. */
         IGAMMA_LARGE_X_Q_ASYM(BoostGammaTest::igammaQLargeXWithAsym, "igamma_asymptotic_data.csv", 3, 550, 190),
         /** gamma P where the asymptotic approximation applies and <em>is</em> used. */
-        IGAMMA_LARGE_X_P_ASYM(BoostGammaTest::igammaPLargeXWithAsym, "igamma_asymptotic_data.csv", 4, 350, 110);
+        IGAMMA_LARGE_X_P_ASYM(BoostGammaTest::igammaPLargeXWithAsym, "igamma_asymptotic_data.csv", 4, 350, 110),
+        /** tgamma delta ratio Boost data. */
+        TGAMMA_DELTA_RATIO(BoostGamma::tgammaDeltaRatio, "gamma_delta_ratio_data.csv", 2, 9.5, 2.1),
+        /** tgamma delta ratio Boost small int data. */
+        TGAMMA_DELTA_RATIO_SMALL_INT(BoostGamma::tgammaDeltaRatio, "gamma_delta_ratio_int_data.csv", 2, 4.7, 1.1),
+        /** tgamma delta ratio Boost int data. */
+        TGAMMA_DELTA_RATIO_INT(BoostGamma::tgammaDeltaRatio, "gamma_delta_ratio_int2_data.csv", 2, 1.4, 0.45),
+        /** tgamma delta ratio Boost data. */
+        TGAMMA_DELTA_RATIO_NEG(BoostGammaTest::tgammaDeltaRatioNegative, "gamma_delta_ratio_data.csv", 3, 11.5, 1.7),
+        /** tgamma delta ratio Boost small int data. */
+        TGAMMA_DELTA_RATIO_SMALL_INT_NEG(BoostGammaTest::tgammaDeltaRatioNegative, "gamma_delta_ratio_int_data.csv", 3, 3.6, 1),
+        /** tgamma delta ratio Boost int data. */
+        TGAMMA_DELTA_RATIO_INT_NEG(BoostGammaTest::tgammaDeltaRatioNegative, "gamma_delta_ratio_int2_data.csv", 3, 1.1, 0.25),
+        /** tgamma ratio Boost data. */
+        TGAMMA_RATIO(BoostGamma::tgammaDeltaRatio, "gamma_delta_ratio_data.csv", 9.5, 2);
 
         /** The function. */
         private final DoubleBinaryOperator fun;
@@ -1797,6 +1811,104 @@ class BoostGammaTest {
             logGammaPDerivative1(a, x);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "NaN, 1, NaN",
+        "1, NaN, NaN",
+        // Allow calling with infinity
+        "Infinity, 0, 1",
+        "Infinity, 1, 0",
+        "Infinity, -1, Infinity",
+        // z <= 0 || z+delta <= 0
+        // Pole errors
+        "-1, 0.5, NaN",
+        "-1.5, 0.5, NaN",
+        "0.5, -1.5, NaN",
+    })
+    void testGammaDeltaRatioEdgeCases(double a, double delta, double expected) {
+        Assertions.assertEquals(expected, BoostGamma.tgammaDeltaRatio(a, delta));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "0, 1, NaN",
+        "-1, 1, NaN",
+        "Infinity, 1, NaN",
+        "NaN, 1, NaN",
+        "1, 0, NaN",
+        "1, -1, NaN",
+        "1, Infinity, NaN",
+        "1, NaN, NaN",
+        // underflow
+        "0.5, 500, 0",
+        // overflow
+        "500, 0.5, Infinity",
+    })
+    void testGammaRatioEdgeCases(double a, double b, double expected) {
+        Assertions.assertEquals(expected, BoostGamma.tgammaRatio(a, b));
+    }
+
+    /**
+     * tgamma ratio spot tests extracted from
+     * {@code boost/libs/math/test/test_tgamma_ratio.hpp}.
+     */
+    @Test
+    void testGammaRatioSpotTests() {
+        final int tol = 20;
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -500), 180.25, 8.0113754557649679470816892372669519037339812035512e-178, 3 * tol);
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -525), 192.25, 1.5966560279353205461166489184101261541784867035063e-197, 3 * tol);
+        assertClose(BoostGamma::tgammaRatio, 182.25, Math.scalb(1.0, -500), 4.077990437521002194346763299159975185747917450788e+181, 3 * tol);
+        assertClose(BoostGamma::tgammaRatio, 193.25, Math.scalb(1.0, -525), 1.2040790040958522422697601672703926839178050326148e+199, 3 * tol);
+        assertClose(BoostGamma::tgammaRatio, 193.25, 194.75, 0.00037151765099653237632823607820104961270831942138159, 3 * tol);
+        //
+        // Some bug cases from Rocco Romeo:
+        //
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -1020), 100, 1.20390418056093374068585549133304106854441830616070800417660e151, tol);
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -1020), 150, 2.94980580122226729924781231239336413648584663386992050529324e46, tol);
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -1020), 180, 1.00669209319561468911303652019446665496398881230516805140750e-20, tol);
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -1020), 220, 1.08230263539550701700187215488533416834407799907721731317227e-112, tol);
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -1020), 260, 7.62689807594728483940172477902929825624752380292252137809206e-208, tol);
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -1020), 290, 5.40206998243175672775582485422795773284966068149812072521290e-281, tol);
+        assertClose(BoostGamma::tgammaDeltaRatio, Math.scalb(1.0, -1020), Math.scalb(1.0, -1020), 2, tol);
+        // This is denorm_min at double precision:
+        assertClose(BoostGamma::tgammaRatio, Math.scalb(1.0, -1074), 200, 5.13282785052571536804189023927976812551830809667482691717029e-50, tol * 50);
+        assertClose(BoostGamma::tgammaRatio, 200, Math.scalb(1.0, -1074), 1.94824379293682687942882944294875087145333536754699303593931e49, tol * 10);
+        assertClose(BoostGamma::tgammaDeltaRatio, Math.scalb(1.0, -1074), 200, 5.13282785052571536804189023927976812551830809667482691717029e-50, tol * 10);
+        assertClose(BoostGamma::tgammaDeltaRatio, 200, Math.scalb(1.0, -1074), 1, tol);
+
+        // Test simple negative handling
+        for (final double z : new double[] {-0.5, -15.5, -25.5}) {
+            for (final double delta : new double[] {0.25, -0.25}) {
+                Assertions.assertEquals(BoostGamma.tgamma(z) / BoostGamma.tgamma(z + delta), BoostGamma.tgammaDeltaRatio(z, delta));
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BiTestCase.class, mode = Mode.MATCH_ANY, names = {"TGAMMA_DELTA_RATIO.*"})
+    void testGammaDeltaRatio(BiTestCase tc) {
+        assertFunction(tc);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BiTestCase.class, mode = Mode.MATCH_ANY, names = {"TGAMMA_RATIO.*"})
+    void testGammaRatio(BiTestCase tc) {
+        assertFunction(tc);
+    }
+
+    /**
+     * Helper function for ratio of gamma functions to negate the delta argument.
+     *
+     * <p>\[ tgamma_ratio(z, delta) = \frac{\Gamma(z)}{\Gamma(z - delta)} \]
+     *
+     * @param z Argument z
+     * @param delta The difference
+     * @return gamma ratio
+     */
+    private static double tgammaDeltaRatioNegative(double z, double delta) {
+        return BoostGamma.tgammaDeltaRatio(z, -delta);
+    }
+
     /**
      * Assert the function is close to the expected value.
      *
@@ -1993,7 +2105,7 @@ class BoostGammaTest {
      */
     private static void debugRms(String name, double maxAbsUlp, double rmsUlp, double meanUlp, int size) {
         // CHECKSTYLE: stop regexp
-        System.out.printf("%-25s   max %10.6g   RMS %10.6g   mean %14.6g  n %4d%n",
+        System.out.printf("%-35s   max %10.6g   RMS %10.6g   mean %14.6g  n %4d%n",
             name, maxAbsUlp, rmsUlp, meanUlp, size);
     }
 }

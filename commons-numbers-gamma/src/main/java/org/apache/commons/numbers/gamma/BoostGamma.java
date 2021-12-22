@@ -75,6 +75,7 @@ final class BoostGamma {
     // - Altered series generators to use integer counters added to the double term
     //   replacing directly incrementing a double term. When the term is large it cannot
     //   be incremented: 1e16 + 1 == 1e16.
+    // - Removed unreachable code branch in tgammaDeltaRatioImpLanczos when z + delta == z.
     //
     // Note:
     // The major source of error is in the function regularisedGammaPrefix when computing
@@ -114,6 +115,8 @@ final class BoostGamma {
     private static final double EULER = 0.5772156649015328606065120900824024310;
     /** The threshold value for choosing the Lanczos approximation. */
     private static final int LANCZOS_THRESHOLD = 20;
+    /** 2^53. */
+    private static final double TWO_POW_53 = 0x1.0p53;
 
     /** All factorials that can be represented as a double. Size = 171. */
     private static final double[] FACTORIAL = {
@@ -2113,5 +2116,208 @@ final class BoostGamma {
      */
     private static boolean nonZeroLength(int[] array) {
         return array != null && array.length != 0;
+    }
+
+    /**
+     * Ratio of gamma functions.
+     *
+     * <p>\[ tgamma_ratio(z, delta) = \frac{\Gamma(z)}{\Gamma(z + delta)} \]
+     *
+     * <p>Adapted from {@code tgamma_delta_ratio_imp}. The use of
+     * {@code max_factorial<double>::value == 170} has been replaced with
+     * {@code MAX_GAMMA_Z == 171}. This threshold is used when it is possible
+     * to call the gamma function without overflow.
+     *
+     * @param z Argument z
+     * @param delta The difference
+     * @return gamma ratio
+     */
+    static double tgammaDeltaRatio(double z, double delta) {
+        final double zDelta = z + delta;
+        if (Double.isNaN(zDelta)) {
+            // One or both arguments are NaN
+            return Double.NaN;
+        }
+        if (z <= 0 || zDelta <= 0) {
+            // This isn't very sophisticated, or accurate, but it does work:
+            return tgamma(z) / tgamma(zDelta);
+        }
+
+        // Note: Directly calling tgamma(z) / tgamma(z + delta) if possible
+        // without overflow is not more accurate
+
+        if (Math.rint(delta) == delta) {
+            if (delta == 0) {
+                return 1;
+            }
+            //
+            // If both z and delta are integers, see if we can just use table lookup
+            // of the factorials to get the result:
+            //
+            if (Math.rint(z) == z &&
+                z <= MAX_GAMMA_Z && zDelta <= MAX_GAMMA_Z) {
+                return FACTORIAL[(int) z - 1] / FACTORIAL[(int) zDelta - 1];
+            }
+            if (Math.abs(delta) < 20) {
+                //
+                // delta is a small integer, we can use a finite product:
+                //
+                if (delta < 0) {
+                    z -= 1;
+                    double result = z;
+                    for (int d = (int) (delta + 1); d != 0; d++) {
+                        z -= 1;
+                        result *= z;
+                    }
+                    return result;
+                }
+                double result = 1 / z;
+                for (int d = (int) (delta - 1); d != 0; d--) {
+                    z += 1;
+                    result /= z;
+                }
+                return result;
+            }
+        }
+        return tgammaDeltaRatioImpLanczos(z, delta);
+    }
+
+    /**
+     * Ratio of gamma functions using Lanczos support.
+     *
+     * <p>\[ tgamma_delta_ratio(z, delta) = \frac{\Gamma(z)}{\Gamma(z + delta)}
+     *
+     * <p>Adapted from {@code tgamma_delta_ratio_imp_lanczos}. The use of
+     * {@code max_factorial<double>::value == 170} has been replaced with
+     * {@code MAX_GAMMA_Z == 171}. This threshold is used when it is possible
+     * to use the precomputed factorial table.
+     *
+     * @param z Argument z
+     * @param delta The difference
+     * @return gamma ratio
+     */
+    private static double tgammaDeltaRatioImpLanczos(double z, double delta) {
+        if (z < EPSILON) {
+            //
+            // We get spurious numeric overflow unless we're very careful, this
+            // can occur either inside Lanczos::lanczos_sum(z) or in the
+            // final combination of terms, to avoid this, split the product up
+            // into 2 (or 3) parts:
+            //
+            // G(z) / G(L) = 1 / (z * G(L)) ; z < eps, L = z + delta = delta
+            // z * G(L) = z * G(lim) * (G(L)/G(lim)) ; lim = largest factorial
+            //
+            if (MAX_GAMMA_Z < delta) {
+                double ratio = tgammaDeltaRatioImpLanczos(delta, MAX_GAMMA_Z - delta);
+                ratio *= z;
+                ratio *= FACTORIAL[MAX_FACTORIAL];
+                return 1 / ratio;
+            }
+            return 1 / (z * tgamma(z + delta));
+        }
+        final double zgh = z + Lanczos.gmh();
+        double result;
+        if (z + delta == z) {
+            // Here:
+            // lanczosSum(z) / lanczosSum(z + delta) == 1
+
+            // Update to the Boost code to remove unreachable code:
+            // Given z + delta == z then |delta / z| < EPSILON; and z < zgh
+            // assume (abs(delta / zgh) < EPSILON) and remove unreachable
+            // else branch which sets result = 1
+
+            // We have:
+            // result = exp((0.5 - z) * log1p(delta / zgh));
+            // 0.5 - z == -z
+            // log1p(delta / zgh) = delta / zgh = delta / z
+            // multiplying we get -delta.
+
+            // Note:
+            // This can be different from
+            // exp((0.5 - z) * log1p(delta / zgh)) when z is small.
+            // In this case the result is exp(small) and the result
+            // is within 1 ULP of 1.0. This is left as the original
+            // Boost method using exp(-delta).
+
+            result = Math.exp(-delta);
+        } else {
+            if (Math.abs(delta) < 10) {
+                result = Math.exp((0.5 - z) * Math.log1p(delta / zgh));
+            } else {
+                result = Math.pow(zgh / (zgh + delta), z - 0.5);
+            }
+            // Split the calculation up to avoid spurious overflow:
+            result *= Lanczos.lanczosSum(z) / Lanczos.lanczosSum(z + delta);
+        }
+        result *= Math.pow(Math.E / (zgh + delta), delta);
+        return result;
+    }
+
+    /**
+     * Ratio of gamma functions.
+     *
+     * <p>\[ tgamma_ratio(x, y) = \frac{\Gamma(x)}{\Gamma(y)}
+     *
+     * <p>Adapted from {@code tgamma_ratio_imp}. The use of
+     * {@code max_factorial<double>::value == 170} has been replaced with
+     * {@code MAX_GAMMA_Z == 171}. This threshold is used when it is possible
+     * to call the gamma function without overflow.
+     *
+     * @param x Argument x (must be positive finite)
+     * @param y Argument y (must be positive finite)
+     * @return gamma ratio (or nan)
+     */
+    static double tgammaRatio(double x, double y) {
+        if (x <= 0 || !Double.isFinite(x) || y <= 0 || !Double.isFinite(y)) {
+            return Double.NaN;
+        }
+        if (x <= Double.MIN_NORMAL) {
+            // Special case for denorms...Ugh.
+            return TWO_POW_53 * tgammaRatio(x * TWO_POW_53, y);
+        }
+
+        if (x <= MAX_GAMMA_Z && y <= MAX_GAMMA_Z) {
+            // Rather than subtracting values, lets just call the gamma functions directly:
+            return tgamma(x) / tgamma(y);
+        }
+        double prefix = 1;
+        if (x < 1) {
+            if (y < 2 * MAX_GAMMA_Z) {
+                // We need to sidestep on x as well, otherwise we'll underflow
+                // before we get to factor in the prefix term:
+                prefix /= x;
+                x += 1;
+                while (y >= MAX_GAMMA_Z) {
+                    y -= 1;
+                    prefix /= y;
+                }
+                return prefix * tgamma(x) / tgamma(y);
+            }
+            //
+            // result is almost certainly going to underflow to zero, try logs just in case:
+            //
+            return Math.exp(lgamma(x) - lgamma(y));
+        }
+        if (y < 1) {
+            if (x < 2 * MAX_GAMMA_Z) {
+                // We need to sidestep on y as well, otherwise we'll overflow
+                // before we get to factor in the prefix term:
+                prefix *= y;
+                y += 1;
+                while (x >= MAX_GAMMA_Z) {
+                    x -= 1;
+                    prefix *= x;
+                }
+                return prefix * tgamma(x) / tgamma(y);
+            }
+            //
+            // Result will almost certainly overflow, try logs just in case:
+            //
+            return Math.exp(lgamma(x) - lgamma(y));
+        }
+        //
+        // Regular case, x and y both large and similar in magnitude:
+        //
+        return tgammaDeltaRatio(x, y - x);
     }
 }
