@@ -31,7 +31,7 @@ import java.util.function.DoubleSupplier;
  * {@code c++} implementations in {@code <boost/math/tools/>}.
  * All work is copyright John Maddock 2006 and subject to the Boost Software License.
  */
-public final class BoostTools {
+final class BoostTools {
     /**
      * The minimum epsilon value for relative error in the summation.
      * Equal to Math.ulp(1.0) or 2^-52.

@@ -29,7 +29,7 @@ package org.apache.commons.numbers.gamma;
  * {@code c++} implementations in {@code <boost/math/special_functions/>}.
  * All work is copyright John Maddock 2006 and subject to the Boost Software License.
  */
-public final class BoostMath {
+final class BoostMath {
     /** Private constructor. */
     private BoostMath() {
         // intentionally empty.
