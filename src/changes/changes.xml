@@ -72,6 +72,9 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="add" issue="NUMBERS-180">
+        "GammaRatio": Compute the ratio of two gamma functions.
+      </action>
       <action dev="aherbert" type="fix">
         "BrentSolver": Avoid overflow creating the initial value between the lower and upper.
       </action>
