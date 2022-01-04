@@ -26,7 +26,6 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 import org.apache.commons.numbers.gamma.BoostGamma.Lanczos;
-import org.apache.commons.numbers.gamma.BoostGamma.Policy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -1290,7 +1289,7 @@ class BoostGammaTest {
         final TestUtils.ErrorStatistics e1 = new TestUtils.ErrorStatistics();
         final TestUtils.ErrorStatistics e2 = new TestUtils.ErrorStatistics();
 
-        final Policy pol = BoostGamma.Policy.getDefault();
+        final Policy pol = Policy.getDefault();
         final DoubleBinaryOperator without = (a, x) -> gammaIncompleteImp(a, x, invert, pol, NO_ASYM_APPROX);
         final DoubleBinaryOperator with = (a, x) -> gammaIncompleteImp(a, x, invert, pol, useAsymp);
         final int expectedField = invert ? 3 : 5;
@@ -1731,7 +1730,7 @@ class BoostGammaTest {
      * @return incomplete tgamma
      */
     private static double incompleteTgammaLargeX(double a, double x) {
-        return BoostGamma.incompleteTgammaLargeX(a, x, BoostGamma.Policy.getDefault());
+        return BoostGamma.incompleteTgammaLargeX(a, x, Policy.getDefault());
     }
 
     /**

@@ -16,8 +16,6 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.apache.commons.numbers.gamma.BoostGamma.Policy;
-
 /**
  * <a href="https://mathworld.wolfram.com/IncompleteGammaFunction.html">
  * Incomplete Gamma functions</a>.
