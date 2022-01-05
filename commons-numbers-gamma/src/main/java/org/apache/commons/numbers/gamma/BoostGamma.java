@@ -567,6 +567,19 @@ final class BoostGamma {
     }
 
     /**
+     * Returns the factorial of n.
+     * This is unchecked as an index out of bound exception will occur
+     * if the value n is not within the range [0, 170].
+     * This function is exposed for use in {@link BoostBeta}.
+     *
+     * @param n Argument n (must be in [0, 170])
+     * @return n!
+     */
+    static double uncheckedFactorial(int n) {
+        return FACTORIAL[n];
+    }
+
+    /**
      * Gamma function.
      *
      * <p>For small {@code z} this is based on the <em>NSWC Library of Mathematics
@@ -1665,7 +1678,7 @@ final class BoostGamma {
      * @param z Argument z
      * @return incomplete gamma prefix
      */
-    private static double fullIgammaPrefix(double a, double z) {
+    static double fullIgammaPrefix(double a, double z) {
         if (z > Double.MAX_VALUE) {
             return 0;
         }

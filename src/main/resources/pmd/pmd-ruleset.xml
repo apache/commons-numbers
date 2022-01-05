@@ -69,10 +69,12 @@
 
   <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters">
     <properties>
-      <!-- The ported method follows the original C++ usage of the 'invert' flag. -->
+      <!-- The ported method follows the original C++ usage of the 'invert' flag.
+           Inversion of complementary functions may swap the arguments. -->
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf'
-               or @SimpleName='BoostGamma']"/>
+               or @SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta']"/>
     </properties>
   </rule>
 
@@ -118,13 +120,15 @@
       <!-- Increase from default of 10 -->
       <property name="methodReportLevel" value="20"/>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/NPathComplexity">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma']"/>
+        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/ExcessivePublicCount">
@@ -141,7 +145,8 @@
         value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BigFraction'
-               or @SimpleName='BoostGamma']"/>
+               or @SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/GodClass">
@@ -149,7 +154,8 @@
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@SimpleName='Fraction'
                or @SimpleName='BigFraction'
-               or @SimpleName='BoostGamma']"/>
+               or @SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta']"/>
     </properties>
   </rule>
 
@@ -164,6 +170,7 @@
                or @SimpleName='RegularizedBeta'
                or @SimpleName='BoostErf'
                or @SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta'
                or @SimpleName='BoostTools'
                or @SimpleName='BoostMath']"/>
     </properties>
@@ -187,6 +194,7 @@
                or @SimpleName='Fraction'
                or @SimpleName='BoostErf'
                or @SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta'
                or @SimpleName='SpecialMath']"/>
     </properties>
   </rule>
