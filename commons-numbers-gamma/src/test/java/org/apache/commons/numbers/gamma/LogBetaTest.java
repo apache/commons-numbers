@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
  * Tests for {@link LogBeta}.
@@ -698,5 +700,26 @@ class LogBetaTest {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> sumDeltaMinusDeltaSum(10, 9)
         );
+    }
+
+    /**
+     * Hit edge case for log(beta(a,b)) = log(gamma(a)*gamma(b)/gamma(a+b))
+     * where gamma(a)*gamma(b) will overflow.
+     *
+     * <p>See NUMBERS-182.
+     */
+    @ParameterizedTest
+    @CsvSource({
+        // Computed using matlab betaln(a, b)
+        "1e-155, 1.5e-155, 357.41151503784306",
+        // MIN NORMAL, MIN_NORMAL * 3/4
+        "2.2250738585072014E-308, 1.668805393880401E-308, 709.2437163926513",
+        // MIN_VALUE, MIN_VALUE * 2
+        "4.9E-324, 1.0E-323, 744.84553702948938",
+        // MIN_VALUE, MIN_VALUE
+        "4.9E-324, 4.9E-324, 745.13321910194111",
+    })
+    void testTinyAB(double a, double b, double expected) {
+        Assertions.assertEquals(expected, LogBeta.value(a, b));
     }
 }

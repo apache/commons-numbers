@@ -242,8 +242,12 @@ public final class LogBeta {
             // The original NSWC implementation was
             //   LogGamma.value(a) + (LogGamma.value(b) - LogGamma.value(a + b));
             // but the following command turned out to be more accurate.
-            return Math.log(Gamma.value(a) * Gamma.value(b) /
-                            Gamma.value(a + b));
+            // Note: Check for overflow that occurs if a and/or b are tiny.
+            final double beta = Gamma.value(a) * Gamma.value(b) / Gamma.value(a + b);
+            if (Double.isFinite(beta)) {
+                return Math.log(beta);
+            }
+            return LogGamma.value(a) + (LogGamma.value(b) - LogGamma.value(a + b));
         }
     }
 

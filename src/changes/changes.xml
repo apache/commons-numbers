@@ -72,6 +72,9 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="fix" issue="NUMBERS-182">
+        "LogBeta": Avoid overflow for tiny arguments.
+      </action>
       <action dev="aherbert" type="add" issue="NUMBERS-180">
         "GammaRatio": Compute the ratio of two gamma functions.
       </action>
