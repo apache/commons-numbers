@@ -72,6 +72,11 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="update" issue="NUMBERS-183">
+        Improve the binomial coefficient classes. Avoid recursive method calls.
+        Avoid overflow for BinomialCoefficientDouble for large results close to infinity.
+        Use precomputed factorials and the LogBeta function for efficiency.
+      </action>
       <action dev="aherbert" type="fix" issue="NUMBERS-182">
         "LogBeta": Avoid overflow for tiny arguments.
       </action>
