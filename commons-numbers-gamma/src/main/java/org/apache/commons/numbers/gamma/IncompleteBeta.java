@@ -17,12 +17,10 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * <a href="https://mathworld.wolfram.com/RegularizedBetaFunction.html">
- * Regularized Beta function</a>.
+ * <a href="https://mathworld.wolfram.com/IncompleteBetaFunction.html">
+ * Incomplete Beta function</a>.
  *
- * <p>\[ I_x(a,b) = \frac{1}{B(a, b)} \int_0^x t^{a-1}\,(1-t)^{b-1}\,dt \]
- *
- * <p>where \( B(a, b) \) is the beta function.
+ * <p>\[ B_x(a,b) = \int_0^x t^{a-1}\,(1-t)^{b-1}\,dt \]
  *
  * <p>This code has been adapted from the <a href="https://www.boost.org/">Boost</a>
  * {@code c++} implementation {@code <boost/math/special_functions/beta.hpp>}.
@@ -30,50 +28,47 @@ package org.apache.commons.numbers.gamma;
  * @see
  * <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_beta/ibeta_function.html">
  * Boost C++ Incomplete Beta functions</a>
+ * @since 1.1
  */
-public final class RegularizedBeta {
+public final class IncompleteBeta {
 
     /** Private constructor. */
-    private RegularizedBeta() {
+    private IncompleteBeta() {
         // intentionally empty.
     }
 
     /**
      * Computes the value of the
-     * <a href="https://mathworld.wolfram.com/RegularizedBetaFunction.html">
-     * regularized beta function</a> I(x, a, b).
+     * <a href="https://mathworld.wolfram.com/IncompleteBetaFunction.html">
+     * incomplete beta function</a> B(x, a, b).
      *
-     * <p>\[ I_x(a,b) = \frac{1}{B(a, b)} \int_0^x t^{a-1}\,(1-t)^{b-1}\,dt \]
-     *
-     * <p>where \( B(a, b) \) is the beta function.
+     * <p>\[ B_x(a,b) = \int_0^x t^{a-1}\,(1-t)^{b-1}\,dt \]
      *
      * @param x Value.
      * @param a Parameter {@code a}.
      * @param b Parameter {@code b}.
-     * @return the regularized beta function \( I_x(a, b) \).
+     * @return the incomplete beta function \( B_x(a, b) \).
      * @throws ArithmeticException if the series evaluation fails to converge.
      */
     public static double value(double x,
                                double a,
                                double b) {
-        return BoostBeta.ibeta(a, b, x);
+        return BoostBeta.beta(a, b, x);
     }
 
     /**
      * Computes the value of the
-     * <a href="https://mathworld.wolfram.com/RegularizedBetaFunction.html">
-     * regularized beta function</a> I(x, a, b).
+     * <a href="https://mathworld.wolfram.com/IncompleteBetaFunction.html">
+     * incomplete beta function</a> B(x, a, b).
      *
-     * <p>\[ I_x(a,b) = \frac{1}{B(a, b)} \int_0^x t^{a-1}\,(1-t)^{b-1}\,dt \]
-     *
-     * <p>where \( B(a, b) \) is the beta function.
+     * <p>\[ B_x(a,b) = \int_0^x t^{a-1}\,(1-t)^{b-1}\,dt \]
      *
      * @param x the value.
      * @param a Parameter {@code a}.
      * @param b Parameter {@code b}.
      * @param epsilon Tolerance in series evaluation.
      * @param maxIterations Maximum number of iterations in series evaluation.
-     * @return the regularized beta function \( I_x(a, b) \).
+     * @return the incomplete beta function \( B_x(a, b) \).
      * @throws ArithmeticException if the series evaluation fails to converge.
      */
     public static double value(double x,
@@ -81,74 +76,52 @@ public final class RegularizedBeta {
                                final double b,
                                double epsilon,
                                int maxIterations) {
-        return BoostBeta.ibeta(a, b, x, new Policy(epsilon, maxIterations));
+        return BoostBeta.beta(a, b, x, new Policy(epsilon, maxIterations));
     }
 
     /**
      * Computes the complement of the
-     * <a href="https://mathworld.wolfram.com/RegularizedBetaFunction.html">
-     * regularized beta function</a> I(x, a, b).
+     * <a href="https://mathworld.wolfram.com/IncompleteBetaFunction.html">
+     * incomplete beta function</a> B(x, a, b).
      *
-     * <p>\[ 1 - I_x(a,b) = I_{1-x}(b, a) \]
+     * <p>\[ B(a, b) - B_x(a,b) = B_{1-x}(b, a) \]
+     *
+     * <p>where \( B(a, b) \) is the beta function.
      *
      * @param x Value.
      * @param a Parameter {@code a}.
      * @param b Parameter {@code b}.
-     * @return the complement of the regularized beta function \( 1 - I_x(a, b) \).
+     * @return the complement of the incomplete beta function \( B(a, b) - B_x(a, b) \).
      * @throws ArithmeticException if the series evaluation fails to converge.
-     * @since 1.1
      */
     public static double complement(double x,
                                     double a,
                                     double b) {
-        return BoostBeta.ibetac(a, b, x);
+        return BoostBeta.betac(a, b, x);
     }
 
     /**
      * Computes the complement of the
-     * <a href="https://mathworld.wolfram.com/RegularizedBetaFunction.html">
-     * regularized beta function</a> I(x, a, b).
+     * <a href="https://mathworld.wolfram.com/IncompleteBetaFunction.html">
+     * incomplete beta function</a> B(x, a, b).
      *
-     * <p>\[ 1 - I_x(a,b) = I_{1-x}(b, a) \]
+     * <p>\[ B(a, b) - B_x(a,b) = B_{1-x}(b, a) \]
+     *
+     * <p>where \( B(a, b) \) is the beta function.
      *
      * @param x the value.
      * @param a Parameter {@code a}.
      * @param b Parameter {@code b}.
      * @param epsilon Tolerance in series evaluation.
      * @param maxIterations Maximum number of iterations in series evaluation.
-     * @return the complement of the regularized beta function \( 1 - I_x(a, b) \).
+     * @return the complement of the incomplete beta function \( B(a, b) - B_x(a, b) \).
      * @throws ArithmeticException if the series evaluation fails to converge.
-     * @since 1.1
      */
     public static double complement(double x,
                                     final double a,
                                     final double b,
                                     double epsilon,
                                     int maxIterations) {
-        return BoostBeta.ibetac(a, b, x, new Policy(epsilon, maxIterations));
-    }
-
-    /**
-     * Computes the derivative of the
-     * <a href="https://mathworld.wolfram.com/RegularizedBetaFunction.html">
-     * regularized beta function</a> I(x, a, b).
-     *
-     * <p>\[ \frac{\delta}{\delta x} I_x(a,b) = \frac{(1-x)^{b-1} x^{a-1}}{B(a, b)} \]
-     *
-     * <p>where \( B(a, b) \) is the beta function.
-     *
-     * <p>This function has uses in some statistical distributions.
-     *
-     * @param x Value.
-     * @param a Parameter {@code a}.
-     * @param b Parameter {@code b}.
-     * @return the derivative of the regularized beta function \( I_x(a, b) \).
-     * @throws ArithmeticException if the series evaluation fails to converge.
-     * @since 1.1
-     */
-    public static double derivative(double x,
-                                    double a,
-                                    double b) {
-        return BoostBeta.ibetaDerivative(a, b, x);
+        return BoostBeta.betac(a, b, x, new Policy(epsilon, maxIterations));
     }
 }
