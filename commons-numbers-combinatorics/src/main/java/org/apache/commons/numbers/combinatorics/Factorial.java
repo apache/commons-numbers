@@ -254,4 +254,17 @@ public final class Factorial {
         }
         return Double.POSITIVE_INFINITY;
     }
+
+    /**
+     * Return the factorial of {@code n}.
+     *
+     * <p>Note: This is an internal method that exposes the tabulated factorials that can
+     * be represented as a double. No checks are performed on the argument.
+     *
+     * @param n Argument (must be in [0, 170])
+     * @return n!
+     */
+    static double uncheckedFactorial(int n) {
+        return DOUBLE_FACTORIALS[n];
+    }
 }
