@@ -72,6 +72,12 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="add" issue="NUMBERS-181">
+        Updated support for the beta functions. "RegularizedBeta": Added the
+        complement and derivative of the regularized beta function.
+        Added "IncompleteBeta" and "Beta" classes.
+        Functionality is ported from the Boost C++ library.
+      </action>
       <action dev="aherbert" type="update" issue="NUMBERS-183">
         Improve the binomial coefficient classes. Avoid recursive method calls.
         Avoid overflow for BinomialCoefficientDouble for large results close to infinity.
