@@ -170,7 +170,7 @@ class ComplexTest {
     void testPolarConstructorAbsArg() {
         // The test should work with any seed but use a fixed seed to avoid build
         // instability.
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64, 678678638L);
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create(678678638L);
         for (int i = 0; i < 10; i++) {
             final double rho = rng.nextDouble();
             // Range (pi, pi]: lower exclusive, upper inclusive
@@ -203,7 +203,7 @@ class ComplexTest {
                 Assertions.assertEquals(z, Complex.parse(z.toString()));
             }
         }
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
         for (int i = 0; i < 10; i++) {
             final double x = -1 + rng.nextDouble() * 2;
             final double y = -1 + rng.nextDouble() * 2;
@@ -284,7 +284,7 @@ class ComplexTest {
 
     @Test
     void testCGrammar() {
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
         for (int i = 0; i < 10; i++) {
             final Complex z = Complex.ofCartesian(rng.nextDouble(), rng.nextDouble());
             Assertions.assertEquals(z.getReal(), z.real(), "real");
@@ -1414,7 +1414,7 @@ class ComplexTest {
     @Test
     void testLog10() {
         final double ln10 = Math.log(10);
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
         for (int i = 0; i < 10; i++) {
             final Complex z = Complex.ofCartesian(rng.nextDouble() * 2, rng.nextDouble() * 2);
             final Complex lnz = z.log();
@@ -2064,7 +2064,7 @@ class ComplexTest {
      */
     @Test
     void testAbsVsSqrt() {
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
         // Note: All methods implement scaling to ensure the magnitude can be computed.
         // Try very large or small numbers that will over/underflow to test that the
         // scaling
@@ -2128,7 +2128,7 @@ class ComplexTest {
      */
     @Test
     void testAbsVsLog() {
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
         // Note: All methods implement scaling to ensure the magnitude can be computed.
         // Try very large or small numbers that will over/underflow to test that the
         // scaling

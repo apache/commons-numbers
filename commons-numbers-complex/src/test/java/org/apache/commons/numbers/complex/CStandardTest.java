@@ -262,7 +262,7 @@ class CStandardTest {
             }
         }
         // Random numbers
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
         for (int i = 0; i < 100; i++) {
             final double x = next(rng);
             final double y = next(rng);
@@ -331,7 +331,7 @@ class CStandardTest {
             }
         }
         // Random numbers
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
         for (int i = 0; i < 100; i++) {
             final double x = next(rng);
             final double y = next(rng);
@@ -860,7 +860,7 @@ class CStandardTest {
      */
     @Test
     void testImplicitTrig() {
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
         for (int i = 0; i < 100; i++) {
             final double re = next(rng);
             final double im = next(rng);
@@ -893,7 +893,7 @@ class CStandardTest {
     void testAbs() {
         Assertions.assertEquals(inf, complex(inf, nan).abs());
         Assertions.assertEquals(inf, complex(negInf, nan).abs());
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
         for (int i = 0; i < 10; i++) {
             final double x = next(rng);
             final double y = next(rng);

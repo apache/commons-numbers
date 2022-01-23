@@ -166,7 +166,7 @@ class NormTest {
     @Test
     void testEuclidean_2d_random() {
         // arrange
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, 1L);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(1L);
 
         // act/assert
         checkEuclideanRandom(2, rng);
@@ -195,7 +195,7 @@ class NormTest {
     void testEuclidean_2d_vsHypot() {
         // arrange
         final int samples = 1000;
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, 3L);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(3L);
 
         // act/assert
         assertEuclidean2dVersusHypot(-10, +10, samples, rng);
@@ -296,7 +296,7 @@ class NormTest {
     @Test
     void testEuclidean_3d_random() {
         // arrange
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, 1L);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(1L);
 
         // act/assert
         checkEuclideanRandom(3, rng);
@@ -378,7 +378,7 @@ class NormTest {
     @Test
     void testEuclidean_array_random() {
         // arrange
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, 1L);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(1L);
 
         // act/assert
         checkEuclideanRandom(2, rng);
