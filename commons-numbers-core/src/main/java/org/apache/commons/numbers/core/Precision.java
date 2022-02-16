@@ -70,25 +70,27 @@ public final class Precision {
 
     /**
      * Compares two numbers given some amount of allowed error.
-     * The returned value is
+     * The returned value is:
      * <ul>
-     *  <li>
-     *   0 if  {@link #equals(double,double,double) equals(x, y, eps)},
-     *  </li>
-     *  <li>
-     *   negative if !{@link #equals(double,double,double) equals(x, y, eps)} and {@code x < y},
-     *  </li>
-     *  <li>
-     *   positive if !{@link #equals(double,double,double) equals(x, y, eps)} and {@code x > y} or
-     *   either argument is {@code NaN}.
-     *  </li>
+     *  <li>zero if considered equal using {@link #equals(double,double,double) equals(x, y, eps)}
+     *  <li>negative if not equal and {@code x < y}
+     *  <li>positive if not equal and {@code x > y}
+     * </ul>
+     *
+     * <p>NaN values are handled as if using {@link Double#compare(double, double)} where the
+     * returned value is:
+     * <ul>
+     *  <li>zero if {@code NaN, NaN}
+     *  <li>negative if {@code !NaN, NaN}
+     *  <li>positive if {@code NaN, !NaN}
      * </ul>
      *
      * @param x First value.
      * @param y Second value.
      * @param eps Allowed error when checking for equality.
      * @return 0 if the value are considered equal, -1 if the first is smaller than
-     * the second, 1 is the first is larger than the second.
+     * the second, 1 if the first is larger than the second.
+     * @see #equals(double, double, double)
      */
     public static int compareTo(double x, double y, double eps) {
         if (equals(x, y, eps)) {
@@ -104,24 +106,19 @@ public final class Precision {
 
     /**
      * Compares two numbers given some amount of allowed error.
-     * Two float numbers are considered equal if there are {@code (maxUlps - 1)}
-     * (or fewer) floating point numbers between them, i.e. two adjacent floating
-     * point numbers are considered equal.
-     * Adapted from
-     * <a href="http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">
-     * Bruce Dawson</a>. Returns {@code false} if either of the arguments is NaN.
-     * The returned value is
+     * The returned value is:
      * <ul>
-     *  <li>
-     *   zero if {@link #equals(double,double,int) equals(x, y, maxUlps)},
-     *  </li>
-     *  <li>
-     *   negative if !{@link #equals(double,double,int) equals(x, y, maxUlps)} and {@code x < y},
-     *  </li>
-     *  <li>
-     *   positive if !{@link #equals(double,double,int) equals(x, y, maxUlps)} and {@code x > y}
-     *       or either argument is {@code NaN}.
-     *  </li>
+     *  <li>zero if considered equal using {@link #equals(double,double,int) equals(x, y, maxUlps)}
+     *  <li>negative if not equal and {@code x < y}
+     *  <li>positive if not equal and {@code x > y}
+     * </ul>
+     *
+     * <p>NaN values are handled as if using {@link Double#compare(double, double)} where the
+     * returned value is:
+     * <ul>
+     *  <li>zero if {@code NaN, NaN}
+     *  <li>negative if {@code !NaN, NaN}
+     *  <li>positive if {@code NaN, !NaN}
      * </ul>
      *
      * @param x First value.
@@ -129,15 +126,19 @@ public final class Precision {
      * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
      * values between {@code x} and {@code y}.
      * @return 0 if the value are considered equal, -1 if the first is smaller than
-     * the second, 1 is the first is larger than the second.
+     * the second, 1 if the first is larger than the second.
+     * @see #equals(double, double, int)
      */
     public static int compareTo(final double x, final double y, final int maxUlps) {
         if (equals(x, y, maxUlps)) {
             return 0;
         } else if (x < y) {
             return -1;
+        } else if (x > y) {
+            return 1;
         }
-        return 1;
+        // NaN input.
+        return Double.compare(x, y);
     }
 
     /**

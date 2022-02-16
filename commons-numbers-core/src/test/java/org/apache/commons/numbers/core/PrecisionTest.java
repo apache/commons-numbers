@@ -99,6 +99,41 @@ class PrecisionTest {
         boolean equalsImp(float a, float b, int ulps);
     }
 
+    @FunctionalInterface
+    private interface CompareFunction {
+        /**
+         * Compare two values.
+         *
+         * @param a First value
+         * @param b Second value
+         * @return 0 if the value are considered equal, -1 if the first is smaller than
+         * the second, 1 if the first is larger than the second.
+         */
+        int compare(double a, double b);
+    }
+
+    @FunctionalInterface
+    private interface CompareToWithDelta {
+        default int compareTo(double a, double b, double delta) {
+            final int r = compareToImp(a, b, delta);
+            Assertions.assertEquals(r, -compareToImp(b, a, delta),
+                () -> String.format("compareTo(%s, %s, %s) != -compareTo(%s, %s, %s)", a, b, delta, b, a, delta));
+            return r;
+        }
+        int compareToImp(double a, double b, double delta);
+    }
+
+    @FunctionalInterface
+    private interface CompareToWithUlps {
+        default int compareTo(double a, double b, int ulps) {
+            final int r = compareToImp(a, b, ulps);
+            Assertions.assertEquals(r, -compareToImp(b, a, ulps),
+                () -> String.format("compareTo(%s, %s, %d) != -compareTo(%s, %s, %d)", a, b, ulps, b, a, ulps));
+            return r;
+        }
+        int compareToImp(double a, double b, int ulps);
+    }
+
     @Test
     void testEqualsWithRelativeTolerance() {
         final EqualsWithDelta fun = Precision::equalsWithRelativeTolerance;
@@ -375,63 +410,100 @@ class PrecisionTest {
 
     @Test
     void testSortWithCompareTo() {
-        final Double[] array = {Double.NaN, 0.02, 0.01, Double.NaN, 2.0, 1.0};
         final double eps = 0.1;
+        final double v1 = 0.02;
+        final double v2 = v1 + 0.5 * eps;
+        final CompareToWithDelta fun = Precision::compareTo;
+        assertSortWithCompareTo((a, b) -> fun.compareTo(a, b, eps), v1, v2, 13, 42);
+    }
+
+    @Test
+    void testSortWithCompareToMaxUlps() {
+        final int ulps = 1000;
+        final double v1 = 0.02;
+        final double v2 = v1 + 0.5 * ulps * Math.ulp(v1);
+        final CompareToWithUlps fun = Precision::compareTo;
+        assertSortWithCompareTo((a, b) -> fun.compareTo(a, b, ulps), v1, v2, 0.75, 2.23);
+    }
+
+    /**
+     * Assert sorting with the provided compare function.
+     *
+     * <p>The test makes assumptions on the input data using the compare function:
+     * <pre>
+     * v1 == v2; (v1,v2) < v3 < v4
+     * </pre>
+     *
+     * <p>The data will be supplemented with NaN and infinite values to ensure sorting is correct.
+     */
+    private static void assertSortWithCompareTo(CompareFunction compare,
+                                                double v1, double v2, double v3, double v4) {
+        Assertions.assertEquals(0, compare.compare(v1, v2));
+        Assertions.assertEquals(-1, compare.compare(v1, v3));
+        Assertions.assertEquals(-1, compare.compare(v2, v3));
+        Assertions.assertEquals(-1, compare.compare(v3, v4));
+        final Double[] array = {Double.NaN, v1, v2, Double.NaN, v3, v4, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY};
         for (int i = 0; i < 10; i++) {
             Collections.shuffle(Arrays.asList(array));
-            Arrays.sort(array, (a, b) -> Precision.compareTo(a, b, eps));
+            Arrays.sort(array, compare::compare);
 
             for (int j = 0; j < array.length - 1; j++) {
-                final int c = Precision.compareTo(array[j],
-                                                  array[j + 1],
-                                                  eps);
+                final int c = compare.compare(array[j],
+                                            array[j + 1]);
                 // Check that order is consistent with the comparison function.
                 Assertions.assertNotEquals(1, c);
             }
-            Assertions.assertTrue(array[0] == 0.01 || array[0] == 0.02);
-            Assertions.assertTrue(array[1] == 0.01 || array[1] == 0.02);
-            Assertions.assertEquals(1, array[2], 0d);
-            Assertions.assertEquals(2, array[3], 0d);
-            Assertions.assertTrue(Double.isNaN(array[4]));
-            Assertions.assertTrue(Double.isNaN(array[5]));
+            Assertions.assertEquals(Double.NEGATIVE_INFINITY, array[0]);
+            Assertions.assertTrue(array[1] == v1 || array[1] == v2);
+            Assertions.assertTrue(array[2] == v1 || array[2] == v2);
+            Assertions.assertEquals(v3, array[3]);
+            Assertions.assertEquals(v4, array[4]);
+            Assertions.assertEquals(Double.POSITIVE_INFINITY, array[5]);
+            Assertions.assertEquals(Double.NaN, array[6]);
+            Assertions.assertEquals(Double.NaN, array[7]);
         }
     }
 
     @Test
     void testCompareToMaxUlps() {
+        final CompareToWithUlps fun = Precision::compareTo;
+
         double a = 152.32;
         double delta = Math.ulp(a);
         for (int i = 0; i <= 10; ++i) {
             if (i <= 5) {
-                Assertions.assertEquals(+0, Precision.compareTo(a, a + i * delta, 5));
-                Assertions.assertEquals(+0, Precision.compareTo(a, a - i * delta, 5));
+                Assertions.assertEquals(+0, fun.compareTo(a, a + i * delta, 5));
+                Assertions.assertEquals(+0, fun.compareTo(a, a - i * delta, 5));
             } else {
-                Assertions.assertEquals(-1, Precision.compareTo(a, a + i * delta, 5));
-                Assertions.assertEquals(+1, Precision.compareTo(a, a - i * delta, 5));
+                Assertions.assertEquals(-1, fun.compareTo(a, a + i * delta, 5));
+                Assertions.assertEquals(+1, fun.compareTo(a, a - i * delta, 5));
             }
         }
 
-        Assertions.assertEquals(+0, Precision.compareTo(-0.0, 0.0, 0));
+        Assertions.assertEquals(+0, fun.compareTo(-0.0, 0.0, 0));
 
-        Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, -0.0, 0));
-        Assertions.assertEquals(+0, Precision.compareTo(-Double.MIN_VALUE, -0.0, 1));
-        Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, +0.0, 0));
-        Assertions.assertEquals(+0, Precision.compareTo(-Double.MIN_VALUE, +0.0, 1));
+        Assertions.assertEquals(-1, fun.compareTo(-Double.MIN_VALUE, -0.0, 0));
+        Assertions.assertEquals(+0, fun.compareTo(-Double.MIN_VALUE, -0.0, 1));
+        Assertions.assertEquals(-1, fun.compareTo(-Double.MIN_VALUE, +0.0, 0));
+        Assertions.assertEquals(+0, fun.compareTo(-Double.MIN_VALUE, +0.0, 1));
 
-        Assertions.assertEquals(+1, Precision.compareTo(+Double.MIN_VALUE, -0.0, 0));
-        Assertions.assertEquals(+0, Precision.compareTo(+Double.MIN_VALUE, -0.0, 1));
-        Assertions.assertEquals(+1, Precision.compareTo(+Double.MIN_VALUE, +0.0, 0));
-        Assertions.assertEquals(+0, Precision.compareTo(+Double.MIN_VALUE, +0.0, 1));
+        Assertions.assertEquals(+1, fun.compareTo(+Double.MIN_VALUE, -0.0, 0));
+        Assertions.assertEquals(+0, fun.compareTo(+Double.MIN_VALUE, -0.0, 1));
+        Assertions.assertEquals(+1, fun.compareTo(+Double.MIN_VALUE, +0.0, 0));
+        Assertions.assertEquals(+0, fun.compareTo(+Double.MIN_VALUE, +0.0, 1));
 
-        Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 0));
-        Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 1));
-        Assertions.assertEquals(+0, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 2));
+        Assertions.assertEquals(-1, fun.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 0));
+        Assertions.assertEquals(-1, fun.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 1));
+        Assertions.assertEquals(+0, fun.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 2));
 
-        Assertions.assertEquals(+0, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
-        Assertions.assertEquals(-1, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 0));
+        Assertions.assertEquals(+0, fun.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
+        Assertions.assertEquals(-1, fun.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 0));
 
-        Assertions.assertEquals(+1, Precision.compareTo(Double.MAX_VALUE, Double.NaN, Integer.MAX_VALUE));
-        Assertions.assertEquals(+1, Precision.compareTo(Double.NaN, Double.MAX_VALUE, Integer.MAX_VALUE));
+        // NaN should be after all non-NaN numbers
+        Assertions.assertEquals(+1, fun.compareTo(Double.NaN, Double.MAX_VALUE, Integer.MAX_VALUE));
+        Assertions.assertEquals(+1, fun.compareTo(Double.NaN, Double.POSITIVE_INFINITY, Integer.MAX_VALUE));
+        Assertions.assertEquals(+1, fun.compareTo(Double.NaN, 42, Integer.MAX_VALUE));
+        Assertions.assertEquals(0, fun.compareTo(Double.NaN, Double.NaN, Integer.MAX_VALUE));
     }
 
     @Test

@@ -72,6 +72,10 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="fix" issue="NUMBERS-185">
+        "Precision": Allow Precision.compareTo using a maxUlps to be used for sorting.
+        This corrects handling of NaN comparisons.
+      </action>
       <action dev="aherbert" type="update" issue="NUMBERS-184">
         "Precision": Reduce number of operations in Precision.equals using a maxUlps.
       </action>
