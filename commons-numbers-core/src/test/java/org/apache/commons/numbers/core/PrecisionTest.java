@@ -29,57 +29,109 @@ import org.junit.jupiter.api.Test;
  */
 class PrecisionTest {
 
-    // Interfaces to allow testing equals variants with the same conditions.
+    // Interfaces to allow testing variants with the same conditions.
+    // All methods that should be tested using these interfaces as the
+    // symmetry is asserted.
+
+    @FunctionalInterface
+    private interface Equals {
+        default boolean equals(double a, double b) {
+            final boolean r = equalsImp(a, b);
+            Assertions.assertEquals(r, equalsImp(b, a),
+                () -> String.format("equals(%s, %s) != equals(%s, %s)", a, b, b, a));
+            return r;
+        }
+        boolean equalsImp(double a, double b);
+    }
 
     @FunctionalInterface
     private interface EqualsWithDelta {
-        boolean equals(double a, double b, double delta);
+        default boolean equals(double a, double b, double delta) {
+            final boolean r = equalsImp(a, b, delta);
+            Assertions.assertEquals(r, equalsImp(b, a, delta),
+                () -> String.format("equals(%s, %s, %s) != equals(%s, %s, %s)", a, b, delta, b, a, delta));
+            return r;
+        }
+        boolean equalsImp(double a, double b, double delta);
     }
 
     @FunctionalInterface
     private interface EqualsWithUlps {
-        boolean equals(double a, double b, int ulps);
+        default boolean equals(double a, double b, int ulps) {
+            final boolean r = equalsImp(a, b, ulps);
+            Assertions.assertEquals(r, equalsImp(b, a, ulps),
+                () -> String.format("equals(%s, %s, %d) != equals(%s, %s, %d)", a, b, ulps, b, a, ulps));
+            return r;
+        }
+        boolean equalsImp(double a, double b, int ulps);
+    }
+
+    @FunctionalInterface
+    private interface FloatEquals {
+        default boolean equals(float a, float b) {
+            final boolean r = equalsImp(a, b);
+            Assertions.assertEquals(r, equalsImp(b, a),
+                () -> String.format("equals(%s, %s) != equals(%s, %s)", a, b, b, a));
+            return r;
+        }
+        boolean equalsImp(float a, float b);
     }
 
     @FunctionalInterface
     private interface FloatEqualsWithDelta {
-        boolean equals(float a, float b, float delta);
+        default boolean equals(float a, float b, float delta) {
+            final boolean r = equalsImp(a, b, delta);
+            Assertions.assertEquals(r, equalsImp(b, a, delta),
+                () -> String.format("equals(%s, %s, %s) != equals(%s, %s, %s)", a, b, delta, b, a, delta));
+            return r;
+        }
+        boolean equalsImp(float a, float b, float delta);
     }
 
     @FunctionalInterface
     private interface FloatEqualsWithUlps {
-        boolean equals(float a, float b, int ulps);
+        default boolean equals(float a, float b, int ulps) {
+            final boolean r = equalsImp(a, b, ulps);
+            Assertions.assertEquals(r, equalsImp(b, a, ulps),
+                () -> String.format("equals(%s, %s, %d) != equals(%s, %s, %d)", a, b, ulps, b, a, ulps));
+            return r;
+        }
+        boolean equalsImp(float a, float b, int ulps);
     }
 
     @Test
     void testEqualsWithRelativeTolerance() {
-        Assertions.assertTrue(Precision.equalsWithRelativeTolerance(0d, 0d, 0d));
-        Assertions.assertTrue(Precision.equalsWithRelativeTolerance(0d, 1 / Double.NEGATIVE_INFINITY, 0d));
+        final EqualsWithDelta fun = Precision::equalsWithRelativeTolerance;
+
+        Assertions.assertTrue(fun.equals(0d, 0d, 0d));
+        Assertions.assertTrue(fun.equals(0d, 1 / Double.NEGATIVE_INFINITY, 0d));
 
         final double eps = 1e-14;
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654988, eps));
-        Assertions.assertTrue(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654987, eps));
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654948, eps));
-        Assertions.assertTrue(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654949, eps));
+        Assertions.assertFalse(fun.equals(1.987654687654968, 1.987654687654988, eps));
+        Assertions.assertTrue(fun.equals(1.987654687654968, 1.987654687654987, eps));
+        Assertions.assertFalse(fun.equals(1.987654687654968, 1.987654687654948, eps));
+        Assertions.assertTrue(fun.equals(1.987654687654968, 1.987654687654949, eps));
 
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(Precision.SAFE_MIN, 0.0, eps));
+        Assertions.assertFalse(fun.equals(Precision.SAFE_MIN, 0.0, eps));
 
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(1.0000000000001e-300, 1e-300, eps));
-        Assertions.assertTrue(Precision.equalsWithRelativeTolerance(1.00000000000001e-300, 1e-300, eps));
+        Assertions.assertFalse(fun.equals(1.0000000000001e-300, 1e-300, eps));
+        Assertions.assertTrue(fun.equals(1.00000000000001e-300, 1e-300, eps));
 
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, 1.23, eps));
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(Double.POSITIVE_INFINITY, 1.23, eps));
+        Assertions.assertFalse(fun.equals(Double.NEGATIVE_INFINITY, 1.23, eps));
+        Assertions.assertFalse(fun.equals(Double.POSITIVE_INFINITY, 1.23, eps));
 
-        Assertions.assertTrue(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, eps));
-        Assertions.assertTrue(Precision.equalsWithRelativeTolerance(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, eps));
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, eps));
+        Assertions.assertTrue(fun.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, eps));
+        Assertions.assertTrue(fun.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, eps));
+        Assertions.assertFalse(fun.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, eps));
 
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(Double.NaN, 1.23, eps));
-        Assertions.assertFalse(Precision.equalsWithRelativeTolerance(Double.NaN, Double.NaN, eps));
+        Assertions.assertFalse(fun.equals(Double.NaN, 1.23, eps));
+        Assertions.assertFalse(fun.equals(Double.NaN, Double.NaN, eps));
     }
 
     @Test
     void testEqualsIncludingNaN() {
+        final Equals fun = Precision::equalsIncludingNaN;
+
         double[] testArray = {
             Double.NaN,
             Double.POSITIVE_INFINITY,
@@ -89,11 +141,11 @@ class PrecisionTest {
         for (int i = 0; i < testArray.length; i++) {
             for (int j = 0; j < testArray.length; j++) {
                 if (i == j) {
-                    Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
-                    Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
+                    Assertions.assertTrue(fun.equals(testArray[i], testArray[j]));
+                    Assertions.assertTrue(fun.equals(testArray[j], testArray[i]));
                 } else {
-                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
-                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
+                    Assertions.assertFalse(fun.equals(testArray[i], testArray[j]));
+                    Assertions.assertFalse(fun.equals(testArray[j], testArray[i]));
                 }
             }
         }
@@ -196,6 +248,8 @@ class PrecisionTest {
 
     @Test
     void testFloatEqualsIncludingNaN() {
+        final FloatEquals fun = Precision::equalsIncludingNaN;
+
         float[] testArray = {
             Float.NaN,
             Float.POSITIVE_INFINITY,
@@ -205,11 +259,11 @@ class PrecisionTest {
         for (int i = 0; i < testArray.length; i++) {
             for (int j = 0; j < testArray.length; j++) {
                 if (i == j) {
-                    Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
-                    Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
+                    Assertions.assertTrue(fun.equals(testArray[i], testArray[j]));
+                    Assertions.assertTrue(fun.equals(testArray[j], testArray[i]));
                 } else {
-                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
-                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
+                    Assertions.assertFalse(fun.equals(testArray[i], testArray[j]));
+                    Assertions.assertFalse(fun.equals(testArray[j], testArray[i]));
                 }
             }
         }
@@ -509,6 +563,8 @@ class PrecisionTest {
 
     @Test
     void testMath475() {
+        final EqualsWithDelta fun = Precision::equals;
+
         final double a = 1.7976931348623182E16;
         final double b = Math.nextUp(a);
 
@@ -516,18 +572,20 @@ class PrecisionTest {
         // Because they are adjacent floating point numbers, "a" and "b" are
         // considered equal even though the allowed error is smaller than
         // their difference.
-        Assertions.assertTrue(Precision.equals(a, b, 0.5 * diff));
+        Assertions.assertTrue(fun.equals(a, b, 0.5 * diff));
 
         final double c = Math.nextUp(b);
         diff = Math.abs(a - c);
         // Because "a" and "c" are not adjacent, the tolerance is taken into
         // account for assessing equality.
-        Assertions.assertTrue(Precision.equals(a, c, diff));
-        Assertions.assertFalse(Precision.equals(a, c, Math.nextDown(1.0) * diff));
+        Assertions.assertTrue(fun.equals(a, c, diff));
+        Assertions.assertFalse(fun.equals(a, c, Math.nextDown(1.0) * diff));
     }
 
     @Test
     void testMath475Float() {
+        final FloatEqualsWithDelta fun = Precision::equals;
+
         final float a = 1.7976931348623182E16f;
         final float b = Math.nextUp(a);
 
@@ -535,14 +593,14 @@ class PrecisionTest {
         // Because they are adjacent floating point numbers, "a" and "b" are
         // considered equal even though the allowed error is smaller than
         // their difference.
-        Assertions.assertTrue(Precision.equals(a, b, 0.5f * diff));
+        Assertions.assertTrue(fun.equals(a, b, 0.5f * diff));
 
         final float c = Math.nextUp(b);
         diff = Math.abs(a - c);
         // Because "a" and "c" are not adjacent, the tolerance is taken into
         // account for assessing equality.
-        Assertions.assertTrue(Precision.equals(a, c, diff));
-        Assertions.assertFalse(Precision.equals(a, c, Math.nextDown(1.0f) * diff));
+        Assertions.assertTrue(fun.equals(a, c, diff));
+        Assertions.assertFalse(fun.equals(a, c, Math.nextDown(1.0f) * diff));
     }
 
     @Test
@@ -559,9 +617,11 @@ class PrecisionTest {
 
     @Test
     void testMath1127() {
-        Assertions.assertFalse(Precision.equals(2.0, -2.0, 1));
-        Assertions.assertTrue(Precision.equals(0.0, -0.0, 0));
-        Assertions.assertFalse(Precision.equals(2.0f, -2.0f, 1));
-        Assertions.assertTrue(Precision.equals(0.0f, -0.0f, 0));
+        final EqualsWithUlps fun = Precision::equals;
+        Assertions.assertFalse(fun.equals(2.0, -2.0, 1));
+        Assertions.assertTrue(fun.equals(0.0, -0.0, 0));
+        final FloatEqualsWithUlps fun2 = Precision::equals;
+        Assertions.assertFalse(fun2.equals(2.0f, -2.0f, 1));
+        Assertions.assertTrue(fun2.equals(0.0f, -0.0f, 0));
     }
 }
