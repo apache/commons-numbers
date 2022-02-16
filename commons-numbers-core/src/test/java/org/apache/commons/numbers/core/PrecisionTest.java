@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
  */
 class PrecisionTest {
 
-    // Interfaces to allow testing equals variants with the same conditions
+    // Interfaces to allow testing equals variants with the same conditions.
 
     @FunctionalInterface
     private interface EqualsWithDelta {
@@ -123,23 +123,25 @@ class PrecisionTest {
 
     @Test
     void testEqualsWithAllowedUlps() {
-        assertEqualsIncludingNaNWithAllowedUlps(Precision::equals, false, false);
+        assertEqualsWithAllowedUlps(Precision::equals, false, false);
     }
 
     @Test
     void testEqualsWithImplicitAllowedUlpsOf1() {
         // Use the version without the ulp argument
-        assertEqualsIncludingNaNWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
+        assertEqualsWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
     }
 
     @Test
     void testEqualsIncludingNaNWithAllowedUlps() {
-        assertEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
+        assertEqualsWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
     }
 
-    private static void assertEqualsIncludingNaNWithAllowedUlps(EqualsWithUlps fun,
+    private static void assertEqualsWithAllowedUlps(EqualsWithUlps fun,
             boolean nanAreEqual, boolean fixed1Ulp) {
         Assertions.assertTrue(fun.equals(0.0, -0.0, 1));
+        Assertions.assertTrue(fun.equals(Double.MIN_VALUE, -0.0, 1));
+        Assertions.assertFalse(fun.equals(Double.MIN_VALUE, -Double.MIN_VALUE, 1));
 
         Assertions.assertTrue(fun.equals(1.0, 1 + Math.ulp(1d), 1));
         Assertions.assertFalse(fun.equals(1.0, 1 + 2 * Math.ulp(1d), 1));
@@ -152,6 +154,7 @@ class PrecisionTest {
             Assertions.assertFalse(fun.equals(value, Math.nextDown(Math.nextDown(value)), 1));
             // This test is conditional
             if (!fixed1Ulp) {
+                Assertions.assertFalse(fun.equals(value, value, -1), "Negative ULP should be supported");
                 Assertions.assertFalse(fun.equals(value, Math.nextUp(value), 0));
                 Assertions.assertTrue(fun.equals(value, Math.nextUp(Math.nextUp(value)), 2));
                 Assertions.assertTrue(fun.equals(value, Math.nextDown(Math.nextDown(value)), 2));
@@ -171,7 +174,21 @@ class PrecisionTest {
         Assertions.assertFalse(fun.equals(Double.NaN, Double.POSITIVE_INFINITY, 0));
         Assertions.assertFalse(fun.equals(Double.NaN, Double.NEGATIVE_INFINITY, 0));
 
-        Assertions.assertFalse(fun.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
+        if (!fixed1Ulp) {
+            Assertions.assertFalse(fun.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Integer.MAX_VALUE));
+            Assertions.assertFalse(fun.equals(0, Double.MAX_VALUE, Integer.MAX_VALUE));
+            // Here: f == 5.304989477E-315;
+            // it is used to test the maximum ULP distance between two opposite sign numbers.
+            final double f = Double.longBitsToDouble(1L << 30);
+            Assertions.assertFalse(fun.equals(-f, f, Integer.MAX_VALUE));
+            Assertions.assertTrue(fun.equals(-f, Math.nextDown(f), Integer.MAX_VALUE));
+            Assertions.assertTrue(fun.equals(Math.nextUp(-f), f, Integer.MAX_VALUE));
+            // Maximum distance between same sign numbers.
+            final double f2 = Double.longBitsToDouble((1L << 30) + Integer.MAX_VALUE);
+            Assertions.assertTrue(fun.equals(f, f2, Integer.MAX_VALUE));
+            Assertions.assertFalse(fun.equals(f, Math.nextUp(f2), Integer.MAX_VALUE));
+            Assertions.assertFalse(fun.equals(Math.nextDown(f), f2, Integer.MAX_VALUE));
+        }
     }
 
     // Tests for floating point equality match the above tests with arguments
@@ -222,23 +239,25 @@ class PrecisionTest {
 
     @Test
     void testFloatEqualsWithAllowedUlps() {
-        assertFloatEqualsIncludingNaNWithAllowedUlps(Precision::equals, false, false);
+        assertFloatEqualsWithAllowedUlps(Precision::equals, false, false);
     }
 
     @Test
     void testFloatEqualsWithImplicitAllowedUlpsOf1() {
         // Use the version without the ulp argument
-        assertFloatEqualsIncludingNaNWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
+        assertFloatEqualsWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
     }
 
     @Test
     void testFloatEqualsIncludingNaNWithAllowedUlps() {
-        assertFloatEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
+        assertFloatEqualsWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
     }
 
-    private static void assertFloatEqualsIncludingNaNWithAllowedUlps(FloatEqualsWithUlps fun,
+    private static void assertFloatEqualsWithAllowedUlps(FloatEqualsWithUlps fun,
             boolean nanAreEqual, boolean fixed1Ulp) {
         Assertions.assertTrue(fun.equals(0.0f, -0.0f, 1));
+        Assertions.assertTrue(fun.equals(Float.MIN_VALUE, -0.0f, 1));
+        Assertions.assertFalse(fun.equals(Float.MIN_VALUE, -Float.MIN_VALUE, 1));
 
         Assertions.assertTrue(fun.equals(1.0f, 1f + Math.ulp(1f), 1));
         Assertions.assertFalse(fun.equals(1.0f, 1f + 2 * Math.ulp(1f), 1));
@@ -251,6 +270,7 @@ class PrecisionTest {
             Assertions.assertFalse(fun.equals(value, Math.nextDown(Math.nextDown(value)), 1));
             // This test is conditional
             if (!fixed1Ulp) {
+                Assertions.assertFalse(fun.equals(value, value, -1), "Negative ULP should be supported");
                 Assertions.assertFalse(fun.equals(value, Math.nextUp(value), 0));
                 Assertions.assertTrue(fun.equals(value, Math.nextUp(Math.nextUp(value)), 2));
                 Assertions.assertTrue(fun.equals(value, Math.nextDown(Math.nextDown(value)), 2));
@@ -270,7 +290,24 @@ class PrecisionTest {
         Assertions.assertFalse(fun.equals(Float.NaN, Float.POSITIVE_INFINITY, 0));
         Assertions.assertFalse(fun.equals(Float.NaN, Float.NEGATIVE_INFINITY, 0));
 
-        Assertions.assertFalse(fun.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 100000));
+        if (!fixed1Ulp) {
+            Assertions.assertFalse(fun.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, Integer.MAX_VALUE));
+            // The 31-bit integer specification of the max positive ULP allows an extremely
+            // large range of a 23-bit mantissa and 8-bit exponent
+            Assertions.assertTrue(fun.equals(0, Float.MAX_VALUE, Integer.MAX_VALUE));
+            // Here: f == 2;
+            // it is used to test the maximum ULP distance between two opposite sign numbers.
+            final float f = Float.intBitsToFloat(1 << 30);
+            Assertions.assertFalse(fun.equals(-f, f, Integer.MAX_VALUE));
+            Assertions.assertTrue(fun.equals(-f, Math.nextDown(f), Integer.MAX_VALUE));
+            Assertions.assertTrue(fun.equals(Math.nextUp(-f), f, Integer.MAX_VALUE));
+            // Maximum distance between same sign finite numbers is not possible as the upper
+            // limit is NaN. Check that it is not equal to anything.
+            final float f2 = Float.intBitsToFloat(Integer.MAX_VALUE);
+            Assertions.assertEquals(Double.NaN, f2);
+            Assertions.assertFalse(fun.equals(f2, Float.MAX_VALUE, Integer.MAX_VALUE));
+            Assertions.assertFalse(fun.equals(f2, 0, Integer.MAX_VALUE));
+        }
     }
 
     @Test

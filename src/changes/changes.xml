@@ -72,6 +72,9 @@ N.B. the Performance testing module requires Java 9+.
 (The unit tests require Java 8+)
 
 ">
+      <action dev="aherbert" type="update" issue="NUMBERS-184">
+        "Precision": Reduce number of operations in Precision.equals using a maxUlps.
+      </action>
       <action dev="aherbert" type="add" issue="NUMBERS-181">
         Updated support for the beta functions. "RegularizedBeta": Added the
         complement and derivative of the regularized beta function.

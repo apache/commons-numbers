@@ -49,20 +49,8 @@ public final class Precision {
     /** Exponent offset in IEEE754 representation. */
     private static final long EXPONENT_OFFSET = 1023L;
 
-    /** Offset to order signed double numbers lexicographically. */
-    private static final long SGN_MASK = 0x8000000000000000L;
-    /** Offset to order signed double numbers lexicographically. */
-    private static final int SGN_MASK_FLOAT = 0x80000000;
     /** Positive zero. */
     private static final double POSITIVE_ZERO = 0d;
-    /** Positive zero bits. */
-    private static final long POSITIVE_ZERO_DOUBLE_BITS = Double.doubleToRawLongBits(+0.0);
-    /** Negative zero bits. */
-    private static final long NEGATIVE_ZERO_DOUBLE_BITS = Double.doubleToRawLongBits(-0.0);
-    /** Positive zero bits. */
-    private static final int POSITIVE_ZERO_FLOAT_BITS = Float.floatToRawIntBits(+0.0f);
-    /** Negative zero bits. */
-    private static final int NEGATIVE_ZERO_FLOAT_BITS = Float.floatToRawIntBits(-0.0f);
 
     static {
         /*
@@ -238,32 +226,21 @@ public final class Precision {
      * point values between {@code x} and {@code y}.
      */
     public static boolean equals(final float x, final float y, final int maxUlps) {
-
         final int xInt = Float.floatToRawIntBits(x);
         final int yInt = Float.floatToRawIntBits(y);
 
         final boolean isEqual;
-        if (((xInt ^ yInt) & SGN_MASK_FLOAT) == 0) {
-            // number have same sign, there is no risk of overflow
-            isEqual = Math.abs(xInt - yInt) <= maxUlps;
+        if ((xInt ^ yInt) < 0) {
+            // Numbers have opposite signs, take care of overflow.
+            // Remove the sign bit to obtain the absolute ULP above zero.
+            final int deltaPlus = xInt & Integer.MAX_VALUE;
+            final int deltaMinus = yInt & Integer.MAX_VALUE;
+
+            // Avoid possible overflow from adding the deltas by using a long.
+            isEqual = (long) deltaPlus + deltaMinus <= maxUlps;
         } else {
-            // number have opposite signs, take care of overflow
-            final int deltaPlus;
-            final int deltaMinus;
-            if (xInt < yInt) {
-                deltaPlus  = yInt - POSITIVE_ZERO_FLOAT_BITS;
-                deltaMinus = xInt - NEGATIVE_ZERO_FLOAT_BITS;
-            } else {
-                deltaPlus  = xInt - POSITIVE_ZERO_FLOAT_BITS;
-                deltaMinus = yInt - NEGATIVE_ZERO_FLOAT_BITS;
-            }
-
-            if (deltaPlus > maxUlps) {
-                isEqual = false;
-            } else {
-                isEqual = deltaMinus <= (maxUlps - deltaPlus);
-            }
-
+            // Numbers have same sign, there is no risk of overflow.
+            isEqual = Math.abs(xInt - yInt) <= maxUlps;
         }
 
         return isEqual && !Float.isNaN(x) && !Float.isNaN(y);
@@ -393,35 +370,26 @@ public final class Precision {
      * point values between {@code x} and {@code y}.
      */
     public static boolean equals(final double x, final double y, final int maxUlps) {
-
         final long xInt = Double.doubleToRawLongBits(x);
         final long yInt = Double.doubleToRawLongBits(y);
 
-        final boolean isEqual;
-        if (((xInt ^ yInt) & SGN_MASK) == 0L) {
-            // number have same sign, there is no risk of overflow
-            isEqual = Math.abs(xInt - yInt) <= maxUlps;
-        } else {
-            // number have opposite signs, take care of overflow
-            final long deltaPlus;
-            final long deltaMinus;
-            if (xInt < yInt) {
-                deltaPlus  = yInt - POSITIVE_ZERO_DOUBLE_BITS;
-                deltaMinus = xInt - NEGATIVE_ZERO_DOUBLE_BITS;
-            } else {
-                deltaPlus  = xInt - POSITIVE_ZERO_DOUBLE_BITS;
-                deltaMinus = yInt - NEGATIVE_ZERO_DOUBLE_BITS;
-            }
+        if ((xInt ^ yInt) < 0) {
+            // Numbers have opposite signs, take care of overflow.
+            // Remove the sign bit to obtain the absolute ULP above zero.
+            final long deltaPlus = xInt & Long.MAX_VALUE;
+            final long deltaMinus = yInt & Long.MAX_VALUE;
 
-            if (deltaPlus > maxUlps) {
-                isEqual = false;
-            } else {
-                isEqual = deltaMinus <= (maxUlps - deltaPlus);
-            }
+            // Note:
+            // If either value is NaN, the exponent bits are set to (2047L << 52) and the
+            // distance above 0.0 is always above an integer ULP error. So omit the test
+            // for NaN and return directly.
 
+            // Avoid possible overflow from adding the deltas by splitting the comparison
+            return deltaPlus <= maxUlps && deltaMinus <= (maxUlps - deltaPlus);
         }
 
-        return isEqual && !Double.isNaN(x) && !Double.isNaN(y);
+        // Numbers have same sign, there is no risk of overflow.
+        return Math.abs(xInt - yInt) <= maxUlps && !Double.isNaN(x) && !Double.isNaN(y);
     }
 
     /**
