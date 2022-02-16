@@ -43,8 +43,10 @@ public final class Precision {
      * Safe minimum, such that {@code 1 / SAFE_MIN} does not overflow.
      * In IEEE 754 arithmetic, this is also the smallest normalized
      * number 2<sup>-1022</sup>.
+     *
+     * @see Double#MIN_NORMAL
      */
-    public static final double SAFE_MIN;
+    public static final double SAFE_MIN = Double.MIN_NORMAL;
 
     /** Exponent offset in IEEE754 representation. */
     private static final long EXPONENT_OFFSET = 1023L;
@@ -59,13 +61,6 @@ public final class Precision {
          *  constants: MATH-721
          */
         EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
-
-        /*
-         * This was previously expressed as = 0x1.0p-1022
-         * However, OpenJDK (Sparc Solaris) cannot handle such small
-         * constants: MATH-721
-         */
-        SAFE_MIN = Double.longBitsToDouble((EXPONENT_OFFSET - 1022L) << 52);
     }
 
     /**
