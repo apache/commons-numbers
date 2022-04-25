@@ -193,7 +193,6 @@ public class EuclideanNormAlgorithmPerformance {
         eval(new EuclideanNormAlgorithms.ExtendedPrecisionLinearCombination(), input, bh);
     }
 
-
     /** Compute the performance of the {@link EuclideanNormAlgorithms.ExtendedPrecisionLinearCombinationMod} class.
      * @param input benchmark input
      * @param bh blackhole

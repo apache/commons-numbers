@@ -190,7 +190,6 @@ class BoostBetaTest {
         }
     }
 
-
     /**
      * Define the test cases for each resource file for three argument functions.
      * This encapsulates the function to test, the expected maximum and RMS error, and

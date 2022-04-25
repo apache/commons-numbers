@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.primes;
 
-
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;

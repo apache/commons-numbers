@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.gamma;
 
-
 /**
  * Ratio of <a href="https://mathworld.wolfram.com/GammaFunction.html">Gamma
  * functions</a>.

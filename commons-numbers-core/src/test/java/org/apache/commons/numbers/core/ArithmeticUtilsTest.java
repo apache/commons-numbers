@@ -154,7 +154,6 @@ class ArithmeticUtilsTest {
         }
     }
 
-
     @Test
     void testLcm() {
         int a = 30;

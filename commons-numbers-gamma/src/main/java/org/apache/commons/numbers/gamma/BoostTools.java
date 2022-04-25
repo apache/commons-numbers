@@ -142,7 +142,6 @@ final class BoostTools {
         return result;
     }
 
-
     /**
      * Sum the series using Kahan summation.
      *

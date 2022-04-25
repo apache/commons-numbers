@@ -52,4 +52,3 @@ public final class Erfcx {
         return BoostErf.erfcx(x);
     }
 }
-
