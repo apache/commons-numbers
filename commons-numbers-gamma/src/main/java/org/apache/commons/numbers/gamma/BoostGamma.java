@@ -1153,7 +1153,10 @@ final class BoostGamma {
         // Now special cases:
         //
         if (x == 0) {
-            return (a > 1) ? 0 : (a == 1) ? 1 : Double.POSITIVE_INFINITY;
+            if (a > 1) {
+                return 0;
+            }
+            return (a == 1) ? 1 : Double.POSITIVE_INFINITY;
         }
         //
         // Normal case:
