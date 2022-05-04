@@ -1932,7 +1932,7 @@ class BoostGammaTest {
     }
 
     /**
-     * Assert the function is close to the expected value.
+     * Assert the function is equal to the expected value.
      *
      * @param fun Function
      * @param x Input value
