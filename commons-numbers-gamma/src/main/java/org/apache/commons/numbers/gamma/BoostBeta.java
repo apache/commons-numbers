@@ -132,9 +132,9 @@ final class BoostBeta {
         final double b = p < q ? p : q;
 
         // Lanczos calculation:
-        final double agh = a + BoostGamma.Lanczos.gmh();
-        final double bgh = b + BoostGamma.Lanczos.gmh();
-        final double cgh = c + BoostGamma.Lanczos.gmh();
+        final double agh = a + BoostGamma.Lanczos.GMH;
+        final double bgh = b + BoostGamma.Lanczos.GMH;
+        final double cgh = c + BoostGamma.Lanczos.GMH;
         double result = BoostGamma.Lanczos.lanczosSumExpGScaled(a) *
                 (BoostGamma.Lanczos.lanczosSumExpGScaled(b) / BoostGamma.Lanczos.lanczosSumExpGScaled(c));
         final double ambh = a - 0.5f - b;
@@ -264,9 +264,9 @@ final class BoostBeta {
         final double c = a + b;
 
         // combine power terms with Lanczos approximation:
-        final double agh = a + BoostGamma.Lanczos.gmh();
-        final double bgh = b + BoostGamma.Lanczos.gmh();
-        final double cgh = c + BoostGamma.Lanczos.gmh();
+        final double agh = a + BoostGamma.Lanczos.GMH;
+        final double bgh = b + BoostGamma.Lanczos.GMH;
+        final double cgh = c + BoostGamma.Lanczos.GMH;
         result = BoostGamma.Lanczos.lanczosSumExpGScaled(c) /
                 (BoostGamma.Lanczos.lanczosSumExpGScaled(a) * BoostGamma.Lanczos.lanczosSumExpGScaled(b));
         result *= prefix;
@@ -839,9 +839,9 @@ final class BoostBeta {
             final double c = a + b;
 
             // incomplete beta power term, combined with the Lanczos approximation:
-            final double agh = a + BoostGamma.Lanczos.gmh();
-            final double bgh = b + BoostGamma.Lanczos.gmh();
-            final double cgh = c + BoostGamma.Lanczos.gmh();
+            final double agh = a + BoostGamma.Lanczos.GMH;
+            final double bgh = b + BoostGamma.Lanczos.GMH;
+            final double cgh = c + BoostGamma.Lanczos.GMH;
             result = BoostGamma.Lanczos.lanczosSumExpGScaled(c) /
                     (BoostGamma.Lanczos.lanczosSumExpGScaled(a) * BoostGamma.Lanczos.lanczosSumExpGScaled(b));
 

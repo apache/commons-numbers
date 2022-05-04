@@ -565,8 +565,8 @@ class BoostGammaTest {
     @Test
     void testLanczosGmh() {
         // These terms are equal. The value (g - 0.5) is provided as a convenience.
-        Assertions.assertEquals(Lanczos.g() - 0.5, Lanczos.gmh());
-        Assertions.assertEquals(0.5 - Lanczos.g(), -Lanczos.gmh());
+        Assertions.assertEquals(Lanczos.G - 0.5, Lanczos.GMH);
+        Assertions.assertEquals(0.5 - Lanczos.G, -Lanczos.GMH);
     }
 
     @ParameterizedTest
@@ -1441,7 +1441,7 @@ class BoostGammaTest {
             result *= 1 / z - EULER;
         } else {
             result *= Lanczos.lanczosSum(z);
-            final double zgh = z + Lanczos.g() - 0.5;
+            final double zgh = z + Lanczos.G - 0.5;
             final double lzgh = Math.log(zgh);
             if (z * lzgh > LOG_MAX_VALUE) {
                 // we're going to overflow unless this is done with care:
