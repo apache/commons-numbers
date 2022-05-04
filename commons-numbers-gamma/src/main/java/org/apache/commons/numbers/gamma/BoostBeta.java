@@ -1206,10 +1206,9 @@ final class BoostBeta {
             //
             tnp1 += 2;
             p[n] = 0;
-            double mbn = b - n;
             int tmp1 = 3;
             for (int m = 1; m < n; ++m) {
-                mbn = m * b - n;
+                final double mbn = m * b - n;
                 p[n] += mbn * p[n - m] / BoostGamma.uncheckedFactorial(tmp1);
                 tmp1 += 2;
             }
