@@ -47,4 +47,4 @@ jobs:
     - name: Build examples with Maven
       # Examples require Java 11+
       if: contains(matrix.java, '11')
-      run: -P commons-numbers-examples --projects commons-numbers-examples verify apache-rat:check checkstyle:check
+      run: mvn -P commons-numbers-examples --projects commons-numbers-examples verify apache-rat:check checkstyle:check
