@@ -120,7 +120,7 @@ public class DoubleSplitPerformance {
          */
         @Setup
         public void setup() {
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
             a = new double[size];
             for (int i = 0; i < size; i++) {
                 long bits = rng.nextLong() & SIGN_MATISSA_MASK;
@@ -193,7 +193,7 @@ public class DoubleSplitPerformance {
             assert Double.isInfinite(d * d) : "Product of big numbers does not overflow";
             final long expBig = Double.doubleToRawLongBits(d);
 
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
             a = new double[size * 2];
             for (int i = 0; i < a.length; i++) {
                 long bits = rng.nextLong() & SIGN_MATISSA_MASK;
@@ -246,7 +246,7 @@ public class DoubleSplitPerformance {
          */
         @Setup
         public void setup() {
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
             a = new double[size];
             for (int i = 0; i < size; i++) {
                 // Value in (-1, 1)

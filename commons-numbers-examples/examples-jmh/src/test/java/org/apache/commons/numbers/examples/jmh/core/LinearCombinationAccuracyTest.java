@@ -88,7 +88,7 @@ class LinearCombinationAccuracyTest {
         final double[] x = new double[LENGTH];
         final double[] y = new double[LENGTH];
         // Fixed seed to consistency
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, 9283746);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(9283746);
 
         // Use an average as the actual condition number of the generated dot product
         // may not be the requested condition number. It will average out at the desired
@@ -137,7 +137,7 @@ class LinearCombinationAccuracyTest {
         final double logB = Math.log(1e120);
 
         final ArrayList<double[]> data = new ArrayList<>(samples);
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
         final double[] x = new double[LENGTH];
         final double[] y = new double[LENGTH];
         final double[] cc = new double[1];

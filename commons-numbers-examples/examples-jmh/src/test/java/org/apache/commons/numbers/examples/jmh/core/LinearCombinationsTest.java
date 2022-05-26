@@ -441,7 +441,7 @@ class LinearCombinationsTest {
     @Test
     void testSumZero() {
         // Fixed seed for stability
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP, 876543L);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create(876543L);
         final int size = 10;
         // Create random doublets of pairs of numbers that sum to 1 or -1.
         for (int length = 4; length <= 12; length += 4) {

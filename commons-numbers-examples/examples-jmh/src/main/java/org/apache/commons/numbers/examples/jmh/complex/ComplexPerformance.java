@@ -112,7 +112,7 @@ public class ComplexPerformance {
          */
         @Setup
         public void setup() {
-            numbers = createNumbers(RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP));
+            numbers = createNumbers(RandomSource.XO_RO_SHI_RO_128_PP.create());
         }
 
         /**
@@ -170,7 +170,7 @@ public class ComplexPerformance {
         @Setup
         public void setup() {
             // Do not call super.setup() so we recycle the RNG and avoid duplicates
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
             numbers = createNumbers(rng);
             numbers2 = createNumbers(rng);
         }
@@ -200,7 +200,7 @@ public class ComplexPerformance {
         @Setup
         public void setup() {
             // Do not call super.setup() so we recycle the RNG and avoid duplicates
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
             numbers = createNumbers(rng);
             numbers2 = Arrays.stream(createNumbers(rng)).mapToDouble(Complex::real).toArray();
         }

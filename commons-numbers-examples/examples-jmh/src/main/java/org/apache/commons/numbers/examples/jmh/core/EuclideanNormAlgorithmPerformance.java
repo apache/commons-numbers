@@ -88,7 +88,7 @@ public class EuclideanNormAlgorithmPerformance {
          */
         @Setup
         public void createVectors() {
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
 
             int minExp;
             int maxExp;

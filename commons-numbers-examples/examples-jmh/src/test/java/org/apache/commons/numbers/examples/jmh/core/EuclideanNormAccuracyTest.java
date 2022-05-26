@@ -45,7 +45,7 @@ class EuclideanNormAccuracyTest {
     @Test
     @Disabled("This method is used to output a report of the accuracy of implementations.")
     void reportUlpErrors() throws IOException {
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
 
         final EuclideanNormEvaluator eval = new EuclideanNormEvaluator();
         eval.addMethod("direct", new EuclideanNormAlgorithms.Direct())

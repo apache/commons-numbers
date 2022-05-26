@@ -103,7 +103,7 @@ public class StickySumPerformance {
          */
         @Setup
         public void setup() {
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
             a = new double[size * 2];
             // Report on the dataset
             int nonZero = 0;

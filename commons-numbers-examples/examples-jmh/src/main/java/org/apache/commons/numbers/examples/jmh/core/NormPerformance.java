@@ -81,7 +81,7 @@ public class NormPerformance {
          */
         @Setup
         public void createVectors() {
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
 
             vectors = new double[samples][];
             for (int i = 0; i < vectors.length; ++i) {
