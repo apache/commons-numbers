@@ -47,6 +47,18 @@
     <commons.japicmp.breakBuildOnSourceIncompatibleModifications>false</commons.japicmp.breakBuildOnSourceIncompatibleModifications>
   </properties>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>${numbers.pmd.version}</version>
+        <configuration>
+          <failOnViolation>false</failOnViolation>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <modules>
     <module>examples-jmh</module>
   </modules>
