@@ -100,7 +100,7 @@
     <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
 
     <!-- JMH Benchmark related properties: version, name of the benchmarking uber jar. -->
-    <jmh.version>1.22</jmh.version>
+    <jmh.version>1.35</jmh.version>
     <uberjar.name>examples-jmh</uberjar.name>
     <project.mainClass>org.openjdk.jmh.Main</project.mainClass>
     <!-- Disable analysis for benchmarking code. -->
