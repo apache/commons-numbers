@@ -105,6 +105,7 @@
     <project.mainClass>org.openjdk.jmh.Main</project.mainClass>
     <!-- Disable analysis for benchmarking code. -->
     <pmd.skip>true</pmd.skip>
+    <spotbugs.skip>true</spotbugs.skip>
     <!-- Disable JDK compatibility check for benchmarking code. Also required since no signature
     projects exist for JDK 9+. -->
     <animal.sniffer.skip>true</animal.sniffer.skip>
