@@ -46,6 +46,6 @@ jobs:
       run: mvn -V --no-transfer-progress
     - name: Build examples with Maven
       # Examples require Java 11+
-      if: contains(matrix.java, '11')
+      if: contains(matrix.java, '11') || contains(matrix.java, '17')
       working-directory: ./commons-numbers-examples
       run: mvn -V --no-transfer-progress
