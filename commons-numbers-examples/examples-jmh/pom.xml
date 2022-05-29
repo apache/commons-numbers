@@ -119,8 +119,9 @@
         <configuration>
           <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
           <source>1.8</source>
-          <!--  Enable MathJax -->
-          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+          <sourceFileExcludes>
+            <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
+          </sourceFileExcludes>
         </configuration>
       </plugin>
     </plugins>
@@ -135,8 +136,9 @@
         <configuration>
           <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
           <source>1.8</source>
-          <!--  Enable MathJax -->
-          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+          <sourceFileExcludes>
+            <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
+          </sourceFileExcludes>
         </configuration>
       </plugin>
     </plugins>
