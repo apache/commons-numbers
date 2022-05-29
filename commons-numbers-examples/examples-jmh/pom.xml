@@ -124,6 +124,13 @@
           </sourceFileExcludes>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <excludes>**/jmh_generated/*.java</excludes>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -139,6 +146,13 @@
           <sourceFileExcludes>
             <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
           </sourceFileExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <excludes>**/jmh_generated/*.java</excludes>
         </configuration>
       </plugin>
     </plugins>
