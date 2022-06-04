@@ -43,9 +43,9 @@ jobs:
         java-version: ${{ matrix.java }}
     - name: Build with Maven
       # Use the default goal
+      if: matrix.java == 8
       run: mvn -V --no-transfer-progress
-    - name: Build examples with Maven
+    - name: Build with Maven including examples
       # Examples require Java 11+
       if: matrix.java > 8
-      working-directory: ./commons-numbers-examples
-      run: mvn -V --no-transfer-progress
+      run: mvn -V --no-transfer-progress -P commons-numbers-examples
