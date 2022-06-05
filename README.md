@@ -43,8 +43,8 @@
 Apache Commons Numbers
 ===================
 
-[![Build Status](https://travis-ci.org/apache/commons-numbers.svg)](https://travis-ci.org/apache/commons-numbers)
-[![Coverage Status](https://coveralls.io/repos/apache/commons-numbers/badge.svg)](https://coveralls.io/r/apache/commons-numbers)
+[![Build Status](https://github.com/apache/commons-numbers/actions/workflows/maven.yml/badge.svg)](https://github.com/apache/commons-numbers/actions/workflows/maven.yml)
+[![Coverage Status](https://codecov.io/gh/apache/commons-numbers/branch/master/graph/badge.svg)](https://app.codecov.io/gh/apache/commons-numbers)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=commons-numbers&metric=alert_status)](https://sonarcloud.io/dashboard?id=commons-numbers)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-parent/)
 [![Code Quality:Java](https://img.shields.io/lgtm/grade/java/g/apache/commons-numbers.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/apache/commons-numbers/context:java)

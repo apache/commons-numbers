@@ -43,8 +43,8 @@
 Apache Commons Numbers Complex
 ===================
 
-[![Build Status](https://travis-ci.org/apache/commons-numbers.svg)](https://travis-ci.org/apache/commons-numbers)
-[![Coverage Status](https://coveralls.io/repos/apache/commons-numbers/badge.svg)](https://coveralls.io/r/apache/commons-numbers)
+[![Build Status](https://github.com/apache/commons-numbers/actions/workflows/maven.yml/badge.svg)](https://github.com/apache/commons-numbers/actions/workflows/maven.yml)
+[![Coverage Status](https://codecov.io/gh/apache/commons-numbers/branch/master/graph/badge.svg)](https://app.codecov.io/gh/apache/commons-numbers)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex/)
 [![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-complex/1.0.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-complex/1.0)
 
