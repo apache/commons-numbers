@@ -40,128 +40,140 @@
       </p>
       <subsection name="Contributing">
         <p><strong>Getting Started</strong></p>
-        <p>
-          <ol>
-            <li>
-              Download the Commons Numbers source code.  Follow the instructions
-              under the heading "Repository Checkout" on the
-              <a href="https://gitbox.apache.org/">Git at the ASF page</a>.
-              The git url for the current development sources of Commons Numbers
-              is <source>http://gitbox.apache.org/repos/asf/commons-numbers.git</source>
-              for anonymous read-only access and
-              <source>https://apacheid@gitbox.apache.org/repos/asf/commons-numbers.git</source>
-              (where apacheid should be replaced by each committer Apache ID) for committers
-              read-write access.
-            </li>
-            <li>
-              Like most commons components, Commons Numbers uses Apache Maven as our
-              build tool. The sources can also be built using Ant (a working
-              Ant build.xml is included in the top level project directory).
-              To build Commons Numbers using Maven, you can follow the instructions for
-              <a href="http://maven.apache.org/run-maven/index.html">Building a
-              project with Maven</a>.
-              Launch Maven from the top-level directory
-              in the checkout of Commons Numbers trunk. No special setup is required,
-              except that currently to build the site (i.e. to execute Maven's
-              "site" goal), you may need to increase the default memory allocation
-              (e.g. <code>export MAVEN_OPTS=-Xmx512m</code>) before launching
-              Maven.
-            </li>
-            <li>
-              Be sure to join the commons-dev and commons-user
-              <a href="mail-lists.html">
-                email lists</a> and use them appropriately (make sure the string
-                "[Numbers]" starts the Subject line of all your postings).
-                Make any proposals here where the group can comment on them.
-            </li>
-            <li>
-              <a href="https://issues.apache.org/jira/secure/Signup!default.jspa">
-                Setup an account on JIRA
-              </a>
-              and use it to submit patches and
-              identify bugs. Read the
-              <a href="https://issues.apache.org/bugwritinghelp.html">
-              directions</a>
-              for submitting bugs and search the database to
-              determine if an issue exists or has already been dealt with.
-              <p>
-                See the <a href="http://commons.apache.org/numbers/issue-tracking.html">
-                Commons Numbers Issue Tracking Page</a>
-                for more information on how to
-                search for or submit bugs or enhancement requests.
-              </p>
-              <li>
-                Generating patches: The requested format for generating patches is
-                the Unified Diff format, which can be easily generated using the git
-                client or various IDEs.
-                <source>git diff -p > patch </source>
-                Run this command from the top-level project directory (where pom.xml
-                resides).
-              </li>
-            </li>
-          </ol>
-        </p>
+        <ol>
+          <li>
+            Download the Commons Numbers source code.  Follow the instructions
+            under the heading "Repository Checkout" on the
+            <a href="https://gitbox.apache.org/">Git at the ASF page</a>.
+            The git url for the current development sources of Commons Numbers
+            is <source>http://gitbox.apache.org/repos/asf/commons-numbers.git</source>
+            for anonymous read-only access and
+            <source>https://apacheid@gitbox.apache.org/repos/asf/commons-numbers.git</source>
+            (where apacheid should be replaced by each committer Apache ID) for committers
+            read-write access.
+          </li>
+          <li>
+            Like most commons components, Commons Numbers uses Apache Maven as our
+            build tool.
+            To build Commons Numbers using Maven, you can follow the instructions for
+            <a href="https://maven.apache.org/run-maven/index.html">Building a
+            project with Maven</a>.
+            Launch Maven from the top-level directory
+            in the checkout of Commons Numbers trunk. No special setup is required,
+            except that currently to build the site (i.e. to execute Maven's
+            "site" goal), you may need to increase the default memory allocation
+            (e.g. <code>export MAVEN_OPTS=-Xmx512m</code>) before launching
+            Maven.
+          </li>
+          <li>
+            Be sure to join the commons-dev and commons-user
+            <a href="mail-lists.html">
+              email lists</a> and use them appropriately (make sure the string
+              "[Numbers]" starts the Subject line of all your postings).
+              Make any proposals here where the group can comment on them.
+          </li>
+          <li>
+            <a href="https://issues.apache.org/jira/secure/Signup!default.jspa">
+              Setup an account on JIRA
+            </a>
+            and use it to submit patches and
+            identify bugs. Read the
+            <a href="https://issues.apache.org/bugwritinghelp.html">
+            directions</a>
+            for submitting bugs and search the database to
+            determine if an issue exists or has already been dealt with.
+            <br/>
+            See the <a href="https://commons.apache.org/numbers/issue-tracking.html">
+            Commons Numbers Issue Tracking Page</a>
+            for more information on how to
+            search for or submit bugs or enhancement requests.
+          </li>
+          <li>
+            Generating patches: The requested format for generating patches is
+            the Unified Diff format, which can be easily generated using the git
+            client or various IDEs.
+            <source>git diff -p > patch </source>
+            Run this command from the top-level project directory (where pom.xml
+            resides).
+          </li>
+          <li>
+            Pull Requests: We accept pull requests (PRs) via the GitHub repository mirror.
+            The Commons Numbers repository can be forked and changes merged via a PR.
+            See <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests">
+            collaborating with pull requests</a> for more information on pull requests.
+          </li>
+        </ol>
         <p><strong>Contributing ideas and code</strong></p>
         <p>
           Follow the steps below when making suggestions for additions or
           enhancements to Commons Numbers. This will make it easier for the community
           to comment on your ideas and for the committers to keep track of them.
           Thanks in advance!
-          <ol>
-            <li>Start with a post to the commons-dev mailing list, with [Numbers] at
-            the beginning of the subject line, followed by a short title
-            describing the new feature or enhancement;  for example, "[Numbers]
-            New cryptographically secure generator".
-            The body of the post should include each of the following items
-            (but be <strong>as brief as possible</strong>):
-            <ul>
-              <li>A concise description of the new feature / enhancement</li>
-              <li>References to definitions and algorithms. Using standard
-              definitions and algorithms makes communication much easier and will
-              greatly increase the chances that we will accept the code / idea</li>
-              <li>Some indication of why the addition / enhancement is practically
-              useful</li>
-            </ul></li>
-            <li>Create a JIRA ticket using the the feature title as the short
-            description. Incorporate feedback from the initial posting in the
-            description. Add a reference to the JIRA ticket to the WishList entry.
-            </li>
-            <li>Submit code as attachments to the JIRA ticket.  Please use one
+        </p>
+        <ol>
+          <li>Start with a post to the commons-dev mailing list, with [Numbers] at
+          the beginning of the subject line, followed by a short title
+          describing the new feature or enhancement;  for example, "[Numbers]
+          New continued fraction algorithm".
+          The body of the post should include each of the following items
+          (but be <strong>as brief as possible</strong>):
+          <ul>
+            <li>A concise description of the new feature / enhancement</li>
+            <li>References to definitions and algorithms. Using standard
+            definitions and algorithms makes communication much easier and will
+            greatly increase the chances that we will accept the code / idea</li>
+            <li>Some indication of why the addition / enhancement is practically
+            useful</li>
+          </ul></li>
+          <li>Assuming a generally favorable response to the idea on commons-dev,
+          the next step is to file a report on the issue-tracking system (JIRA).
+          Create a JIRA ticket using the the feature title as the short
+          description. Incorporate feedback from the initial posting in the
+          description. Add a reference to the discussion thread.
+          </li>
+          <li>Submit code as:
+          <ul>
+            <li>Attachments to the JIRA ticket.  Please use one
             ticket for each feature, adding multiple patches to the ticket
             as necessary.  Use the git diff command to generate your patches as
-            diffs.  Please do not submit modified copies of existing java files. Be
-            patient (but not <strong>too</strong> patient) with  committers reviewing
-            patches. Post a *nudge* message to commons-dev with a reference to the
-            ticket if a patch goes more than a few days with no comment or commit.
+            diffs.  Please do not submit modified copies of existing java files.
             </li>
-          </ol>
-        </p>
+            <li>A pull request (PR) via GitHub.
+            To link the PR to a corresponding JIRA ticket prefix the PR title with
+            <code>NUMBERS-xxx:</code> where <code>xxx</code> is the issue number.<br/>
+            Please include quality commit messages with a single line title of about 50
+            characters, followed by a blank line, followed by a more detailed explanation
+            of the changeset. The title should be prefixed with the JIRA ticket number if
+            applicable, e.g. <code>NUMBERS-xxx: New continued fraction algorithm</code>.
+            See <a href="https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project">
+            contributing to a project</a> in the git book for guidelines on commit messages.
+            </li>
+          </ul>
+          Be patient (but not <strong>too</strong> patient) with  committers reviewing
+          patches/PRs. Post a *nudge* message to commons-dev with a reference to the
+          ticket if a submission goes more than a few days with no comment or commit.
+          </li>
+        </ol>
       </subsection>
 
       <subsection name='Coding Style'>
         <p>
-          Commons Numbers follows <a href="http://java.sun.com/docs/codeconv/">Code
-          Conventions for the Java Programming Language</a>. As part of the maven
+          Commons Numbers follows <a href="https://www.oracle.com/java/technologies/javase/codeconventions-contents.html">
+          Code Conventions for the Java Programming Language (circa 1999)</a>. As part of the maven
           build process, style checking is performed using the Checkstyle plugin,
-          using the properties specified in <code>checkstyle.xml</code>.
+          using the properties specified in <code>checkstyle.xml</code>. This is based on
+          the default <a href="https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/sun_checks.xml">
+          sun checks</a> defined by the Checkstyle plugin using current Java best practices.
           Committed code <i>should</i> generate no Checkstyle errors.  One thing
           that Checkstyle will complain about is tabs included in the source code.
           Please make sure to set your IDE or editor to use spaces instead of tabs.
         </p>
         <p>
-          Committers should configure the <source>user.name</source>,
-          <source>user.email</source> and <source>core.autocrlf</source>
-          git repository or global settings with <source>git config</source>.
-          The first two settings define the identity and mail of the committer.
-          The third setting deals with line endings to achieve consistency
-          in line endings. Windows users should configure this setting to
-          <source>true</source> (thus forcing git to convert CR/LF line endings
-          in the workspace while maintaining LF only line endings in the repository)
-          while OS X and Linux users should configure it to <source>input</source>
-          (thus forcing git to only strip accidental CR/LF when committing into
-          the repository, but never when cheking out files from the repository). See <a
-          href="http://www.git-scm.com/book/en/Customizing-Git-Git-Configuration">Customizing
-          Git - Git Configuration</a> in the git book for explanation about how to
+          Committers should configure the <code>user.name</code> and <code>user.email</code>
+          git repository or global settings with <code>git config</code>.
+          These settings define the identity and mail of the committer. See <a
+          href="https://www.git-scm.com/book/en/v2/Customizing-Git-Git-Configuration">Customizing
+          Git - Git Configuration</a> in the git book for an explanation about how to
           configure these settings and more.
         </p>
       </subsection>
@@ -181,7 +193,7 @@
           </li>
           <li>
             Commons Numbers javadoc generation supports embedded LaTeX formulas via the
-            <a href="http://www.mathjax.org">MathJax</a> javascript display engine.
+            <a href="https://www.mathjax.org">MathJax</a> javascript display engine.
             To embed mathematical expressions formatted in LaTeX in javadoc, simply surround
             the expression to be formatted with either <code>\(</code> and <code>\)</code>
             for inline formulas (or <code>\[</code> and <code>\]</code> to have the formula
@@ -242,8 +254,8 @@
           </li>
           <li>
             All contributions must comply with the terms of the Apache
-            <a href="http://www.apache.org/licenses/cla.pdf">Contributor License
-            Agreement (CLA)</a>.
+            <a href="https://www.apache.org/licenses/contributor-agreements.html#clas">
+            Contributor License Agreement (CLA)</a>.
           </li>
           <li>
             Patches <i>must</i> be accompanied by a clear reference to a "source"
@@ -256,7 +268,7 @@
             References to source materials covered by restrictive proprietary
             licenses should be avoided.  In particular, contributions should not
             implement or include references to algorithms in
-            <a href="http://www.nr.com/">Numerical Recipes (NR)</a>.
+            <a href="http://numerical.recipes/">Numerical Recipes (NR)</a>.
             Any questions about copyright or patent issues should be raised on
             the commons-dev mailing list before contributing or committing code.
           </li>
