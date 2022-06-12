@@ -148,7 +148,6 @@ class NormTest {
         checkScaledEuclideanNorm(ones, SMALL_THRESH_EXP);
         checkScaledEuclideanNorm(ones, SMALL_THRESH_EXP - 1);
 
-
         checkScaledEuclideanNorm(multiplesOfTen, 0);
         checkScaledEuclideanNorm(multiplesOfTen, -100);
         checkScaledEuclideanNorm(multiplesOfTen, -101);

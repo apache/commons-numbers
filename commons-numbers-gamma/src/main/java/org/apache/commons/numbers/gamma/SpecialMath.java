@@ -134,7 +134,6 @@ public final class SpecialMath {
         return z * (2 * zz * sum - x);
     }
 
-
     /**
      * Returns {@code log(1 + x) - x}. This function is accurate when
      * {@code x -> 0}.

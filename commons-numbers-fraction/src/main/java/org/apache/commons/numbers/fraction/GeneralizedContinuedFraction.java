@@ -188,7 +188,7 @@ public final class GeneralizedContinuedFraction {
      *
      * <p>Note: The first generated partial numerator a<sub>0</sub> is discarded.
      *
-     * <h2>Usage Note</h2>
+     * <p><b>Usage Note</b>
      *
      * <p>This method is not functionally identical to calling
      * {@link #value(double, Supplier, double, int)} with the generator configured to
@@ -282,7 +282,7 @@ public final class GeneralizedContinuedFraction {
      *  <li>b<sub>0</sub> is very small and the result is expected to approach zero
      * </ul>
      *
-     * <h2>Usage Note</h2>
+     * <p><b>Usage Note</b>
      *
      * <p>This method is not functionally identical to calling
      * {@link #value(Supplier, double, int)} with the generator configured to provide term
@@ -340,7 +340,7 @@ public final class GeneralizedContinuedFraction {
      * <p>Note: The initial term b<sub>0</sub> is supplied as an argument.
      * Both of the first generated terms a and b are used.
      *
-     * <h2>Implementation Note</h2>
+     * <p><b>Implementation Note</b>
      *
      * <p>This method is private and functionally different from
      * {@link #value(double, Supplier, double, int)}. The convergence of the algorithm relies on

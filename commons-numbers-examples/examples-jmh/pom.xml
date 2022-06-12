@@ -100,11 +100,12 @@
     <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
 
     <!-- JMH Benchmark related properties: version, name of the benchmarking uber jar. -->
-    <jmh.version>1.22</jmh.version>
+    <jmh.version>1.35</jmh.version>
     <uberjar.name>examples-jmh</uberjar.name>
     <project.mainClass>org.openjdk.jmh.Main</project.mainClass>
     <!-- Disable analysis for benchmarking code. -->
     <pmd.skip>true</pmd.skip>
+    <spotbugs.skip>true</spotbugs.skip>
     <!-- Disable JDK compatibility check for benchmarking code. Also required since no signature
     projects exist for JDK 9+. -->
     <animal.sniffer.skip>true</animal.sniffer.skip>
@@ -119,8 +120,16 @@
         <configuration>
           <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
           <source>1.8</source>
-          <!--  Enable MathJax -->
-          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+          <sourceFileExcludes>
+            <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
+          </sourceFileExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <excludes>**/jmh_generated/*.java</excludes>
         </configuration>
       </plugin>
     </plugins>
@@ -135,8 +144,16 @@
         <configuration>
           <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
           <source>1.8</source>
-          <!--  Enable MathJax -->
-          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+          <sourceFileExcludes>
+            <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
+          </sourceFileExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <excludes>**/jmh_generated/*.java</excludes>
         </configuration>
       </plugin>
     </plugins>

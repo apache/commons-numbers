@@ -100,7 +100,7 @@ public class SumPerformance {
         /** Create the input arrays for the instance. */
         @Setup
         public void createArrays() {
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, SEED);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(SEED);
 
             a = new double[samples][];
             b = new double[samples][];

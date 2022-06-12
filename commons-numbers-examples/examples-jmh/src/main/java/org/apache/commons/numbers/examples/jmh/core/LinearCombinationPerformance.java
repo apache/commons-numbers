@@ -129,7 +129,7 @@ public class LinearCombinationPerformance {
         @Setup
         public void setup() {
             final UniformRandomProvider rng =
-                    RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP, SEED);
+                    RandomSource.XO_RO_SHI_RO_1024_PP.create(SEED);
             // Use the ill conditioned data generation method.
             // This requires an array of at least 6.
             final int n = Math.max(6, getLength());

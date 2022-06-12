@@ -948,7 +948,6 @@ class CommonsLangPortedFractionTest {
         assertEquals(6, f.getNumerator());
         assertEquals(25, f.getDenominator());
 
-
         f1 = Fraction.of(0, 5);
         f2 = Fraction.of(2, 7);
         f = f1.multiply(f2);

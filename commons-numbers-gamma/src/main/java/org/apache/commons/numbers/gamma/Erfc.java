@@ -52,4 +52,3 @@ public final class Erfc {
         return BoostErf.erfc(x);
     }
 }
-

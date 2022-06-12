@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.gamma;
 
-
 /**
  * <a href="https://mathworld.wolfram.com/GammaFunction.html">Gamma
  * function</a> \( \Gamma(x) \).

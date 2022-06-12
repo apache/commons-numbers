@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.primes;
 
-
 import java.math.BigInteger;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;

@@ -88,7 +88,7 @@ public class EuclideanNormAlgorithmPerformance {
          */
         @Setup
         public void createVectors() {
-            final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_1024_PP);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
 
             int minExp;
             int maxExp;
@@ -192,7 +192,6 @@ public class EuclideanNormAlgorithmPerformance {
     public void extLinear(final VectorArrayInput input, final Blackhole bh) {
         eval(new EuclideanNormAlgorithms.ExtendedPrecisionLinearCombination(), input, bh);
     }
-
 
     /** Compute the performance of the {@link EuclideanNormAlgorithms.ExtendedPrecisionLinearCombinationMod} class.
      * @param input benchmark input

@@ -565,8 +565,8 @@ class BoostGammaTest {
     @Test
     void testLanczosGmh() {
         // These terms are equal. The value (g - 0.5) is provided as a convenience.
-        Assertions.assertEquals(Lanczos.g() - 0.5, Lanczos.gmh());
-        Assertions.assertEquals(0.5 - Lanczos.g(), -Lanczos.gmh());
+        Assertions.assertEquals(Lanczos.G - 0.5, Lanczos.GMH);
+        Assertions.assertEquals(0.5 - Lanczos.G, -Lanczos.GMH);
     }
 
     @ParameterizedTest
@@ -906,12 +906,12 @@ class BoostGammaTest {
         assertClose(BoostGamma::gammaP, 30, Math.scalb(1.0, -30), 4.460092102072560946444018923090222645613009128135650652e-304, tolerance);
         assertClose(BoostGamma::gammaPDerivative, 2, Math.scalb(1.0, -575), 8.08634922390438981326119906687585206568664784377654648227177e-174, tolerance);
 
-        Assertions.assertEquals(BoostGamma.tgamma(176, 100), Double.POSITIVE_INFINITY);
-        Assertions.assertEquals(BoostGamma.tgamma(530, 2000), Double.POSITIVE_INFINITY);
-        Assertions.assertEquals(BoostGamma.tgamma(740, 2500), Double.POSITIVE_INFINITY);
-        Assertions.assertEquals(BoostGamma.tgamma(530.5, 2000), Double.POSITIVE_INFINITY);
-        Assertions.assertEquals(BoostGamma.tgamma(740.5, 2500), Double.POSITIVE_INFINITY);
-        Assertions.assertEquals(BoostGamma.tgammaLower(10000.0f, 10000.0f / 4), Double.POSITIVE_INFINITY);
+        assertEquals(BoostGamma::tgamma, 176, 100, Double.POSITIVE_INFINITY);
+        assertEquals(BoostGamma::tgamma, 530, 2000, Double.POSITIVE_INFINITY);
+        assertEquals(BoostGamma::tgamma, 740, 2500, Double.POSITIVE_INFINITY);
+        assertEquals(BoostGamma::tgamma, 530.5, 2000, Double.POSITIVE_INFINITY);
+        assertEquals(BoostGamma::tgamma, 740.5, 2500, Double.POSITIVE_INFINITY);
+        assertEquals(BoostGamma::tgammaLower, 10000.0f, 10000.0f / 4, Double.POSITIVE_INFINITY);
         assertClose(BoostGamma::tgamma, 170, 165, 2.737338337642022829223832094019477918166996032112404370e304, tolerance);
         assertClose(BoostGamma::tgammaLower, 170, 165, 1.531729671362682445715419794880088619901822603944331733e304, tolerance);
         // *** Increased from 10 * tolerance ***
@@ -933,24 +933,24 @@ class BoostGammaTest {
         //
         final double maxVal = Double.MAX_VALUE;
         final double largeVal = maxVal * 0.99f;
-        Assertions.assertEquals(BoostGamma.tgamma(22.25, maxVal), 0);
-        Assertions.assertEquals(BoostGamma.tgamma(22.25, largeVal), 0);
-        Assertions.assertEquals(BoostGamma.tgammaLower(22.25, maxVal), BoostGamma.tgamma(22.25));
-        Assertions.assertEquals(BoostGamma.tgammaLower(22.25, largeVal), BoostGamma.tgamma(22.25));
-        Assertions.assertEquals(BoostGamma.gammaQ(22.25, maxVal), 0);
-        Assertions.assertEquals(BoostGamma.gammaQ(22.25, largeVal), 0);
-        Assertions.assertEquals(BoostGamma.gammaP(22.25, maxVal), 1);
-        Assertions.assertEquals(BoostGamma.gammaP(22.25, largeVal), 1);
-        Assertions.assertEquals(BoostGamma.tgamma(22.25, Double.POSITIVE_INFINITY), 0);
-        Assertions.assertEquals(BoostGamma.tgammaLower(22.25, Double.POSITIVE_INFINITY), BoostGamma.tgamma(22.25));
-        Assertions.assertEquals(BoostGamma.gammaQ(22.25, Double.POSITIVE_INFINITY), 0);
-        Assertions.assertEquals(BoostGamma.gammaP(22.25, Double.POSITIVE_INFINITY), 1);
+        assertEquals(BoostGamma::tgamma, 22.25, maxVal, 0);
+        assertEquals(BoostGamma::tgamma, 22.25, largeVal, 0);
+        assertEquals(BoostGamma::tgammaLower, 22.25, maxVal, BoostGamma.tgamma(22.25));
+        assertEquals(BoostGamma::tgammaLower, 22.25, largeVal, BoostGamma.tgamma(22.25));
+        assertEquals(BoostGamma::gammaQ, 22.25, maxVal, 0);
+        assertEquals(BoostGamma::gammaQ, 22.25, largeVal, 0);
+        assertEquals(BoostGamma::gammaP, 22.25, maxVal, 1);
+        assertEquals(BoostGamma::gammaP, 22.25, largeVal, 1);
+        assertEquals(BoostGamma::tgamma, 22.25, Double.POSITIVE_INFINITY, 0);
+        assertEquals(BoostGamma::tgammaLower, 22.25, Double.POSITIVE_INFINITY, BoostGamma.tgamma(22.25));
+        assertEquals(BoostGamma::gammaQ, 22.25, Double.POSITIVE_INFINITY, 0);
+        assertEquals(BoostGamma::gammaP, 22.25, Double.POSITIVE_INFINITY, 1);
         //
         // Large arguments and small parameters, see
         // https://github.com/boostorg/math/issues/451:
         //
-        Assertions.assertEquals(BoostGamma.gammaQ(1770, 1e-12), 1);
-        Assertions.assertEquals(BoostGamma.gammaP(1770, 1e-12), 0);
+        assertEquals(BoostGamma::gammaQ, 1770, 1e-12, 1);
+        assertEquals(BoostGamma::gammaP, 1770, 1e-12, 0);
     }
 
     @ParameterizedTest
@@ -1441,7 +1441,7 @@ class BoostGammaTest {
             result *= 1 / z - EULER;
         } else {
             result *= Lanczos.lanczosSum(z);
-            final double zgh = z + Lanczos.g() - 0.5;
+            final double zgh = z + Lanczos.G - 0.5;
             final double lzgh = Math.log(zgh);
             if (z * lzgh > LOG_MAX_VALUE) {
                 // we're going to overflow unless this is done with care:
@@ -1929,6 +1929,19 @@ class BoostGammaTest {
     private static void assertClose(DoubleBinaryOperator fun, double x, double y, double expected, int tolerance) {
         final double actual = fun.applyAsDouble(x, y);
         TestUtils.assertEquals(expected, actual, tolerance, null, () -> x + ", " + y);
+    }
+
+    /**
+     * Assert the function is equal to the expected value.
+     *
+     * @param fun Function
+     * @param x Input value
+     * @param y Input value
+     * @param expected Expected value
+     */
+    private static void assertEquals(DoubleBinaryOperator fun, double x, double y, double expected) {
+        final double actual = fun.applyAsDouble(x, y);
+        Assertions.assertEquals(expected, actual, () -> x + ", " + y);
     }
 
     /**

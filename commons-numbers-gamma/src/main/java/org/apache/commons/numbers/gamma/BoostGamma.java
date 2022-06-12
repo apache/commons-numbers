@@ -329,6 +329,18 @@ final class BoostGamma {
         // Generated with compiler: Microsoft Visual C++ version 8.0 on Win32 at Mar 23 2006
         //
 
+        /**
+         * Lanczos constant G.
+         */
+        static final double G = 6.024680040776729583740234375;
+
+        /**
+         * Lanczos constant G - half.
+         *
+         * <p>Note: The form {@code (g - 0.5)} is used when computing the gamma function.
+         */
+        static final double GMH = 5.524680040776729583740234375;
+
         /** Common denominator used for the rational evaluation. */
         private static final int[] DENOM = {
             0,
@@ -349,26 +361,6 @@ final class BoostGamma {
         /** Private constructor. */
         private Lanczos() {
             // intentionally empty.
-        }
-
-        /**
-         * Lanczos constant G.
-         *
-         * @return the Lanczos constant.
-         */
-        static double g() {
-            return 6.024680040776729583740234375;
-        }
-
-        /**
-         * Lanczos constant G - half.
-         *
-         * <p>Note: The form {@code (g - 0.5)} is used when computing the gamma function.
-         *
-         * @return the Lanczos constant - 0.5.
-         */
-        static double gmh() {
-            return 5.524680040776729583740234375;
         }
 
         /**
@@ -675,7 +667,7 @@ final class BoostGamma {
         }
 
         double result = Lanczos.lanczosSum(z);
-        final double zgh = z + Lanczos.gmh();
+        final double zgh = z + Lanczos.GMH;
         final double lzgh = Math.log(zgh);
         if (z * lzgh > LOG_MAX_VALUE) {
             // we're going to overflow unless this is done with care:
@@ -806,7 +798,7 @@ final class BoostGamma {
             result = Math.log(tgamma(z));
         } else {
             // regular evaluation:
-            final double zgh = z + Lanczos.gmh();
+            final double zgh = z + Lanczos.GMH;
             result = Math.log(zgh) - 1;
             result *= z - 0.5f;
             //
@@ -1153,7 +1145,10 @@ final class BoostGamma {
         // Now special cases:
         //
         if (x == 0) {
-            return (a > 1) ? 0 : (a == 1) ? 1 : Double.POSITIVE_INFINITY;
+            if (a > 1) {
+                return 0;
+            }
+            return (a == 1) ? 1 : Double.POSITIVE_INFINITY;
         }
         //
         // Normal case:
@@ -1775,7 +1770,7 @@ final class BoostGamma {
         // gives the greatest accuracy
         //
 
-        final double agh = a + Lanczos.gmh();
+        final double agh = a + Lanczos.GMH;
         double prefix;
 
         final double factor = Math.sqrt(agh / Math.E) / Lanczos.lanczosSumExpGScaled(a);
@@ -1784,13 +1779,13 @@ final class BoostGamma {
         // Lower threshold for large a from 150 to 128 and compute d on demand.
         // See NUMBERS-179.
         if (a > 128) {
-            final double d = ((z - a) - Lanczos.gmh()) / agh;
+            final double d = ((z - a) - Lanczos.GMH) / agh;
             if (Math.abs(d * d * a) <= 100) {
                 // special case for large a and a ~ z.
                 // When a and x are large, we end up with a very large exponent with a base near one:
                 // this will not be computed accurately via the pow function, and taking logs simply
                 // leads to cancellation errors.
-                prefix = a * SpecialMath.log1pmx(d) + z * -Lanczos.gmh() / agh;
+                prefix = a * SpecialMath.log1pmx(d) + z * -Lanczos.GMH / agh;
                 prefix = Math.exp(prefix);
                 return prefix * factor;
             }
@@ -2167,7 +2162,7 @@ final class BoostGamma {
             }
             return 1 / (z * tgamma(z + delta));
         }
-        final double zgh = z + Lanczos.gmh();
+        final double zgh = z + Lanczos.GMH;
         double result;
         if (z + delta == z) {
             // Here:
