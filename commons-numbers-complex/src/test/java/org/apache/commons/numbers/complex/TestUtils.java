@@ -358,7 +358,7 @@ public final class TestUtils {
      * Pre-process the next line of data from the input.
      * Returns null when the line should be ignored.
      *
-     * @param input the input
+     * @param line the input
      * @param option the option controlling processing of flagged data
      * @param flaggedDataConsumer the flagged data consumer (can be null)
      * @return the line of data (or null)
