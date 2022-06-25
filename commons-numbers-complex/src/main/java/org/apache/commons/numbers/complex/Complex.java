@@ -1126,7 +1126,7 @@ public final class Complex implements Serializable  {
         // Recover infinities and zeros that computed as NaN+iNaN
         // the only cases are nonzero/zero, infinite/finite, and finite/infinite, ...
         if (Double.isNaN(x) && Double.isNaN(y)) {
-            if ((denom == 0.0) &&
+            if (denom == 0.0 &&
                     (!Double.isNaN(a) || !Double.isNaN(b))) {
                 // nonzero/zero
                 // This case produces the same result as divide by a real-only zero
@@ -2869,7 +2869,7 @@ public final class Complex implements Serializable  {
                 // if x or y are large, then the formula:
                 //   atan2(2y, (1-x)(1+x) - y^2)
                 // evaluates to +(PI - theta) where theta is negligible compared to PI.
-                if ((x >= SAFE_UPPER) || (y >= SAFE_UPPER)) {
+                if (x >= SAFE_UPPER || y >= SAFE_UPPER) {
                     im = Math.PI;
                 } else if (x <= SAFE_LOWER) {
                     // (1-x)^2 -> 1
@@ -3460,7 +3460,7 @@ public final class Complex implements Serializable  {
      * @return true if inside the region.
      */
     private static boolean inRegion(double x, double y, double min, double max) {
-        return (x < max) && (x > min) && (y < max) && (y > min);
+        return x < max && x > min && y < max && y > min;
     }
 
     /**

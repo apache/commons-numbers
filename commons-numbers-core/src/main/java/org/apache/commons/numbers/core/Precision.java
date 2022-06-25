@@ -197,7 +197,7 @@ public final class Precision {
      * or both are NaN.
      */
     public static boolean equalsIncludingNaN(float x, float y, float eps) {
-        return equalsIncludingNaN(x, y, 1) || (Math.abs(y - x) <= eps);
+        return equalsIncludingNaN(x, y, 1) || Math.abs(y - x) <= eps;
     }
 
     /**
@@ -341,7 +341,7 @@ public final class Precision {
      * or both are NaN.
      */
     public static boolean equalsIncludingNaN(double x, double y, double eps) {
-        return equalsIncludingNaN(x, y) || (Math.abs(y - x) <= eps);
+        return equalsIncludingNaN(x, y) || Math.abs(y - x) <= eps;
     }
 
     /**

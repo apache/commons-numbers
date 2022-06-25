@@ -269,9 +269,9 @@ final class SmallPrimes {
             final BigInteger a = BigInteger.valueOf(SmallPrimes.PRIMES[i]);
             final BigInteger bPow = a.modPow(br, bn);
             int y = bPow.intValue();
-            if ((1 != y) && (y != nMinus1)) {
+            if (1 != y && y != nMinus1) {
                 int j = 1;
-                while ((j <= s - 1) && (nMinus1 != y)) {
+                while (j <= s - 1 && nMinus1 != y) {
                     final long square = ((long) y) * y;
                     y = (int) (square % n);
                     if (1 == y) {
