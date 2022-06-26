@@ -137,14 +137,14 @@ class CStandardTest {
         REAL {
             @Override
             Complex removeSign(Complex c) {
-                return negative(c.getReal()) ? complex(-c.getReal(), c.getImaginary()) : c;
+                return negative(c.real()) ? complex(-c.real(), c.imag()) : c;
             }
         },
         /** Remove the sign from the imaginary component. */
         IMAGINARY {
             @Override
             Complex removeSign(Complex c) {
-                return negative(c.getImaginary()) ? complex(c.getReal(), -c.getImaginary()) : c;
+                return negative(c.imag()) ? complex(c.real(), -c.imag()) : c;
             }
         },
         /** Remove the sign from the real and imaginary component. */
@@ -196,8 +196,8 @@ class CStandardTest {
      */
     private static void assertComplex(Complex c1, Complex c2) {
         // Use a delta of zero to allow comparison of -0.0 to 0.0
-        Assertions.assertEquals(c2.getReal(), c1.getReal(), 0.0, "real");
-        Assertions.assertEquals(c2.getImaginary(), c1.getImaginary(), 0.0, "imaginary");
+        Assertions.assertEquals(c2.real(), c1.real(), 0.0, "real");
+        Assertions.assertEquals(c2.imag(), c1.imag(), 0.0, "imaginary");
     }
 
     /**
@@ -292,8 +292,8 @@ class CStandardTest {
         final Complex t2 = sign.removeSign(c2);
 
         // Test for binary equality
-        if (!equals(t1.getReal(), t2.getReal()) ||
-            !equals(t1.getImaginary(), t2.getImaginary())) {
+        if (!equals(t1.real(), t2.real()) ||
+            !equals(t1.imag(), t2.imag())) {
             Assertions.fail(
                 String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
                               z, c1, c2, sign));
@@ -366,8 +366,8 @@ class CStandardTest {
         final Complex t2 = sign.removeSign(c2);
 
         // Test for binary equality
-        if (!equals(t1.getReal(), t2.getReal()) ||
-            !equals(t1.getImaginary(), t2.getImaginary())) {
+        if (!equals(t1.real(), t2.real()) ||
+            !equals(t1.imag(), t2.imag())) {
             Assertions.fail(
                 String.format("%s equality failed (z=%s, -z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
                               type, z, z.negate(), c1, c2, sign));
@@ -481,14 +481,14 @@ class CStandardTest {
         final Complex c = operation.apply(z);
         final Complex t1 = sign.removeSign(c);
         final Complex t2 = sign.removeSign(expected);
-        if (!equals(t1.getReal(), t2.getReal()) ||
-            !equals(t1.getImaginary(), t2.getImaginary())) {
+        if (!equals(t1.real(), t2.real()) ||
+            !equals(t1.imag(), t2.imag())) {
             Assertions.fail(
                 String.format("Operation failed (z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
                               z, expected, c, sign));
         }
 
-        if (!Double.isNaN(z.getImaginary())) {
+        if (!Double.isNaN(z.imag())) {
             assertConjugateEquality(z, operation, sign);
         }
 
@@ -502,7 +502,7 @@ class CStandardTest {
             // (re, im) =  (-re, -im) (even)
             //          = -(-re, -im) (odd)
             // (-re, -im) = (-re, im)
-            if (!Double.isNaN(z.getImaginary())) {
+            if (!Double.isNaN(z.imag())) {
                 assertConjugateEquality(z.negate(), operation, sign);
             }
         }
@@ -533,8 +533,8 @@ class CStandardTest {
      * @param ulps the maximum allowed ULPs from the exact result
      */
     private static void assertAbs(Complex z, int ulps) {
-        double x = z.getReal();
-        double y = z.getImaginary();
+        double x = z.real();
+        double y = z.imag();
         // For speed use Math.hypot as the reference, not BigDecimal computation.
         final double expected = Math.hypot(x, y);
         final double observed = z.abs();
@@ -717,7 +717,7 @@ class CStandardTest {
      * @return true if zero
      */
     private static boolean isZero(Complex c) {
-        return c.getReal() == 0 && c.getImaginary() == 0;
+        return c.real() == 0 && c.imag() == 0;
     }
 
     /**

@@ -227,7 +227,7 @@ class CReferenceTest {
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param testData Test data resource name.
+     * @param name Test data resource name.
      * @return the list
      */
     private static List<Complex[]> loadTestData(String name) {

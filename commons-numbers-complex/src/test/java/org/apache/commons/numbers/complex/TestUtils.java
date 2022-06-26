@@ -63,8 +63,8 @@ public final class TestUtils {
      * @param actual the actual value
      */
     public static void assertSame(Complex expected, Complex actual) {
-        Assertions.assertEquals(expected.getReal(), actual.getReal());
-        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary());
+        Assertions.assertEquals(expected.real(), actual.real());
+        Assertions.assertEquals(expected.imag(), actual.imag());
     }
 
     /**
@@ -76,8 +76,8 @@ public final class TestUtils {
      * @param delta the delta
      */
     public static void assertEquals(Complex expected, Complex actual, double delta) {
-        Assertions.assertEquals(expected.getReal(), actual.getReal(), delta);
-        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary(), delta);
+        Assertions.assertEquals(expected.real(), actual.real(), delta);
+        Assertions.assertEquals(expected.imag(), actual.imag(), delta);
     }
 
     /**
@@ -165,8 +165,8 @@ public final class TestUtils {
      */
     public static void assertContains(String msg, Complex[] values, Complex z, double epsilon) {
         for (final Complex value : values) {
-            if (Precision.equals(value.getReal(), z.getReal(), epsilon) &&
-                    Precision.equals(value.getImaginary(), z.getImaginary(), epsilon)) {
+            if (Precision.equals(value.real(), z.real(), epsilon) &&
+                    Precision.equals(value.imag(), z.imag(), epsilon)) {
                 return;
             }
         }
@@ -225,25 +225,25 @@ public final class TestUtils {
         }
         boolean failure = false;
         for (int i = 0; i < expected.length; i++) {
-            if (!Precision.equalsIncludingNaN(expected[i].getReal(), observed[i].getReal(), tolerance)) {
+            if (!Precision.equalsIncludingNaN(expected[i].real(), observed[i].real(), tolerance)) {
                 failure = true;
                 out.append("\n Real elements at index ");
                 out.append(i);
                 out.append(" differ. ");
                 out.append(" expected = ");
-                out.append(expected[i].getReal());
+                out.append(expected[i].real());
                 out.append(" observed = ");
-                out.append(observed[i].getReal());
+                out.append(observed[i].real());
             }
-            if (!Precision.equalsIncludingNaN(expected[i].getImaginary(), observed[i].getImaginary(), tolerance)) {
+            if (!Precision.equalsIncludingNaN(expected[i].imag(), observed[i].imag(), tolerance)) {
                 failure = true;
                 out.append("\n Imaginary elements at index ");
                 out.append(i);
                 out.append(" differ. ");
                 out.append(" expected = ");
-                out.append(expected[i].getImaginary());
+                out.append(expected[i].imag());
                 out.append(" observed = ");
-                out.append(observed[i].getImaginary());
+                out.append(observed[i].imag());
             }
         }
         if (failure) {
@@ -358,7 +358,7 @@ public final class TestUtils {
      * Pre-process the next line of data from the input.
      * Returns null when the line should be ignored.
      *
-     * @param input the input
+     * @param line the input
      * @param option the option controlling processing of flagged data
      * @param flaggedDataConsumer the flagged data consumer (can be null)
      * @return the line of data (or null)
