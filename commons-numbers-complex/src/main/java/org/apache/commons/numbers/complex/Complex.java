@@ -114,23 +114,6 @@ public final class Complex implements Serializable, DComplex {
     private final double real;
 
 
-
-    /**
-     * Define a constructor for a Complex.
-     * This is used in functions that implement trigonomic identities.
-     */
-    @FunctionalInterface
-    private interface ComplexConstructor {
-        /**
-         * Create a complex number given the real and imaginary parts.
-         *
-         * @param real Real part.
-         * @param imaginary Imaginary part.
-         * @return {@code Complex} object.
-         */
-        Complex create(double real, double imaginary);
-    }
-
     /**
      * Private default constructor.
      *
@@ -327,6 +310,7 @@ public final class Complex implements Serializable, DComplex {
      *
      * @return The real part.
      */
+    @Override
     public double getReal() {
         return real;
     }
@@ -348,6 +332,7 @@ public final class Complex implements Serializable, DComplex {
      *
      * @return The imaginary part.
      */
+    @Override
     public double getImaginary() {
         return imaginary;
     }
@@ -690,7 +675,6 @@ public final class Complex implements Serializable, DComplex {
     public Complex subtractFromImaginary(double minuend) {
         return applyScalarFunction(minuend, ComplexBiFunctions::subtractFromImaginary);
     }
-
     /**
      * Returns a {@code Complex} whose value is {@code this * factor}.
      * Implements the formula:
@@ -703,15 +687,31 @@ public final class Complex implements Serializable, DComplex {
      * @return {@code this * factor}.
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
-    public Complex multiply(DComplex factor) {
-        return applyBinaryOperator(factor, ComplexBiFunctions::multiply);
-        //return multiply(real, imaginary, factor.real, factor.imaginary);
-    }
-
     public Complex multiply(Complex factor) {
         return applyBinaryOperator(factor, ComplexBiFunctions::multiply);
     }
 
+    /**
+     * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
+     * interpreted as a real number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) c =  (ac) + i (bc) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(Complex) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
+     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(Complex)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by a real-only number.
+     *
+     * @param  factor Value to be multiplied by this complex number.
+     * @return {@code this * factor}.
+     * @see #multiply(Complex)
+     */
     public Complex multiply(double factor) {
         return applyScalarFunction(factor, ComplexBiFunctions::multiply);
     }
@@ -725,7 +725,7 @@ public final class Complex implements Serializable, DComplex {
      *
      * <p>This method can be used to compute the multiplication of this complex number \( z \)
      * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
-     * {@link #multiply(DComplex) multiply(Complex.I)} with or without {@link #negate() negation}:</p>
+     * {@link #multiply(Complex) multiply(Complex.I)} with or without {@link #negate() negation}:</p>
      *
      * \[ \begin{aligned}
      *    iz &amp;= (-b + i a) \\
@@ -735,15 +735,15 @@ public final class Complex implements Serializable, DComplex {
      * imaginary-only and complex numbers.</p>
      *
      * <p>Note: This method should be preferred over using
-     * {@link #multiply(DComplex) multiply(Complex.ofCartesian(0, factor))}. Multiplication
+     * {@link #multiply(Complex) multiply(Complex.ofCartesian(0, factor))}. Multiplication
      * can generate signed zeros if either {@code this} complex has zeros for the real
      * and/or imaginary component, or if the factor is zero. The summation of signed zeros
-     * in {@link #multiply(DComplex)} may create zeros in the result that differ in sign
+     * in {@link #multiply(Complex)} may create zeros in the result that differ in sign
      * from the equivalent call to multiply by an imaginary-only number.
      *
      * @param  factor Value to be multiplied by this complex number.
      * @return {@code this * factor}.
-     * @see #multiply(DComplex)
+     * @see #multiply(Complex)
      */
     public Complex multiplyImaginary(double factor) {
         return applyScalarFunction(factor, ComplexBiFunctions::multiplyImaginary);
@@ -876,11 +876,11 @@ public final class Complex implements Serializable, DComplex {
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
     public Complex conj() {
-        return this.applyUnaryOperator(ComplexFunctions::conjComplex);
+        return this.applyUnaryOperator(ComplexFunctions::conj);
     }
 
 
-    public Complex applyUnaryOperator(DComplexUnaryOperator operator) {
+    private Complex applyUnaryOperator(DComplexUnaryOperator operator) {
         return (Complex) operator.apply(this, Complex::ofCartesian);
     }
     private Complex multiplyIApplyAndThenMultiplyNegativeI(DComplexUnaryOperator operator) {
@@ -891,15 +891,15 @@ public final class Complex implements Serializable, DComplex {
     }
 
 
-    public double applyToDoubleFunction(DoubleBinaryOperator operator) {
+    private double applyToDoubleFunction(DoubleBinaryOperator operator) {
         return operator.applyAsDouble(this.real, this.imaginary);
     }
 
-    public Complex applyBinaryOperator(DComplex input, DComplexBinaryOperator operator) {
+    private Complex applyBinaryOperator(DComplex input, DComplexBinaryOperator operator) {
         return (Complex) operator.apply(this, input, Complex::ofCartesian);
     }
 
-    public Complex applyScalarFunction(double factor, DComplexScalarFunction operator) {
+    private Complex applyScalarFunction(double factor, DComplexScalarFunction operator) {
         return (Complex) operator.apply(this, factor, Complex::ofCartesian);
     }
 
@@ -993,7 +993,7 @@ public final class Complex implements Serializable, DComplex {
      * @param  x The exponent to which this complex number is to be raised.
      * @return This complex number raised to the power of {@code x}.
      * @see #log()
-     * @see #multiply(DComplex)
+     * @see #multiply(Complex)
      * @see #exp()
      * @see <a href="http://mathworld.wolfram.com/ComplexExponentiation.html">Complex exponentiation</a>
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>

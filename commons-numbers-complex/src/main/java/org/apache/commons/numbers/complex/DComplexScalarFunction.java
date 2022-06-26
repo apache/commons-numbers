@@ -19,11 +19,30 @@ package org.apache.commons.numbers.complex;
 
 import java.util.Objects;
 
+/**
+ * Represents an operation upon two operands of the different type, producing a result.
+ * This is a functional interface whose functional method is apply(DComplex, double).
+ */
 @FunctionalInterface
 public interface DComplexScalarFunction {
+
+    /**
+     * Represents a function that accepts three arguments and produces a result.
+     * @param c Complex number
+     * @param f factor
+     * @param result Constructor
+     * @return DComplex
+     */
     DComplex apply(DComplex c, double f, DComplexConstructor<DComplex> result);
 
-    default <V extends DComplex> DComplexScalarFunction thenApply(DComplexUnaryOperator after) {
+
+    /**
+     * Returns a composed function that first applies this function to its input, and then applies the after function to the result.
+     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
+     * @param after the function to apply after this function is applied
+     * @return a composed function that first applies this function and then applies the after function
+     */
+    default DComplexScalarFunction thenApply(DComplexUnaryOperator after) {
         Objects.requireNonNull(after);
         return (DComplex c, double f, DComplexConstructor<DComplex> out) -> after.apply(apply(c, f, out), out);
 

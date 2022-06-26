@@ -18,6 +18,17 @@ package org.apache.commons.numbers.complex;
 
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * Cartesian representation of a complex number. The complex number is expressed
+ * in the form \( a + ib \) where \( a \) and \( b \) are real numbers and \( i \)
+ * is the imaginary unit which satisfies the equation \( i^2 = -1 \). For the
+ * complex number \( a + ib \), \( a \) is called the <em>real part</em> and
+ * \( b \) is called the <em>imaginary part</em>.
+ *
+ * <p>This class is all the unary arithmetics. All the arithmetics that uses 1 Complex
+ * number to produce a Complex result.
+ * All arithmetic will create a new instance for the result.</p>
+ */
 public final class ComplexFunctions {
 
     /**
@@ -160,51 +171,179 @@ public final class ComplexFunctions {
     private ComplexFunctions() {
     }
 
-    public static DComplex negate(double r, double i, DComplexConstructor<DComplex> result) {
+    private static DComplex negate(double r, double i, DComplexConstructor<DComplex> result) {
         return result.apply(-r, -i);
     }
+    /**
+     * Returns a {@code Complex} whose value is the negation of both the real and imaginary parts
+     * of complex number \( z \).
+     *
+     * <p>\[ \begin{aligned}
+     *       z  &amp;=  a + i b \\
+     *      -z  &amp;= -a - i b \end{aligned} \]
+     *
+     * @param c Complex number
+     * @param result negated Complex number
+     * @return \( -z \).
+     */
     public static DComplex negate(DComplex c, DComplexConstructor<DComplex> result) {
         return negate(c.getReal(), c.getImaginary(), result);
     }
-    public static DComplex multiplyImaginary(double r, double i, DComplexConstructor<DComplex> result) {
+    private static DComplex multiplyImaginary(double r, double i, DComplexConstructor<DComplex> result) {
         return result.apply(-1 * i, r);
     }
+    /**
+     * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
+     * interpreted as an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) id = (-bd) + i (ad) \]
+     *
+     * <p>This method can be used to compute the multiplication of this complex number \( z \)
+     * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
+     * multiply with or without negate :</p>
+     *
+     * \[ \begin{aligned}
+     *    iz &amp;= (-b + i a) \\
+     *   -iz &amp;= (b - i a) \end{aligned} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     * Multiplication can generate signed zeros if either {@code this} complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * may create zeros in the result that differ in sign from the equivalent call to multiply by an imaginary-only number.
+     *
+     * @param c Complex number
+     * @param result multiplied Complex number
+     * @return {@code c * f}.
+     */
     public static DComplex multiplyImaginary(DComplex c, DComplexConstructor<DComplex> result) {
         return multiplyImaginary(c.getReal(), c.getImaginary(), result);
     }
+
+
+    private static boolean isInfinite(double real, double imaginary) {
+        return Double.isInfinite(real) || Double.isInfinite(imaginary);
+    }
+
     /**
      * Returns {@code true} if either real or imaginary component of the complex number is infinite.
      *
      * <p>Note: A complex number with at least one infinite part is regarded
      * as an infinity (even if its other part is a NaN).
-     * @param real
-     * @param imaginary
+     * @param c Complex number
      * @return {@code true} if this instance contains an infinite value.
      * @see Double#isInfinite(double)
      */
-    private static boolean isInfinite(double real, double imaginary) {
-        return Double.isInfinite(real) || Double.isInfinite(imaginary);
-    }
-    public static boolean isInfinite(DComplex c) {
+    private static boolean isInfinite(DComplex c) {
         return isInfinite(c.getReal(), c.getImaginary());
     }
 
+    /**
+     * Returns the projection of this complex number onto the Riemann sphere.
+     *
+     * <p>\( z \) projects to \( z \), except that all complex infinities (even those
+     * with one infinite part and one NaN part) project to positive infinity on the real axis.
+     *
+     * If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
+     *
+     * <pre>return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, z.imag());</pre>
+     *
+     * @param c Complex number
+     * @param result projected Complex number
+     * @return \( z \) projected onto the Riemann sphere.
+     * @see #isInfinite(DComplex)
+     * @see <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
+     * IEEE and ISO C standards: cproj</a>
+     */
     public static DComplex proj(DComplex c, DComplexConstructor<DComplex> result) {
         if (isInfinite(c)) {
             return result.apply(Double.POSITIVE_INFINITY, Math.copySign(0.0, c.getImaginary()));
         }
         return c;
     }
+
+
+    /**
+     * Returns the absolute value of the complex number.
+     * <pre>abs(x + i y) = sqrt(x^2 + y^2)</pre>
+     *
+     * <p>This should satisfy the special cases of the hypot function in ISO C99 F.9.4.3:
+     * "The hypot functions compute the square root of the sum of the squares of x and y,
+     * without undue overflow or underflow."
+     *
+     * <ul>
+     * <li>hypot(x, y), hypot(y, x), and hypot(x, −y) are equivalent.
+     * <li>hypot(x, ±0) is equivalent to |x|.
+     * <li>hypot(±∞, y) returns +∞, even if y is a NaN.
+     * </ul>
+     *
+     * <p>This method is called by all methods that require the absolute value of the complex
+     * number, e.g. abs(), sqrt() and log().
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @return The absolute value.
+     */
     public static double abs(double real, double imaginary) {
         // Specialised implementation of hypot.
         // See NUMBERS-143
         return hypot(real, imaginary);
     }
+
+    /**
+     * Returns the argument of this complex number.
+     *
+     * <p>The argument is the angle phi between the positive real axis and
+     * the point representing this number in the complex plane.
+     * The value returned is between \( -\pi \) (not inclusive)
+     * and \( \pi \) (inclusive), with negative values returned for numbers with
+     * negative imaginary parts.
+     *
+     * <p>If either real or imaginary part (or both) is NaN, then the result is NaN.
+     * Infinite parts are handled as {@linkplain Math#atan2} handles them,
+     * essentially treating finite parts as zero in the presence of an
+     * infinite coordinate and returning a multiple of \( \frac{\pi}{4} \) depending on
+     * the signs of the infinite parts.
+     *
+     * <p>This code follows the
+     * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
+     * in calculating the returned value using the {@code atan2(y, x)} method for complex
+     * \( x + iy \).
+     *
+     * @param r real
+     * @param i imaginary
+     * @return The argument of this complex number.
+     * @see Math#atan2(double, double)
+     */
     public static double arg(double r, double i) {
         // Delegate
         return Math.atan2(i, r);
     }
 
+    /**
+     * Returns the squared norm value of this complex number. This is also called the absolute
+     * square.
+     *
+     * <p>\[ \text{norm}(x + i y) = x^2 + y^2 \]
+     *
+     * <p>If either component is infinite then the result is positive infinity. If either
+     * component is NaN and this is not {@link #isInfinite(DComplex) infinite} then the result is NaN.
+     *
+     * <p>Note: This method may not return the same value as the square of {@link #abs(double, double)} as
+     * that method uses an extended precision computation.
+     *
+     * <p>{@code norm()} can be used as a faster alternative than {@code abs()} for ranking by
+     * magnitude. If used for ranking any overflow to infinity will create an equal ranking for
+     * values that may be still distinguished by {@code abs()}.
+     *
+     * @param real
+     * @param imaginary
+     * @return The square norm value.
+     * @see #isInfinite(DComplex)
+     * @see #abs(double, double)
+     * @see <a href="http://mathworld.wolfram.com/AbsoluteSquare.html">Absolute square</a>
+     */
     public static double norm(double real, double imaginary) {
         if (isInfinite(real, imaginary)) {
             return Double.POSITIVE_INFINITY;
@@ -274,7 +413,7 @@ public final class ComplexFunctions {
      * @see <a href="https://www.netlib.org/fdlibm/e_hypot.c">fdlibm e_hypot.c</a>
      * @see <a href="https://bugs.java.com/bugdatabase/view_bug.do?bug_id=7130085">JDK-7130085 : Port fdlibm hypot to Java</a>
      */
-    public static double hypot(double x, double y) {
+    private static double hypot(double x, double y) {
         // Differences to the fdlibm reference:
         //
         // 1. fdlibm orders the two parts using the magnitude of the upper 32-bits.
@@ -429,7 +568,7 @@ public final class ComplexFunctions {
         return xx - r + yy + yyLow + xxLow + r;
     }
 
-    public static DComplex exp(double r, double i, DComplexConstructor<DComplex> result) {
+    private static DComplex exp(double r, double i, DComplexConstructor<DComplex> result) {
         if (Double.isInfinite(r)) {
             // Set the scale factor applied to cis(y)
             double zeroOrInf;
@@ -486,6 +625,42 @@ public final class ComplexFunctions {
             exp * Math.sin(i));
 
     }
+    /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/ExponentialFunction.html">
+     * exponential function</a> of this complex number.
+     *
+     * <p>\[ \exp(z) = e^z \]
+     *
+     * <p>The exponential function of \( z \) is an entire function in the complex plane.
+     * Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().exp() == z.exp().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns 1 + i0.
+     * <li>If {@code z} is x + i∞ for finite x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
+     * <li>If {@code z} is −∞ + iy for finite y, returns +0 cis(y)
+     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y).
+     * <li>If {@code z} is −∞ + i∞, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).
+     * <li>If {@code z} is −∞ + iNaN, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>Implements the formula:
+     *
+     * <p>\[ \exp(x + iy) = e^x (\cos(y) + i \sin(y)) \]
+     *
+     * @param c Complex number
+     * @param result exponential Complex number
+     * @return The exponential of this complex number.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
+     */
     public static DComplex exp(DComplex c, DComplexConstructor<DComplex> result) {
         return exp(c.getReal(), c.getImaginary(), result);
     }
@@ -528,34 +703,6 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns the largest unbiased exponent used in the representation of the
-     * two numbers. Special cases:
-     *
-     * <ul>
-     * <li>If either argument is NaN or infinite, then the result is
-     * {@link Double#MAX_EXPONENT} + 1.
-     * <li>If both arguments are zero or subnormal, then the result is
-     * {@link Double#MIN_EXPONENT} -1.
-     * </ul>
-     *
-     * <p>This is used by {@link #} as
-     * a simple detection that a number may overflow if multiplied
-     * by a value in the interval [1, 2).
-     *
-     * @param a the first value
-     * @param b the second value
-     * @return The maximum unbiased exponent of the values.
-     * @see Math#getExponent(double)
-     * @see #(double, double, double, double)
-     */
-    static int getMaxExponent(double a, double b) {
-        // This could return:
-        // Math.getExponent(Math.max(Math.abs(a), Math.abs(b)))
-        // A speed test is required to determine performance.
-        return Math.max(Math.getExponent(a), Math.getExponent(b));
-    }
-
-    /**
      * Checks if both x and y are in the region defined by the minimum and maximum.
      *
      * @param x x value.
@@ -580,7 +727,7 @@ public final class ComplexFunctions {
         return d == Double.POSITIVE_INFINITY;
     }
 
-    public static DComplex asin(final double real, final double imaginary,
+    private static DComplex asin(final double real, final double imaginary,
                                 DComplexConstructor<DComplex> result) {
         // Compute with positive values and determine sign at the end
         final double x = Math.abs(real);
@@ -697,11 +844,33 @@ public final class ComplexFunctions {
         return result.apply(changeSign(re, real),
             changeSign(im, imaginary));
     }
+
+
+    /**
+     * Returns the inverse sine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code asinh(z) = -i asin(iz)}.
+     *
+     * <p>Adapted from {@code <boost/math/complex/asin.hpp>}. This method only (and not
+     * invoked methods within) is distributed under the Boost Software License V1.0.
+     * The original notice is shown below and the licence is shown in full in LICENSE:
+     * <pre>
+     * (C) Copyright John Maddock 2005.
+     * Distributed under the Boost Software License, Version 1.0. (See accompanying
+     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
+     * </pre>
+     *
+     * @param c Complex number
+     * @param result asin Complex number.
+     * @return The inverse sine of this complex number.
+     */
     public static DComplex asin(final DComplex c, DComplexConstructor<DComplex> result) {
         return asin(c.getReal(), c.getImaginary(), result);
     }
 
-    public static DComplex acos(final double real, final double imaginary,
+
+    private static DComplex acos(final double real, final double imaginary,
                                 final DComplexConstructor<DComplex> result) {
         // Compute with positive values and determine sign at the end
         final double x = Math.abs(real);
@@ -816,11 +985,31 @@ public final class ComplexFunctions {
         return result.apply(negative(real) ? Math.PI - re : re,
             negative(imaginary) ? im : -im);
     }
+    /**
+     * Returns the inverse cosine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code acosh(z) = +-i acos(z)}.
+     *
+     * <p>Adapted from {@code <boost/math/complex/acos.hpp>}. This method only (and not
+     * invoked methods within) is distributed under the Boost Software License V1.0.
+     * The original notice is shown below and the licence is shown in full in LICENSE:
+     * <pre>
+     * (C) Copyright John Maddock 2005.
+     * Distributed under the Boost Software License, Version 1.0. (See accompanying
+     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
+     * </pre>
+     *
+     * @param c Complex number
+     * @param result acos Complex number
+     * @return The inverse cosine of the complex number.
+     */
     public static DComplex acos(final DComplex c,
                                 final DComplexConstructor<DComplex> result) {
         return acos(c.getReal(), c.getImaginary(), result);
     }
-    public static DComplex acosh(double r, double i, DComplexConstructor<DComplex> result) {
+
+    private static DComplex acosh(double r, double i, DComplexConstructor<DComplex> result) {
         // Define in terms of acos
         // acosh(z) = +-i acos(z)
         // Note the special case:
@@ -840,11 +1029,58 @@ public final class ComplexFunctions {
                 result.apply(im, -re)
         );
     }
+
+    /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html">
+     * inverse hyperbolic cosine</a> of this complex number.
+     *
+     * <p>\[ \cosh^{-1}(z) = \ln \left(z + \sqrt{z + 1} \sqrt{z - 1} \right) \]
+     *
+     * <p>The inverse hyperbolic cosine of \( z \) is in the range \( [0, \infty) \) along the
+     * real axis and in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().acosh() == z.acosh().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns +0 + iπ/2.
+     * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.
+     * <li>If {@code z} is 0 + iNaN, returns NaN + iπ/2 <sup>[1]</sup>.
+     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns +∞ + iπ.
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.
+     * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.
+     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.
+     * <li>If {@code z} is ±∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>Special cases include the technical corrigendum
+     * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * DR 471: Complex math functions cacosh and ctanh</a>.
+     *
+     * <p>The inverse hyperbolic cosine is a multivalued function and requires a branch cut in
+     * the complex plane; the cut is conventionally placed at the line segment
+     * \( (-\infty,-1) \) of the real axis.
+     *
+     * <p>This function is computed using the trigonomic identity:
+     *
+     * <p>\[ \cosh^{-1}(z) = \pm i \cos^{-1}(z) \]
+     *
+     * <p>The sign of the multiplier is chosen to give {@code z.acosh().real() >= 0}
+     * and compatibility with the C99 standard.
+     *
+     * @param c Complex number
+     * @param result acosh Complex number
+     * @return The inverse hyperbolic cosine of this complex number.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
+     */
     public static DComplex acosh(DComplex c, DComplexConstructor<DComplex> result) {
         return acosh(c.getReal(), c.getImaginary(), result);
     }
 
-    public static DComplex atanh(final double r, final double i,
+    private static DComplex atanh(final double r, final double i,
                                  final DComplexConstructor<DComplex> result) {
         // Compute with positive values and determine sign at the end
         double x = Math.abs(r);
@@ -995,27 +1231,53 @@ public final class ComplexFunctions {
         return result.apply(changeSign(re, r),
             changeSign(im, i));
     }
+
+    /**
+     * Returns the inverse hyperbolic tangent of this complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code atan(z) = -i atanh(iz)}.
+     *
+     * <p>Adapted from {@code <boost/math/complex/atanh.hpp>}. This method only (and not
+     * invoked methods within) is distributed under the Boost Software License V1.0.
+     * The original notice is shown below and the licence is shown in full in LICENSE:
+     * <pre>
+     * (C) Copyright John Maddock 2005.
+     * Distributed under the Boost Software License, Version 1.0. (See accompanying
+     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
+     * </pre>
+     *
+     * @param c Complex number
+     * @param result atanh Complex number.
+     * @return The inverse hyperbolic tangent of the complex number.
+     */
     public static DComplex atanh(final DComplex c,
                                  final DComplexConstructor<DComplex> result) {
         return atanh(c.getReal(), c.getImaginary(), result);
     }
-    public static DComplex conj(double r, double i, DComplexConstructor<DComplex> result) {
+    private static DComplex conj(double r, double i, DComplexConstructor<DComplex> result) {
         return result.apply(r, -i);
     }
-    public static DComplex conjComplex(DComplex c, DComplexConstructor<DComplex> result) {
+
+    /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
+     * \( \overline{z} \) of this complex number \( z \).
+     *
+     * <p>\[ \begin{aligned}
+     *                z  &amp;= a + i b \\
+     *      \overline{z} &amp;= a - i b \end{aligned}\]
+     *
+     * @param c Complex number
+     * @param result conjugated Complex number
+     * @return The conjugate (\( \overline{z} \)) of this complex number.
+     */
+    public static DComplex conj(DComplex c, DComplexConstructor<DComplex> result) {
         return conj(c.getReal(), c.getImaginary(), result);
     }
 
 
-    /**
-     * Returns the square root of the complex number {@code sqrt(x + i y)}.
-     *
-     * @param real Real component.
-     * @param imaginary Imaginary component.
-     * @param result ComplexConstructor
-     * @return The square root of the complex number.
-     */
-    public static DComplex sqrt(double real, double imaginary, DComplexConstructor<DComplex> result) {
+    private static DComplex sqrt(double real, double imaginary, DComplexConstructor<DComplex> result) {
         // Handle NaN
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             // Check for infinite
@@ -1107,11 +1369,19 @@ public final class ComplexFunctions {
         }
         return result.apply(y / t, Math.copySign(t / 2, imaginary));
     }
+
+    /**
+     * Returns the square root of the complex number {@code sqrt(x + i y)}.
+     *
+     * @param c Complex number
+     * @param result square rooted Complex number
+     * @return The square root of the complex number.
+     */
     public static DComplex sqrt(DComplex c, DComplexConstructor<DComplex> result) {
         return sqrt(c.getReal(), c.getImaginary(), result);
     }
 
-    public static DComplex sinh(double real, double imaginary, DComplexConstructor<DComplex> result) {
+    private static DComplex sinh(double real, double imaginary, DComplexConstructor<DComplex> result) {
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
             return result.apply(real, Double.NaN);
         }
@@ -1141,21 +1411,22 @@ public final class ComplexFunctions {
         return result.apply(Math.sinh(real) * Math.cos(imaginary),
             Math.cosh(real) * Math.sin(imaginary));
     }
+
+    /**
+     * Returns the hyperbolic sine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code sin(z) = -i sinh(iz)}.<p>
+     *
+     * @param c Complex number
+     * @param result Constructor.
+     * @return The hyperbolic sine of the complex number.
+     */
     public static DComplex sinh(DComplex c, DComplexConstructor<DComplex> result) {
         return sinh(c.getReal(), c.getImaginary(), result);
     }
-        /**
-         * Returns the hyperbolic cosine of the complex number.
-         *
-         * <p>This function exists to allow implementation of the identity
-         * {@code cos(z) = cosh(iz)}.<p>
-         *
-         * @param real Real part.
-         * @param imaginary Imaginary part.
-         * @param result Constructor.
-         * @return The hyperbolic cosine of the complex number.
-         */
-    public static DComplex cosh(double real, double imaginary, DComplexConstructor<DComplex> result) {
+
+    private static DComplex cosh(double real, double imaginary, DComplexConstructor<DComplex> result) {
         // ISO C99: Preserve the even function by mapping to positive
         // f(z) = f(-z)
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
@@ -1191,6 +1462,17 @@ public final class ComplexFunctions {
         return result.apply(Math.cosh(real) * Math.cos(imaginary),
             Math.sinh(real) * Math.sin(imaginary));
     }
+
+    /**
+     * Returns the hyperbolic cosine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code cos(z) = cosh(iz)}.<p>
+     *
+     * @param c Complex number
+     * @param result Constructor.
+     * @return The hyperbolic cosine of the complex number.
+     */
     public static DComplex cosh(DComplex c, DComplexConstructor<DComplex> result) {
         return cosh(c.getReal(), c.getImaginary(), result);
     }
@@ -1254,7 +1536,7 @@ public final class ComplexFunctions {
         return result.apply(re, im);
     }
 
-    public static DComplex tanh(double real, double imaginary, DComplexConstructor<DComplex> result) {
+    private static DComplex tanh(double real, double imaginary, DComplexConstructor<DComplex> result) {
         // Cache the absolute real value
         final double x = Math.abs(real);
 
@@ -1348,6 +1630,17 @@ public final class ComplexFunctions {
         return result.apply(sinhx * coshx / divisor,
             siny * cosy / divisor);
     }
+
+    /**
+     * Returns the hyperbolic tangent of this complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code tan(z) = -i tanh(iz)}.<p>
+     *
+     * @param c Complex number
+     * @param result Constructor.
+     * @return The hyperbolic tangent of the complex number.
+     */
     public static DComplex tanh(DComplex c, DComplexConstructor<DComplex> result) {
         return tanh(c.getReal(), c.getImaginary(), result);
     }
@@ -1510,19 +1803,6 @@ public final class ComplexFunctions {
         return (a - (x - bVirtual)) + (b - bVirtual);
     }
 
-    /**
-     * Sum x^2 + y^2 - 1. It is assumed that {@code y <= x < 1}.
-     *
-     * <p>Implement Shewchuk's expansion-sum algorithm: [x2Low, x2High] + [-1] + [y2Low, y2High].
-     *
-     * @param x2High High part of x^2.
-     * @param x2Low Low part of x^2.
-     * @param y2High High part of y^2.
-     * @param y2Low Low part of y^2.
-     * @return x^2 + y^2 - 1
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
-     * Shewchuk (1997) Theorum 12</a>
-     */
     private static double sumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
         // Let e and f be non-overlapping expansions of components of length m and n.
         // The following algorithm will produce a non-overlapping expansion h where the
@@ -1541,18 +1821,7 @@ public final class ComplexFunctions {
         // until last suffers from 1 ulp rounding errors more often and the requirement
         // for a distillation sum to reduce rounding error frequency.
 
-        // Note: Do not use the alternative fast-expansion-sum of the parts sorted by magnitude.
-        // The parts can be ordered with a single comparison into:
-        // [y2Low, (y2High|x2Low), x2High, -1]
-        // The fast-two-sum saves 1 fast-two-sum and 3 two-sum operations (21 additions) and
-        // adds a penalty of a single branch condition.
-        // However the order in not "strongly non-overlapping" and the fast-expansion-sum
-        // output will not be strongly non-overlapping. The sum of the output has 1 ulp error
-        // on random cis numbers approximately 1 in 160 events. This can be removed by a
-        // distillation two-sum pass over the final expansion as a cost of 1 fast-two-sum and
-        // 3 two-sum operations! So we use the expansion sum with the same operations and
-        // no branches.
-        // q=running sum
+
         double q = x2Low - 1;
         double e1 = fastSumLow(-1, x2Low, q);
         double e3 = q + x2High;
@@ -1603,26 +1872,10 @@ public final class ComplexFunctions {
      * @param constructor Constructor for the returned complex.
      * @return The logarithm of this complex number.
      */
-    public static DComplex log(DComplex c, DComplexConstructor constructor) {
+    public static DComplex log(DComplex c, DComplexConstructor<DComplex> constructor) {
         return log(c.getReal(), c.getImaginary(), constructor);
     }
 
-    /**
-     * Returns the logarithm of this complex number using the provided function.
-     * Implements the formula:
-     *
-     * <pre>
-     *   log(x + i y) = log(|x + i y|) + i arg(x + i y)</pre>
-     *
-     * <p>Warning: The argument {@code logOf2} must be equal to {@code log(2)} using the
-     * provided log function otherwise scaling using powers of 2 in the case of overflow
-     * will be incorrect. This is provided as an internal optimisation.
-     *
-     * @param real real part of input complex number
-     * @param imaginary imaginary part of input complex number
-     * @param constructor Constructor for the returned complex.
-     * @return The logarithm of this complex number.
-     */
     private static DComplex log(double real, double imaginary, DComplexConstructor<DComplex> constructor) {
         return log(Math::log, HALF, LN_2, real, imaginary, constructor);
     }
@@ -1642,26 +1895,11 @@ public final class ComplexFunctions {
      * @param constructor Constructor for the returned complex.
      * @return The logarithm of this complex number.
      */
-    public static DComplex log10(DComplex c, DComplexConstructor constructor) {
+    public static DComplex log10(DComplex c, DComplexConstructor<DComplex> constructor) {
         return log10(c.getReal(), c.getImaginary(), constructor);
     }
 
-    /**
-     * Returns the logarithm of this complex number using the provided function.
-     * Implements the formula:
-     *
-     * <pre>
-     *   log10(x + i y) = log10(|x + i y|) + i arg(x + i y)</pre>
-     *
-     * <p>Warning: The argument {@code logOf2} must be equal to {@code log(2)} using the
-     * provided log function otherwise scaling using powers of 2 in the case of overflow
-     * will be incorrect. This is provided as an internal optimisation.
-     *
-     * @param real real part of input complex number
-     * @param imaginary imaginary part of input complex number
-     * @param constructor Constructor for the returned complex.
-     * @return The logarithm of this complex number.
-     */
+
     private static DComplex log10(double real, double imaginary, DComplexConstructor<DComplex> constructor) {
         return log(Math::log10, LOG_10E_O_2, LOG10_2, real, imaginary, constructor);
     }

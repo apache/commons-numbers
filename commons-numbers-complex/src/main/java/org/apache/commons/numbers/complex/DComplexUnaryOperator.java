@@ -21,38 +21,86 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+/**
+ * Represents a function that accepts one argument and produces a result.
+ * This is a functional interface whose functional method is apply(Object).
+ */
 @FunctionalInterface
 public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
 
 
+    /**
+     * Represents a function that accepts 2 arguments and produces a result.
+     * @param in Complex number
+     * @param out Constructor
+     * @return DComplex
+     */
     DComplex apply(DComplex in, DComplexConstructor<DComplex> out);
 
-
+    /**
+     * Represents a function that accepts 3 arguments and produces a result.
+     * @param r real
+     * @param i imaginary
+     * @param out Constructor
+     * @return DComplex
+     */
     default DComplex apply(double r, double i, DComplexConstructor<DComplex> out) {
         return apply(Complex.ofCartesian(r, i), out);
     }
+
+    /**
+     * Represents a function that accepts an argument and produces a result.
+     * @param c Complex number
+     * @return DComplex
+     */
+    @Override
     default DComplex apply(DComplex c) {
         return apply(c, DComplexConstructor.D_COMPLEX_RESULT);
     }
 
+    /**
+     * Returns a composed function that first applies this function to its input, and then applies the after function to the result.
+     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
+     * @param after the function to apply after this function is applied
+     * @param <V> the type of output of the after function, and of the composed function
+     * @return a composed function that first applies this function and then applies the after function
+     */
     default <V extends DComplex> DComplexUnaryOperator thenApply(Function<? super DComplex, ? extends V> after) {
         Objects.requireNonNull(after);
         return (DComplex c, DComplexConstructor<DComplex> out) -> after.apply(apply(c, out));
 
     }
 
-    default <V extends DComplex> DComplexUnaryOperator thenApply(DComplexUnaryOperator after) {
+    /**
+     * Returns a composed function that first applies this function to its input, and then applies the after UnaryOperator function to the result.
+     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
+     * @param after the function to apply after this function is applied
+     * @return a composed function that first applies this function and then applies the after function
+     */
+    default DComplexUnaryOperator thenApply(DComplexUnaryOperator after) {
         Objects.requireNonNull(after);
         return (DComplex c, DComplexConstructor<DComplex> out) -> after.apply(apply(c, out), out);
 
     }
 
-    default <V extends DComplex> DComplexBinaryOperator thenApplyBinaryOperator(DComplexBinaryOperator after) {
+    /**
+     * Returns a composed function that first applies this function to its input, and then applies the after BinaryOperator function to the result.
+     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
+     * @param after the function to apply after this function is applied
+     * @return a composed function that first applies this function and then applies the after function
+     */
+    default DComplexBinaryOperator thenApplyBinaryOperator(DComplexBinaryOperator after) {
         Objects.requireNonNull(after);
         return (DComplex c1, DComplex c2, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, out), c2, out);
     }
 
-    default <V extends DComplex> DComplexScalarFunction thenApplyScalarFunction(DComplexScalarFunction after) {
+    /**
+     * Returns a composed function that first applies this function to its input, and then applies the after ScalarFunctiom function to the result.
+     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
+     * @param after the function to apply after this function is applied
+     * @return a composed function that first applies this function and then applies the after function
+     */
+    default DComplexScalarFunction thenApplyScalarFunction(DComplexScalarFunction after) {
         Objects.requireNonNull(after);
         return (DComplex c1, double d, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, out), d, out);
     }

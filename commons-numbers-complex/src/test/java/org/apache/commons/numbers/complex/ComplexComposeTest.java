@@ -28,7 +28,7 @@ class ComplexComposeTest {
 
     private static final DComplexUnaryOperator neg = ComplexFunctions::negate;
     private static final DComplexUnaryOperator multiplyImag = ComplexFunctions::multiplyImaginary;
-    private static final DComplexUnaryOperator conj = ComplexFunctions::conjComplex;
+    private static final DComplexUnaryOperator conj = ComplexFunctions::conj;
     private static final DComplexUnaryOperator multiplyImagConj = multiplyImag.thenApply(conj);
     private static final DComplexUnaryOperator conjMultiplyImag = conj.thenApply(multiplyImag);
     private static final DComplexUnaryOperator identity1 = multiplyImagConj.thenApply(multiplyImagConj);

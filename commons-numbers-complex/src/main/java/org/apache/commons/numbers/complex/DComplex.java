@@ -17,11 +17,33 @@
 
 package org.apache.commons.numbers.complex;
 
+/**
+ * Representation of complex number. Contains real and imaginary part and creates Complex
+ * number using real and imaginary part.
+ */
 public interface DComplex {
 
+    /**
+     * Gets the real part \( a \) of complex number \( (a + i b) \).
+     *
+     * @return real part
+     */
     double getReal();
+
+    /**
+     * Gets the imaginary part \( b \) of complex number \( (a + i b) \).
+     *
+     * @return imaginary part
+     */
     double getImaginary();
 
+    /**
+     * Create a complex number given the real and imaginary parts.
+     *
+     * @param r Real part.
+     * @param i Imaginary part.
+     * @return {@code DComplex} number.
+     */
     static DComplex of(double r, double i) {
         return Complex.ofCartesian(r, i);
     }

@@ -17,14 +17,24 @@
 
 package org.apache.commons.numbers.complex;
 
+/**
+ * Define a constructor for a Complex.
+ * @param <R>
+ */
 @FunctionalInterface
-public  interface DComplexConstructor<R> {
+public interface DComplexConstructor<R> {
 
     /**
      * A complex number result representation.
      */
     DComplexConstructor<DComplex> D_COMPLEX_RESULT = DComplex::of;
 
+    /**
+     * Represents a function that accepts two arguments and produces a result.
+     * @param r real part
+     * @param i imaginary part
+     * @return R
+     */
     R apply(double r, double i);
 
 
