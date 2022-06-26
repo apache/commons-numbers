@@ -123,6 +123,7 @@
           <sourceFileExcludes>
             <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
           </sourceFileExcludes>
+          <failOnWarnings>false</failOnWarnings>
         </configuration>
       </plugin>
       <plugin>
@@ -130,12 +131,6 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <excludes>**/jmh_generated/*.java</excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <failOnWarnings>false</failOnWarnings>
         </configuration>
       </plugin>
     </plugins>
@@ -153,6 +148,7 @@
           <sourceFileExcludes>
             <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
           </sourceFileExcludes>
+          <failOnWarnings>false</failOnWarnings>
         </configuration>
       </plugin>
       <plugin>
@@ -160,12 +156,6 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <excludes>**/jmh_generated/*.java</excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <failOnWarnings>false</failOnWarnings>
         </configuration>
       </plugin>
     </plugins>
