@@ -25,12 +25,12 @@ package org.apache.commons.numbers.complex;
 public interface DComplexConstructor<R> {
 
     /**
-     * A complex result constructor that return an instance of {@link Complex}
+     * A complex result constructor that return an instance of {@link Complex}.
      */
     DComplexConstructor<DComplex> D_COMPLEX_RESULT = DComplex::of;
 
     /**
-     * Represents a function that accepts real and imaginary part of complex number and returns an object
+     * Represents a function that accepts real and imaginary part of complex number and returns an object.
      * @param r real part
      * @param i imaginary part
      * @return R
