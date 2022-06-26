@@ -132,7 +132,7 @@ final class BoostTools {
         do {
             nextTerm = func.getAsDouble();
             result += nextTerm;
-        } while ((Math.abs(eps * result) < Math.abs(nextTerm)) && --counter > 0);
+        } while (Math.abs(eps * result) < Math.abs(nextTerm) && --counter > 0);
 
         if (counter <= 0) {
             throw new ArithmeticException(
@@ -189,7 +189,7 @@ final class BoostTools {
             carry = t - result;
             carry -= y;
             result = t;
-        } while ((Math.abs(eps * result) < Math.abs(nextTerm)) && --counter > 0);
+        } while (Math.abs(eps * result) < Math.abs(nextTerm) && --counter > 0);
 
         if (counter <= 0) {
             throw new ArithmeticException(

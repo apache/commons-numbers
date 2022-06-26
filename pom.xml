@@ -58,8 +58,8 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <numbers.pmd.version>3.13.0</numbers.pmd.version>
     <numbers.pmd.dep.version>6.21.0</numbers.pmd.dep.version>
-    <numbers.checkstyle.version>3.1.0</numbers.checkstyle.version>
-    <numbers.checkstyle.dep.version>8.29</numbers.checkstyle.dep.version>
+    <numbers.checkstyle.version>3.1.2</numbers.checkstyle.version>
+    <numbers.checkstyle.dep.version>8.45</numbers.checkstyle.dep.version>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <numbers.junit.bom.version>5.4.2</numbers.junit.bom.version>
     <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
@@ -70,8 +70,7 @@
 
     <!-- Increase from commons-parent -->
     <commons.jacoco.methodRatio>1.00</commons.jacoco.methodRatio>
-    <!-- Set to true when coverage goals are achieved -->
-    <commons.jacoco.haltOnFailure>false</commons.jacoco.haltOnFailure>
+    <commons.jacoco.haltOnFailure>true</commons.jacoco.haltOnFailure>
 
     <!-- Fix to avoid JXR 3.0.0 forking the lifecycle phase 'compile' during site report
        jxr:aggregate. If compile is forked, the dist-archive build fails when attempting
@@ -361,6 +360,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <failOnWarnings>true</failOnWarnings>
           <!--  Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
         </configuration>
@@ -490,6 +490,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <failOnWarnings>true</failOnWarnings>
           <!--  Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
         </configuration>

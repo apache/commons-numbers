@@ -141,8 +141,8 @@ public final class ArithmeticUtils {
     public static long gcd(final long p, final long q) {
         long u = p;
         long v = q;
-        if ((u == 0) || (v == 0)) {
-            if ((u == Long.MIN_VALUE) || (v == Long.MIN_VALUE)) {
+        if (u == 0 || v == 0) {
+            if (u == Long.MIN_VALUE || v == Long.MIN_VALUE) {
                 throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
                                                   p, q);
             }
@@ -460,7 +460,7 @@ public final class ArithmeticUtils {
      * @return true if the argument is a power of two
      */
     public static boolean isPowerOfTwo(long n) {
-        return (n > 0) && ((n & (n - 1)) == 0);
+        return n > 0 && (n & (n - 1)) == 0;
     }
 
     /**

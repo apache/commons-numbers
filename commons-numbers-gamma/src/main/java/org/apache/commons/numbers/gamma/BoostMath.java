@@ -54,7 +54,7 @@ final class BoostMath {
             // Assume log(x) ~ (x - 1) [true when x is close to 1]
             // => |(x-1) * y| < 0.5
 
-            if ((Math.abs(y * (x - 1)) < 0.5) || (Math.abs(y) < 0.2)) {
+            if (Math.abs(y * (x - 1)) < 0.5 || Math.abs(y) < 0.2) {
                 // We don't have any good/quick approximation for log(x) * y
                 // so just try it and see:
                 final double l = y * Math.log(x);

@@ -36,6 +36,9 @@
   <suppress checks="ParameterNumber" files=".*[/\\]BoostBeta\.java" />
   <!-- Method "hashCode()" is defined in the "Angle" parent class; subclasses have no additional fields to include in the hash. -->
   <suppress checks="EqualsHashCode" files=".*[/\\]Angle\.java" />
+  <suppress checks="UnnecessaryParentheses" files=".*[/\\]BrentSolver\.java" />
+  <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostBeta.java" />
+  <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGamma.java" />
 
   <!-- Be more lenient on tests. -->
   <suppress checks="Javadoc" files=".*[/\\]test[/\\].*" />
@@ -48,4 +51,5 @@
   <suppress checks="MethodLength" files=".*/LinearCombination.*Test.java" />
   <suppress checks="FileLengthCheck" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
   <suppress checks="MethodLength" files=".*/BoostBetaTest.java" />
+  <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
 </suppressions>
