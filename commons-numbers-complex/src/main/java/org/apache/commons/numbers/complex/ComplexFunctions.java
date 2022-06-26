@@ -1416,7 +1416,7 @@ public final class ComplexFunctions {
      * Returns the hyperbolic sine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code sin(z) = -i sinh(iz)}.<p>
+     * {@code sin(z) = -i sinh(iz)}.
      *
      * @param c Complex number
      * @param result Constructor.
@@ -1467,7 +1467,7 @@ public final class ComplexFunctions {
      * Returns the hyperbolic cosine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code cos(z) = cosh(iz)}.<p>
+     * {@code cos(z) = cosh(iz)}.
      *
      * @param c Complex number
      * @param result Constructor.
@@ -1635,7 +1635,7 @@ public final class ComplexFunctions {
      * Returns the hyperbolic tangent of this complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code tan(z) = -i tanh(iz)}.<p>
+     * {@code tan(z) = -i tanh(iz)}.
      *
      * @param c Complex number
      * @param result Constructor.
