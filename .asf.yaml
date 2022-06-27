@@ -28,3 +28,6 @@ github:
     - gamma
     - floating-point
     - precision
+
+notifications:
+  jobs:   notifications@commons.apache.org
