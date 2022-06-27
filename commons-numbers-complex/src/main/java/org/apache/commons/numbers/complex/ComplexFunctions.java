@@ -2628,5 +2628,4 @@ public final class ComplexFunctions {
         // All ISO C99 edge cases for the imaginary are satisfied by the Math library.
         return constructor.apply(re, arg(real, imaginary));
     }
-
 }

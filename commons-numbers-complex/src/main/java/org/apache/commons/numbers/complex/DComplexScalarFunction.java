@@ -46,5 +46,4 @@ public interface DComplexScalarFunction {
         return (DComplex c, double f, DComplexConstructor<DComplex> out) -> after.apply(apply(c, f, out), out);
 
     }
-
 }

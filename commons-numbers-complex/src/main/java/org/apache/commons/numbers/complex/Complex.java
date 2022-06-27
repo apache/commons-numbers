@@ -1756,5 +1756,4 @@ public final class Complex implements Serializable, DComplex {
     private static Complex multiplyNegativeI(double real, double imaginary) {
         return new Complex(imaginary, -real);
     }
-
 }

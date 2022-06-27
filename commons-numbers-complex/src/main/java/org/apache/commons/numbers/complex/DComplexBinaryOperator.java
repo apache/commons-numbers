@@ -73,5 +73,4 @@ public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
         return (DComplex c1, DComplex c2, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, c2, out), out);
 
     }
-    
 }

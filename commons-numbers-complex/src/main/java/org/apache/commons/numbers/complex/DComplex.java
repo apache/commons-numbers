@@ -47,5 +47,4 @@ public interface DComplex {
     static DComplex of(double r, double i) {
         return Complex.ofCartesian(r, i);
     }
-
 }

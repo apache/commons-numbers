@@ -1060,5 +1060,4 @@ public final class ComplexBiFunctions {
         final DComplexScalarFunction logMultiplyExp = logMultiply.thenApply(ComplexFunctions::exp);
         return logMultiplyExp.apply(base, exp, constructor);
     }
-
 }
