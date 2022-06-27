@@ -383,8 +383,6 @@ public final class Complex implements Serializable, DComplex {
         return applyToDoubleFunction(ComplexFunctions::abs);
     }
 
-
-
     /**
      * Returns the argument of this complex number.
      *
@@ -410,7 +408,7 @@ public final class Complex implements Serializable, DComplex {
      */
     public double arg() {
         // Delegate
-        return applyToDoubleFunction(ComplexFunctions::arg);
+        return Math.atan2(imaginary, real);
     }
 
     /**
@@ -496,7 +494,7 @@ public final class Complex implements Serializable, DComplex {
      * @return \( -z \).
      */
     public Complex negate() {
-        return this.applyUnaryOperator(ComplexFunctions::negate);
+        return new Complex(-real, -imaginary);
     }
 
     /**
@@ -529,7 +527,8 @@ public final class Complex implements Serializable, DComplex {
      * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
      */
     public Complex add(Complex addend) {
-        return this.applyBinaryOperator(addend, ComplexBiFunctions::add);
+        return new Complex(real + addend.real,
+            imaginary + addend.imaginary);
     }
 
     /**
@@ -553,7 +552,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #ofCartesian(double, double)
      */
     public Complex add(double addend) {
-        return applyScalarFunction(addend, ComplexBiFunctions::add);
+        return new Complex(real + addend, imaginary);
     }
 
     /**
@@ -577,7 +576,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #ofCartesian(double, double)
      */
     public Complex addImaginary(double addend) {
-        return applyScalarFunction(addend, ComplexBiFunctions::addImaginary);
+        return new Complex(real, imaginary + addend);
     }
 
     /**
@@ -591,7 +590,8 @@ public final class Complex implements Serializable, DComplex {
      * @see <a href="http://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
      */
     public Complex subtract(Complex subtrahend) {
-        return this.applyBinaryOperator(subtrahend, ComplexBiFunctions::subtract);
+        return new Complex(real - subtrahend.real,
+            imaginary - subtrahend.imaginary);
     }
 
     /**
@@ -609,7 +609,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #subtract(Complex)
      */
     public Complex subtract(double subtrahend) {
-        return applyScalarFunction(subtrahend, ComplexBiFunctions::subtract);
+        return new Complex(real - subtrahend, imaginary);
     }
 
     /**
@@ -627,7 +627,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #subtract(Complex)
      */
     public Complex subtractImaginary(double subtrahend) {
-        return applyScalarFunction(subtrahend, ComplexBiFunctions::subtractImaginary);
+        return new Complex(real, imaginary - subtrahend);
     }
 
     /**
@@ -650,7 +650,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #ofCartesian(double, double)
      */
     public Complex subtractFrom(double minuend) {
-        return applyScalarFunction(minuend, ComplexBiFunctions::subtractFrom);
+        return new Complex(minuend - real, -imaginary);
     }
 
     /**
@@ -673,8 +673,9 @@ public final class Complex implements Serializable, DComplex {
      * @see #ofCartesian(double, double)
      */
     public Complex subtractFromImaginary(double minuend) {
-        return applyScalarFunction(minuend, ComplexBiFunctions::subtractFromImaginary);
+        return new Complex(-real, minuend - imaginary);
     }
+
     /**
      * Returns a {@code Complex} whose value is {@code this * factor}.
      * Implements the formula:
@@ -713,7 +714,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #multiply(Complex)
      */
     public Complex multiply(double factor) {
-        return applyScalarFunction(factor, ComplexBiFunctions::multiply);
+        return new Complex(real * factor, imaginary * factor);
     }
 
     /**
@@ -746,7 +747,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #multiply(Complex)
      */
     public Complex multiplyImaginary(double factor) {
-        return applyScalarFunction(factor, ComplexBiFunctions::multiplyImaginary);
+        return new Complex(-imaginary * factor, real * factor);
     }
 
     /**
@@ -764,8 +765,6 @@ public final class Complex implements Serializable, DComplex {
     public Complex divide(Complex divisor) {
         return applyBinaryOperator(divisor, ComplexBiFunctions::divide);
     }
-
-
 
     /**
      * Returns a {@code Complex} whose value is {@code (this / divisor)},
@@ -789,7 +788,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #divide(Complex)
      */
     public Complex divide(double divisor) {
-        return applyScalarFunction(divisor, ComplexBiFunctions::divide);
+        return new Complex(real / divisor, imaginary / divisor);
     }
 
     /**
@@ -823,7 +822,7 @@ public final class Complex implements Serializable, DComplex {
      * @see #divide(double)
      */
     public Complex divideImaginary(double divisor) {
-        return applyScalarFunction(divisor, ComplexBiFunctions::divideImaginary);
+        return new Complex(imaginary / divisor, -real / divisor);
     }
 
     /**
@@ -876,34 +875,68 @@ public final class Complex implements Serializable, DComplex {
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
     public Complex conj() {
-        return this.applyUnaryOperator(ComplexFunctions::conj);
+        return new Complex(real, -imaginary);
     }
 
-
+    /**
+     * This operator is used for all Complex operations that only deal with one Complex number.
+     * @param operator DComplexUnaryOperator
+     * @return Complex
+     */
     private Complex applyUnaryOperator(DComplexUnaryOperator operator) {
         return (Complex) operator.apply(this, Complex::ofCartesian);
     }
+
+    /**
+     * This operator is used for all Complex operations that deals with one Complex number
+     * and multiplies the Complex number by i and then -i.
+     * @param operator DComplexUnaryOperator
+     * @return Complex
+     */
     private Complex multiplyIApplyAndThenMultiplyNegativeI(DComplexUnaryOperator operator) {
         return (Complex) operator.apply(-this.imaginary, this.real, Complex::multiplyNegativeI);
     }
+
+    /**
+     * This operator is used for all Complex operations that deals with one Complex number
+     * and multiplies the Complex number by i.
+     * @param operator DComplexUnaryOperator
+     * @return Complex
+     */
     private Complex multiplyIAndApply(DComplexUnaryOperator operator) {
         return (Complex) operator.apply(-this.imaginary, this.real, Complex::ofCartesian);
     }
 
-
+    /**
+     * This operator is used for all Complex operations that deals with one Complex number
+     * but returns a double.
+     * @param operator DoubleBinaryOperator
+     * @return double
+     */
     private double applyToDoubleFunction(DoubleBinaryOperator operator) {
         return operator.applyAsDouble(this.real, this.imaginary);
     }
 
+    /**
+     * This operator is used for all Complex operations that deals with two Complex numbers.
+     * @param operator DComplexBinaryOperator
+     * @param input DComplex
+     * @return Complex
+     */
     private Complex applyBinaryOperator(DComplex input, DComplexBinaryOperator operator) {
         return (Complex) operator.apply(this, input, Complex::ofCartesian);
     }
 
+    /**
+     * This operator is used for all Complex operations that deals with one Complex number
+     * and a scalar factor.
+     * @param operator DComplexScalarFunction
+     * @param factor double
+     * @return Complex
+     */
     private Complex applyScalarFunction(double factor, DComplexScalarFunction operator) {
         return (Complex) operator.apply(this, factor, Complex::ofCartesian);
     }
-
-
 
     /**
      * Returns the
@@ -978,7 +1011,6 @@ public final class Complex implements Serializable, DComplex {
     public Complex log10() {
         return applyUnaryOperator(ComplexFunctions::log10);
     }
-
 
     /**
      * Returns the complex power of this complex number raised to the power of {@code x}.
@@ -1075,8 +1107,6 @@ public final class Complex implements Serializable, DComplex {
         return applyUnaryOperator(ComplexFunctions::sqrt);
     }
 
-
-
     /**
      * Returns the
      * <a href="http://mathworld.wolfram.com/Sine.html">
@@ -1104,7 +1134,6 @@ public final class Complex implements Serializable, DComplex {
         // Multiply this number by I, compute sinh, then multiply by back
         return multiplyIApplyAndThenMultiplyNegativeI(ComplexFunctions::sinh);
     }
-
 
     /**
      * Returns the
@@ -1202,9 +1231,6 @@ public final class Complex implements Serializable, DComplex {
         return applyUnaryOperator(ComplexFunctions::asin);
     }
 
-
-
-
     /**
      * Returns the
      * <a href="http://mathworld.wolfram.com/InverseCosine.html">
@@ -1261,8 +1287,6 @@ public final class Complex implements Serializable, DComplex {
     public Complex acos() {
         return applyUnaryOperator(ComplexFunctions::acos);
     }
-
-
 
     /**
      * Returns the
@@ -1330,8 +1354,6 @@ public final class Complex implements Serializable, DComplex {
         return applyUnaryOperator(ComplexFunctions::sinh);
     }
 
-
-
     /**
      * Returns the
      * <a href="http://mathworld.wolfram.com/HyperbolicCosine.html">
@@ -1370,9 +1392,6 @@ public final class Complex implements Serializable, DComplex {
     public Complex cosh() {
         return applyUnaryOperator(ComplexFunctions::cosh);
     }
-
-
-
 
     /**
      * Returns the
@@ -1421,8 +1440,6 @@ public final class Complex implements Serializable, DComplex {
     public Complex tanh() {
         return applyUnaryOperator(ComplexFunctions::tanh);
     }
-
-
 
     /**
      * Returns the
@@ -1564,10 +1581,6 @@ public final class Complex implements Serializable, DComplex {
     public Complex atanh() {
         return applyUnaryOperator(ComplexFunctions::atanh);
     }
-
-
-
-
 
     /**
      * Returns the n-th roots of this complex number.
@@ -1743,6 +1756,5 @@ public final class Complex implements Serializable, DComplex {
     private static Complex multiplyNegativeI(double real, double imaginary) {
         return new Complex(imaginary, -real);
     }
-
 
 }

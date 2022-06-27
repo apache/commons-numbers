@@ -36,7 +36,6 @@ class ComplexComposeTest {
     private static final DComplexBinaryOperator divide = ComplexBiFunctions::divide;
 
 
-
     @Test
     void testUnaryComposing() {
         Random random = new Random();
@@ -69,4 +68,5 @@ class ComplexComposeTest {
         Assertions.assertEquals(2.0 / 61.0, res.imag());
         Assertions.assertEquals(res, res2);
     }
+
 }

@@ -35,7 +35,6 @@ public interface DComplexScalarFunction {
      */
     DComplex apply(DComplex c, double f, DComplexConstructor<DComplex> result);
 
-
     /**
      * Returns a composed scalar function that first applies this function to its input, and then applies the after function to the result.
      * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
@@ -47,4 +46,5 @@ public interface DComplexScalarFunction {
         return (DComplex c, double f, DComplexConstructor<DComplex> out) -> after.apply(apply(c, f, out), out);
 
     }
+
 }

@@ -90,4 +90,5 @@ public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
         Objects.requireNonNull(after);
         return (DComplex c1, double d, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, out), d, out);
     }
+
 }

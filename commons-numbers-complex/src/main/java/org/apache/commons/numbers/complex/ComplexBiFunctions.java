@@ -31,8 +31,9 @@ package org.apache.commons.numbers.complex;
 public final class ComplexBiFunctions {
 
 
-
-
+    /**
+     * Private constructor for utility class.
+     */
     private ComplexBiFunctions() {
 
     }
@@ -55,6 +56,7 @@ public final class ComplexBiFunctions {
     private static double boxInfinity(double component) {
         return Math.copySign(Double.isInfinite(component) ? 1.0 : 0.0, component);
     }
+
     /**
      * Checks if the complex number is not zero.
      *
@@ -79,20 +81,35 @@ public final class ComplexBiFunctions {
         return Double.isNaN(value) ? Math.copySign(0.0, value) : value;
     }
 
+    /**
+     * Returns a {@code Complex} whose value is determined by adding the real
+     * and imaginary parts of both Complex numbers.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) + (c + i d) = (a + c) + i (b + d) \]
+     *
+     * @param r1 real 1
+     * @param i1 imaginary 2
+     * @param r2 real 2
+     * @param i2 imaginary 2
+     * @param result Constructor
+     * @return DComplex
+     * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
+     */
     private static DComplex add(double r1, double i1,
                                double r2, double i2, DComplexConstructor<DComplex> result) {
         return result.apply(r1 + r2, i1 + i2);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this + addend)}.
+     * Returns a {@code Complex} whose value is {@code (c1 + c2)}.
      * Implements the formula:
      *
      * <p>\[ (a + i b) + (c + i d) = (a + c) + i (b + d) \]
      *
      * @param c1 Complex number 1
      * @param c2 Complex number 2
-     * @param result added Complex number.
+     * @param result Constructor
      * @return {@code c1 + c2}.
      * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
      */
@@ -101,7 +118,23 @@ public final class ComplexBiFunctions {
         return add(c1.real(), c1.imag(), c2.real(), c2.imag(), result);
     }
 
-
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real and
+     * imaginary parts of both Complex numbers.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b)(c + i d) = (ac - bd) + i (ad + bc) \]
+     *
+     * <p>Recalculates to recover infinities as specified in C99 standard G.5.1.
+     *
+     * @param r1 real 1
+     * @param i1 imaginary 2
+     * @param r2 real 2
+     * @param i2 imaginary 2
+     * @param result Constructor
+     * @return DComplex
+     * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
+     */
     private static DComplex multiply(double r1, double i1,
                                     double r2, double i2, DComplexConstructor<DComplex> result) {
         double a = r1;
@@ -168,8 +201,9 @@ public final class ComplexBiFunctions {
         }
         return result.apply(x, y);
     }
+
     /**
-     * Returns a {@code Complex} whose value is {@code this * factor}.
+     * Returns a {@code Complex} whose value is {@code c1 * c2}.
      * Implements the formula:
      *
      * <p>\[ (a + i b)(c + i d) = (ac - bd) + i (ad + bc) \]
@@ -178,7 +212,7 @@ public final class ComplexBiFunctions {
      *
      * @param c1 Complex number 1
      * @param c2 Complex number 2
-     * @param result multiplied Complex number.
+     * @param result Constructor
      * @return {@code c1 * c2}.
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
@@ -187,7 +221,23 @@ public final class ComplexBiFunctions {
         return multiply(c1.real(), c1.imag(), c2.real(), c2.imag(), result);
     }
 
-
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real and
+     * imaginary parts of both Complex numbers.
+     * Implements the formula:
+     *
+     * <p>\[ \frac{a + i b}{c + i d} = \frac{(ac + bd) + i (bc - ad)}{c^2+d^2} \]
+     *
+     * <p>Re-calculates NaN result values to recover infinities as specified in C99 standard G.5.1.
+     *
+     * @param re1 real 1
+     * @param im1 imaginary 2
+     * @param re2 real 2
+     * @param im2 imaginary 2
+     * @param result Constructor
+     * @return DComplex
+     * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
+     */
     private static DComplex divide(double re1, double im1,
                                   double re2, double im2, DComplexConstructor<DComplex> result) {
         double a = re1;
@@ -248,7 +298,7 @@ public final class ComplexBiFunctions {
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this / divisor)}.
+     * Returns a {@code Complex} whose value is {@code (c1 / c2)}.
      * Implements the formula:
      *
      * <p>\[ \frac{a + i b}{c + i d} = \frac{(ac + bd) + i (bc - ad)}{c^2+d^2} \]
@@ -257,7 +307,7 @@ public final class ComplexBiFunctions {
      *
      * @param c1 Complex number 1
      * @param c2 Complex number 2
-     * @param result divided Complex number.
+     * @param result Constructor
      * @return {@code c1 / c2}.
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
@@ -265,9 +315,6 @@ public final class ComplexBiFunctions {
                                   DComplexConstructor<DComplex> result) {
         return divide(c1.real(), c1.imag(), c2.real(), c2.imag(), result);
     }
-
-
-
 
     /**
      * Returns a scale suitable for use with {@link Math#scalb(double, int)} to normalise
@@ -358,10 +405,32 @@ public final class ComplexBiFunctions {
         return Math.max(Math.getExponent(a), Math.getExponent(b));
     }
 
-
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code addend} interpreted as a real number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) + c = (a + c) + i b \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method preserves the sign of the imaginary component \( b \) if it is {@code -0.0}.
+     * The sign would be lost if adding \( (c + i 0) \) using
+     * {@link #add(DComplex, DComplex, DComplexConstructor) add(Complex.ofCartesian(addend, 0))} since
+     * {@code -0.0 + 0.0 = 0.0}.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param a Value to be added to this complex number.
+     * @param result Constructor
+     * @return DComplex
+     * @see  #add(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex add(double r, double i, double a, DComplexConstructor<DComplex> result) {
         return result.apply(r + a, i);
     }
+
     /**
      * Returns a {@code Complex} whose value is {@code (this + addend)},
      * with {@code addend} interpreted as a real number.
@@ -379,7 +448,7 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param a Value to be added to this complex number.
-     * @param result added Complex number
+     * @param result Constructor
      * @return {@code c + addend}.
      * @see  #add(DComplex, DComplex, DComplexConstructor)
      */
@@ -387,11 +456,34 @@ public final class ComplexBiFunctions {
         return add(c.real(), c.imag(), a, result);
     }
 
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code addend} interpreted as an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) + i d = a + i (b + d) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method preserves the sign of the real component \( a \) if it is {@code -0.0}.
+     * The sign would be lost if adding \( (0 + i d) \) using
+     * {@link #add(DComplex, DComplex, DComplexConstructor) add(Complex.ofCartesian(0, addend))} since
+     * {@code -0.0 + 0.0 = 0.0}.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param a Value to be added to this complex number.
+     * @param result Constructor
+     * @return DComplex
+     * @see #add(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex addImaginary(double r, double i, double a, DComplexConstructor<DComplex> result) {
         return result.apply(r, i + a);
     }
+
     /**
-     * Returns a {@code Complex} whose value is {@code (this + addend)},
+     * Returns a {@code Complex} whose value is {@code (c + addend)},
      * with {@code addend} interpreted as an imaginary number.
      * Implements the formula:
      *
@@ -407,20 +499,38 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param a Value to be added to this complex number.
-     * @param result added Complex number
-     * @return {@code this + addend}.
+     * @param result Constructor
+     * @return {@code c + addend}.
      * @see #add(DComplex, DComplex, DComplexConstructor)
      */
     public static DComplex addImaginary(DComplex c, double a,
                                         DComplexConstructor<DComplex> result) {
         return addImaginary(c.real(), c.imag(), a, result);
     }
+
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code subtrahend} interpreted as a real number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) - c = (a - c) + i b \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * @param r real
+     * @param i imaginary
+     * @param s Value to be subtracted from this complex number.
+     * @param result Constructor
+     * @return DComplex
+     * @see #subtract(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex subtract(double r, double i, double s, DComplexConstructor<DComplex> result) {
         return result.apply(r - s, i);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
+     * Returns a {@code Complex} whose value is {@code (c - subtrahend)},
      * with {@code subtrahend} interpreted as a real number.
      * Implements the formula:
      *
@@ -431,21 +541,39 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param s Value to be subtracted from this complex number.
-     * @param result subtracted Complex number
-     * @return {@code this - subtrahend}.
+     * @param result Constructor
+     * @return {@code c - subtrahend}.
      * @see #subtract(DComplex, DComplex, DComplexConstructor)
      */
     public static DComplex subtract(DComplex c, double s,
                                     DComplexConstructor<DComplex> result) {
         return subtract(c.real(), c.imag(), s, result);
     }
+
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code subtrahend} interpreted as an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) - i d = a + i (b - d) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * @param r real
+     * @param i imaginary
+     * @param s Value to be subtracted from this complex number.
+     * @param result Constructor
+     * @return DComplex
+     * @see #subtract(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex subtractImaginary(double r, double i, double s,
                                              DComplexConstructor<DComplex> result) {
         return result.apply(r, i - s);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
+     * Returns a {@code Complex} whose value is {@code (c - subtrahend)},
      * with {@code subtrahend} interpreted as an imaginary number.
      * Implements the formula:
      *
@@ -456,8 +584,8 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param s Value to be subtracted from this complex number.
-     * @param result subtracted Complex number
-     * @return {@code this - subtrahend}.
+     * @param result Constructor
+     * @return {@code c - subtrahend}.
      * @see #subtract(DComplex, DComplex, DComplexConstructor)
      */
     public static DComplex subtractImaginary(DComplex c, double s,
@@ -465,13 +593,34 @@ public final class ComplexBiFunctions {
         return subtractImaginary(c.real(), c.imag(), s, result);
     }
 
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code minuend} interpreted as a real number.
+     * Implements the formula:
+     * \[ c - (a + i b) = (c - a) - i b \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method inverts the sign of the imaginary component \( b \) if it is {@code 0.0}.
+     * The sign would not be inverted if subtracting from \( c + i 0 \) using
+     * {@link #subtract(DComplex, DComplex, DComplexConstructor) Complex.ofCartesian(minuend, 0).subtract(this)} since
+     * {@code 0.0 - 0.0 = 0.0}.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param m Value this complex number is to be subtracted from.
+     * @param result Constructor
+     * @return DComplex
+     * @see #subtract(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex subtractFrom(double r, double i, double m,
                                         DComplexConstructor<DComplex> result) {
         return result.apply(m - r, -i);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (minuend - this)},
+     * Returns a {@code Complex} whose value is {@code (minuend - c)},
      * with {@code minuend} interpreted as a real number.
      * Implements the formula:
      * \[ c - (a + i b) = (c - a) - i b \]
@@ -486,8 +635,8 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param m Value this complex number is to be subtracted from.
-     * @param result subtracted Complex number
-     * @return {@code minuend - this}.
+     * @param result Constructor
+     * @return {@code minuend - c}.
      * @see #subtract(DComplex, DComplex, DComplexConstructor)
      */
     public static DComplex subtractFrom(DComplex c, double m,
@@ -495,13 +644,34 @@ public final class ComplexBiFunctions {
         return subtractFrom(c.real(), c.imag(), m, result);
     }
 
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code minuend} interpreted as an imaginary number.
+     * Implements the formula:
+     * \[ i d - (a + i b) = -a + i (d - b) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method inverts the sign of the real component \( a \) if it is {@code 0.0}.
+     * The sign would not be inverted if subtracting from \( 0 + i d \) using
+     * {@link #subtract(DComplex, DComplex, DComplexConstructor) Complex.ofCartesian(0, minuend).subtract(this)} since
+     * {@code 0.0 - 0.0 = 0.0}.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param m Value this complex number is to be subtracted from.
+     * @param result Constructor
+     * @return DComplex
+     * @see #subtract(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex subtractFromImaginary(double r, double i, double m,
                                                  DComplexConstructor<DComplex> result) {
         return result.apply(-r, m - i);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
+     * Returns a {@code Complex} whose value is {@code (c - subtrahend)},
      * with {@code minuend} interpreted as an imaginary number.
      * Implements the formula:
      * \[ i d - (a + i b) = -a + i (d - b) \]
@@ -516,7 +686,7 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param m Value this complex number is to be subtracted from.
-     * @param result subtracted Complex number
+     * @param result Constructor
      * @return {@code c - m}.
      * @see #subtract(DComplex, DComplex, DComplexConstructor)
      */
@@ -525,12 +695,36 @@ public final class ComplexBiFunctions {
         return subtractFromImaginary(c.real(), c.imag(), m, result);
     }
 
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code factor} interpreted as a real number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) c =  (ac) + i (bc) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(DComplex, DComplex, DComplexConstructor) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
+     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(DComplex, DComplex, DComplexConstructor)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by a real-only number.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param f Value this complex number is to being multiplied with.
+     * @param result Constructor
+     * @return DComplex
+     * @see #multiply(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex multiply(double r, double i, double f, DComplexConstructor<DComplex> result) {
         return result.apply(r * f, i * f);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
+     * Returns a {@code Complex} whose value is {@code c * factor}, with {@code factor}
      * interpreted as a real number.
      * Implements the formula:
      *
@@ -548,7 +742,7 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param f Value this complex number is to being multiplied with.
-     * @param result multiplied Complex number
+     * @param result Constructor
      * @return {@code c * factor}.
      * @see #multiply(DComplex, DComplex, DComplexConstructor)
      */
@@ -556,13 +750,45 @@ public final class ComplexBiFunctions {
         return multiply(c.real(), c.imag(), f, result);
     }
 
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code factor} interpreted as an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) id = (-bd) + i (ad) \]
+     *
+     * <p>This method can be used to compute the multiplication of this complex number \( z \)
+     * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
+     * {@link #multiply(DComplex, DComplex, DComplexConstructor) multiply(Complex.I)} with or without negate :</p>
+     *
+     * \[ \begin{aligned}
+     *    iz &amp;= (-b + i a) \\
+     *   -iz &amp;= (b - i a) \end{aligned} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(DComplex, DComplex, DComplexConstructor) multiply(Complex.ofCartesian(0, factor))}. Multiplication
+     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(DComplex, DComplex, DComplexConstructor)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by an imaginary-only number.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param f Value to be multiplied by this complex number.
+     * @param result Constructor
+     * @return DComplex
+     * @see #multiply(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex multiplyImaginary(double r, double i, double f,
                                              DComplexConstructor<DComplex> result) {
         return result.apply(-i * f, r * f);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
+     * Returns a {@code Complex} whose value is {@code c * factor}, with {@code factor}
      * interpreted as an imaginary number.
      * Implements the formula:
      *
@@ -587,8 +813,8 @@ public final class ComplexBiFunctions {
      * from the equivalent call to multiply by an imaginary-only number.
      *
      * @param c Complex number
-     * @param  f Value to be multiplied by this complex number.
-     * @param result multiplied Complex number
+     * @param f Value to be multiplied by this complex number.
+     * @param result Constructor
      * @return {@code c * f}.
      * @see #multiply(DComplex, DComplex, DComplexConstructor)
      */
@@ -597,13 +823,37 @@ public final class ComplexBiFunctions {
         return multiplyImaginary(c.real(), c.imag(), f, result);
     }
 
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code divisor} interpreted as a real number.
+     * Implements the formula:
+     *
+     * <p>\[ \frac{a + i b}{c} = \frac{a}{c} + i \frac{b}{c} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #divide(DComplex, DComplex, DComplexConstructor) divide(Complex.ofCartesian(divisor, 0))}. Division
+     * can generate signed zeros if {@code this} complex has zeros for the real
+     * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
+     * in {@link #divide(DComplex, DComplex, DComplexConstructor)} may create zeros in the result that differ in sign
+     * from the equivalent call to divide by a real-only number.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param d Value by which this complex number is to be divided.
+     * @param result Constructor
+     * @return DComplex
+     * @see #divide(DComplex, DComplex, DComplexConstructor)
+     */
     private static DComplex divide(double r, double i, double d,
                                   DComplexConstructor<DComplex> result) {
         return result.apply(r / d, i / d);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this / divisor)},
+     * Returns a {@code Complex} whose value is {@code (c / divisor)},
      * with {@code divisor} interpreted as a real number.
      * Implements the formula:
      *
@@ -621,7 +871,7 @@ public final class ComplexBiFunctions {
      *
      * @param c Complex number
      * @param d Value by which this complex number is to be divided.
-     * @param result divided Complex number
+     * @param result Constructor
      * @return {@code c / d}.
      * @see #divide(DComplex, DComplex, DComplexConstructor)
      */
@@ -630,14 +880,46 @@ public final class ComplexBiFunctions {
         return divide(c.real(), c.imag(), d, result);
     }
 
-
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real
+     * and imaginary part of the Complex number, with {@code divisor} interpreted as an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ \frac{a + i b}{id} = \frac{b}{d} - i \frac{a}{d} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #divide(DComplex, DComplex, DComplexConstructor) divide(Complex.ofCartesian(0, divisor))}. Division
+     * can generate signed zeros if {@code this} complex has zeros for the real
+     * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
+     * in {@link #divide(DComplex, DComplex, DComplexConstructor)} may create zeros in the result that differ in sign
+     * from the equivalent call to divide by an imaginary-only number.
+     *
+     * <p>Warning: This method will generate a different result from
+     * {@link #divide(DComplex, DComplex, DComplexConstructor) divide(Complex.ofCartesian(0, divisor))} if the divisor is zero.
+     * In this case the divide method using a zero-valued Complex will produce the same result
+     * as dividing by a real-only zero. The output from dividing by imaginary zero will create
+     * infinite and NaN values in the same component parts as the output from
+     * {@code this.divide(Complex.ZERO).multiplyImaginary(1)}, however the sign
+     * of some infinite values may be negated.
+     *
+     * @param r real
+     * @param i imaginary
+     * @param d Value by which this complex number is to be divided.
+     * @param result Constructor
+     * @return DComplex
+     * @see #divide(DComplex, DComplex, DComplexConstructor)
+     * @see #divide(DComplex, double, DComplexConstructor)
+     */
     private static DComplex divideImaginary(double r, double i, double d,
                                            DComplexConstructor<DComplex> result) {
         return result.apply(i / d, -r / d);
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this / divisor)},
+     * Returns a {@code Complex} whose value is {@code (c / divisor)},
      * with {@code divisor} interpreted as an imaginary number.
      * Implements the formula:
      *
@@ -662,8 +944,8 @@ public final class ComplexBiFunctions {
      * of some infinite values may be negated.
      *
      * @param c Complex number
-     * @param  d Value by which this complex number is to be divided.
-     * @param result divided Complex number
+     * @param d Value by which this complex number is to be divided.
+     * @param result Constructor
      * @return {@code c / d}.
      * @see #divide(DComplex, DComplex, DComplexConstructor)
      * @see #divide(DComplex, double, DComplexConstructor)
@@ -673,7 +955,21 @@ public final class ComplexBiFunctions {
         return divideImaginary(c.real(), c.imag(), d, result);
     }
 
-
+    /**
+     * Returns a {@code Complex} whose value is obtained using the real and
+     * imaginary parts of both Complex numbers.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) - (c + i d) = (a - c) + i (b - d) \]
+     *
+     * @param re1 real 1
+     * @param im1 imaginary 1
+     * @param re2 real 2
+     * @param im2 imaginary 2
+     * @param result Constructor
+     * @return {@code c1 - c2}.
+     * @see <a href="http://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
+     */
     private static DComplex subtract(double re1, double im1, double re2, double im2,
                                     DComplexConstructor<DComplex> result) {
         return result.apply(re1 - re2,
@@ -681,14 +977,14 @@ public final class ComplexBiFunctions {
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code (this - subtrahend)}.
+     * Returns a {@code Complex} whose value is {@code (c1 - d2)}.
      * Implements the formula:
      *
      * <p>\[ (a + i b) - (c + i d) = (a - c) + i (b - d) \]
      *
      * @param c1 Complex number 1
      * @param  c2 Complex number 2
-     * @param result subtracted Complex number
+     * @param result Constructor
      * @return {@code c1 - c2}.
      * @see <a href="http://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
      */

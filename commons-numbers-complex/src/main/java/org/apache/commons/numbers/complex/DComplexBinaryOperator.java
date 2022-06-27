@@ -62,7 +62,6 @@ public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
         return apply(c1, c2, DComplexConstructor.D_COMPLEX_RESULT);
     }
 
-
     /**
      * Returns a composed function that first applies this function to its input, and then applies the after function to the result.
      * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
@@ -74,4 +73,5 @@ public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
         return (DComplex c1, DComplex c2, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, c2, out), out);
 
     }
+    
 }
