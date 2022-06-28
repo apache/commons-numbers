@@ -233,7 +233,7 @@ public final class ComplexFunctions {
      * @param r real
      * @param i imaginary
      * @param result Constructor
-     * @return DComplex
+     * @return ComplexDouble
      */
     private static ComplexDouble multiplyImaginary(double r, double i, ComplexConstructor<ComplexDouble> result) {
         return result.apply(-1 * i, r);
@@ -262,7 +262,7 @@ public final class ComplexFunctions {
      *
      * @param c Complex number
      * @param result Constructor
-     * @return DComplex
+     * @return ComplexDouble
      */
     public static ComplexDouble multiplyImaginary(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return multiplyImaginary(c.real(), c.imag(), result);

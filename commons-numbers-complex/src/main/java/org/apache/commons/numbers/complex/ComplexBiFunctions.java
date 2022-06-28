@@ -95,7 +95,7 @@ public final class ComplexBiFunctions {
      * @param r2 real 2
      * @param i2 imaginary 2
      * @param result Constructor
-     * @return DComplex
+     * @return ComplexDouble
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
     private static ComplexDouble multiply(double r1, double i1,
@@ -186,7 +186,7 @@ public final class ComplexBiFunctions {
      * @param i imaginary
      * @param f Value this complex number is to being multiplied with.
      * @param result Constructor
-     * @return DComplex
+     * @return ComplexDouble
      * @see #multiply(ComplexDouble, ComplexDouble, ComplexConstructor)
      */
     private static ComplexDouble multiply(double r, double i, double f, ComplexConstructor<ComplexDouble> result) {
@@ -253,7 +253,7 @@ public final class ComplexBiFunctions {
      * @param re2 real 2
      * @param im2 imaginary 2
      * @param result Constructor
-     * @return DComplex
+     * @return ComplexDouble
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
     private static ComplexDouble divide(double re1, double im1,
@@ -414,7 +414,7 @@ public final class ComplexBiFunctions {
      * @param b the second value
      * @return The maximum unbiased exponent of the values.
      * @see Math#getExponent(double)
-     * @see #(double, double, double, double)
+     * @see #divide(double, double, double, double, ComplexConstructor)
      */
     static int getMaxExponent(double a, double b) {
         // This could return:

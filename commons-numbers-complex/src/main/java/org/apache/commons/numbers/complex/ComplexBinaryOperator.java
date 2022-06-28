@@ -24,7 +24,7 @@ import java.util.function.BinaryOperator;
 /**
  * Represents an operation upon two operands of the same type, producing a result of the same type as the operands.
  * This is a specialization of BinaryOperator for the case where the operands and the result are all of the same type.
- * This is a functional interface whose functional method is apply(DComplex, DComplex).
+ * This is a functional interface whose functional method is apply(ComplexDouble, ComplexDouble).
 */
 @FunctionalInterface
 public interface ComplexBinaryOperator extends BinaryOperator<ComplexDouble> {
@@ -34,7 +34,7 @@ public interface ComplexBinaryOperator extends BinaryOperator<ComplexDouble> {
      * @param c1 Complex number 1
      * @param c2 Complex number 2
      * @param result Constructor
-     * @return DComplex
+     * @return ComplexDouble
      */
     ComplexDouble apply(ComplexDouble c1, ComplexDouble c2, ComplexConstructor<ComplexDouble> result);
 
@@ -45,7 +45,7 @@ public interface ComplexBinaryOperator extends BinaryOperator<ComplexDouble> {
      * @param r2 real 2
      * @param i2 imaginary 2
      * @param out constructor
-     * @return DComplex
+     * @return ComplexDouble
      */
     default ComplexDouble apply(double r1, double i1, double r2, double i2, ComplexConstructor<ComplexDouble> out) {
         return apply(Complex.ofCartesian(r1, i1), Complex.ofCartesian(r2, i2), out);
@@ -55,7 +55,7 @@ public interface ComplexBinaryOperator extends BinaryOperator<ComplexDouble> {
      * Represents an operator that accepts 2 complex operands and produces a result.
      * @param c1 Complex number 1
      * @param c2 Complex number 2
-     * @return DComplex
+     * @return ComplexDouble
      */
     @Override
     default ComplexDouble apply(ComplexDouble c1, ComplexDouble c2) {

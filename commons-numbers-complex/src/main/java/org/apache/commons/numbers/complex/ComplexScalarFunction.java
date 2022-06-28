@@ -21,7 +21,7 @@ import java.util.Objects;
 
 /**
  * Represents an operation upon two operands of the different type, producing a result.
- * This is a functional interface whose functional method is apply(DComplex, double).
+ * This is a functional interface whose functional method is apply(ComplexDouble, double).
  */
 @FunctionalInterface
 public interface ComplexScalarFunction {
@@ -31,7 +31,7 @@ public interface ComplexScalarFunction {
      * @param c Complex number
      * @param f factor
      * @param result Constructor
-     * @return DComplex
+     * @return ComplexDouble
      */
     ComplexDouble apply(ComplexDouble c, double f, ComplexConstructor<ComplexDouble> result);
 

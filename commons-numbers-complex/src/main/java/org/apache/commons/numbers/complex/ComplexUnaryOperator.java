@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 /**
- * Represents a complex operation that accepts a complex number of type DComplex and produces a DComplex result.
+ * Represents a complex operation that accepts a complex number of type ComplexDouble and produces a ComplexDouble result.
  */
 @FunctionalInterface
 public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
@@ -31,7 +31,7 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
      * Represents an operator that accepts a complex number and a complex constructor to produce and return the result.
      * @param in Complex number
      * @param out Constructor
-     * @return DComplex
+     * @return ComplexDouble
      */
     ComplexDouble apply(ComplexDouble in, ComplexConstructor<ComplexDouble> out);
 
@@ -40,7 +40,7 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
      * @param r real
      * @param i imaginary
      * @param out Constructor
-     * @return DComplex
+     * @return ComplexDouble
      */
     default ComplexDouble apply(double r, double i, ComplexConstructor<ComplexDouble> out) {
         return apply(Complex.ofCartesian(r, i), out);
@@ -49,7 +49,7 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
     /**
      * Represents an operator that accepts a complex number and produces a result.
      * @param c Complex number
-     * @return DComplex
+     * @return ComplexDouble
      */
     @Override
     default ComplexDouble apply(ComplexDouble c) {

@@ -34,7 +34,38 @@ class ComplexComposeTest {
     private static final ComplexUnaryOperator identity1 = multiplyImagConj.thenApply(multiplyImagConj);
     private static final ComplexUnaryOperator identity2 = conjMultiplyImag.thenApply(conjMultiplyImag);
     private static final ComplexBinaryOperator divide = ComplexBiFunctions::divide;
+    private static final ComplexScalarFunction pow = ComplexBiFunctions::pow;
 
+    static class ComplexImpl implements ComplexDouble {
+
+        private double real;
+        private double imag;
+
+        ComplexImpl(double r, double i) {
+            real = r;
+            imag = i;
+        }
+
+        @Override
+        public double real() {
+            return 0;
+        }
+
+        @Override
+        public double imag() {
+            return 0;
+        }
+    }
+
+    @Test
+    void testComplexDouble() {
+        Random random = new Random();
+        ComplexDouble z1 = new ComplexImpl(random.nextDouble(), random.nextDouble());
+        ComplexDouble z2 = new ComplexImpl(random.nextDouble(), random.nextDouble());
+        ComplexDouble z3 = z1.applyBinaryOperator(z2, divide);
+        ComplexDouble z4 = z1.applyUnaryOperator(neg);
+        ComplexDouble z5 = z1.applyScalarFunction(0, pow);
+    }
 
     @Test
     void testUnaryComposing() {

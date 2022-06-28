@@ -881,7 +881,7 @@ public final class Complex implements Serializable, ComplexDouble {
     /**
      * This operator is used for all Complex operations that deals with one Complex number
      * and multiplies the Complex number by i and then -i.
-     * @param operator DComplexUnaryOperator
+     * @param operator ComplexUnaryOperator
      * @return Complex
      */
     private Complex multiplyIApplyAndThenMultiplyNegativeI(ComplexUnaryOperator operator) {
@@ -891,7 +891,7 @@ public final class Complex implements Serializable, ComplexDouble {
     /**
      * This operator is used for all Complex operations that deals with one Complex number
      * and multiplies the Complex number by i.
-     * @param operator DComplexUnaryOperator
+     * @param operator ComplexUnaryOperator
      * @return Complex
      */
     private Complex multiplyIAndApply(ComplexUnaryOperator operator) {
@@ -906,17 +906,6 @@ public final class Complex implements Serializable, ComplexDouble {
      */
     private double applyToDoubleFunction(DoubleBinaryOperator operator) {
         return operator.applyAsDouble(this.real, this.imaginary);
-    }
-
-    /**
-     * This operator is used for all Complex operations that deals with one Complex number
-     * and a scalar factor.
-     * @param operator DComplexScalarFunction
-     * @param factor double
-     * @return Complex
-     */
-    private Complex applyScalarFunction(double factor, ComplexScalarFunction operator) {
-        return (Complex) operator.apply(this, factor, Complex::ofCartesian);
     }
 
     /**
@@ -1720,6 +1709,39 @@ public final class Complex implements Serializable, ComplexDouble {
      */
     private static boolean equals(double x, double y) {
         return Double.doubleToLongBits(x) == Double.doubleToLongBits(y);
+    }
+
+    /**
+     * This operator is used for all Complex operations that only deal with one Complex number.
+     * @param operator ComplexUnaryOperator
+     * @return Complex
+     */
+    @Override
+    public Complex applyUnaryOperator(ComplexUnaryOperator operator) {
+        return (Complex)operator.apply(this, Complex::ofCartesian);
+    }
+
+    /**
+     * This operator is used for all Complex operations that deals with two Complex numbers.
+     * @param operator ComplexBinaryOperator
+     * @param input ComplexDouble
+     * @return Complex
+     */
+    @Override
+    public Complex applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
+        return (Complex)operator.apply(this, input, Complex::ofCartesian);
+    }
+
+    /**
+     * This operator is used for all Complex operations that deals with one Complex number
+     * and a scalar factor.
+     * @param operator ComplexScalarFunction
+     * @param factor double
+     * @return Complex
+     */
+    @Override
+    public Complex applyScalarFunction(double factor, ComplexScalarFunction operator) {
+        return (Complex) operator.apply(this, factor, Complex::ofCartesian);
     }
 
     /**

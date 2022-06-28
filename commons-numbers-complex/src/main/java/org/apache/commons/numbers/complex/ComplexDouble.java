@@ -42,7 +42,7 @@ public interface ComplexDouble {
      *
      * @param r Real part.
      * @param i Imaginary part.
-     * @return {@code DComplex} number.
+     * @return {@code ComplexDouble} number.
      */
     static ComplexDouble of(double r, double i) {
         return Complex.ofCartesian(r, i);
@@ -50,20 +50,31 @@ public interface ComplexDouble {
 
     /**
      * This operator is used for all Complex operations that only deal with one Complex number.
-     * @param operator DComplexUnaryOperator
-     * @return Complex
+     * @param operator ComplexUnaryOperator
+     * @return ComplexDouble
      */
-    default Complex applyUnaryOperator(ComplexUnaryOperator operator) {
-        return (Complex) operator.apply(this, Complex::ofCartesian);
+    default ComplexDouble applyUnaryOperator(ComplexUnaryOperator operator) {
+        return operator.apply(this, Complex::ofCartesian);
     }
 
     /**
      * This operator is used for all Complex operations that deals with two Complex numbers.
-     * @param operator DComplexBinaryOperator
-     * @param input DComplex
-     * @return Complex
+     * @param operator ComplexBinaryOperator
+     * @param input ComplexDouble
+     * @return ComplexDouble
      */
-    default Complex applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
-        return (Complex) operator.apply(this, input, Complex::ofCartesian);
+    default ComplexDouble applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
+        return operator.apply(this, input, Complex::ofCartesian);
+    }
+
+    /**
+     * This operator is used for all Complex operations that deals with one Complex number
+     * and a scalar factor.
+     * @param operator ComplexScalarFunction
+     * @param factor double
+     * @return ComplexDouble
+     */
+    default ComplexDouble applyScalarFunction(double factor, ComplexScalarFunction operator) {
+        return operator.apply(this, factor, Complex::ofCartesian);
     }
 }
