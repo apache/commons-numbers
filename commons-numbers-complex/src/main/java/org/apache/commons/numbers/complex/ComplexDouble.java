@@ -21,7 +21,7 @@ package org.apache.commons.numbers.complex;
  * Representation of complex number. Contains real and imaginary part and creates Complex
  * number using real and imaginary part.
  */
-public interface DComplex {
+public interface ComplexDouble {
 
     /**
      * Gets the real part \( a \) of complex number \( (a + i b) \).
@@ -44,7 +44,26 @@ public interface DComplex {
      * @param i Imaginary part.
      * @return {@code DComplex} number.
      */
-    static DComplex of(double r, double i) {
+    static ComplexDouble of(double r, double i) {
         return Complex.ofCartesian(r, i);
+    }
+
+    /**
+     * This operator is used for all Complex operations that only deal with one Complex number.
+     * @param operator DComplexUnaryOperator
+     * @return Complex
+     */
+    default Complex applyUnaryOperator(ComplexUnaryOperator operator) {
+        return (Complex) operator.apply(this, Complex::ofCartesian);
+    }
+
+    /**
+     * This operator is used for all Complex operations that deals with two Complex numbers.
+     * @param operator DComplexBinaryOperator
+     * @param input DComplex
+     * @return Complex
+     */
+    default Complex applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
+        return (Complex) operator.apply(this, input, Complex::ofCartesian);
     }
 }

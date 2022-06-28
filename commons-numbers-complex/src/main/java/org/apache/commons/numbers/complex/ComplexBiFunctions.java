@@ -98,8 +98,8 @@ public final class ComplexBiFunctions {
      * @return DComplex
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
-    private static DComplex multiply(double r1, double i1,
-                                    double r2, double i2, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble multiply(double r1, double i1,
+                                          double r2, double i2, ComplexConstructor<ComplexDouble> result) {
         double a = r1;
         double b = i1;
         double c = r2;
@@ -176,10 +176,10 @@ public final class ComplexBiFunctions {
      * real-only and complex numbers.</p>
      *
      * <p>Note: This method should be preferred over using
-     * {@link #multiply(DComplex, DComplex, DComplexConstructor) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
+     * {@link #multiply(ComplexDouble, ComplexDouble, ComplexConstructor) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
      * can generate signed zeros if either {@code this} complex has zeros for the real
      * and/or imaginary component, or if the factor is zero. The summation of signed zeros
-     * in {@link #multiply(DComplex, DComplex, DComplexConstructor)} may create zeros in the result that differ in sign
+     * in {@link #multiply(ComplexDouble, ComplexDouble, ComplexConstructor)} may create zeros in the result that differ in sign
      * from the equivalent call to multiply by a real-only number.
      *
      * @param r real
@@ -187,9 +187,9 @@ public final class ComplexBiFunctions {
      * @param f Value this complex number is to being multiplied with.
      * @param result Constructor
      * @return DComplex
-     * @see #multiply(DComplex, DComplex, DComplexConstructor)
+     * @see #multiply(ComplexDouble, ComplexDouble, ComplexConstructor)
      */
-    private static DComplex multiply(double r, double i, double f, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble multiply(double r, double i, double f, ComplexConstructor<ComplexDouble> result) {
         return result.apply(r * f, i * f);
     }
 
@@ -204,19 +204,19 @@ public final class ComplexBiFunctions {
      * real-only and complex numbers.</p>
      *
      * <p>Note: This method should be preferred over using
-     * {@link #multiply(DComplex, DComplex, DComplexConstructor) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
+     * {@link #multiply(ComplexDouble, ComplexDouble, ComplexConstructor) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
      * can generate signed zeros if either {@code this} complex has zeros for the real
      * and/or imaginary component, or if the factor is zero. The summation of signed zeros
-     * in {@link #multiply(DComplex, DComplex, DComplexConstructor)} may create zeros in the result that differ in sign
+     * in {@link #multiply(ComplexDouble, ComplexDouble, ComplexConstructor)} may create zeros in the result that differ in sign
      * from the equivalent call to multiply by a real-only number.
      *
      * @param c Complex number
      * @param f Value this complex number is to being multiplied with.
      * @param result Constructor
      * @return {@code c * factor}.
-     * @see #multiply(DComplex, DComplex, DComplexConstructor)
+     * @see #multiply(ComplexDouble, ComplexDouble, ComplexConstructor)
      */
-    public static DComplex multiply(DComplex c, double f, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble multiply(ComplexDouble c, double f, ComplexConstructor<ComplexDouble> result) {
         return multiply(c.real(), c.imag(), f, result);
     }
 
@@ -234,8 +234,8 @@ public final class ComplexBiFunctions {
      * @return {@code c1 * c2}.
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
-    public static DComplex multiply(DComplex c1, DComplex c2,
-                                    DComplexConstructor<DComplex> result) {
+    public static ComplexDouble multiply(ComplexDouble c1, ComplexDouble c2,
+                                         ComplexConstructor<ComplexDouble> result) {
         return multiply(c1.real(), c1.imag(), c2.real(), c2.imag(), result);
     }
 
@@ -256,8 +256,8 @@ public final class ComplexBiFunctions {
      * @return DComplex
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
-    private static DComplex divide(double re1, double im1,
-                                  double re2, double im2, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble divide(double re1, double im1,
+                                        double re2, double im2, ComplexConstructor<ComplexDouble> result) {
         double a = re1;
         double b = im1;
         double c = re2;
@@ -329,8 +329,8 @@ public final class ComplexBiFunctions {
      * @return {@code c1 / c2}.
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
-    public static DComplex divide(DComplex c1, DComplex c2,
-                                  DComplexConstructor<DComplex> result) {
+    public static ComplexDouble divide(ComplexDouble c1, ComplexDouble c2,
+                                       ComplexConstructor<ComplexDouble> result) {
         return divide(c1.real(), c1.imag(), c2.real(), c2.imag(), result);
     }
 
@@ -440,7 +440,8 @@ public final class ComplexBiFunctions {
      * @see <a href="http://mathworld.wolfram.com/ComplexExponentiation.html">Complex exponentiation</a>
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
-    public static DComplex pow(DComplex base, DComplex exp, DComplexConstructor<DComplex> constructor) {
+    public static ComplexDouble pow(ComplexDouble base, ComplexDouble exp,
+                                    ComplexConstructor<ComplexDouble> constructor) {
         if (base.real() == 0 &&
             base.imag() == 0) {
             // This value is zero. Test the other.
@@ -453,9 +454,9 @@ public final class ComplexBiFunctions {
             return Complex.NAN;
         }
 
-        final DComplexUnaryOperator log = ComplexFunctions::log;
-        final DComplexBinaryOperator logMultiply = log.thenApplyBinaryOperator(ComplexBiFunctions::multiply);
-        final DComplexBinaryOperator logMultiplyExp = logMultiply.thenApply(ComplexFunctions::exp);
+        final ComplexUnaryOperator log = ComplexFunctions::log;
+        final ComplexBinaryOperator logMultiply = log.thenApplyBinaryOperator(ComplexBiFunctions::multiply);
+        final ComplexBinaryOperator logMultiplyExp = logMultiply.thenApply(ComplexFunctions::exp);
         return logMultiplyExp.apply(base, exp, constructor);
     }
 
@@ -474,7 +475,7 @@ public final class ComplexBiFunctions {
      * @return {@code base} raised to the power of {@code exp}.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
-    public static DComplex pow(DComplex base, double exp, DComplexConstructor<DComplex> constructor) {
+    public static ComplexDouble pow(ComplexDouble base, double exp, ComplexConstructor<ComplexDouble> constructor) {
         if (base.real() == 0 &&
             base.imag() == 0) {
             // This value is zero. Test the other.
@@ -485,9 +486,9 @@ public final class ComplexBiFunctions {
             // 0 raised to anything else is NaN
             return Complex.NAN;
         }
-        final DComplexUnaryOperator log = ComplexFunctions::log;
-        final DComplexScalarFunction logMultiply = log.thenApplyScalarFunction(ComplexBiFunctions::multiply);
-        final DComplexScalarFunction logMultiplyExp = logMultiply.thenApply(ComplexFunctions::exp);
+        final ComplexUnaryOperator log = ComplexFunctions::log;
+        final ComplexScalarFunction logMultiply = log.thenApplyScalarFunction(ComplexBiFunctions::multiply);
+        final ComplexScalarFunction logMultiplyExp = logMultiply.thenApply(ComplexFunctions::exp);
         return logMultiplyExp.apply(base, exp, constructor);
     }
 }

@@ -39,7 +39,7 @@ public final class ComplexFunctions {
     public static final Complex ZERO = Complex.ZERO;
 
     /** A complex number representing {@code NaN + i NaN}. */
-    public static final DComplex NAN = Complex.NAN;
+    public static final ComplexDouble NAN = Complex.NAN;
 
 
     /** The bit representation of {@code -0.0}. */
@@ -188,7 +188,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return \( -z \).
      */
-    private static DComplex negate(double r, double i, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble negate(double r, double i, ComplexConstructor<ComplexDouble> result) {
         return result.apply(-r, -i);
     }
 
@@ -204,7 +204,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return \( -z \).
      */
-    public static DComplex negate(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble negate(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return negate(c.real(), c.imag(), result);
     }
 
@@ -235,7 +235,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return DComplex
      */
-    private static DComplex multiplyImaginary(double r, double i, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble multiplyImaginary(double r, double i, ComplexConstructor<ComplexDouble> result) {
         return result.apply(-1 * i, r);
     }
 
@@ -264,7 +264,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return DComplex
      */
-    public static DComplex multiplyImaginary(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble multiplyImaginary(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return multiplyImaginary(c.real(), c.imag(), result);
     }
 
@@ -291,7 +291,7 @@ public final class ComplexFunctions {
      * @return {@code true} if this instance contains an infinite value.
      * @see Double#isInfinite(double)
      */
-    private static boolean isInfinite(DComplex c) {
+    private static boolean isInfinite(ComplexDouble c) {
         return isInfinite(c.real(), c.imag());
     }
 
@@ -308,11 +308,11 @@ public final class ComplexFunctions {
      * @param c Complex number
      * @param result projected Complex number
      * @return \( z \) projected onto the Riemann sphere.
-     * @see #isInfinite(DComplex)
+     * @see #isInfinite(ComplexDouble)
      * @see <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
      * IEEE and ISO C standards: cproj</a>
      */
-    public static DComplex proj(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble proj(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         if (isInfinite(c)) {
             return result.apply(Double.POSITIVE_INFINITY, Math.copySign(0.0, c.imag()));
         }
@@ -383,7 +383,7 @@ public final class ComplexFunctions {
      * <p>\[ \text{norm}(x + i y) = x^2 + y^2 \]
      *
      * <p>If either component is infinite then the result is positive infinity. If either
-     * component is NaN and this is not {@link #isInfinite(DComplex) infinite} then the result is NaN.
+     * component is NaN and this is not {@link #isInfinite(ComplexDouble) infinite} then the result is NaN.
      *
      * <p>Note: This method may not return the same value as the square of {@link #abs(double, double)} as
      * that method uses an extended precision computation.
@@ -395,7 +395,7 @@ public final class ComplexFunctions {
      * @param real real part
      * @param imaginary imaginary part
      * @return The square norm value.
-     * @see #isInfinite(DComplex)
+     * @see #isInfinite(ComplexDouble)
      * @see #abs(double, double)
      * @see <a href="http://mathworld.wolfram.com/AbsoluteSquare.html">Absolute square</a>
      */
@@ -676,7 +676,7 @@ public final class ComplexFunctions {
      * @return The exponential of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
-    private static DComplex exp(double r, double i, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble exp(double r, double i, ComplexConstructor<ComplexDouble> result) {
         if (Double.isInfinite(r)) {
             // Set the scale factor applied to cis(y)
             double zeroOrInf;
@@ -770,7 +770,7 @@ public final class ComplexFunctions {
      * @return The exponential of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
-    public static DComplex exp(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble exp(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return exp(c.real(), c.imag(), result);
     }
 
@@ -856,8 +856,8 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The inverse sine of this complex number.
      */
-    private static DComplex asin(final double real, final double imaginary,
-                                DComplexConstructor<DComplex> result) {
+    private static ComplexDouble asin(final double real, final double imaginary,
+                                      ComplexConstructor<ComplexDouble> result) {
         // Compute with positive values and determine sign at the end
         final double x = Math.abs(real);
         final double y = Math.abs(imaginary);
@@ -1014,7 +1014,7 @@ public final class ComplexFunctions {
      * @return The inverse sine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSin/">ArcSin</a>
      */
-    public static DComplex asin(final DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble asin(final ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return asin(c.real(), c.imag(), result);
     }
 
@@ -1038,8 +1038,8 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The inverse cosine of the complex number.
      */
-    private static DComplex acos(final double real, final double imaginary,
-                                final DComplexConstructor<DComplex> result) {
+    private static ComplexDouble acos(final double real, final double imaginary,
+                                      final ComplexConstructor<ComplexDouble> result) {
         // Compute with positive values and determine sign at the end
         final double x = Math.abs(real);
         final double y = Math.abs(imaginary);
@@ -1209,8 +1209,8 @@ public final class ComplexFunctions {
      * @return The inverse cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCos/">ArcCos</a>
      */
-    public static DComplex acos(final DComplex c,
-                                final DComplexConstructor<DComplex> result) {
+    public static ComplexDouble acos(final ComplexDouble c,
+                                     final ComplexConstructor<ComplexDouble> result) {
         return acos(c.real(), c.imag(), result);
     }
 
@@ -1261,7 +1261,7 @@ public final class ComplexFunctions {
      * @return The inverse hyperbolic cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
      */
-    private static DComplex acosh(double r, double i, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble acosh(double r, double i, ComplexConstructor<ComplexDouble> result) {
         // Define in terms of acos
         // acosh(z) = +-i acos(z)
         // Note the special case:
@@ -1328,7 +1328,7 @@ public final class ComplexFunctions {
      * @return The inverse hyperbolic cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
      */
-    public static DComplex acosh(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble acosh(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return acosh(c.real(), c.imag(), result);
     }
 
@@ -1353,8 +1353,8 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The inverse hyperbolic tangent of the complex number.
      */
-    private static DComplex atanh(final double r, final double i,
-                                 final DComplexConstructor<DComplex> result) {
+    private static ComplexDouble atanh(final double r, final double i,
+                                       final ComplexConstructor<ComplexDouble> result) {
         // Compute with positive values and determine sign at the end
         double x = Math.abs(r);
         double y = Math.abs(i);
@@ -1551,8 +1551,8 @@ public final class ComplexFunctions {
      * @return The inverse hyperbolic tangent of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTanh/">ArcTanh</a>
      */
-    public static DComplex atanh(final DComplex c,
-                                 final DComplexConstructor<DComplex> result) {
+    public static ComplexDouble atanh(final ComplexDouble c,
+                                      final ComplexConstructor<ComplexDouble> result) {
         return atanh(c.real(), c.imag(), result);
     }
 
@@ -1570,7 +1570,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
-    private static DComplex conj(double r, double i, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble conj(double r, double i, ComplexConstructor<ComplexDouble> result) {
         return result.apply(r, -i);
     }
 
@@ -1587,7 +1587,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
-    public static DComplex conj(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble conj(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return conj(c.real(), c.imag(), result);
     }
 
@@ -1600,7 +1600,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The square root of the complex number.
      */
-    private static DComplex sqrt(double real, double imaginary, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble sqrt(double real, double imaginary, ComplexConstructor<ComplexDouble> result) {
         // Handle NaN
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             // Check for infinite
@@ -1742,7 +1742,7 @@ public final class ComplexFunctions {
      * @return The square root of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sqrt/">Sqrt</a>
      */
-    public static DComplex sqrt(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble sqrt(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return sqrt(c.real(), c.imag(), result);
     }
 
@@ -1758,7 +1758,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The hyperbolic sine of the complex number.
      */
-    private static DComplex sinh(double real, double imaginary, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble sinh(double real, double imaginary, ComplexConstructor<ComplexDouble> result) {
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
             return result.apply(real, Double.NaN);
         }
@@ -1826,7 +1826,7 @@ public final class ComplexFunctions {
      * @return The hyperbolic sine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sinh/">Sinh</a>
      */
-    public static DComplex sinh(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble sinh(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return sinh(c.real(), c.imag(), result);
     }
 
@@ -1842,7 +1842,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The hyperbolic cosine of the complex number.
      */
-    private static DComplex cosh(double real, double imaginary, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble cosh(double real, double imaginary, ComplexConstructor<ComplexDouble> result) {
         // ISO C99: Preserve the even function by mapping to positive
         // f(z) = f(-z)
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
@@ -1916,7 +1916,7 @@ public final class ComplexFunctions {
      * @return The hyperbolic cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cosh/">Cosh</a>
      */
-    public static DComplex cosh(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble cosh(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return cosh(c.real(), c.imag(), result);
     }
 
@@ -1938,8 +1938,8 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The hyperbolic sine/cosine of the complex number.
      */
-    private static DComplex coshsinh(double x, double real, double imaginary, boolean sinh,
-                                     DComplexConstructor<DComplex> result) {
+    private static ComplexDouble coshsinh(double x, double real, double imaginary, boolean sinh,
+                                          ComplexConstructor<ComplexDouble> result) {
         // Always require the cos and sin.
         double re = Math.cos(imaginary);
         double im = Math.sin(imaginary);
@@ -1992,7 +1992,7 @@ public final class ComplexFunctions {
      * @param result Constructor
      * @return The hyperbolic tangent of the complex number.
      */
-    private static DComplex tanh(double real, double imaginary, DComplexConstructor<DComplex> result) {
+    private static ComplexDouble tanh(double real, double imaginary, ComplexConstructor<ComplexDouble> result) {
         // Cache the absolute real value
         final double x = Math.abs(real);
 
@@ -2133,7 +2133,7 @@ public final class ComplexFunctions {
      * @return The hyperbolic tangent of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
      */
-    public static DComplex tanh(DComplex c, DComplexConstructor<DComplex> result) {
+    public static ComplexDouble tanh(ComplexDouble c, ComplexConstructor<ComplexDouble> result) {
         return tanh(c.real(), c.imag(), result);
     }
 
@@ -2422,7 +2422,7 @@ public final class ComplexFunctions {
      * @see Math#log(double)
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Log/">Log</a>
      */
-    public static DComplex log(DComplex c, DComplexConstructor<DComplex> constructor) {
+    public static ComplexDouble log(ComplexDouble c, ComplexConstructor<ComplexDouble> constructor) {
         return log(c.real(), c.imag(), constructor);
     }
 
@@ -2472,7 +2472,7 @@ public final class ComplexFunctions {
      * @see Math#log(double)
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Log/">Log</a>
      */
-    private static DComplex log(double real, double imaginary, DComplexConstructor<DComplex> constructor) {
+    private static ComplexDouble log(double real, double imaginary, ComplexConstructor<ComplexDouble> constructor) {
         return log(Math::log, HALF, LN_2, real, imaginary, constructor);
     }
 
@@ -2497,7 +2497,7 @@ public final class ComplexFunctions {
      * @return The base 10 logarithm of this complex number.
      * @see Math#log10(double)
      */
-    public static DComplex log10(DComplex c, DComplexConstructor<DComplex> constructor) {
+    public static ComplexDouble log10(ComplexDouble c, ComplexConstructor<ComplexDouble> constructor) {
         return log10(c.real(), c.imag(), constructor);
     }
 
@@ -2523,7 +2523,7 @@ public final class ComplexFunctions {
      * @return The base 10 logarithm of this complex number.
      * @see Math#log10(double)
      */
-    private static DComplex log10(double real, double imaginary, DComplexConstructor<DComplex> constructor) {
+    private static ComplexDouble log10(double real, double imaginary, ComplexConstructor<ComplexDouble> constructor) {
         return log(Math::log10, LOG_10E_O_2, LOG10_2, real, imaginary, constructor);
     }
 
@@ -2547,8 +2547,8 @@ public final class ComplexFunctions {
      * @param constructor Constructor for the returned complex.
      * @return The logarithm of this complex number.
      */
-    private static DComplex log(DoubleUnaryOperator log, double logOfeOver2, double logOf2,
-                                double real, double imaginary, DComplexConstructor<DComplex> constructor) {
+    private static ComplexDouble log(DoubleUnaryOperator log, double logOfeOver2, double logOf2,
+                                     double real, double imaginary, ComplexConstructor<ComplexDouble> constructor) {
         // Handle NaN
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             // Return NaN unless infinite

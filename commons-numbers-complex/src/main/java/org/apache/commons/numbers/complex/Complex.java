@@ -61,7 +61,7 @@ import java.util.function.DoubleBinaryOperator;
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
-public final class Complex implements Serializable, DComplex {
+public final class Complex implements Serializable, ComplexDouble {
     /**
      * A complex number representing \( i \), the square root of \( -1 \).
      *
@@ -879,21 +879,12 @@ public final class Complex implements Serializable, DComplex {
     }
 
     /**
-     * This operator is used for all Complex operations that only deal with one Complex number.
-     * @param operator DComplexUnaryOperator
-     * @return Complex
-     */
-    private Complex applyUnaryOperator(DComplexUnaryOperator operator) {
-        return (Complex) operator.apply(this, Complex::ofCartesian);
-    }
-
-    /**
      * This operator is used for all Complex operations that deals with one Complex number
      * and multiplies the Complex number by i and then -i.
      * @param operator DComplexUnaryOperator
      * @return Complex
      */
-    private Complex multiplyIApplyAndThenMultiplyNegativeI(DComplexUnaryOperator operator) {
+    private Complex multiplyIApplyAndThenMultiplyNegativeI(ComplexUnaryOperator operator) {
         return (Complex) operator.apply(-this.imaginary, this.real, Complex::multiplyNegativeI);
     }
 
@@ -903,7 +894,7 @@ public final class Complex implements Serializable, DComplex {
      * @param operator DComplexUnaryOperator
      * @return Complex
      */
-    private Complex multiplyIAndApply(DComplexUnaryOperator operator) {
+    private Complex multiplyIAndApply(ComplexUnaryOperator operator) {
         return (Complex) operator.apply(-this.imaginary, this.real, Complex::ofCartesian);
     }
 
@@ -918,23 +909,13 @@ public final class Complex implements Serializable, DComplex {
     }
 
     /**
-     * This operator is used for all Complex operations that deals with two Complex numbers.
-     * @param operator DComplexBinaryOperator
-     * @param input DComplex
-     * @return Complex
-     */
-    private Complex applyBinaryOperator(DComplex input, DComplexBinaryOperator operator) {
-        return (Complex) operator.apply(this, input, Complex::ofCartesian);
-    }
-
-    /**
      * This operator is used for all Complex operations that deals with one Complex number
      * and a scalar factor.
      * @param operator DComplexScalarFunction
      * @param factor double
      * @return Complex
      */
-    private Complex applyScalarFunction(double factor, DComplexScalarFunction operator) {
+    private Complex applyScalarFunction(double factor, ComplexScalarFunction operator) {
         return (Complex) operator.apply(this, factor, Complex::ofCartesian);
     }
 

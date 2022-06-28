@@ -24,7 +24,7 @@ import java.util.function.UnaryOperator;
  * Represents a complex operation that accepts a complex number of type DComplex and produces a DComplex result.
  */
 @FunctionalInterface
-public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
+public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
 
 
     /**
@@ -33,7 +33,7 @@ public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
      * @param out Constructor
      * @return DComplex
      */
-    DComplex apply(DComplex in, DComplexConstructor<DComplex> out);
+    ComplexDouble apply(ComplexDouble in, ComplexConstructor<ComplexDouble> out);
 
     /**
      * Represents an operator that accepts real and imaginary parts of a complex number and a complex constructor to produce and return the result.
@@ -42,7 +42,7 @@ public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
      * @param out Constructor
      * @return DComplex
      */
-    default DComplex apply(double r, double i, DComplexConstructor<DComplex> out) {
+    default ComplexDouble apply(double r, double i, ComplexConstructor<ComplexDouble> out) {
         return apply(Complex.ofCartesian(r, i), out);
     }
 
@@ -52,8 +52,8 @@ public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
      * @return DComplex
      */
     @Override
-    default DComplex apply(DComplex c) {
-        return apply(c, DComplexConstructor.D_COMPLEX_RESULT);
+    default ComplexDouble apply(ComplexDouble c) {
+        return apply(c, ComplexConstructor.D_COMPLEX_RESULT);
     }
 
     /**
@@ -62,9 +62,9 @@ public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default DComplexUnaryOperator thenApply(DComplexUnaryOperator after) {
+    default ComplexUnaryOperator thenApply(ComplexUnaryOperator after) {
         Objects.requireNonNull(after);
-        return (DComplex c, DComplexConstructor<DComplex> out) -> after.apply(apply(c, out), out);
+        return (ComplexDouble c, ComplexConstructor<ComplexDouble> out) -> after.apply(apply(c, out), out);
 
     }
 
@@ -75,9 +75,10 @@ public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default DComplexBinaryOperator thenApplyBinaryOperator(DComplexBinaryOperator after) {
+    default ComplexBinaryOperator thenApplyBinaryOperator(ComplexBinaryOperator after) {
         Objects.requireNonNull(after);
-        return (DComplex c1, DComplex c2, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, out), c2, out);
+        return (ComplexDouble c1, ComplexDouble c2, ComplexConstructor<ComplexDouble> out) ->
+            after.apply(apply(c1, out), c2, out);
     }
 
     /**
@@ -86,8 +87,11 @@ public interface DComplexUnaryOperator extends UnaryOperator<DComplex> {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default DComplexScalarFunction thenApplyScalarFunction(DComplexScalarFunction after) {
+    default ComplexScalarFunction thenApplyScalarFunction(ComplexScalarFunction after) {
         Objects.requireNonNull(after);
-        return (DComplex c1, double d, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, out), d, out);
+        return (ComplexDouble c1, double d, ComplexConstructor<ComplexDouble> out) ->
+            after.apply(apply(c1, out), d, out);
     }
+
+
 }

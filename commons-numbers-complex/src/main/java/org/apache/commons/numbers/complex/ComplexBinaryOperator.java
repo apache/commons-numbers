@@ -27,7 +27,7 @@ import java.util.function.BinaryOperator;
  * This is a functional interface whose functional method is apply(DComplex, DComplex).
 */
 @FunctionalInterface
-public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
+public interface ComplexBinaryOperator extends BinaryOperator<ComplexDouble> {
 
     /**
      * Represents an operator that accepts two complex operands and a complex constructor to produce and return the result.
@@ -36,7 +36,7 @@ public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
      * @param result Constructor
      * @return DComplex
      */
-    DComplex apply(DComplex c1, DComplex c2, DComplexConstructor<DComplex> result);
+    ComplexDouble apply(ComplexDouble c1, ComplexDouble c2, ComplexConstructor<ComplexDouble> result);
 
     /**
      * Represents an operator that accepts real and imaginary parts of two complex operands and a complex constructor to produce and return the result.
@@ -47,7 +47,7 @@ public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
      * @param out constructor
      * @return DComplex
      */
-    default DComplex apply(double r1, double i1, double r2, double i2, DComplexConstructor<DComplex> out) {
+    default ComplexDouble apply(double r1, double i1, double r2, double i2, ComplexConstructor<ComplexDouble> out) {
         return apply(Complex.ofCartesian(r1, i1), Complex.ofCartesian(r2, i2), out);
     }
 
@@ -58,8 +58,8 @@ public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
      * @return DComplex
      */
     @Override
-    default DComplex apply(DComplex c1, DComplex c2) {
-        return apply(c1, c2, DComplexConstructor.D_COMPLEX_RESULT);
+    default ComplexDouble apply(ComplexDouble c1, ComplexDouble c2) {
+        return apply(c1, c2, ComplexConstructor.D_COMPLEX_RESULT);
     }
 
     /**
@@ -68,9 +68,10 @@ public interface DComplexBinaryOperator extends BinaryOperator<DComplex> {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default DComplexBinaryOperator thenApply(DComplexUnaryOperator after) {
+    default ComplexBinaryOperator thenApply(ComplexUnaryOperator after) {
         Objects.requireNonNull(after);
-        return (DComplex c1, DComplex c2, DComplexConstructor<DComplex> out) -> after.apply(apply(c1, c2, out), out);
+        return (ComplexDouble c1, ComplexDouble c2, ComplexConstructor<ComplexDouble> out) ->
+            after.apply(apply(c1, c2, out), out);
 
     }
 }

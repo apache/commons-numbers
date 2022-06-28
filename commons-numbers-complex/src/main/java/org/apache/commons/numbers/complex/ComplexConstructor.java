@@ -22,12 +22,12 @@ package org.apache.commons.numbers.complex;
  * @param <R> Generic
  */
 @FunctionalInterface
-public interface DComplexConstructor<R> {
+public interface ComplexConstructor<R> {
 
     /**
      * A complex result constructor that return an instance of {@link Complex}.
      */
-    DComplexConstructor<DComplex> D_COMPLEX_RESULT = DComplex::of;
+    ComplexConstructor<ComplexDouble> D_COMPLEX_RESULT = ComplexDouble::of;
 
     /**
      * Represents a function that accepts real and imaginary part of complex number and returns an object.

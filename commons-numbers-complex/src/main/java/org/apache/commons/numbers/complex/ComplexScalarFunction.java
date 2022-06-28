@@ -24,7 +24,7 @@ import java.util.Objects;
  * This is a functional interface whose functional method is apply(DComplex, double).
  */
 @FunctionalInterface
-public interface DComplexScalarFunction {
+public interface ComplexScalarFunction {
 
     /**
      * Represents a binary function that accepts a Complex and a double operand to produce a Complex result.
@@ -33,7 +33,7 @@ public interface DComplexScalarFunction {
      * @param result Constructor
      * @return DComplex
      */
-    DComplex apply(DComplex c, double f, DComplexConstructor<DComplex> result);
+    ComplexDouble apply(ComplexDouble c, double f, ComplexConstructor<ComplexDouble> result);
 
     /**
      * Returns a composed scalar function that first applies this function to its input, and then applies the after function to the result.
@@ -41,9 +41,9 @@ public interface DComplexScalarFunction {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default DComplexScalarFunction thenApply(DComplexUnaryOperator after) {
+    default ComplexScalarFunction thenApply(ComplexUnaryOperator after) {
         Objects.requireNonNull(after);
-        return (DComplex c, double f, DComplexConstructor<DComplex> out) -> after.apply(apply(c, f, out), out);
+        return (ComplexDouble c, double f, ComplexConstructor<ComplexDouble> out) -> after.apply(apply(c, f, out), out);
 
     }
 }
