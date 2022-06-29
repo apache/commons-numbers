@@ -35,7 +35,7 @@ jobs:
       with:
         distribution: adopt
         java-version: ${{ matrix.java }}
-        cache: 'maven'  
+        cache: 'maven'
     - name: Build with Maven
       # Use the default goal
       if: matrix.java == 8
