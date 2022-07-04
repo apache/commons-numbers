@@ -20,7 +20,6 @@ package org.apache.commons.numbers.complex;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 
-
 /**
  * Represents an operation upon two operands of the same type, producing a result of the same type as the operands.
  * This is a specialization of BinaryOperator for the case where the operands and the result are all of the same type.
@@ -59,7 +58,7 @@ public interface ComplexBinaryOperator extends BinaryOperator<ComplexDouble> {
      */
     @Override
     default ComplexDouble apply(ComplexDouble c1, ComplexDouble c2) {
-        return apply(c1, c2, ComplexConstructor.D_COMPLEX_RESULT);
+        return apply(c1, c2, Complex::ofCartesian);
     }
 
     /**
@@ -68,10 +67,10 @@ public interface ComplexBinaryOperator extends BinaryOperator<ComplexDouble> {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default ComplexBinaryOperator thenApply(ComplexUnaryOperator after) {
+    default ComplexBinaryOperator andThen(ComplexUnaryOperator after) {
         Objects.requireNonNull(after);
         return (ComplexDouble c1, ComplexDouble c2, ComplexConstructor<ComplexDouble> out) ->
-            after.apply(apply(c1, c2, out), out);
+            after.apply(apply(c1, c2, Complex::ofCartesian), out);
 
     }
 }

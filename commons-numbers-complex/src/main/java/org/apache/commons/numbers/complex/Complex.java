@@ -83,7 +83,7 @@ public final class Complex implements Serializable, ComplexDouble {
     public static final Complex ZERO = new Complex(0, 0);
 
     /** A complex number representing {@code NaN + i NaN}. */
-    public static final Complex NAN = new Complex(Double.NaN, Double.NaN);
+    private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -112,7 +112,6 @@ public final class Complex implements Serializable, ComplexDouble {
     private final double imaginary;
     /** The real part. */
     private final double real;
-
 
     /**
      * Private default constructor.
@@ -311,7 +310,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @return The real part.
      */
     @Override
-    public double real() {
+    public double getReal() {
         return real;
     }
 
@@ -321,10 +320,10 @@ public final class Complex implements Serializable, ComplexDouble {
      * <p>This method is the equivalent of the C++ method {@code std::complex::real}.
      *
      * @return The real part.
-     * @see #real()
+     * @see #getReal()
      */
-    public double getReal() {
-        return this.real;
+    public double real() {
+        return getReal();
     }
 
     /**
@@ -333,7 +332,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @return The imaginary part.
      */
     @Override
-    public double imag() {
+    public double getImaginary() {
         return imaginary;
     }
 
@@ -343,10 +342,10 @@ public final class Complex implements Serializable, ComplexDouble {
      * <p>This method is the equivalent of the C++ method {@code std::complex::imag}.
      *
      * @return The imaginary part.
-     * @see #imag()
+     * @see #getImaginary()
      */
-    public double getImaginary() {
-        return imaginary;
+    public double imag() {
+        return getImaginary();
     }
 
     /**
@@ -454,10 +453,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see #equals(Object) Complex.equals(Object)
      */
     public boolean isNaN() {
-        if (Double.isNaN(real) || Double.isNaN(imaginary)) {
-            return !isInfinite();
-        }
-        return false;
+        return ComplexFunctions.isNaN(this);
     }
 
     /**
@@ -470,7 +466,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see Double#isInfinite(double)
      */
     public boolean isInfinite() {
-        return Double.isInfinite(real) || Double.isInfinite(imaginary);
+        return ComplexFunctions.isInfinite(this);
     }
 
     /**
@@ -480,7 +476,22 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see Double#isFinite(double)
      */
     public boolean isFinite() {
-        return Double.isFinite(real) && Double.isFinite(imaginary);
+        return ComplexFunctions.isFinite(this);
+    }
+
+    /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
+     * \( \overline{z} \) of this complex number \( z \).
+     *
+     * <p>\[ \begin{aligned}
+     *                z  &amp;= a + i b \\
+     *      \overline{z} &amp;= a - i b \end{aligned}\]
+     *
+     * @return The conjugate (\( \overline{z} \)) of this complex number.
+     */
+    public Complex conj() {
+        return new Complex(real, -imaginary);
     }
 
     /**
@@ -689,7 +700,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
     public Complex multiply(Complex factor) {
-        return applyBinaryOperator(factor, ComplexBiFunctions::multiply);
+        return applyBinaryOperator(factor, ComplexFunctions::multiply);
     }
 
     /**
@@ -763,7 +774,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
     public Complex divide(Complex divisor) {
-        return applyBinaryOperator(divisor, ComplexBiFunctions::divide);
+        return applyBinaryOperator(divisor, ComplexFunctions::divide);
     }
 
     /**
@@ -860,52 +871,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
     public Complex exp() {
-        return this.applyUnaryOperator(ComplexFunctions::exp);
-    }
-
-    /**
-     * Returns the
-     * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
-     * \( \overline{z} \) of this complex number \( z \).
-     *
-     * <p>\[ \begin{aligned}
-     *                z  &amp;= a + i b \\
-     *      \overline{z} &amp;= a - i b \end{aligned}\]
-     *
-     * @return The conjugate (\( \overline{z} \)) of this complex number.
-     */
-    public Complex conj() {
-        return new Complex(real, -imaginary);
-    }
-
-    /**
-     * This operator is used for all Complex operations that deals with one Complex number
-     * and multiplies the Complex number by i and then -i.
-     * @param operator ComplexUnaryOperator
-     * @return Complex
-     */
-    private Complex multiplyIApplyAndThenMultiplyNegativeI(ComplexUnaryOperator operator) {
-        return (Complex) operator.apply(-this.imaginary, this.real, Complex::multiplyNegativeI);
-    }
-
-    /**
-     * This operator is used for all Complex operations that deals with one Complex number
-     * and multiplies the Complex number by i.
-     * @param operator ComplexUnaryOperator
-     * @return Complex
-     */
-    private Complex multiplyIAndApply(ComplexUnaryOperator operator) {
-        return (Complex) operator.apply(-this.imaginary, this.real, Complex::ofCartesian);
-    }
-
-    /**
-     * This operator is used for all Complex operations that deals with one Complex number
-     * but returns a double.
-     * @param operator DoubleBinaryOperator
-     * @return double
-     */
-    private double applyToDoubleFunction(DoubleBinaryOperator operator) {
-        return operator.applyAsDouble(this.real, this.imaginary);
+        return applyUnaryOperator(ComplexFunctions::exp);
     }
 
     /**
@@ -1001,7 +967,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
     public Complex pow(Complex x) {
-        return applyBinaryOperator(x, ComplexBiFunctions::pow);
+        return applyBinaryOperator(x, ComplexFunctions::pow);
     }
 
     /**
@@ -1023,7 +989,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
     public Complex pow(double x) {
-        return applyScalarFunction(x, ComplexBiFunctions::pow);
+        return applyScalarFunction(x, ComplexFunctions::pow);
     }
 
     /**
@@ -1102,7 +1068,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Define in terms of sinh
         // sin(z) = -i sinh(iz)
         // Multiply this number by I, compute sinh, then multiply by back
-        return multiplyIApplyAndThenMultiplyNegativeI(ComplexFunctions::sinh);
+        return applyUnaryOperator((c, result) -> ComplexFunctions.sin(c));
     }
 
     /**
@@ -1130,7 +1096,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Define in terms of cosh
         // cos(z) = cosh(iz)
         // Multiply this number by I and compute cosh.
-        return multiplyIAndApply(ComplexFunctions::cosh);
+        return applyUnaryOperator(ComplexFunctions::cos);
     }
 
     /**
@@ -1156,7 +1122,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Define in terms of tanh
         // tan(z) = -i tanh(iz)
         // Multiply this number by I, compute tanh, then multiply by back
-        return multiplyIApplyAndThenMultiplyNegativeI(ComplexFunctions::tanh);
+        return applyUnaryOperator((c, result) -> ComplexFunctions.tan(c));
     }
 
     /**
@@ -1282,7 +1248,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Define in terms of atanh
         // atan(z) = -i atanh(iz)
         // Multiply this number by I, compute atanh, then multiply by back
-        return multiplyIApplyAndThenMultiplyNegativeI(ComplexFunctions::atanh);
+        return applyUnaryOperator((c, result) -> ComplexFunctions.atan(c));
     }
 
     /**
@@ -1453,7 +1419,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Note: This is the opposite to the identity defined in the C99 standard:
         // asin(z) = -i asinh(iz)
         // Multiply this number by I, compute asin, then multiply by back
-        return multiplyIApplyAndThenMultiplyNegativeI(ComplexFunctions::asin);
+        return applyUnaryOperator((c, result) -> ComplexFunctions.asinh(c));
     }
 
     /**
@@ -1716,8 +1682,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @param operator ComplexUnaryOperator
      * @return Complex
      */
-    @Override
-    public Complex applyUnaryOperator(ComplexUnaryOperator operator) {
+    private Complex applyUnaryOperator(ComplexUnaryOperator operator) {
         return (Complex)operator.apply(this, Complex::ofCartesian);
     }
 
@@ -1727,8 +1692,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @param input ComplexDouble
      * @return Complex
      */
-    @Override
-    public Complex applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
+    private Complex applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
         return (Complex)operator.apply(this, input, Complex::ofCartesian);
     }
 
@@ -1739,9 +1703,18 @@ public final class Complex implements Serializable, ComplexDouble {
      * @param factor double
      * @return Complex
      */
-    @Override
-    public Complex applyScalarFunction(double factor, ComplexScalarFunction operator) {
+    private Complex applyScalarFunction(double factor, ComplexScalarFunction operator) {
         return (Complex) operator.apply(this, factor, Complex::ofCartesian);
+    }
+
+    /**
+     * This operator is used for all Complex operations that deals with one Complex number
+     * but returns a double.
+     * @param operator DoubleBinaryOperator
+     * @return double
+     */
+    private double applyToDoubleFunction(DoubleBinaryOperator operator) {
+        return operator.applyAsDouble(this.real, this.imaginary);
     }
 
     /**
@@ -1756,7 +1729,7 @@ public final class Complex implements Serializable, ComplexDouble {
      * @param imaginary Imaginary part.
      * @return {@code Complex} object.
      */
-    private static Complex multiplyNegativeI(double real, double imaginary) {
+    public static Complex multiplyNegativeI(double real, double imaginary) {
         return new Complex(imaginary, -real);
     }
 }

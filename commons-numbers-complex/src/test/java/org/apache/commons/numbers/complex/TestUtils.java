@@ -63,8 +63,8 @@ public final class TestUtils {
      * @param actual the actual value
      */
     public static void assertSame(Complex expected, Complex actual) {
-        Assertions.assertEquals(expected.real(), actual.real());
-        Assertions.assertEquals(expected.imag(), actual.imag());
+        Assertions.assertEquals(expected.getReal(), actual.getReal());
+        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary());
     }
 
     /**
@@ -76,8 +76,34 @@ public final class TestUtils {
      * @param delta the delta
      */
     public static void assertEquals(Complex expected, Complex actual, double delta) {
-        Assertions.assertEquals(expected.real(), actual.real(), delta);
-        Assertions.assertEquals(expected.imag(), actual.imag(), delta);
+        Assertions.assertEquals(expected.getReal(), actual.getReal(), delta);
+        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary(), delta);
+    }
+
+    /**
+     * Verifies that real and imaginary parts of the two complex arguments are
+     * exactly the same as defined by {@link Double#compare(double, double)}. Also
+     * ensures that NaN / infinite components match.
+     *
+     * @param expected the expected value
+     * @param actual the actual value
+     */
+    public static void assertSame(ComplexDouble expected, ComplexDouble actual) {
+        Assertions.assertEquals(expected.getReal(), actual.getReal());
+        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary());
+    }
+
+    /**
+     * Verifies that real and imaginary parts of the two complex arguments differ by
+     * at most delta. Also ensures that NaN / infinite components match.
+     *
+     * @param expected the expected value
+     * @param actual the actual value
+     * @param delta the delta
+     */
+    public static void assertEquals(ComplexDouble expected, ComplexDouble actual, double delta) {
+        Assertions.assertEquals(expected.getReal(), actual.getReal(), delta);
+        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary(), delta);
     }
 
     /**
@@ -165,8 +191,8 @@ public final class TestUtils {
      */
     public static void assertContains(String msg, Complex[] values, Complex z, double epsilon) {
         for (final Complex value : values) {
-            if (Precision.equals(value.real(), z.real(), epsilon) &&
-                    Precision.equals(value.imag(), z.imag(), epsilon)) {
+            if (Precision.equals(value.getReal(), z.getReal(), epsilon) &&
+                    Precision.equals(value.getImaginary(), z.getImaginary(), epsilon)) {
                 return;
             }
         }
@@ -225,25 +251,25 @@ public final class TestUtils {
         }
         boolean failure = false;
         for (int i = 0; i < expected.length; i++) {
-            if (!Precision.equalsIncludingNaN(expected[i].real(), observed[i].real(), tolerance)) {
+            if (!Precision.equalsIncludingNaN(expected[i].getReal(), observed[i].getReal(), tolerance)) {
                 failure = true;
                 out.append("\n Real elements at index ");
                 out.append(i);
                 out.append(" differ. ");
                 out.append(" expected = ");
-                out.append(expected[i].real());
+                out.append(expected[i].getReal());
                 out.append(" observed = ");
-                out.append(observed[i].real());
+                out.append(observed[i].getReal());
             }
-            if (!Precision.equalsIncludingNaN(expected[i].imag(), observed[i].imag(), tolerance)) {
+            if (!Precision.equalsIncludingNaN(expected[i].getImaginary(), observed[i].getImaginary(), tolerance)) {
                 failure = true;
                 out.append("\n Imaginary elements at index ");
                 out.append(i);
                 out.append(" differ. ");
                 out.append(" expected = ");
-                out.append(expected[i].imag());
+                out.append(expected[i].getImaginary());
                 out.append(" observed = ");
-                out.append(observed[i].imag());
+                out.append(observed[i].getImaginary());
             }
         }
         if (failure) {

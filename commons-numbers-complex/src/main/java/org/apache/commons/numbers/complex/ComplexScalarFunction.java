@@ -21,15 +21,16 @@ import java.util.Objects;
 
 /**
  * Represents an operation upon two operands of the different type, producing a result.
- * This is a functional interface whose functional method is apply(ComplexDouble, double).
+ * This is a functional interface whose functional method is {@link #apply(ComplexDouble, double, ComplexConstructor)}.
  */
 @FunctionalInterface
 public interface ComplexScalarFunction {
 
     /**
      * Represents a binary function that accepts a Complex and a double operand to produce a Complex result.
-     * @param c Complex number
-     * @param f factor
+     * The result is accepted by the ComplexConstructor.
+     * @param c the first function argument
+     * @param f the second function argument
      * @param result Constructor
      * @return ComplexDouble
      */
@@ -41,9 +42,8 @@ public interface ComplexScalarFunction {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default ComplexScalarFunction thenApply(ComplexUnaryOperator after) {
+    default ComplexScalarFunction andThen(ComplexUnaryOperator after) {
         Objects.requireNonNull(after);
         return (ComplexDouble c, double f, ComplexConstructor<ComplexDouble> out) -> after.apply(apply(c, f, out), out);
-
     }
 }

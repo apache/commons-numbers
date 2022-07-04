@@ -25,18 +25,11 @@ package org.apache.commons.numbers.complex;
 public interface ComplexConstructor<R> {
 
     /**
-     * A complex result constructor that return an instance of {@link Complex}.
-     */
-    ComplexConstructor<ComplexDouble> D_COMPLEX_RESULT = ComplexDouble::of;
-
-    /**
      * Represents a function that accepts real and imaginary part of complex number and returns an object.
-     * @param r real part
-     * @param i imaginary part
+     * @param real real part
+     * @param imaginary imaginary part
      * @return R
      */
-    R apply(double r, double i);
-
-
+    R apply(double real, double imaginary);
 }
 

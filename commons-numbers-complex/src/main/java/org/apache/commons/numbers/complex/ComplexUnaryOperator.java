@@ -26,7 +26,6 @@ import java.util.function.UnaryOperator;
 @FunctionalInterface
 public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
 
-
     /**
      * Represents an operator that accepts a complex number and a complex constructor to produce and return the result.
      * @param in Complex number
@@ -53,7 +52,7 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
      */
     @Override
     default ComplexDouble apply(ComplexDouble c) {
-        return apply(c, ComplexConstructor.D_COMPLEX_RESULT);
+        return apply(c, Complex::ofCartesian);
     }
 
     /**
@@ -62,36 +61,9 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default ComplexUnaryOperator thenApply(ComplexUnaryOperator after) {
+    default ComplexUnaryOperator andThen(ComplexUnaryOperator after) {
         Objects.requireNonNull(after);
-        return (ComplexDouble c, ComplexConstructor<ComplexDouble> out) -> after.apply(apply(c, out), out);
-
+        return (ComplexDouble c, ComplexConstructor<ComplexDouble> out) ->
+            after.apply(apply(c, Complex::ofCartesian), out);
     }
-
-    /**
-     * Returns a composed BinaryOperator that first applies this function to its first binary input,
-     * and then applies the result and the second binary input to the after BinaryOperator to produce the result.
-     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
-     * @param after the function to apply after this function is applied
-     * @return a composed function that first applies this function and then applies the after function
-     */
-    default ComplexBinaryOperator thenApplyBinaryOperator(ComplexBinaryOperator after) {
-        Objects.requireNonNull(after);
-        return (ComplexDouble c1, ComplexDouble c2, ComplexConstructor<ComplexDouble> out) ->
-            after.apply(apply(c1, out), c2, out);
-    }
-
-    /**
-     * Returns a composed scalar function that first applies this function to its input, and then applies the after ScalarFunctiom function to the result.
-     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
-     * @param after the function to apply after this function is applied
-     * @return a composed function that first applies this function and then applies the after function
-     */
-    default ComplexScalarFunction thenApplyScalarFunction(ComplexScalarFunction after) {
-        Objects.requireNonNull(after);
-        return (ComplexDouble c1, double d, ComplexConstructor<ComplexDouble> out) ->
-            after.apply(apply(c1, out), d, out);
-    }
-
-
 }

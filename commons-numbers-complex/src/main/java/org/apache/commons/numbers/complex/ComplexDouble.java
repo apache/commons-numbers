@@ -18,8 +18,11 @@
 package org.apache.commons.numbers.complex;
 
 /**
- * Representation of complex number. Contains real and imaginary part and creates Complex
- * number using real and imaginary part.
+ * Cartesian representation of a complex number. The complex number is expressed
+ * in the form \( a + ib \) where \( a \) and \( b \) are real numbers and \( i \)
+ * is the imaginary unit which satisfies the equation \( i^2 = -1 \). For the
+ * complex number \( a + ib \), \( a \) is called the <em>real part</em> and
+ * \( b \) is called the <em>imaginary part</em>.
  */
 public interface ComplexDouble {
 
@@ -28,53 +31,13 @@ public interface ComplexDouble {
      *
      * @return real part
      */
-    double real();
+    double getReal();
 
     /**
      * Gets the imaginary part \( b \) of complex number \( (a + i b) \).
      *
      * @return imaginary part
      */
-    double imag();
+    double getImaginary();
 
-    /**
-     * Create a complex number given the real and imaginary parts.
-     *
-     * @param r Real part.
-     * @param i Imaginary part.
-     * @return {@code ComplexDouble} number.
-     */
-    static ComplexDouble of(double r, double i) {
-        return Complex.ofCartesian(r, i);
-    }
-
-    /**
-     * This operator is used for all Complex operations that only deal with one Complex number.
-     * @param operator ComplexUnaryOperator
-     * @return ComplexDouble
-     */
-    default ComplexDouble applyUnaryOperator(ComplexUnaryOperator operator) {
-        return operator.apply(this, Complex::ofCartesian);
-    }
-
-    /**
-     * This operator is used for all Complex operations that deals with two Complex numbers.
-     * @param operator ComplexBinaryOperator
-     * @param input ComplexDouble
-     * @return ComplexDouble
-     */
-    default ComplexDouble applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
-        return operator.apply(this, input, Complex::ofCartesian);
-    }
-
-    /**
-     * This operator is used for all Complex operations that deals with one Complex number
-     * and a scalar factor.
-     * @param operator ComplexScalarFunction
-     * @param factor double
-     * @return ComplexDouble
-     */
-    default ComplexDouble applyScalarFunction(double factor, ComplexScalarFunction operator) {
-        return operator.apply(this, factor, Complex::ofCartesian);
-    }
 }
