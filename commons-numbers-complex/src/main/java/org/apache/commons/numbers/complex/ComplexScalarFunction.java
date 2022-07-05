@@ -21,7 +21,7 @@ import java.util.Objects;
 
 /**
  * Represents an operation upon two operands of the different type, producing a result.
- * This is a functional interface whose functional method is {@link #apply(double, double, double, ,ComplexConstructor)}.
+ * This is a functional interface whose functional method is {@link #apply(double, double, double, ComplexConstructor)}.
  * @param <R> Generic
  */
 @FunctionalInterface
