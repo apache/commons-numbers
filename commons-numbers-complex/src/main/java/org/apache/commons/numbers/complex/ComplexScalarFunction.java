@@ -21,20 +21,22 @@ import java.util.Objects;
 
 /**
  * Represents an operation upon two operands of the different type, producing a result.
- * This is a functional interface whose functional method is {@link #apply(ComplexDouble, double, ComplexConstructor)}.
+ * This is a functional interface whose functional method is {@link #apply(double, double, double, ,ComplexConstructor)}.
+ * @param <R> Generic
  */
 @FunctionalInterface
-public interface ComplexScalarFunction {
+public interface ComplexScalarFunction<R> {
 
     /**
      * Represents a binary function that accepts a Complex and a double operand to produce a Complex result.
      * The result is accepted by the ComplexConstructor.
-     * @param c the first function argument
-     * @param f the second function argument
+     * @param real part the first complex argument
+     * @param imaginary part of the first function argument
+     * @param operand the second function argument
      * @param result Constructor
      * @return ComplexDouble
      */
-    ComplexDouble apply(ComplexDouble c, double f, ComplexConstructor<ComplexDouble> result);
+    R apply(double real, double imaginary, double operand, ComplexConstructor<R> result);
 
     /**
      * Returns a composed scalar function that first applies this function to its input, and then applies the after function to the result.
@@ -42,8 +44,9 @@ public interface ComplexScalarFunction {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default ComplexScalarFunction andThen(ComplexUnaryOperator after) {
+    default ComplexScalarFunction<R> andThen(ComplexUnaryOperator<R> after) {
         Objects.requireNonNull(after);
-        return (ComplexDouble c, double f, ComplexConstructor<ComplexDouble> out) -> after.apply(apply(c, f, out), out);
+        return (real, imaginary, operand, out) ->
+             apply(real, imaginary, operand, out.compose(after));
     }
 }

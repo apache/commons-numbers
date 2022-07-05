@@ -168,6 +168,11 @@ class CReferenceTest {
         assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), z.imag(), maxUlps);
     }
 
+    private static <R> void assertOperation(String name,
+                                        UnaryOperator<Complex> operation,
+                                        ComplexUnaryOperator<R> operation2, long maxUlps) {
+
+    }
     /**
      * Assert the operation on the complex numbers is equal to the expected value.
      *

@@ -31,5 +31,15 @@ public interface ComplexConstructor<R> {
      * @return R
      */
     R apply(double real, double imaginary);
+
+    /**
+     * Represents a helper function to compose a unary operator.
+     * @param after ComplexUnaryOperator to be composed
+     * @return ComplexConstructor
+     */
+    default ComplexConstructor<R> compose(ComplexUnaryOperator<R> after) {
+        return (r, i) -> after.apply(r, i, this);
+    }
+
 }
 

@@ -150,7 +150,7 @@ class ComplexTest {
         // i.e. do not create an infinite complex such as (inf, nan)
         Assertions.assertEquals(NAN, Complex.ofPolar(inf, nan));
         // negative or NaN rho
-        Assertions.assertEquals(NAN, Complex.ofPolar(-inf, 1));
+        TestUtils.assertEquals(NAN, Complex.ofPolar(-inf, 1));
         Assertions.assertEquals(NAN, Complex.ofPolar(-0.0, 1));
         Assertions.assertEquals(NAN, Complex.ofPolar(nan, 1));
 

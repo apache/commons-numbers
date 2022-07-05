@@ -18,13 +18,13 @@
 package org.apache.commons.numbers.complex;
 
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 
 /**
  * Represents a complex operation that accepts a complex number of type ComplexDouble and produces a ComplexDouble result.
+ * @param <R> Generic
  */
 @FunctionalInterface
-public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
+public interface ComplexUnaryOperator<R> {
 
     /**
      * Represents an operator that accepts a complex number and a complex constructor to produce and return the result.
@@ -32,7 +32,9 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
      * @param out Constructor
      * @return ComplexDouble
      */
-    ComplexDouble apply(ComplexDouble in, ComplexConstructor<ComplexDouble> out);
+    default R apply(ComplexDouble in, ComplexConstructor<R> out) {
+        return apply(in.getReal(), in.getImaginary(), out);
+    }
 
     /**
      * Represents an operator that accepts real and imaginary parts of a complex number and a complex constructor to produce and return the result.
@@ -41,19 +43,7 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
      * @param out Constructor
      * @return ComplexDouble
      */
-    default ComplexDouble apply(double r, double i, ComplexConstructor<ComplexDouble> out) {
-        return apply(Complex.ofCartesian(r, i), out);
-    }
-
-    /**
-     * Represents an operator that accepts a complex number and produces a result.
-     * @param c Complex number
-     * @return ComplexDouble
-     */
-    @Override
-    default ComplexDouble apply(ComplexDouble c) {
-        return apply(c, Complex::ofCartesian);
-    }
+    R apply(double r, double i, ComplexConstructor<R> out);
 
     /**
      * Returns a composed unary operator that first applies this function to its input, and then applies the after UnaryOperator function to the result.
@@ -61,9 +51,8 @@ public interface ComplexUnaryOperator extends UnaryOperator<ComplexDouble> {
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then applies the after function
      */
-    default ComplexUnaryOperator andThen(ComplexUnaryOperator after) {
+    default ComplexUnaryOperator<R> andThen(ComplexUnaryOperator<R> after) {
         Objects.requireNonNull(after);
-        return (ComplexDouble c, ComplexConstructor<ComplexDouble> out) ->
-            after.apply(apply(c, Complex::ofCartesian), out);
+        return (real, imaginary, out) -> apply(real, imaginary, out.compose(after));
     }
 }

@@ -22,14 +22,13 @@ import org.junit.jupiter.api.Test;
 
 class ComplexComposeTest {
 
-    private static final ComplexUnaryOperator neg = ComplexFunctions::negate;
-    private static final ComplexUnaryOperator multiplyImag = ComplexFunctions::multiplyImaginary;
-    private static final ComplexUnaryOperator conj = ComplexFunctions::conj;
-    private static final ComplexUnaryOperator multiplyImagConj = multiplyImag.andThen(conj);
-    private static final ComplexUnaryOperator conjMultiplyImag = conj.andThen(multiplyImag);
-    private static final ComplexUnaryOperator identity1 = multiplyImagConj.andThen(multiplyImagConj);
-    private static final ComplexUnaryOperator identity2 = conjMultiplyImag.andThen(conjMultiplyImag);
-    private static final ComplexBinaryOperator divide = ComplexFunctions::divide;
+    private static final ComplexUnaryOperator<ComplexDouble> neg = ComplexFunctions::negate;
+    private static final ComplexUnaryOperator<ComplexDouble> multiplyImag = ComplexFunctions::multiplyImaginary;
+    private static final ComplexUnaryOperator<ComplexDouble> conj = ComplexFunctions::conj;
+    private static final ComplexUnaryOperator<ComplexDouble> multiplyImagConj = multiplyImag.andThen(conj);
+    private static final ComplexUnaryOperator<ComplexDouble> conjMultiplyImag = conj.andThen(multiplyImag);
+    private static final ComplexUnaryOperator<ComplexDouble> identity1 = multiplyImagConj.andThen(multiplyImagConj);
+    private static final ComplexUnaryOperator<ComplexDouble> identity2 = conjMultiplyImag.andThen(conjMultiplyImag);
 
     @Test
     void testConjugateIdentities() {
@@ -48,7 +47,7 @@ class ComplexComposeTest {
     private void testConjugateIdentity(ComplexDouble c) {
         ComplexDouble c1 = multiplyImagConj.andThen(neg).apply(c, Complex::ofCartesian);
         ComplexDouble r1 = multiplyImagConj.andThen(neg).apply(c.getReal(), c.getImaginary(), Complex::ofCartesian);
-        ComplexDouble c2 = conjMultiplyImag.apply(c);
+        ComplexDouble c2 = conjMultiplyImag.apply(c.getReal(), c.getImaginary(), Complex::ofCartesian);
 
         Assertions.assertEquals(r1, c2);
         Assertions.assertEquals(c1, c2);
@@ -73,14 +72,14 @@ class ComplexComposeTest {
         testUnary(multiplyImag, ComplexFunctions::sqrt, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
     }
 
-    private static void testUnary(ComplexUnaryOperator before, ComplexUnaryOperator after,
+    private static void testUnary(ComplexUnaryOperator<ComplexDouble> before, ComplexUnaryOperator<ComplexDouble> after,
                                    double real, double imaginary) {
 
-        ComplexUnaryOperator composed = before.andThen(after);
+        ComplexUnaryOperator<ComplexDouble> composed = before.andThen(after);
         Complex z = Complex.ofCartesian(real, imaginary);
-        ComplexDouble expected = after.apply(before.apply(z));
+        ComplexDouble expected = after.apply(before.apply(z, Complex::ofCartesian), Complex::ofCartesian);
 
-        Assertions.assertEquals(expected, composed.apply(z));
+        Assertions.assertEquals(expected, composed.apply(z, Complex::ofCartesian));
         Assertions.assertEquals(expected, composed.apply(z.getReal(), z.getImaginary(), Complex::ofCartesian));
     }
 
@@ -98,13 +97,15 @@ class ComplexComposeTest {
             Complex.ofCartesian(Double.NaN, Double.NaN),  Complex.ofCartesian(Double.NaN, Double.NaN));
     }
 
-    private static void testBinaryCompose(ComplexBinaryOperator before, ComplexUnaryOperator after,
-                                  ComplexDouble z1, ComplexDouble z2) {
+    private static void testBinaryCompose(ComplexBinaryOperator<ComplexDouble> before, ComplexUnaryOperator<ComplexDouble> after,
+                                              ComplexDouble z1, ComplexDouble z2) {
 
-        ComplexBinaryOperator composed = before.andThen(after);
-        ComplexDouble expected = after.apply(before.apply(z1, z2));
+        ComplexBinaryOperator<ComplexDouble> composed = before.andThen(after);
 
-        Assertions.assertEquals(expected, composed.apply(z1, z2));
+        ComplexDouble expected = after.apply(before.apply(z1, z2, Complex::ofCartesian), Complex::ofCartesian);
+
+        Assertions.assertEquals(expected, composed.apply(z1.getReal(), z1.getImaginary(),
+            z2.getReal(), z2.getImaginary(), Complex::ofCartesian));
         Assertions.assertEquals(expected, composed.apply(z1.getReal(), z1.getImaginary(),
             z2.getReal(), z2.getImaginary(), Complex::ofCartesian));
     }

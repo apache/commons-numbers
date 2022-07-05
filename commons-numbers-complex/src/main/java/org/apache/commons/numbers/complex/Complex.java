@@ -524,7 +524,10 @@ public final class Complex implements Serializable, ComplexDouble {
      * IEEE and ISO C standards: cproj</a>
      */
     public Complex proj() {
-        return applyUnaryOperator(ComplexFunctions::proj);
+        if (ComplexFunctions.isInfinite(this)) {
+            return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, imaginary));
+        }
+        return this;
     }
 
     /**
@@ -1068,7 +1071,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Define in terms of sinh
         // sin(z) = -i sinh(iz)
         // Multiply this number by I, compute sinh, then multiply by back
-        return applyUnaryOperator((c, result) -> ComplexFunctions.sin(c));
+        return applyUnaryOperator(ComplexFunctions::sin);
     }
 
     /**
@@ -1122,7 +1125,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Define in terms of tanh
         // tan(z) = -i tanh(iz)
         // Multiply this number by I, compute tanh, then multiply by back
-        return applyUnaryOperator((c, result) -> ComplexFunctions.tan(c));
+        return applyUnaryOperator(ComplexFunctions::tan);
     }
 
     /**
@@ -1248,7 +1251,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Define in terms of atanh
         // atan(z) = -i atanh(iz)
         // Multiply this number by I, compute atanh, then multiply by back
-        return applyUnaryOperator((c, result) -> ComplexFunctions.atan(c));
+        return applyUnaryOperator(ComplexFunctions::atan);
     }
 
     /**
@@ -1419,7 +1422,7 @@ public final class Complex implements Serializable, ComplexDouble {
         // Note: This is the opposite to the identity defined in the C99 standard:
         // asin(z) = -i asinh(iz)
         // Multiply this number by I, compute asin, then multiply by back
-        return applyUnaryOperator((c, result) -> ComplexFunctions.asinh(c));
+        return applyUnaryOperator(ComplexFunctions::asinh);
     }
 
     /**
@@ -1682,8 +1685,8 @@ public final class Complex implements Serializable, ComplexDouble {
      * @param operator ComplexUnaryOperator
      * @return Complex
      */
-    private Complex applyUnaryOperator(ComplexUnaryOperator operator) {
-        return (Complex)operator.apply(this, Complex::ofCartesian);
+    private Complex applyUnaryOperator(ComplexUnaryOperator<Complex> operator) {
+        return operator.apply(this.real, this.imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -1692,8 +1695,8 @@ public final class Complex implements Serializable, ComplexDouble {
      * @param input ComplexDouble
      * @return Complex
      */
-    private Complex applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator operator) {
-        return (Complex)operator.apply(this, input, Complex::ofCartesian);
+    private Complex applyBinaryOperator(ComplexDouble input, ComplexBinaryOperator<Complex> operator) {
+        return operator.apply(this.real, this.imaginary, input.getReal(), input.getImaginary(), Complex::ofCartesian);
     }
 
     /**
@@ -1703,8 +1706,8 @@ public final class Complex implements Serializable, ComplexDouble {
      * @param factor double
      * @return Complex
      */
-    private Complex applyScalarFunction(double factor, ComplexScalarFunction operator) {
-        return (Complex) operator.apply(this, factor, Complex::ofCartesian);
+    private Complex applyScalarFunction(double factor, ComplexScalarFunction<Complex> operator) {
+        return operator.apply(this.real, this.imaginary, factor, Complex::ofCartesian);
     }
 
     /**
@@ -1715,21 +1718,5 @@ public final class Complex implements Serializable, ComplexDouble {
      */
     private double applyToDoubleFunction(DoubleBinaryOperator operator) {
         return operator.applyAsDouble(this.real, this.imaginary);
-    }
-
-    /**
-     * Create a complex number given the real and imaginary parts, then multiply by {@code -i}.
-     * This is used in functions that implement trigonomic identities. It is the functional
-     * equivalent of:
-     *
-     * <pre>
-     *  z = new Complex(real, imaginary).multiplyImaginary(-1);</pre>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @return {@code Complex} object.
-     */
-    public static Complex multiplyNegativeI(double real, double imaginary) {
-        return new Complex(imaginary, -real);
     }
 }

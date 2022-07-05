@@ -80,6 +80,12 @@ public final class TestUtils {
         Assertions.assertEquals(expected.getImaginary(), actual.getImaginary(), delta);
     }
 
+    public static void assertEquals(Complex expected, Complex actual) {
+        Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(expected.getReal(), actual.getReal());
+        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary());
+    }
+
     /**
      * Verifies that real and imaginary parts of the two complex arguments are
      * exactly the same as defined by {@link Double#compare(double, double)}. Also
