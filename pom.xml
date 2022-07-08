@@ -703,6 +703,9 @@ This is avoided by creating an empty directory when svn is not available.
 
   <contributors>
     <contributor>
+      <name>Sumanth Rajkumar</name>
+    </contributor>
+    <contributor>
       <name>Raymond DeCampo</name>
       <email>ray at decampo dot org</email>
     </contributor>
