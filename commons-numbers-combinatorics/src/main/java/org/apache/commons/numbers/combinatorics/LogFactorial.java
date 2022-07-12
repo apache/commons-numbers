@@ -55,15 +55,14 @@ public final class LogFactorial {
         int endCopy;
         if (cache == null || cache.length <= beginCopy) {
             endCopy = beginCopy;
-        } else if (cache.length <= numValues) {
-            endCopy = cache.length;
         } else {
-            endCopy = numValues;
+            endCopy = Math.min(cache.length, numValues);
         }
 
+
         // Copy available values.
-        for (int i = beginCopy; i < endCopy; i++) {
-            logFactorials[i] = cache[i];
+        if (endCopy - beginCopy > 0) {
+            System.arraycopy(cache, beginCopy, logFactorials, beginCopy, endCopy - beginCopy);
         }
 
         // Precompute.
