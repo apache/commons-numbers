@@ -30,6 +30,19 @@ public interface ComplexScalarFunction<R> {
     /**
      * Represents a binary function that accepts a Complex and a double operand to produce a Complex result.
      * The result is accepted by the ComplexConstructor.
+     * @param in Complex input
+     * @param operand the second function argument
+     * @param result Constructor
+     * @return ComplexDouble
+     */
+    default R apply(ComplexDouble in, double operand, ComplexConstructor<R> result) {
+        return apply(in.getReal(), in.getImaginary(), operand, result);
+    }
+
+    /**
+     * Represents a binary function that accepts a Complex number's real and imaginary parts
+     * and a double operand to produce a Complex result.
+     * The result is accepted by the ComplexConstructor.
      * @param real part the first complex argument
      * @param imaginary part of the first function argument
      * @param operand the second function argument

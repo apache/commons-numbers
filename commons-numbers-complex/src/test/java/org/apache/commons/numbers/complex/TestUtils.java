@@ -26,7 +26,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.numbers.core.Precision;
 
@@ -418,5 +423,315 @@ public final class TestUtils {
             }
         }
         return line;
+    }
+
+    /**
+     * Assert the complex with a scalar operation on the complex number is equal to the expected value.
+     * No deltas for real or imaginary.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operand the scalar
+     * @param operation the operation
+     * @param expected the expected
+     * @param actual the actual
+     * @param name the operation name
+     */
+    static void assertComplexScalar(Complex c, double operand, ComplexScalarFunction<ComplexDouble> operation,
+                                    Complex expected, Complex actual, String name) {
+        assertComplexScalar(c, operand, operation, expected, actual, name, 0.0D, 0.0D);
+    }
+
+    /**
+     * Assert the complex with a scalar operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operand the scalar
+     * @param operation the operation
+     * @param expected the expected
+     * @param actual the actual
+     * @param name the operation name
+     * @param deltaReal real delta
+     * @param deltaImaginary imaginary delta
+     */
+    static void assertComplexScalar(Complex c, double operand, ComplexScalarFunction<ComplexDouble> operation,
+                                    Complex expected, Complex actual, String name, double deltaReal, double deltaImaginary) {
+
+        final ComplexDouble result = operation.apply(c, operand, TestUtils.ComplexDoubleConstructor.of());
+
+        assertEquals(() -> c + "." + name + "(): real", expected.real(), actual.real(), deltaReal);
+        assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), actual.imag(), deltaImaginary);
+
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c + "): real", expected.real(), result.getReal(), deltaReal);
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c + "): imaginary", expected.imag(), result.getImaginary(), deltaImaginary);
+    }
+
+    /**
+     * Assert the double operation on the complex number is equal to the expected value.
+     * No delta.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operation the operation
+     * @param expected the expected
+     * @param name the operation name
+     */
+    static void assertDouble(Complex c, DoubleBinaryOperator operation,
+                             double expected, String name) {
+        assertDouble(c.getReal(), c.getImaginary(), operation, expected, name, 0.0D);
+    }
+
+    /**
+     * Assert the double operation on the complex number (real and imag parts) is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param r real
+     * @param i imaginary
+     * @param operation the operation
+     * @param expected the expected
+     * @param name the operation name
+     * @param delta delta
+     */
+    static void assertDouble(double r, double i, DoubleBinaryOperator operation,
+                             double expected, String name, double delta) {
+
+        final double result = operation.applyAsDouble(r, i);
+
+        assertEquals(() -> "ComplexFunctions." + name + "(" + expected + "): result", expected, result, delta);
+    }
+
+    /**
+     * Assert the unary complex operation on the complex number is equal to the expected value.
+     * No delta.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operation1 the operation
+     * @param operation2 the second operation
+     * @param expected the expected
+     * @param name the operation name
+     */
+    static void assertComplexUnary(Complex c,
+                                   UnaryOperator<Complex> operation1, ComplexUnaryOperator<ComplexDouble> operation2,
+                                   Complex expected, String name) {
+        assertComplexUnary(c, operation1, operation2, expected, name, 0.0D, 0.0D);
+    }
+
+    /**
+     * Assert the unary complex operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operation1 the operation
+     * @param operation2 the second operation
+     * @param expected the expected
+     * @param name the operation name
+     * @param delta delta
+     */
+    static void assertComplexUnary(Complex c,
+                                   UnaryOperator<Complex> operation1, ComplexUnaryOperator<ComplexDouble> operation2,
+                                   Complex expected, String name, double delta) {
+        assertComplexUnary(c, operation1, operation2, expected, name, delta, delta);
+    }
+
+    /**
+     * Assert the unary complex operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operation1 the operation
+     * @param operation2 the second operation
+     * @param expected the expected
+     * @param name the operation name
+     * @param deltaReal real delta
+     * @param deltaImaginary imaginary delta
+     */
+    static void assertComplexUnary(Complex c,
+                                   UnaryOperator<Complex> operation1, ComplexUnaryOperator<ComplexDouble> operation2,
+                                   Complex expected, String name, double deltaReal, double deltaImaginary) {
+        final Complex result1 = operation1.apply(c);
+        final ComplexDouble result2 = operation2.apply(c,  TestUtils.ComplexDoubleConstructor.of());
+
+        assertEquals(() -> c + "." + name + "(): real", expected.real(), result1.real(), deltaReal);
+        assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), result1.imag(), deltaImaginary);
+
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c + "): real", expected.real(), result2.getReal(), deltaReal);
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c + "): imaginary", expected.imag(), result2.getImaginary(), deltaImaginary);
+    }
+
+    /**
+     * Assert the binary complex operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c1 the first complex
+     * @param c2 the second complex
+     * @param operation1 the operation
+     * @param operation2 the second operation
+     * @param expected the expected
+     * @param name the operation name
+     */
+    static void assertComplexBinary(Complex c1, Complex c2,
+                                    BinaryOperator<Complex> operation1, ComplexBinaryOperator<ComplexDouble> operation2,
+                                    Complex expected, String name) {
+        assertComplexBinary(c1, c2, operation1, operation2, expected, name, 0.0D, 0.0D);
+    }
+
+    /**
+     * Assert the binary complex operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c1 the first complex
+     * @param c2 the second complex
+     * @param operation1 the complex operation
+     * @param operation2 the complexFunctions operation
+     * @param expected the expected result
+     * @param name the operation name
+     * @param deltaReal real delta
+     * @param deltaImaginary imaginary delta
+     */
+    static void assertComplexBinary(Complex c1, Complex c2,
+                                    BinaryOperator<Complex> operation1, ComplexBinaryOperator<ComplexDouble> operation2,
+                                    Complex expected, String name, double deltaReal, double deltaImaginary) {
+        final Complex result1 = operation1.apply(c1, c2);
+        final ComplexDouble result2 = operation2.apply(c1, c2, TestUtils.ComplexDoubleConstructor.of());
+
+        assertEquals(() -> c1 + "." + name + "(" + c2 + "): real", expected.real(), result1.real(), deltaReal);
+        assertEquals(() -> c1 + "." + name + "(" + c2 + "): imaginary", expected.imag(), result1.imag(), deltaImaginary);
+
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c1 + ", " + c2 + "): real", expected.real(), result2.getReal(), deltaReal);
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c1 + ", " + c2 + "): imaginary", expected.imag(), result2.getImaginary(), deltaImaginary);
+    }
+
+    /**
+     * Assert the binary complex operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c1 the first complex
+     * @param c2 the second complex
+     * @param operation1 the complex operation
+     * @param operation2 the complexFunctions operation
+     * @param resultChecker function to assert expected result
+     * @param name the operation name
+     */
+    static void assertComplexBinary(Complex c1, Complex c2,
+                                    BinaryOperator<Complex> operation1, ComplexBinaryOperator<ComplexDouble> operation2,
+                                    ComplexConstructor<Boolean> resultChecker, String name) {
+        final Complex result1 = operation1.apply(c1, c2);
+        final ComplexDouble result2 = operation2.apply(c1, c2, TestUtils.ComplexDoubleConstructor.of());
+
+        Assertions.assertTrue(resultChecker.apply(result1.getReal(), result1.getImaginary()), () -> c1 + "." + name + "(" + c2 + ")");
+        Assertions.assertTrue(resultChecker.apply(result2.getReal(), result2.getImaginary()), () ->  "ComplexFunctions." + c1 + "." + name + "(" + c2 + ")");
+    }
+
+    /**
+     * Assert the two numbers are equal within the provided units of least precision.
+     * The maximum count of numbers allowed between the two values is {@code maxUlps - 1}.
+     *
+     * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
+     *
+     * @param msg the failure message
+     * @param expected the expected
+     * @param actual the actual
+     * @param delta delta
+     */
+    static void assertEquals(Supplier<String> msg, double expected, double actual, double delta) {
+        Assertions.assertEquals(expected, actual, delta, msg);
+    }
+
+    static class ComplexDoubleConstructor implements ComplexConstructor<ComplexDouble>, ComplexDouble {
+
+        private double realPart;
+        private double imaginaryPart;
+
+        static ComplexDoubleConstructor of() {
+            return new ComplexDoubleConstructor();
+        }
+
+        @Override
+        public ComplexDouble apply(double real, double imaginary) {
+            this.realPart = real;
+            this.imaginaryPart = imaginary;
+            return this;
+        }
+
+        @Override
+        public double getReal() {
+            return realPart;
+        }
+
+        @Override
+        public double getImaginary() {
+            return imaginaryPart;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ComplexDoubleConstructor that = (ComplexDoubleConstructor) o;
+            return Double.compare(that.realPart, realPart) == 0 &&
+                Double.compare(that.imaginaryPart, imaginaryPart) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(realPart, imaginaryPart);
+        }
+
     }
 }

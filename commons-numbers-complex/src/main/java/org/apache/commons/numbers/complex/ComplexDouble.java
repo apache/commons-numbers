@@ -39,5 +39,4 @@ public interface ComplexDouble {
      * @return imaginary part
      */
     double getImaginary();
-
 }

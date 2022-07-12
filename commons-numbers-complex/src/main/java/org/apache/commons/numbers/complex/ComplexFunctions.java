@@ -503,12 +503,10 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Complex} whose value is obtained using the real and
-     * imaginary part of the Complex number
-     * interpreted as an imaginary number.
+     * Returns a {@code Complex} whose value is {@code this * i }
      * Implements the formula:
      *
-     * <p>\[ (a + i b) id = (-bd) + i (ad) \]
+     * <p>\[ (a + i b) i = -b + i a \]
      *
      * <p>This method can be used to compute the multiplication of this complex number \( z \)
      * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
@@ -532,6 +530,43 @@ public final class ComplexFunctions {
      */
     public static <R> R multiplyImaginary(double r, double i, ComplexConstructor<R> result) {
         return result.apply(-1 * i, r);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
+     * interpreted as an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) id = (-bd) + i (ad) \]
+     *
+     * <p>This method can be used to compute the multiplication of this complex number \( z \)
+     * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
+     * {@link #multiply(double, double, double, double, ComplexConstructor) multiply(Complex.I)} with or without {@link #negate(double, double, ComplexConstructor) negation}:</p>
+     *
+     * \[ \begin{aligned}
+     *    iz &amp;= (-b + i a) \\
+     *   -iz &amp;= (b - i a) \end{aligned} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(double, double, double, double, ComplexConstructor) multiply(Complex.ofCartesian(0, factor))}. Multiplication
+     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(double, double, double, double, ComplexConstructor)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by an imaginary-only number.
+     *
+     * @param r real part of complex number
+     * @param i imaginary part of complex number
+     * @param factor Value to be multiplied by this complex number.
+     * @param result Constructor using {@code this * factor}
+     * @return R
+     * @param <R> generic
+     * @see #multiply(double, double, double, double, ComplexConstructor)
+     */
+    public static <R> R multiplyImaginary(double r, double i, double factor, ComplexConstructor<R> result) {
+        return result.apply(-i * factor, r * factor);
     }
 
     /**

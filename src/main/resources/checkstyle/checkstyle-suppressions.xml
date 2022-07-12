@@ -35,6 +35,8 @@
   <suppress checks="LocalVariableName" files=".*[/\\]BoostGamma\.java" />
   <suppress checks="LocalFinalVariableName" files=".*[/\\]BoostGamma\.java" />
   <suppress checks="ParameterNumber" files=".*[/\\]BoostBeta\.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]ComplexEdgeCaseTest\.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]TestUtils\.java" />
   <!-- Method "hashCode()" is defined in the "Angle" parent class; subclasses have no additional fields to include in the hash. -->
   <suppress checks="EqualsHashCode" files=".*[/\\]Angle\.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]BrentSolver\.java" />
