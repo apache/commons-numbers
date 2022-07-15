@@ -301,6 +301,91 @@ class CStandardTest {
     }
 
     /**
+     * Assert the operation on the complex number satisfies the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * <h2>ISO C99 equalities</h2>
+     *
+     * <p>Note that this method currently enforces the conjugate equalities for some cases
+     * where the sign of the real/imaginary parts are unspecified in ISO C99. This is
+     * allowed (since they are unspecified). The sign specification is appropriately
+     * handled during testing of odd/even functions. There are some functions where it
+     * is not possible to satisfy the conjugate equality and also the odd/even rule.
+     * The compromise made here is to satisfy only one and the other is allowed to fail
+     * only on the sign of the output result. Known functions where this applies are:
+     *
+     * <ul>
+     *  <li>asinh(NaN, inf)
+     *  <li>atanh(NaN, inf)
+     *  <li>cosh(NaN, 0.0)
+     *  <li>sinh(inf, inf)
+     *  <li>sinh(inf, nan)
+     * </ul>
+     *
+     * @param operation the operation
+     */
+    private static void assertConjugateEquality(UnaryOperator<Complex> operation, ComplexUnaryOperator<ComplexNumber> operation2) {
+        // Edge cases. Inf/NaN are specifically handled in the C99 test cases
+        // but are repeated here to enforce the conjugate equality even when the C99
+        // standard does not specify a sign. This may be revised in the future.
+        final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1,
+            Double.POSITIVE_INFINITY, Double.NaN};
+        for (final double x : parts) {
+            for (final double y : parts) {
+                // No conjugate for imaginary NaN
+                if (!Double.isNaN(y)) {
+                    assertConjugateEquality(complex(x, y), operation, operation2, UnspecifiedSign.NONE);
+                }
+            }
+        }
+        // Random numbers
+        final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
+        for (int i = 0; i < 100; i++) {
+            final double x = next(rng);
+            final double y = next(rng);
+            assertConjugateEquality(complex(x, y), operation, operation2, UnspecifiedSign.NONE);
+        }
+    }
+
+    /**
+     * Assert the operation on the complex number satisfies the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal; the sign of the complex number is first processed
+     * using the provided sign specification.
+     *
+     * @param z the complex number
+     * @param operation the Complex operation
+     * @param operation2 the ComplexFunctions operation
+     * @param sign the sign specification
+     */
+    private static void assertConjugateEquality(Complex z,
+                                                UnaryOperator<Complex> operation, ComplexUnaryOperator<ComplexNumber> operation2,
+                                                UnspecifiedSign sign) {
+        final Complex c1 = operation.apply(z.conj());
+        final Complex c2 = operation.apply(z).conj();
+        final ComplexNumber c3 = operation2.apply(z.conj().getReal(), z.conj().getImaginary(), ComplexNumber::new);
+        final Complex t1 = sign.removeSign(c1);
+        final Complex t2 = sign.removeSign(c2);
+
+        // Test for binary equality
+        if (!equals(t1.getReal(), t2.getReal()) ||
+            !equals(t1.getImaginary(), t2.getImaginary())) {
+            Assertions.fail(
+                String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
+                    z, c1, c2, c3, sign));
+        }
+    }
+
+    /**
      * Assert the operation on the complex number is odd or even.
      *
      * <pre>
@@ -504,6 +589,146 @@ class CStandardTest {
             // (-re, -im) = (-re, im)
             if (!Double.isNaN(z.getImaginary())) {
                 assertConjugateEquality(z.negate(), operation, sign);
+            }
+        }
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *  @param z the complex
+     * @param operation the Complex operation
+     * @param expected the expected
+     * @param operation2 the ComplexFunctions operation
+     */
+    private static void assertComplex(Complex z,
+                                      UnaryOperator<Complex> operation, Complex expected,
+                                      ComplexUnaryOperator<ComplexNumber> operation2) {
+        assertComplex(z, operation, operation2, expected, FunctionType.NONE, UnspecifiedSign.NONE);
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value. If the
+     * imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *  @param z the complex
+     * @param operation the Complex operation
+     * @param operation2 the ComplexFunctions operation
+     * @param expected the expected
+     * @param sign the sign specification
+     */
+    private static void assertComplex(Complex z,
+                                      UnaryOperator<Complex> operation,
+                                      ComplexUnaryOperator<ComplexNumber> operation2,
+                                      Complex expected, UnspecifiedSign sign) {
+        assertComplex(z, operation, operation2, expected, FunctionType.NONE, sign);
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value. If the
+     * imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>If the function type is ODD/EVEN the operation must satisfy the function type equality.
+     *
+     * <pre>
+     * Odd : f(z) = -f(-z)
+     * Even: f(z) =  f(-z)
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *  @param z the complex
+     * @param operation the Complex operation
+     * @param operation2 the ComplexFunctions operation
+     * @param expected the expected
+     * @param type the type
+     */
+    private static void assertComplex(Complex z,
+                                      UnaryOperator<Complex> operation,
+                                      ComplexUnaryOperator<ComplexNumber> operation2,
+                                      Complex expected,
+                                      FunctionType type) {
+        assertComplex(z, operation, operation2, expected, type, UnspecifiedSign.NONE);
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value. If the
+     * imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>If the function type is ODD/EVEN the operation must satisfy the function type equality.
+     *
+     * <pre>
+     * Odd : f(z) = -f(-z)
+     * Even: f(z) =  f(-z)
+     * </pre>
+     *
+     * <p>An ODD/EVEN function is also tested that the conjugate equalities hold with {@code -z}.
+     * This effectively enumerates testing: (re, im); (re, -im); (-re, -im); and (-re, im).
+     *
+     * <p>The results must be binary equal; the sign of the complex number is first processed
+     * using the provided sign specification.
+     *
+     * @param z the complex
+     * @param operation the Complex operation
+     * @param operation2 the ComplexFunctions operation
+     * @param expected the expected
+     * @param type the type
+     * @param sign the sign specification
+     */
+    private static void assertComplex(Complex z,
+                                      UnaryOperator<Complex> operation, ComplexUnaryOperator<ComplexNumber> operation2, Complex expected,
+                                      FunctionType type, UnspecifiedSign sign) {
+        // Developer note: Set the sign specification to UnspecifiedSign.NONE
+        // to see which equalities fail. They should be for input defined
+        // in ISO C99 with an unspecified output sign, e.g.
+        // sign = UnspecifiedSign.NONE
+
+        // Test the operation
+        final Complex c = operation.apply(z);
+        final ComplexNumber c1 = operation2.apply(z.getReal(), z.getImaginary(), ComplexNumber::new);
+        final Complex t1 = sign.removeSign(c);
+        final Complex t2 = sign.removeSign(expected);
+        if (!equals(t1.getReal(), t2.getReal()) ||
+            !equals(t1.getImaginary(), t2.getImaginary())) {
+            Assertions.fail(
+                String.format("Operation failed (z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
+                    z, expected, c, c1, sign));
+        }
+
+        if (!Double.isNaN(z.getImaginary())) {
+            assertConjugateEquality(z, operation, operation2, sign);
+        }
+
+        if (type != FunctionType.NONE) {
+            assertFunctionType(z, operation, type, sign);
+
+            // An odd/even function should satisfy the conjugate equality
+            // on the negated complex. This ensures testing the equalities
+            // hold for:
+            // (re, im) =  (re, -im)
+            // (re, im) =  (-re, -im) (even)
+            //          = -(-re, -im) (odd)
+            // (-re, -im) = (-re, im)
+            if (!Double.isNaN(z.getImaginary())) {
+                assertConjugateEquality(z.negate(), operation, operation2, sign);
             }
         }
     }
@@ -1236,31 +1461,33 @@ class CStandardTest {
      */
     @Test
     void testLog() {
-        final UnaryOperator<Complex> operation = Complex::log;
-        assertConjugateEquality(operation);
-        assertComplex(negZeroZero, operation, negInfPi);
-        assertComplex(Complex.ZERO, operation, negInfZero);
+        final UnaryOperator<Complex> operation1 = Complex::log;
+        final ComplexUnaryOperator<ComplexNumber> operation2 = ComplexFunctions::log;
+
+        assertConjugateEquality(operation1, operation2);
+        assertComplex(negZeroZero, operation1, negInfPi, operation2);
+        assertComplex(Complex.ZERO, operation1, negInfZero, operation2);
         for (double x : finite) {
-            assertComplex(complex(x, inf), operation, infPiTwo);
+            assertComplex(complex(x, inf), operation1, infPiTwo, operation2);
         }
         for (double x : finite) {
-            assertComplex(complex(x, nan), operation, NAN);
+            assertComplex(complex(x, nan), operation1, NAN, operation2);
         }
         for (double y : positiveFinite) {
-            assertComplex(complex(-inf, y), operation, infPi);
+            assertComplex(complex(-inf, y), operation1, infPi, operation2);
         }
         for (double y : positiveFinite) {
-            assertComplex(complex(inf, y), operation, infZero);
+            assertComplex(complex(inf, y), operation1, infZero, operation2);
         }
-        assertComplex(negInfInf, operation, infThreePiFour);
-        assertComplex(infInf, operation, infPiFour);
-        assertComplex(negInfNaN, operation, infNaN);
-        assertComplex(infNaN, operation, infNaN);
+        assertComplex(negInfInf, operation1, infThreePiFour, operation2);
+        assertComplex(infInf, operation1, infPiFour, operation2);
+        assertComplex(negInfNaN, operation1, infNaN, operation2);
+        assertComplex(infNaN, operation1, infNaN, operation2);
         for (double y : finite) {
-            assertComplex(complex(nan, y), operation, NAN);
+            assertComplex(complex(nan, y), operation1, NAN, operation2);
         }
-        assertComplex(nanInf, operation, infNaN);
-        assertComplex(NAN, operation, NAN);
+        assertComplex(nanInf, operation1, infNaN, operation2);
+        assertComplex(NAN, operation1, NAN, operation2);
     }
 
     /**
@@ -1269,31 +1496,33 @@ class CStandardTest {
      */
     @Test
     void testLog10() {
-        final UnaryOperator<Complex> operation = Complex::log10;
-        assertConjugateEquality(operation);
-        assertComplex(negZeroZero, operation, negInfPi);
-        assertComplex(Complex.ZERO, operation, negInfZero);
+        final UnaryOperator<Complex> operation1 = Complex::log10;
+        final ComplexUnaryOperator<ComplexNumber> operation2 = ComplexFunctions::log10;
+
+        assertConjugateEquality(operation1, operation2);
+        assertComplex(negZeroZero, operation1, negInfPi, operation2);
+        assertComplex(Complex.ZERO, operation1, negInfZero, operation2);
         for (double x : finite) {
-            assertComplex(complex(x, inf), operation, infPiTwo);
+            assertComplex(complex(x, inf), operation1, infPiTwo, operation2);
         }
         for (double x : finite) {
-            assertComplex(complex(x, nan), operation, NAN);
+            assertComplex(complex(x, nan), operation1, NAN, operation2);
         }
         for (double y : positiveFinite) {
-            assertComplex(complex(-inf, y), operation, infPi);
+            assertComplex(complex(-inf, y), operation1, infPi, operation2);
         }
         for (double y : positiveFinite) {
-            assertComplex(complex(inf, y), operation, infZero);
+            assertComplex(complex(inf, y), operation1, infZero, operation2);
         }
-        assertComplex(negInfInf, operation, infThreePiFour);
-        assertComplex(infInf, operation, infPiFour);
-        assertComplex(negInfNaN, operation, infNaN);
-        assertComplex(infNaN, operation, infNaN);
+        assertComplex(negInfInf, operation1, infThreePiFour, operation2);
+        assertComplex(infInf, operation1, infPiFour, operation2);
+        assertComplex(negInfNaN, operation1, infNaN, operation2);
+        assertComplex(infNaN, operation1, infNaN, operation2);
         for (double y : finite) {
-            assertComplex(complex(nan, y), operation, NAN);
+            assertComplex(complex(nan, y), operation1, NAN, operation2);
         }
-        assertComplex(nanInf, operation, infNaN);
-        assertComplex(NAN, operation, NAN);
+        assertComplex(nanInf, operation1, infNaN, operation2);
+        assertComplex(NAN, operation1, NAN, operation2);
     }
 
     /**

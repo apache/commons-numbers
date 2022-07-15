@@ -156,6 +156,34 @@ class CReferenceTest {
      *
      * @param c Input number.
      * @param name the operation name
+     * @param operation1 the Complex operation
+     * @param operation2 the ComplexFunctions operation
+     * @param expected Expected result.
+     * @param maxUlps the maximum units of least precision between the two values
+     */
+    static void assertComplex(Complex c,
+                              String name, UnaryOperator<Complex> operation1, ComplexUnaryOperator<ComplexNumber> operation2,
+                              Complex expected, long maxUlps) {
+        final Complex z = operation1.apply(c);
+
+        final ComplexNumber y = operation2.apply(c.getReal(), c.getImaginary(),  ComplexNumber::new);
+        assertEquals(() -> c + "." + name + "(): real", expected.real(), z.real(), maxUlps);
+        assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), z.imag(), maxUlps);
+
+        assertEquals(() -> c + "." + name + "(): real", z.real(), y.getReal(), maxUlps);
+        assertEquals(() -> c + "." + name + "(): imaginary", z.imag(), y.getImaginary(), maxUlps);
+    }
+    /**
+     * Assert the operation on the complex number is equal to the expected value.
+     *
+     * <p>The results are considered equal within the provided units of least
+     * precision. The maximum count of numbers allowed between the two values is
+     * {@code maxUlps - 1}.
+     *
+     * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
+     *
+     * @param c Input number.
+     * @param name the operation name
      * @param operation the operation
      * @param expected Expected result.
      * @param maxUlps the maximum units of least precision between the two values
@@ -227,7 +255,25 @@ class CReferenceTest {
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param testData Test data resource name.
+     * @param name the operation name
+     * @param operation1 the Complex operation
+     * @param operation2 the ComplexFunctions operation
+     * @param maxUlps the maximum units of least precision between the two values
+     */
+    private static void assertOperation(String name,
+                                        UnaryOperator<Complex> operation1,
+                                        ComplexUnaryOperator<ComplexNumber> operation2, long maxUlps) {
+        final List<Complex[]> data = loadTestData(name);
+        final long ulps = getTestUlps(maxUlps);
+        for (final Complex[] pair : data) {
+            assertComplex(pair[0], name, operation1, operation2, pair[1], ulps);
+        }
+    }
+
+    /**
+     * Assert the operation using the data loaded from test resources.
+     *
+     * @param name Test data resource name.
      * @return the list
      */
     private static List<Complex[]> loadTestData(String name) {
@@ -312,7 +358,7 @@ class CReferenceTest {
 
     @Test
     void testLog() {
-        assertOperation("log", Complex::log, 1);
+        assertOperation("log", Complex::log, ComplexFunctions::log, 1);
     }
 
     @Test
