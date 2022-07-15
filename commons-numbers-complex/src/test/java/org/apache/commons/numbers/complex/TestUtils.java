@@ -27,6 +27,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.numbers.core.Precision;
 
@@ -358,7 +360,7 @@ public final class TestUtils {
      * Pre-process the next line of data from the input.
      * Returns null when the line should be ignored.
      *
-     * @param input the input
+     * @param line the input
      * @param option the option controlling processing of flagged data
      * @param flaggedDataConsumer the flagged data consumer (can be null)
      * @return the line of data (or null)
@@ -387,4 +389,94 @@ public final class TestUtils {
         }
         return line;
     }
+
+    /**
+     * Assert the unary complex operation on the complex number is equal to the expected value.
+     * No delta.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operation1 the operation
+     * @param operation2 the second operation
+     * @param expected the expected
+     * @param name the operation name
+     */
+    static void assertComplexUnary(Complex c,
+                                   UnaryOperator<Complex> operation1, ComplexUnaryOperator<ComplexNumber> operation2,
+                                   Complex expected, String name) {
+        assertComplexUnary(c, operation1, operation2, expected, name, 0.0D, 0.0D);
+    }
+
+    /**
+     * Assert the unary complex operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operation1 the operation
+     * @param operation2 the second operation
+     * @param expected the expected
+     * @param name the operation name
+     * @param delta delta
+     */
+    static void assertComplexUnary(Complex c,
+                                   UnaryOperator<Complex> operation1, ComplexUnaryOperator<ComplexNumber> operation2,
+                                   Complex expected, String name, double delta) {
+        assertComplexUnary(c, operation1, operation2, expected, name, delta, delta);
+    }
+
+    /**
+     * Assert the unary complex operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     * @param c the complex
+     * @param operation1 the operation
+     * @param operation2 the second operation
+     * @param expected the expected
+     * @param name the operation name
+     * @param deltaReal real delta
+     * @param deltaImaginary imaginary delta
+     */
+    static void assertComplexUnary(Complex c,
+                                   UnaryOperator<Complex> operation1, ComplexUnaryOperator<ComplexNumber> operation2,
+                                   Complex expected, String name, double deltaReal, double deltaImaginary) {
+        final Complex result1 = operation1.apply(c);
+        final ComplexNumber result2 = operation2.apply(c.getReal(), c.getImaginary(),  ComplexNumber::new);
+
+        assertEquals(() -> c + "." + name + "(): real", expected.real(), result1.real(), deltaReal);
+        assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), result1.imag(), deltaImaginary);
+
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c + "): real", result1.real(), result2.getReal(), deltaReal);
+        assertEquals(() -> "ComplexFunctions." + name + "(" + c + "): imaginary", result1.imag(), result2.getImaginary(), deltaImaginary);
+    }
+
+    /**
+     * Assert the two numbers are equal within the provided units of least precision.
+     * The maximum count of numbers allowed between the two values is {@code maxUlps - 1}.
+     *
+     * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
+     *
+     * @param msg the failure message
+     * @param expected the expected
+     * @param actual the actual
+     * @param delta delta
+     */
+    static void assertEquals(Supplier<String> msg, double expected, double actual, double delta) {
+        Assertions.assertEquals(expected, actual, delta, msg);
+    }
+
 }

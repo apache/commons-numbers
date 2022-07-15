@@ -21,6 +21,7 @@
 <suppressions>
   <suppress checks="Indentation" files=".*[/\\]combinatorics[/\\]Factorial\.java" />
   <suppress checks="ParameterNumber" files=".*[/\\]core[/\\]LinearCombination[s]?\.java" />
+  <suppress checks="FileLengthCheck" files=".*[/\\]ComplexFunctions(Test)?\.java" />
   <suppress checks="FileLengthCheck" files=".*[/\\]Complex(Test)?\.java" />
   <suppress checks="FileLengthCheck" files=".*jmh[/\\]core[/\\]LinearCombinations.java" />
   <suppress checks="MethodLength" files=".*[/\\]Complex\.java" />
@@ -34,6 +35,8 @@
   <suppress checks="LocalVariableName" files=".*[/\\]BoostGamma\.java" />
   <suppress checks="LocalFinalVariableName" files=".*[/\\]BoostGamma\.java" />
   <suppress checks="ParameterNumber" files=".*[/\\]BoostBeta\.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]ComplexEdgeCaseTest\.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]TestUtils\.java" />
   <!-- Method "hashCode()" is defined in the "Angle" parent class; subclasses have no additional fields to include in the hash. -->
   <suppress checks="EqualsHashCode" files=".*[/\\]Angle\.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]BrentSolver\.java" />
