@@ -18,19 +18,27 @@
 package org.apache.commons.numbers.complex;
 
 /**
- * Represents a complex operation that accepts a complex number of type ComplexDouble and produces a ComplexDouble result.
- * @param <R> Generic
+ * Represents a unary operation on a Cartesian form of a complex number \( a + ib \)
+ * where \( a \) and \( b \) are real numbers represented as two {@code double}
+ * parts. The operation creates a complex number result; the result is supplied
+ * to a terminating consumer function which may return an object representation
+ * of the complex result.
+ *
+ * <p>This is a functional interface whose functional method is
+ * {@link #apply(double, double, ComplexResult)}.
+ *
+ * @param <R> The type of the complex result
+ * @since 1.1
  */
 @FunctionalInterface
 public interface ComplexUnaryOperator<R> {
 
     /**
      * Represents an operator that accepts real and imaginary parts of a complex number and a complex constructor to produce and return the result.
-     * @param r real
-     * @param i imaginary
-     * @param out Constructor
+     * @param r Real part \( a \) of the complex number \(a +ib \).
+     * @param i Imaginary part \( b \) of the complex number \(a +ib \).
+     * @param out Terminating consumer for the complex result, used to construct a result of type {@code R}.
      * @return the object created by the supplied constructor.
      */
-    R apply(double r, double i, ComplexConstructor<R> out);
-
+    R apply(double r, double i, ComplexResult<R> out);
 }

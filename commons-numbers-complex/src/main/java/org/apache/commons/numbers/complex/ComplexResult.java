@@ -18,19 +18,23 @@
 package org.apache.commons.numbers.complex;
 
 /**
- * Define a constructor for a Complex.
- * @param <R> Generic
+ * Represents a Terminating consumer for the complex result, used to construct a result of type {@code R}.
+ * The operation may return an object representation of the complex result.
+ *
+ * <p>This is a functional interface whose functional method is
+ * {@link #apply(double, double)}.
+ *
+ * @param <R> The type of the complex result
+ * @since 1.1
  */
 @FunctionalInterface
-public interface ComplexConstructor<R> {
+public interface ComplexResult<R> {
 
     /**
      * Represents a function that accepts real and imaginary part of complex number and returns an object.
-     * @param real real part
-     * @param imaginary imaginary part
-     * @return R
+     * @param real Real part \( a \) of the complex number \(a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \(a +ib \).
+     * @return R the object encapsulating the complex result
      */
     R apply(double real, double imaginary);
-
 }
-

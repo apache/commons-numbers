@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for {@link Complex}.
+ * Tests for {@link Complex} and {@link ComplexFunctions}.
  *
  * <p>Note: The ISO C99 math functions are not fully tested in this class. See also:
  *
@@ -1419,6 +1419,9 @@ class ComplexTest {
             final Complex z = Complex.ofCartesian(rng.nextDouble() * 2, rng.nextDouble() * 2);
             final Complex lnz = z.log();
             final Complex log10z = z.log10();
+            final ComplexNumber log10z2 = ComplexFunctions.log10(z.getReal(), z.getImaginary(), ComplexNumber::new);
+            TestUtils.assertSame(log10z, log10z2);
+
             // This is prone to floating-point error so use a delta
             Assertions.assertEquals(lnz.getReal() / ln10, log10z.getReal(), 1e-12, "real");
             // This test should be exact

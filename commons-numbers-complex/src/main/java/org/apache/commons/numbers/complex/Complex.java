@@ -93,6 +93,8 @@ public final class Complex implements Serializable  {
      * It is 1 ULP different from 1.0 / Math.sqrt(2) but equal to Math.sqrt(2) / 2.
      */
     private static final double ONE_OVER_ROOT2 = 0.7071067811865476;
+    /** The bit representation of {@code -0.0}. */
+    private static final long NEGATIVE_ZERO_LONG_BITS = Double.doubleToLongBits(-0.0);
     /** Exponent offset in IEEE754 representation. */
     private static final int EXPONENT_OFFSET = 1023;
     /**
@@ -111,6 +113,11 @@ public final class Complex implements Serializable  {
     private static final long UNSIGN_MASK = 0x7fff_ffff_ffff_ffffL;
     /** Mask to extract the 52-bit mantissa from a long representation of a double. */
     private static final long MANTISSA_MASK = 0x000f_ffff_ffff_ffffL;
+
+    /** The multiplier used to split the double value into hi and low parts. This must be odd
+     * and a value of 2^s + 1 in the range {@code p/2 <= s <= p-1} where p is the number of
+     * bits of precision of the floating point number. Here {@code s = 27}.*/
+    private static final double MULTIPLIER = 1.34217729E8;
 
     /**
      * Crossover point to switch computation for asin/acos factor A.
@@ -539,7 +546,7 @@ public final class Complex implements Serializable  {
      */
     public double arg() {
         // Delegate
-        return Math.atan2(imaginary, real);
+        return ComplexFunctions.arg(real, imaginary);
     }
 
     /**
@@ -604,7 +611,7 @@ public final class Complex implements Serializable  {
      * @see Double#isInfinite(double)
      */
     public boolean isInfinite() {
-        return Double.isInfinite(real) || Double.isInfinite(imaginary);
+        return ComplexFunctions.isInfinite(real, imaginary);
     }
 
     /**
@@ -2775,8 +2782,224 @@ public final class Complex implements Serializable  {
      * @param y the y value
      * @return {@code x^2 + y^2 - 1}.
      */
-    private static double x2y2m1(double x, double y) {
-        return ComplexFunctions.x2y2m1(x, y);
+    //TODO - make it private in future
+    static double x2y2m1(double x, double y) {
+        // Hull et al used (x-1)*(x+1)+y*y.
+        // From the paper on page 236:
+
+        // If x == 1 there is no cancellation.
+
+        // If x > 1, there is also no cancellation, but the argument is now accurate
+        // only to within a factor of 1 + 3 EPSILSON (note that x – 1 is exact),
+        // so that error = 3 EPSILON.
+
+        // If x < 1, there can be serious cancellation:
+
+        // If 4 y^2 < |x^2 – 1| the cancellation is not serious ... the argument is accurate
+        // only to within a factor of 1 + 4 EPSILSON so that error = 4 EPSILON.
+
+        // Otherwise there can be serious cancellation and the relative error in the real part
+        // could be enormous.
+
+        final double xx = x * x;
+        final double yy = y * y;
+        // Modify to use high precision before the threshold set by Hull et al.
+        // This is to preserve the monotonic output of the computation at the switch.
+        // Set the threshold when x^2 + y^2 is above 0.5 thus subtracting 1 results in a number
+        // that can be expressed with a higher precision than any number in the range 0.5-1.0
+        // due to the variable exponent used below 0.5.
+        if (x < 1 && xx + yy > 0.5) {
+            // Large relative error.
+            // This does not use o.a.c.numbers.LinearCombination.value(x, x, y, y, 1, -1).
+            // It is optimised knowing that:
+            // - the products are squares
+            // - the final term is -1 (which does not require split multiplication and addition)
+            // - The answer will not be NaN as the terms are not NaN components
+            // - The order is known to be 1 > |x| >= |y|
+            // The squares are computed using a split multiply algorithm and
+            // the summation using an extended precision summation algorithm.
+
+            // Split x and y as one 26 bits number and one 27 bits number
+            final double xHigh = splitHigh(x);
+            final double xLow  = x - xHigh;
+            final double yHigh = splitHigh(y);
+            final double yLow  = y - yHigh;
+
+            // Accurate split multiplication x * x and y * y
+            final double x2Low = squareLow(xLow, xHigh, xx);
+            final double y2Low = squareLow(yLow, yHigh, yy);
+
+            return sumx2y2m1(xx, x2Low, yy, y2Low);
+        }
+        return (x - 1) * (x + 1) + yy;
+    }
+
+    /**
+     * Implement Dekker's method to split a value into two parts. Multiplying by (2^s + 1) create
+     * a big value from which to derive the two split parts.
+     * <pre>
+     * c = (2^s + 1) * a
+     * a_big = c - a
+     * a_hi = c - a_big
+     * a_lo = a - a_hi
+     * a = a_hi + a_lo
+     * </pre>
+     *
+     * <p>The multiplicand must be odd allowing a p-bit value to be split into
+     * (p-s)-bit value {@code a_hi} and a non-overlapping (s-1)-bit value {@code a_lo}.
+     * Combined they have (p􏰔-1) bits of significand but the sign bit of {@code a_lo}
+     * contains a bit of information.
+     *
+     * @param a Value.
+     * @return the high part of the value.
+     * @see <a href="https://doi.org/10.1007/BF01397083">
+     * Dekker (1971) A floating-point technique for extending the available precision</a>
+     */
+    static double splitHigh(double a) {
+        final double c = MULTIPLIER * a;
+        return c - (c - a);
+    }
+
+    /**
+     * Compute the round-off from the square of a split number with {@code low} and {@code high}
+     * components. Uses Dekker's algorithm for split multiplication modified for a square product.
+     *
+     * <p>Note: This is candidate to be replaced with {@code Math.fma(x, x, -x * x)} to compute
+     * the round-off from the square product {@code x * x}. This would remove the requirement
+     * to compute the split number and make this method redundant. {@code Math.fma} requires
+     * JDK 9 and FMA hardware support.
+     *
+     * @param low Low part of number.
+     * @param high High part of number.
+     * @param square Square of the number.
+     * @return <code>low * low - (((product - high * high) - low * high) - high * low)</code>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 18</a>
+     */
+    static double squareLow(double low, double high, double square) {
+        final double lh = low * high;
+        return low * low - (((square - high * high) - lh) - lh);
+    }
+
+    /**
+     * Compute the round-off from the sum of two numbers {@code a} and {@code b} using
+     * Dekker's two-sum algorithm. The values are required to be ordered by magnitude:
+     * {@code |a| >= |b|}.
+     *
+     * @param a First part of sum.
+     * @param b Second part of sum.
+     * @param x Sum.
+     * @return <code>b - (x - a)</code>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 6</a>
+     */
+    private static double fastSumLow(double a, double b, double x) {
+        // x = a + b
+        // bVirtual = x - a
+        // y = b - bVirtual
+        return b - (x - a);
+    }
+
+    /**
+     * Compute the round-off from the sum of two numbers {@code a} and {@code b} using
+     * Knuth's two-sum algorithm. The values are not required to be ordered by magnitude.
+     *
+     * @param a First part of sum.
+     * @param b Second part of sum.
+     * @param x Sum.
+     * @return <code>(a - (x - (x - a))) + (b - (x - a))</code>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 7</a>
+     */
+    private static double sumLow(double a, double b, double x) {
+        // x = a + b
+        // bVirtual = x - a
+        // aVirtual = x - bVirtual
+        // bRoundoff = b - bVirtual
+        // aRoundoff = a - aVirtual
+        // y = aRoundoff + bRoundoff
+        final double bVirtual = x - a;
+        return (a - (x - bVirtual)) + (b - bVirtual);
+    }
+
+    /**
+     * Sum x^2 + y^2 - 1. It is assumed that {@code y <= x < 1}.
+     *
+     * <p>Implement Shewchuk's expansion-sum algorithm: [x2Low, x2High] + [-1] + [y2Low, y2High].
+     *
+     * @param x2High High part of x^2.
+     * @param x2Low Low part of x^2.
+     * @param y2High High part of y^2.
+     * @param y2Low Low part of y^2.
+     * @return x^2 + y^2 - 1
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 12</a>
+     */
+    private static double sumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
+        // Let e and f be non-overlapping expansions of components of length m and n.
+        // The following algorithm will produce a non-overlapping expansion h where the
+        // sum h_i = e + f and components of h are in increasing order of magnitude.
+        // Expansion-sum proceeds by a grow-expansion of the first part from one expansion
+        // into the other, extending its length by 1. The process repeats for the next part
+        // but the grow-expansion starts at the previous merge position + 1.
+        // Thus expansion-sum requires mn two-sum operations to merge length m into length n
+        // resulting in length m+n-1.
+
+        // Variables numbered from 1 as per Figure 7 (p.12). The output expansion h is placed
+        // into e increasing its length for each grow expansion.
+
+        // We have two expansions for x^2 and y^2 and the whole number -1.
+        // Expecting (x^2 + y^2) close to 1 we generate first the intermediate expansion
+        // (x^2 - 1) moving the result away from 1 where there are sparse floating point
+        // representations. This is then added to a similar magnitude y^2. Leaving the -1
+        // until last suffers from 1 ulp rounding errors more often and the requirement
+        // for a distillation sum to reduce rounding error frequency.
+
+        // Note: Do not use the alternative fast-expansion-sum of the parts sorted by magnitude.
+        // The parts can be ordered with a single comparison into:
+        // [y2Low, (y2High|x2Low), x2High, -1]
+        // The fast-two-sum saves 1 fast-two-sum and 3 two-sum operations (21 additions) and
+        // adds a penalty of a single branch condition.
+        // However the order in not "strongly non-overlapping" and the fast-expansion-sum
+        // output will not be strongly non-overlapping. The sum of the output has 1 ulp error
+        // on random cis numbers approximately 1 in 160 events. This can be removed by a
+        // distillation two-sum pass over the final expansion as a cost of 1 fast-two-sum and
+        // 3 two-sum operations! So we use the expansion sum with the same operations and
+        // no branches.
+
+        double q = x2Low - 1;
+        double e1 = fastSumLow(-1, x2Low, q);
+        double e3 = q + x2High;
+        double e2 = sumLow(q, x2High, e3);
+
+        final double f1 = y2Low;
+        final double f2 = y2High;
+
+        // Grow expansion of f1 into e
+        q = f1 + e1;
+        e1 = sumLow(f1, e1, q);
+        double p = q + e2;
+        e2 = sumLow(q, e2, p);
+        double e4 = p + e3;
+        e3 = sumLow(p, e3, e4);
+
+        // Grow expansion of f2 into e (only required to start at e2)
+        q = f2 + e2;
+        e2 = sumLow(f2, e2, q);
+        p = q + e3;
+        e3 = sumLow(q, e3, p);
+        final double e5 = p + e4;
+        e4 = sumLow(p, e4, e5);
+
+        // Final summation:
+        // The sum of the parts is within 1 ulp of the true expansion value e:
+        // |e - sum| < ulp(sum).
+        // To achieve the exact result requires iteration of a distillation two-sum through
+        // the expansion until convergence, i.e. no smaller term changes higher terms.
+        // This requires (n-1) iterations for length n. Here we neglect this as
+        // although the method is not ensured to be exact is it robust on random
+        // cis numbers.
+        return e1 + e2 + e3 + e4 + e5;
     }
 
     /**
@@ -2950,8 +3173,9 @@ public final class Complex implements Serializable  {
      * @param d Value.
      * @return {@code true} if {@code d} is negative.
      */
-    private static boolean negative(double d) {
-        return ComplexFunctions.negative(d);
+    //TODO - remove in future
+    static boolean negative(double d) {
+        return d < 0 || Double.doubleToLongBits(d) == NEGATIVE_ZERO_LONG_BITS;
     }
 
     /**
@@ -2962,7 +3186,8 @@ public final class Complex implements Serializable  {
      * @param d Value.
      * @return {@code true} if {@code d} is +inf.
      */
-    private static boolean isPosInfinite(double d) {
+    //TODO - remove in future
+    static boolean isPosInfinite(double d) {
         return d == Double.POSITIVE_INFINITY;
     }
 
@@ -3116,6 +3341,4 @@ public final class Complex implements Serializable  {
     private static boolean inRegion(double x, double y, double min, double max) {
         return x < max && x > min && y < max && y > min;
     }
-
-
 }

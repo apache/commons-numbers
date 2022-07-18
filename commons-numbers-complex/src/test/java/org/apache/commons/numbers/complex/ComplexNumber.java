@@ -26,20 +26,33 @@ package org.apache.commons.numbers.complex;
  */
 class ComplexNumber {
 
+    /** The real part. */
     private final double real;
+    /** The imaginary part. */
     private final double imaginary;
 
     /**
      * Constructor representing a complex number by its real and imaginary parts.
      * Takes in real and imaginary and sets it to this complex number's real and imaginary
      *
-     * @param real real part of complex number
-     * @param imaginary imaginary part of complex number
+     * @param real Real part \( a \) of the complex number \(a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \(a +ib \).
      *
      */
     ComplexNumber(double real, double imaginary) {
         this.real = real;
         this.imaginary = imaginary;
+    }
+
+    /**
+     * Creates a conjugated complex number given the real and imaginary parts.
+     *
+     * @param real Real part \( a \) of the complex number \(a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \(a +ib \).
+     * @return {@code ComplexNumber} object.
+     */
+    public static ComplexNumber conj(double real, double imaginary) {
+        return new ComplexNumber(real, -imaginary);
     }
 
     /**
