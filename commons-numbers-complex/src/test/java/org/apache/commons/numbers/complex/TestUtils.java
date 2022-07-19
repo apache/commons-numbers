@@ -69,19 +69,6 @@ public final class TestUtils {
     }
 
     /**
-     * Verifies that real and imaginary parts of the Complex and ComplexNumber arguments are
-     * exactly the same as defined by {@link Double#compare(double, double)}. Also
-     * ensures that NaN / infinite components match.
-     *
-     * @param expected the expected value
-     * @param actual the actual value
-     */
-    public static void assertSame(Complex expected, ComplexNumber actual) {
-        Assertions.assertEquals(expected.getReal(), actual.getReal());
-        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary());
-    }
-
-    /**
      * Verifies that real and imaginary parts of the two complex arguments differ by
      * at most delta. Also ensures that NaN / infinite components match.
      *
@@ -406,23 +393,21 @@ public final class TestUtils {
      * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
      * complex real and imaginary parts.
      *
-     * @param c The input complex number.
-     * @param operation1 the operation on the Complex object
-     * @param operation2 the operation on the complex real and imaginary parts
-     * @param name the operation name
-     * @return the resulting complex number from the given operation
+     * @param c Input complex number.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param name Operation name.
+     * @return Resulting complex number from the given operation.
      */
     static Complex assertSame(Complex c,
-                             UnaryOperator<Complex> operation1,
-                             ComplexUnaryOperator<ComplexNumber> operation2,
-                             String name) {
+                              UnaryOperator<Complex> operation1,
+                              ComplexUnaryOperator<ComplexNumber> operation2,
+                              String name) {
         final Complex z = operation1.apply(c);
         // Test operation2 produces the exact same result
-        operation2.apply(c.real(), c.imag(), (x, y) -> {
-            Assertions.assertEquals(z.real(), x, () -> name + " real");
-            Assertions.assertEquals(z.imag(), y, () -> name + " imaginary");
-            return null;
-        });
+        final ComplexNumber z2 = operation2.apply(c.real(), c.imag(), ComplexNumber::new);
+        Assertions.assertEquals(z.real(), z2.getReal(), () -> name + " real");
+        Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> name + " imaginary");
         return z;
     }
 }

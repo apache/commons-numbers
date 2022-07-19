@@ -18,7 +18,7 @@
 package org.apache.commons.numbers.complex;
 
 /**
- * Represents a data sink for a complex number \( (a + i b) \)
+ * Represents a data sink for a complex number \( (a + i b) \).
  * Operations return a result of type {@code R}.
  *
  * <p>This is a functional interface whose functional method is

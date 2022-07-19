@@ -86,14 +86,14 @@ class ComplexEdgeCaseTest {
      *
      * <p>The results are considered equal if there are no floating-point values between them.
      *
-     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * <p>Assert the operation on the complex number is <em>exactly</em> equal to the operation on
      * complex real and imaginary parts.
      *
      * @param a Real part.
      * @param b Imaginary part.
-     * @param name The operation name.
-     * @param operation1 the operation on the Complex object.
-     * @param operation2 the operation on the complex real and imaginary parts
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
      * @param x Expected real part.
      * @param y Expected imaginary part.
      */
@@ -111,17 +111,17 @@ class ComplexEdgeCaseTest {
      * precision. The maximum count of numbers allowed between the two values is
      * {@code maxUlps - 1}.
      *
-     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * <p>Assert the operation on the complex number is <em>exactly</em> equal to the operation on
      * complex real and imaginary parts.
      *
      * @param a Real part.
      * @param b Imaginary part.
-     * @param name The operation name.
-     * @param operation1 the operation on the Complex object.
-     * @param operation2 the operation on the complex real and imaginary parts
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
      * @param x Expected real part.
      * @param y Expected imaginary part.
-     * @param maxUlps the maximum units of least precision between the two values
+     * @param maxUlps Maximum units of least precision between the two values.
      */
     private static void assertComplex(double a, double b,
                                       String name, UnaryOperator<Complex> operation1,

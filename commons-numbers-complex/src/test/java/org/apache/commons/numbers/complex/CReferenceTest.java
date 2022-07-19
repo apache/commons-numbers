@@ -157,10 +157,10 @@ class CReferenceTest {
      * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
      * complex real and imaginary parts.
      *
-     * @param c Input number.
-     * @param name the operation name
-     * @param operation1 the operation on the Complex object
-     * @param operation2 the operation on the complex real and imaginary parts
+     * @param c Input complex number.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
      * @param expected Expected result.
      */
     static void assertComplex(Complex c,
@@ -169,12 +169,10 @@ class CReferenceTest {
         ComplexUnaryOperator<ComplexNumber> operation2,
         Complex expected, long maxUlps) {
 
-        final Complex z = operation1.apply(c);
+        final Complex z = TestUtils.assertSame(c, operation1, operation2, name);
 
         assertEquals(() -> "UnaryOperator " + name + "(" + c + "): real", expected.real(), z.real(), maxUlps);
         assertEquals(() -> "UnaryOperator " + name + "(" + c + "): imaginary", expected.imag(), z.imag(), maxUlps);
-
-        TestUtils.assertSame(c, operation1, operation2, name);
     }
 
     /**
@@ -259,10 +257,10 @@ class CReferenceTest {
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param name the operation name
-     * @param operation1 the operation on the Complex object
-     * @param operation2 the operation on the complex real and imaginary parts
-     * @param maxUlps the maximum units of least precision between the two values
+     * @param name Operation name
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param maxUlps Maximum units of least precision between the two values.
      */
     private static void assertOperation(String name,
         UnaryOperator<Complex> operation1,

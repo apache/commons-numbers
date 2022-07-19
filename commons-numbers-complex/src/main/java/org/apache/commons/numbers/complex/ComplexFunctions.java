@@ -209,7 +209,7 @@ public final class ComplexFunctions {
      * @param real Real part \( a \) of the complex number \( (a +ib \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
      * @param action Consumer for the natural logarithm of the complex number.
-     * @param <R> the object taken by the supplied action.
+     * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see Math#log(double)
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Log/">Log</a>
@@ -237,7 +237,7 @@ public final class ComplexFunctions {
      * @param real Real part \( a \) of the complex number \( (a +ib \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
      * @param action Consumer for the natural logarithm of the complex number.
-     * @param <R> the object taken by the supplied action.
+     * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see Math#log10(double)
      */
@@ -263,7 +263,7 @@ public final class ComplexFunctions {
      * @param real Real part \( a \) of the complex number \( (a +ib \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
      * @param action Consumer for the natural logarithm of the complex number.
-     * @param <R> the object taken by the supplied action.
+     * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
     private static <R> R log(DoubleUnaryOperator log,
@@ -666,7 +666,7 @@ public final class ComplexFunctions {
      * @see <a href="https://doi.org/10.1007/BF01397083">
      * Dekker (1971) A floating-point technique for extending the available precision</a>
      */
-    static double splitHigh(double a) {
+    private static double splitHigh(double a) {
         final double c = MULTIPLIER * a;
         return c - (c - a);
     }
@@ -687,7 +687,7 @@ public final class ComplexFunctions {
      * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 18</a>
      */
-    static double squareLow(double low, double high, double square) {
+    private static double squareLow(double low, double high, double square) {
         final double lh = low * high;
         return low * low - (((square - high * high) - lh) - lh);
     }
