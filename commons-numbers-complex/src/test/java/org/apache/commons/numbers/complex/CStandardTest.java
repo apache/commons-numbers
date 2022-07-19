@@ -302,13 +302,15 @@ class CStandardTest {
 
     /**
      * Assert the operation on the complex number satisfies the conjugate equality.
-     * Assert the operation on the complex number is exactly equal to the operation on
-     * complex real and imaginary parts.
+     *
      * <pre>
      * op(conj(z)) = conj(op(z))
      * </pre>
      *
      * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
      *
      * <h2>ISO C99 equalities</h2>
      *
@@ -356,14 +358,16 @@ class CStandardTest {
 
     /**
      * Assert the operation on the complex number satisfies the conjugate equality.
-     * Assert the operation on the complex number is exactly equal to the operation on
-     * complex real and imaginary parts.
+     *
      * <pre>
      * op(conj(z)) = conj(op(z))
      * </pre>
      *
      * <p>The results must be binary equal; the sign of the complex number is first processed
      * using the provided sign specification.
+     *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
      *
      * @param z the complex number
      * @param operation1 the operation on the Complex object
@@ -382,9 +386,6 @@ class CStandardTest {
         final ComplexNumber cn1 = operation2.apply(zConj.getReal(), zConj.getImaginary(), ComplexNumber::new);
         final ComplexNumber cn2 = operation2.apply(z.getReal(), z.getImaginary(), ComplexNumber::conj);
 
-        TestUtils.assertSame(c1, cn1);
-        TestUtils.assertSame(c2, cn2);
-
         final Complex t1 = sign.removeSign(c1);
         final Complex t2 = sign.removeSign(c2);
 
@@ -395,6 +396,9 @@ class CStandardTest {
                 String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
                     z, c1, c2, sign));
         }
+
+        TestUtils.assertSame(c1, cn1);
+        TestUtils.assertSame(c2, cn2);
     }
 
     /**
@@ -607,15 +611,17 @@ class CStandardTest {
 
     /**
      * Assert the operation on the complex number is equal to the expected value.
-     * Assert the operation on the complex number is exactly equal to the operation on
-     * complex real and imaginary parts. If the imaginary part is not NaN the operation
-     * must also satisfy the conjugate equality.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
      *
      * <pre>
      * op(conj(z)) = conj(op(z))
      * </pre>
      *
      * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
      * @param z the complex
      * @param operation1 the operation on the Complex object
      * @param operation2 the operation on the complex real and imaginary parts
@@ -625,15 +631,12 @@ class CStandardTest {
         UnaryOperator<Complex> operation1,
         ComplexUnaryOperator<ComplexNumber> operation2,
         Complex expected) {
-
         assertComplex(z, operation1, operation2, expected, FunctionType.NONE, UnspecifiedSign.NONE);
     }
 
     /**
      * Assert the operation on the complex number is equal to the expected value.
-     * Assert the operation on the complex number is exactly equal to the operation on
-     * complex real and imaginary parts. If the imaginary part is not NaN the operation
-     * must also satisfy the conjugate equality.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
      *
      * <pre>
      * op(conj(z)) = conj(op(z))
@@ -651,6 +654,9 @@ class CStandardTest {
      *
      * <p>The results must be binary equal; the sign of the complex number is first processed
      * using the provided sign specification.
+     *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
      *
      * @param z the complex
      * @param operation the operation on the Complex object
@@ -674,8 +680,6 @@ class CStandardTest {
         // Test the operation
         final Complex c = operation.apply(z);
         final ComplexNumber c1 = operation2.apply(z.getReal(), z.getImaginary(), ComplexNumber::new);
-
-        TestUtils.assertSame(c, c1);
 
         final Complex t1 = sign.removeSign(c);
         final Complex t2 = sign.removeSign(expected);
@@ -704,6 +708,8 @@ class CStandardTest {
                 assertConjugateEquality(z.negate(), operation, operation2, sign);
             }
         }
+
+        TestUtils.assertSame(c, c1);
     }
 
     /**

@@ -25,7 +25,7 @@ package org.apache.commons.numbers.complex;
  * of the complex result.
  *
  * <p>This is a functional interface whose functional method is
- * {@link #apply(double, double, ComplexResult)}.
+ * {@link #apply(double, double, ComplexSink)}.
  *
  * @param <R> The type of the complex result
  * @since 1.1
@@ -34,11 +34,11 @@ package org.apache.commons.numbers.complex;
 public interface ComplexUnaryOperator<R> {
 
     /**
-     * Represents an operator that accepts real and imaginary parts of a complex number and a complex constructor to produce and return the result.
-     * @param r Real part \( a \) of the complex number \(a +ib \).
-     * @param i Imaginary part \( b \) of the complex number \(a +ib \).
-     * @param out Terminating consumer for the complex result, used to construct a result of type {@code R}.
-     * @return the object created by the supplied constructor.
+     * Represents an operator that accepts real and imaginary parts of a complex number and supplies the complex result to the provided consumer.
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param out Consumer for the complex result.
+     * @return the object returned by the provided consumer.
      */
-    R apply(double r, double i, ComplexResult<R> out);
+    R apply(double real, double imaginary, ComplexSink<R> out);
 }

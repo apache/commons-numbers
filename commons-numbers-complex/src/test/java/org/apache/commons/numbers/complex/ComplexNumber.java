@@ -35,8 +35,8 @@ class ComplexNumber {
      * Constructor representing a complex number by its real and imaginary parts.
      * Takes in real and imaginary and sets it to this complex number's real and imaginary
      *
-     * @param real Real part \( a \) of the complex number \(a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \(a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
      *
      */
     ComplexNumber(double real, double imaginary) {
@@ -45,10 +45,11 @@ class ComplexNumber {
     }
 
     /**
-     * Creates a conjugated complex number given the real and imaginary parts.
+     * Creates a conjugated complex number given the real and imaginary parts,
+     * that is for the argument (a + ib), returns (a - ib).
      *
-     * @param real Real part \( a \) of the complex number \(a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \(a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
      * @return {@code ComplexNumber} object.
      */
     public static ComplexNumber conj(double real, double imaginary) {

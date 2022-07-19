@@ -83,10 +83,11 @@ class ComplexEdgeCaseTest {
 
     /**
      * Assert the operation on the complex number is equal to the expected value.
-     * Assert the operation on the complex number is exactly equal to the operation on
-     * complex real and imaginary parts.
      *
      * <p>The results are considered equal if there are no floating-point values between them.
+     *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
      *
      * @param a Real part.
      * @param b Imaginary part.
@@ -105,12 +106,13 @@ class ComplexEdgeCaseTest {
 
     /**
      * Assert the operation on the complex number is equal to the expected value.
-     * Assert the operation on the complex number is exactly equal to the operation on
-     * complex real and imaginary parts.
      *
      * <p>The results are considered equal within the provided units of least
      * precision. The maximum count of numbers allowed between the two values is
      * {@code maxUlps - 1}.
+     *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
      *
      * @param a Real part.
      * @param b Imaginary part.

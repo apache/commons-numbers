@@ -27,6 +27,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.numbers.core.Precision;
 
@@ -399,5 +400,29 @@ public final class TestUtils {
             }
         }
         return line;
+    }
+
+    /**
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
+     * @param c The input complex number.
+     * @param operation1 the operation on the Complex object
+     * @param operation2 the operation on the complex real and imaginary parts
+     * @param name the operation name
+     * @return the resulting complex number from the given operation
+     */
+    static Complex assertSame(Complex c,
+                             UnaryOperator<Complex> operation1,
+                             ComplexUnaryOperator<ComplexNumber> operation2,
+                             String name) {
+        final Complex z = operation1.apply(c);
+        // Test operation2 produces the exact same result
+        operation2.apply(c.real(), c.imag(), (x, y) -> {
+            Assertions.assertEquals(z.real(), x, () -> name + " real");
+            Assertions.assertEquals(z.imag(), y, () -> name + " imaginary");
+            return null;
+        });
+        return z;
     }
 }

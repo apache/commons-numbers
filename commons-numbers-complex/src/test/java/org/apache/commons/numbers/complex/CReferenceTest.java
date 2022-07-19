@@ -147,14 +147,15 @@ class CReferenceTest {
 
     /**
      * Assert the operation on the complex number is equal to the expected value.
-     * Assert the operation on the complex number is exactly equal to the operation on
-     * complex real and imaginary parts.
      *
      * <p>The results are considered equal within the provided units of least
      * precision. The maximum count of numbers allowed between the two values is
      * {@code maxUlps - 1}.
      *
      * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
+     *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
      *
      * @param c Input number.
      * @param name the operation name
@@ -169,13 +170,11 @@ class CReferenceTest {
         Complex expected, long maxUlps) {
 
         final Complex z = operation1.apply(c);
-        final ComplexNumber y = operation2.apply(c.getReal(), c.getImaginary(), ComplexNumber::new);
 
         assertEquals(() -> "UnaryOperator " + name + "(" + c + "): real", expected.real(), z.real(), maxUlps);
         assertEquals(() -> "UnaryOperator " + name + "(" + c + "): imaginary", expected.imag(), z.imag(), maxUlps);
 
-        Assertions.assertEquals(z.real(), y.getReal(), () -> "ComplexUnaryOperator " + name + "(" + c + "): real");
-        Assertions.assertEquals(z.imag(), y.getImaginary(), () -> "ComplexUnaryOperator " + name + "(" + c + "): imaginary");
+        TestUtils.assertSame(c, operation1, operation2, name);
     }
 
     /**
@@ -269,7 +268,6 @@ class CReferenceTest {
         UnaryOperator<Complex> operation1,
         ComplexUnaryOperator<ComplexNumber> operation2,
         long maxUlps) {
-
         final List<Complex[]> data = loadTestData(name);
         final long ulps = getTestUlps(maxUlps);
         for (final Complex[] pair : data) {
