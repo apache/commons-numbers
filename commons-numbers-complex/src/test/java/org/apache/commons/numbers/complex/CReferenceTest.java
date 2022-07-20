@@ -154,6 +154,36 @@ class CReferenceTest {
      *
      * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
      *
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
+     * @param c Input complex number.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param expected Expected result.
+     */
+    static void assertComplex(Complex c,
+        String name,
+        UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        Complex expected, long maxUlps) {
+
+        final Complex z = TestUtils.assertSame(c, operation1, operation2, name);
+
+        assertEquals(() -> "UnaryOperator " + name + "(" + c + "): real", expected.real(), z.real(), maxUlps);
+        assertEquals(() -> "UnaryOperator " + name + "(" + c + "): imaginary", expected.imag(), z.imag(), maxUlps);
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value.
+     *
+     * <p>The results are considered equal within the provided units of least
+     * precision. The maximum count of numbers allowed between the two values is
+     * {@code maxUlps - 1}.
+     *
+     * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
+     *
      * @param c Input number.
      * @param name the operation name
      * @param operation the operation
@@ -227,7 +257,26 @@ class CReferenceTest {
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param testData Test data resource name.
+     * @param name Operation name
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param maxUlps Maximum units of least precision between the two values.
+     */
+    private static void assertOperation(String name,
+        UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        long maxUlps) {
+        final List<Complex[]> data = loadTestData(name);
+        final long ulps = getTestUlps(maxUlps);
+        for (final Complex[] pair : data) {
+            assertComplex(pair[0], name, operation1, operation2, pair[1], ulps);
+        }
+    }
+
+    /**
+     * Assert the operation using the data loaded from test resources.
+     *
+     * @param name Test data resource name.
      * @return the list
      */
     private static List<Complex[]> loadTestData(String name) {
@@ -312,7 +361,7 @@ class CReferenceTest {
 
     @Test
     void testLog() {
-        assertOperation("log", Complex::log, 1);
+        assertOperation("log", Complex::log, ComplexFunctions::log, 1);
     }
 
     @Test

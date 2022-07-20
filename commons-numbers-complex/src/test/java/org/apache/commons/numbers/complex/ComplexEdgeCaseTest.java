@@ -82,6 +82,57 @@ class ComplexEdgeCaseTest {
     }
 
     /**
+     * Assert the operation on the complex number is equal to the expected value.
+     *
+     * <p>The results are considered equal if there are no floating-point values between them.
+     *
+     * <p>Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
+     * @param a Real part.
+     * @param b Imaginary part.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param x Expected real part.
+     * @param y Expected imaginary part.
+     */
+    private static void assertComplex(double a, double b,
+                                      String name, UnaryOperator<Complex> operation1,
+                                      ComplexUnaryOperator<ComplexNumber> operation2,
+                                      double x, double y) {
+        assertComplex(a, b, name, operation1, operation2, x, y, 1);
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value.
+     *
+     * <p>The results are considered equal within the provided units of least
+     * precision. The maximum count of numbers allowed between the two values is
+     * {@code maxUlps - 1}.
+     *
+     * <p>Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
+     * @param a Real part.
+     * @param b Imaginary part.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param x Expected real part.
+     * @param y Expected imaginary part.
+     * @param maxUlps Maximum units of least precision between the two values.
+     */
+    private static void assertComplex(double a, double b,
+                                      String name, UnaryOperator<Complex> operation1,
+                                      ComplexUnaryOperator<ComplexNumber> operation2,
+                                      double x, double y, long maxUlps) {
+        final Complex c = Complex.ofCartesian(a, b);
+        final Complex e = Complex.ofCartesian(x, y);
+        CReferenceTest.assertComplex(c, name, operation1, operation2, e, maxUlps);
+    }
+
+    /**
      * Assert the operation on the complex numbers is equal to the expected value.
      *
      * <p>The results are considered equal if there are no floating-point values between them.
@@ -426,30 +477,30 @@ class ComplexEdgeCaseTest {
     @Test
     void testLog() {
         final String name = "log";
-        final UnaryOperator<Complex> operation = Complex::log;
-
+        final UnaryOperator<Complex> operation1 = Complex::log;
+        final ComplexUnaryOperator<ComplexNumber> operation2 = ComplexFunctions::log;
         // ln(a + b i) = ln(|a + b i|) + i arg(a + b i)
         // |a + b i| = sqrt(a^2 + b^2)
         // arg(a + b i) = Math.atan2(imaginary, real)
 
         // Overflow if sqrt(a^2 + b^2) == inf.
         // Matlab computes this.
-        assertComplex(-Double.MAX_VALUE, Double.MAX_VALUE, name, operation, 7.101292864836639e2, Math.PI * 3 / 4);
-        assertComplex(Double.MAX_VALUE, Double.MAX_VALUE, name, operation, 7.101292864836639e2, Math.PI / 4);
-        assertComplex(-Double.MAX_VALUE, Double.MAX_VALUE / 4, name, operation, 7.098130252042921e2, 2.896613990462929);
-        assertComplex(Double.MAX_VALUE, Double.MAX_VALUE / 4, name, operation, 7.098130252042921e2, 2.449786631268641e-1, 2);
+        assertComplex(-Double.MAX_VALUE, Double.MAX_VALUE, name, operation1, operation2, 7.101292864836639e2, Math.PI * 3 / 4);
+        assertComplex(Double.MAX_VALUE, Double.MAX_VALUE, name, operation1, operation2, 7.101292864836639e2, Math.PI / 4);
+        assertComplex(-Double.MAX_VALUE, Double.MAX_VALUE / 4, name, operation1, operation2, 7.098130252042921e2, 2.896613990462929);
+        assertComplex(Double.MAX_VALUE, Double.MAX_VALUE / 4, name, operation1, operation2, 7.098130252042921e2, 2.449786631268641e-1, 2);
 
         // Underflow if sqrt(a^2 + b^2) -> 0
-        assertComplex(-Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation, -708.04984494198413, 2.3561944901923448);
-        assertComplex(Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation, -708.04984494198413, 0.78539816339744828);
+        assertComplex(-Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation1, operation2, -708.04984494198413, 2.3561944901923448);
+        assertComplex(Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation1, operation2, -708.04984494198413, 0.78539816339744828);
         // Math.hypot(min, min) = min.
         // To compute the expected result do scaling of the actual hypot = sqrt(2).
         // log(a/n) = log(a) - log(n)
         // n = 2^1074 => log(a) - log(2) * 1074
         double expected = Math.log(Math.sqrt(2)) - Math.log(2) * 1074;
-        assertComplex(-Double.MIN_VALUE, Double.MIN_VALUE, name, operation, expected, Math.atan2(1, -1));
+        assertComplex(-Double.MIN_VALUE, Double.MIN_VALUE, name, operation1, operation2, expected, Math.atan2(1, -1));
         expected = Math.log(Math.sqrt(5)) - Math.log(2) * 1074;
-        assertComplex(-Double.MIN_VALUE, 2 * Double.MIN_VALUE, name, operation, expected, Math.atan2(2, -1));
+        assertComplex(-Double.MIN_VALUE, 2 * Double.MIN_VALUE, name, operation1, operation2, expected, Math.atan2(2, -1));
 
         // Imprecision if sqrt(a^2 + b^2) == 1 as log(1) is 0.
         // Method should switch to using log1p(x^2 + x^2 - 1) * 0.5.
@@ -554,7 +605,7 @@ class ComplexEdgeCaseTest {
         final BigDecimal exact = bx.multiply(bx).add(by.multiply(by)).subtract(BigDecimal.ONE);
         final double real = 0.5 * Math.log1p(exact.doubleValue());
         final double imag = Math.atan2(y, x);
-        assertComplex(x, y, "log", Complex::log, real, imag, maxUlps);
+        assertComplex(x, y, "log", Complex::log, ComplexFunctions::log, real, imag, maxUlps);
     }
 
     @Test
