@@ -43,18 +43,6 @@ class ComplexNumber {
     }
 
     /**
-     * Creates a conjugated complex number given the real and imaginary parts,
-     * that is for the argument (a + ib), returns (a - ib).
-     *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
-     * @return conjugated complex number.
-     */
-    public static ComplexNumber conj(double real, double imaginary) {
-        return new ComplexNumber(real, -imaginary);
-    }
-
-    /**
      * Gets the real part \( a \) of complex number \( (a + i b) \).
      *
      * @return real part
