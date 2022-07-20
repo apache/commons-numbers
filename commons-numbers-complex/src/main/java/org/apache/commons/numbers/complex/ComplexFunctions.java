@@ -19,7 +19,8 @@ package org.apache.commons.numbers.complex;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * Cartesian representation of a complex number. The complex number is expressed
+ * Contains methods for performing numeric operations on the Cartesian representation of a
+ * complex number. The complex number is expressed
  * in the form \( a + ib \) where \( a \) and \( b \) are real numbers and \( i \)
  * is the imaginary unit which satisfies the equation \( i^2 = -1 \). For the
  * complex number \( a + ib \), \( a \) is called the <em>real part</em> and
@@ -53,6 +54,7 @@ import java.util.function.DoubleUnaryOperator;
  *
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
+ * @since 1.1
  */
 public final class ComplexFunctions {
 
@@ -63,7 +65,7 @@ public final class ComplexFunctions {
     private static final double LN_2 = Math.log(2);
     /** {@code 1/2}. */
     private static final double HALF = 0.5;
-    /** Base 10 logarithm of 10 divided by 2 (log10(e)/2). */
+    /** Base 10 logarithm of e divided by 2 (log10(e)/2). */
     private static final double LOG_10E_O_2 = Math.log10(Math.E) / 2;
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
@@ -178,7 +180,7 @@ public final class ComplexFunctions {
      * Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().log() == z.log().conj()}.
+     * <li>{@code log(conj(z)) == conj(log(z))}, where {@code conj} is the conjugate function.
      * <li>If {@code z} is −0 + i0, returns −∞ + iπ ("divide-by-zero" floating-point operation).
      * <li>If {@code z} is +0 + i0, returns −∞ + i0 ("divide-by-zero" floating-point operation).
      * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.
@@ -236,7 +238,7 @@ public final class ComplexFunctions {
      *
      * @param real Real part \( a \) of the complex number \( (a +ib \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
-     * @param action Consumer for the natural logarithm of the complex number.
+     * @param action Consumer for the base 10 common logarithm of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see Math#log10(double)
