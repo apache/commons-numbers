@@ -1417,8 +1417,8 @@ class ComplexTest {
         final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
         for (int i = 0; i < 10; i++) {
             final Complex z = Complex.ofCartesian(rng.nextDouble() * 2, rng.nextDouble() * 2);
-            final Complex lnz = TestUtils.assertSame(z, Complex::log, ComplexFunctions::log, "log");
-            final Complex log10z = TestUtils.assertSame(z, Complex::log10, ComplexFunctions::log10, "log10");
+            final Complex lnz = TestUtils.assertSame(z, "log", Complex::log, ComplexFunctions::log);
+            final Complex log10z = TestUtils.assertSame(z, "log10", Complex::log10, ComplexFunctions::log10);
 
             // This is prone to floating-point error so use a delta
             Assertions.assertEquals(lnz.getReal() / ln10, log10z.getReal(), 1e-12, "real");

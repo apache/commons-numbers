@@ -154,25 +154,23 @@ class CReferenceTest {
      *
      * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
      *
-     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * <p>Assert the operation on the complex number is <em>exactly</em> equal to the operation on
      * complex real and imaginary parts.
      *
-     * @param c Input complex number.
+     * @param c Input number.
      * @param name Operation name.
      * @param operation1 Operation on the Complex object.
      * @param operation2 Operation on the complex real and imaginary parts.
      * @param expected Expected result.
+     * @param maxUlps Maximum units of least precision between the two values.
      */
     static void assertComplex(Complex c,
-        String name,
-        UnaryOperator<Complex> operation1,
-        ComplexUnaryOperator<ComplexNumber> operation2,
-        Complex expected, long maxUlps) {
-
-        final Complex z = TestUtils.assertSame(c, operation1, operation2, name);
-
-        assertEquals(() -> "UnaryOperator " + name + "(" + c + "): real", expected.real(), z.real(), maxUlps);
-        assertEquals(() -> "UnaryOperator " + name + "(" + c + "): imaginary", expected.imag(), z.imag(), maxUlps);
+            String name, UnaryOperator<Complex> operation1,
+            ComplexUnaryOperator<ComplexNumber> operation2,
+            Complex expected, long maxUlps) {
+        final Complex z = TestUtils.assertSame(c, name, operation1, operation2);
+        assertEquals(() -> c + "." + name + "(): real", expected.real(), z.real(), maxUlps);
+        assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), z.imag(), maxUlps);
     }
 
     /**
@@ -257,15 +255,15 @@ class CReferenceTest {
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param name Operation name
+     * @param name Operation name.
      * @param operation1 Operation on the Complex object.
      * @param operation2 Operation on the complex real and imaginary parts.
      * @param maxUlps Maximum units of least precision between the two values.
      */
     private static void assertOperation(String name,
-        UnaryOperator<Complex> operation1,
-        ComplexUnaryOperator<ComplexNumber> operation2,
-        long maxUlps) {
+            UnaryOperator<Complex> operation1,
+            ComplexUnaryOperator<ComplexNumber> operation2,
+            long maxUlps) {
         final List<Complex[]> data = loadTestData(name);
         final long ulps = getTestUlps(maxUlps);
         for (final Complex[] pair : data) {

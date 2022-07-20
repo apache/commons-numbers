@@ -98,9 +98,9 @@ class ComplexEdgeCaseTest {
      * @param y Expected imaginary part.
      */
     private static void assertComplex(double a, double b,
-                                      String name, UnaryOperator<Complex> operation1,
-                                      ComplexUnaryOperator<ComplexNumber> operation2,
-                                      double x, double y) {
+            String name, UnaryOperator<Complex> operation1,
+            ComplexUnaryOperator<ComplexNumber> operation2,
+            double x, double y) {
         assertComplex(a, b, name, operation1, operation2, x, y, 1);
     }
 
@@ -124,9 +124,9 @@ class ComplexEdgeCaseTest {
      * @param maxUlps Maximum units of least precision between the two values.
      */
     private static void assertComplex(double a, double b,
-                                      String name, UnaryOperator<Complex> operation1,
-                                      ComplexUnaryOperator<ComplexNumber> operation2,
-                                      double x, double y, long maxUlps) {
+            String name, UnaryOperator<Complex> operation1,
+            ComplexUnaryOperator<ComplexNumber> operation2,
+            double x, double y, long maxUlps) {
         final Complex c = Complex.ofCartesian(a, b);
         final Complex e = Complex.ofCartesian(x, y);
         CReferenceTest.assertComplex(c, name, operation1, operation2, e, maxUlps);
@@ -146,7 +146,6 @@ class ComplexEdgeCaseTest {
      * @param x Expected real part.
      * @param y Expected imaginary part.
      */
-    // CHECKSTYLE: stop ParameterNumberCheck
     private static void assertComplex(double a, double b, double c, double d,
             String name, BiFunction<Complex, Complex, Complex> operation,
             double x, double y) {

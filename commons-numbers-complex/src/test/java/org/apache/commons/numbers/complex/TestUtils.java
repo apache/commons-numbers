@@ -394,20 +394,20 @@ public final class TestUtils {
      * complex real and imaginary parts.
      *
      * @param c Input complex number.
+     * @param name Operation name.
      * @param operation1 Operation on the Complex object.
      * @param operation2 Operation on the complex real and imaginary parts.
-     * @param name Operation name.
-     * @return Resulting complex number from the given operation.
+     * @return Result complex number from the given operation.
      */
-    static Complex assertSame(Complex c,
-                              UnaryOperator<Complex> operation1,
-                              ComplexUnaryOperator<ComplexNumber> operation2,
-                              String name) {
+    public static Complex assertSame(Complex c,
+                                     String name,
+                                     UnaryOperator<Complex> operation1,
+                                     ComplexUnaryOperator<ComplexNumber> operation2) {
         final Complex z = operation1.apply(c);
         // Test operation2 produces the exact same result
         final ComplexNumber z2 = operation2.apply(c.real(), c.imag(), ComplexNumber::new);
-        Assertions.assertEquals(z.real(), z2.getReal(), () -> name + " real");
-        Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> name + " imaginary");
+        Assertions.assertEquals(z.real(), z2.getReal(), () -> "Unary operator mismatch: " + name + " real");
+        Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Unary operator mismatch: " + name + " imaginary");
         return z;
     }
 }
