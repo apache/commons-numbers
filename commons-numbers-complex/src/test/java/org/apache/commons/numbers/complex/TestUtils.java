@@ -27,6 +27,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.numbers.core.Precision;
@@ -409,5 +411,39 @@ public final class TestUtils {
         Assertions.assertEquals(z.real(), z2.getReal(), () -> "Unary operator mismatch: " + name + " real");
         Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Unary operator mismatch: " + name + " imaginary");
         return z;
+    }
+
+    /**
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
+     * @param c Input complex number.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @return Result double from the given operation.
+     */
+    public static double assertSame(Complex c,
+                                    String name,
+                                    ToDoubleFunction<Complex> operation1,
+                                    DoubleBinaryOperator operation2) {
+        final double z = operation1.applyAsDouble(c);
+        // Test operation2 produces the exact same result
+        final double z2 = operation2.applyAsDouble(c.real(), c.imag());
+        Assertions.assertEquals(z, z2, () -> "Unary operator mismatch: " + name);
+        return z;
+    }
+
+    /**
+     * Verifies that the expected {@code abs} value is <em>exactly</em> equal to the
+     * actual {@code abs} value which is calculated by the given input argument.
+     *
+     * @param expected Expected double value.
+     * @param input Input complex number.
+     */
+    public static void assertAbs(double expected, Complex input) {
+        final double actual = assertSame(input, "abs", Complex::abs, ComplexFunctions::abs);
+        Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(actual, assertSame(input, "abs", Complex::abs, ComplexFunctions::abs));
     }
 }
