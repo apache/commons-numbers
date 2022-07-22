@@ -320,7 +320,7 @@ class ComplexTest {
         final double actual = TestUtils.assertSame(input, "abs", Complex::abs, ComplexFunctions::abs);
         Assertions.assertEquals(expected, actual);
     }
-    
+
     /**
      * Test standard values
      */
@@ -444,7 +444,7 @@ class ComplexTest {
         final Complex z = Complex.ofCartesian(real, imaginary);
         final boolean isNaN = TestUtils.assertSame(z, "NaN", Complex::isNaN, ComplexFunctions::isNaN);
         final boolean isInfinite = TestUtils.assertSame(z, "Inf", Complex::isInfinite, ComplexFunctions::isInfinite);
-        final boolean isFinite = TestUtils.assertSame(z, "Fin", Complex::isFinite, ComplexFunctions::isFinite);;
+        final boolean isFinite = TestUtils.assertSame(z, "Fin", Complex::isFinite, ComplexFunctions::isFinite);
         // A number can be only one
         int count = isNaN ? 1 : 0;
         count += isInfinite ? 1 : 0;

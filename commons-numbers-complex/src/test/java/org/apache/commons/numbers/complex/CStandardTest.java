@@ -700,7 +700,7 @@ class CStandardTest {
         final double actual = TestUtils.assertSame(z, "abs", Complex::abs, ComplexFunctions::abs);
         Assertions.assertEquals(expected, actual);
     }
-    
+
     /**
      * Creates a sub-normal number with up to 52-bits in the mantissa. The number of bits
      * to drop must be in the range [0, 51].

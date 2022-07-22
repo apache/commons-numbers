@@ -64,7 +64,7 @@ public final class ComplexFunctions {
     private static final double PI_OVER_4 = 0.25 * Math.PI;
     /** Natural logarithm of 2 (ln(2)). */
     private static final double LN_2 = Math.log(2);
-    /** Base 10 logarithm of e divided by 2 */
+    /** Base 10 logarithm of e divided by 2. */
     private static final double LOG_10E_O_2 = Math.log10(Math.E) / 2;
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
