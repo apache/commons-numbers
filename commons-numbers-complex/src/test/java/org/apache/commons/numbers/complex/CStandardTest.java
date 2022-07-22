@@ -219,6 +219,31 @@ class CStandardTest {
     }
 
     /**
+     * Assert the operation on the two complex numbers.
+     *
+     * <p>Assert the condition operation on the complex number is <em>exactly</em> equal to the condition
+     * operation on complex real and imaginary parts.
+     *
+     * @param c1 First input complex number.
+     * @param c2 Second input complex number.
+     * @param operation operation on the Complex objects.
+     * @param condition1 Condition operation on the Complex object.
+     * @param condition2 Condition operation on the complex real and imaginary parts.
+     * @param operationName the operation name
+     * @param expectedName the expected name
+     */
+    private static void assertOperation(Complex c1, Complex c2,
+        BiFunction<Complex, Complex, Complex> operation,
+        String operationName,
+        Predicate<Complex> condition1,
+        TestUtils.DoubleBinaryPredicate condition2,
+        String expectedName) {
+        final Complex z = operation.apply(c1, c2);
+        Assertions.assertTrue(TestUtils.assertSame(z, expectedName, condition1, condition2),
+            () -> String.format("%s expected: %s %s %s = %s", expectedName, c1, operationName, c2, z));
+    }
+
+    /**
      * Assert the operation on the complex number satisfies the conjugate equality.
      *
      * <pre>
@@ -253,8 +278,8 @@ class CStandardTest {
      * @param operation2 Operation on the complex real and imaginary parts.
      */
     private static void assertConjugateEquality(String name,
-            UnaryOperator<Complex> operation1,
-            ComplexUnaryOperator<ComplexNumber> operation2) {
+        UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2) {
         // Edge cases. Inf/NaN are specifically handled in the C99 test cases
         // but are repeated here to enforce the conjugate equality even when the C99
         // standard does not specify a sign. This may be revised in the future.
@@ -297,14 +322,14 @@ class CStandardTest {
      * @param name Operation name.
      */
     private static void assertConjugateEquality(Complex z,
-            String name, UnaryOperator<Complex> operation1,
-            ComplexUnaryOperator<ComplexNumber> operation2,
-            UnspecifiedSign sign) {
+        String name, UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        UnspecifiedSign sign) {
 
         final Complex zConj = TestUtils.assertSame(z, "conj", Complex::conj, ComplexFunctions::conj);
         final Complex c1 = TestUtils.assertSame(zConj, name, operation1, operation2);
-        Complex input = TestUtils.assertSame(z, name, operation1, operation2);
-        final Complex c2 = TestUtils.assertSame(input, "conj", Complex::conj, ComplexFunctions::conj);
+        final Complex result = TestUtils.assertSame(z, name, operation1, operation2);
+        final Complex c2 = TestUtils.assertSame(result, "conj", Complex::conj, ComplexFunctions::conj);
 
         final Complex t1 = sign.removeSign(c1);
         final Complex t2 = sign.removeSign(c2);
@@ -336,9 +361,10 @@ class CStandardTest {
      * @param operation2 Operation on the complex real and imaginary parts.
      * @param type the type
      */
-    private static void assertFunctionType(String name, UnaryOperator<Complex> operation1,
-                                           ComplexUnaryOperator<ComplexNumber> operation2,
-                                           FunctionType type) {
+    private static void assertFunctionType(String name,
+        UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        FunctionType type) {
         // Note: It may not be possible to satisfy the conjugate equality
         // and be an odd/even function with regard to zero.
         // The C99 standard allows for these cases to have unspecified sign.
@@ -385,10 +411,11 @@ class CStandardTest {
      * @param type the type (assumed to be ODD/EVEN)
      * @param sign the sign specification
      */
-    private static void assertFunctionType(Complex z, String name,
-                                           UnaryOperator<Complex> operation1,
-                                           ComplexUnaryOperator<ComplexNumber> operation2,
-                                           FunctionType type, UnspecifiedSign sign) {
+    private static void assertFunctionType(Complex z,
+        String name,
+        UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        FunctionType type, UnspecifiedSign sign) {
         final Complex c1 = TestUtils.assertSame(z, name, operation1, operation2);
         Complex c2 = TestUtils.assertSame(z.negate(), name, operation1, operation2);
         if (type == FunctionType.ODD) {
@@ -402,7 +429,7 @@ class CStandardTest {
             !equals(t1.getImaginary(), t2.getImaginary())) {
             Assertions.fail(
                 String.format("%s equality failed (z=%s, -z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
-                    type, z, z.negate(), c1, c2, sign));
+                              type, z, z.negate(), c1, c2, sign));
             new Exception().printStackTrace();
         }
     }
@@ -427,9 +454,9 @@ class CStandardTest {
      * @param expected Expected complex number.
      */
     private static void assertComplex(Complex z,
-            String name, UnaryOperator<Complex> operation1,
-            ComplexUnaryOperator<ComplexNumber> operation2,
-            Complex expected) {
+        String name, UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        Complex expected) {
         assertComplex(z, name, operation1, operation2, expected, FunctionType.NONE, UnspecifiedSign.NONE);
     }
 
@@ -454,9 +481,9 @@ class CStandardTest {
      * @param sign the sign specification
      */
     private static void assertComplex(Complex z,
-                                      String name, UnaryOperator<Complex> operation1,
-                                      ComplexUnaryOperator<ComplexNumber> operation2,
-                                      Complex expected, UnspecifiedSign sign) {
+        String name, UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        Complex expected, UnspecifiedSign sign) {
         assertComplex(z, name, operation1, operation2, expected, FunctionType.NONE, sign);
     }
 
@@ -493,9 +520,9 @@ class CStandardTest {
      * @param sign Function sign specification.
      */
     private static void assertComplex(Complex z,
-            String name, UnaryOperator<Complex> operation1,
-            ComplexUnaryOperator<ComplexNumber> operation2,
-            Complex expected, FunctionType type, UnspecifiedSign sign) {
+        String name, UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        Complex expected, FunctionType type, UnspecifiedSign sign) {
         // Developer note: Set the sign specification to UnspecifiedSign.NONE
         // to see which equalities fail. They should be for input defined
         // in ISO C99 with an unspecified output sign, e.g.
@@ -561,11 +588,11 @@ class CStandardTest {
      * @param type Function type.
      */
     private static void assertComplex(Complex z,
-                                      String name,
-                                      UnaryOperator<Complex> operation1,
-                                      ComplexUnaryOperator<ComplexNumber> operation2,
-                                      Complex expected,
-                                      FunctionType type) {
+        String name,
+        UnaryOperator<Complex> operation1,
+        ComplexUnaryOperator<ComplexNumber> operation2,
+        Complex expected,
+        FunctionType type) {
         assertComplex(z, name, operation1, operation2, expected, type, UnspecifiedSign.NONE);
     }
 
@@ -663,6 +690,18 @@ class CStandardTest {
     }
 
     /**
+     * Verifies that the expected {@code abs} value is <em>exactly</em> equal to the
+     * actual {@code abs} value which is calculated by the given input argument.
+     *
+     * @param expected Expected double value.
+     * @param z Input complex number.
+     */
+    private static void assertAbs(double expected, Complex z) {
+        final double actual = TestUtils.assertSame(z, "abs", Complex::abs, ComplexFunctions::abs);
+        Assertions.assertEquals(expected, actual);
+    }
+    
+    /**
      * Creates a sub-normal number with up to 52-bits in the mantissa. The number of bits
      * to drop must be in the range [0, 51].
      *
@@ -716,7 +755,7 @@ class CStandardTest {
      */
     private static ArrayList<Complex> createInfinites() {
         final double[] values = {0, 1, inf, negInf, nan};
-        return createCombinations(values, Complex::isInfinite);
+        return createCombinations(values, "Inf", Complex::isInfinite, ComplexFunctions::isInfinite);
     }
 
     /**
@@ -746,7 +785,7 @@ class CStandardTest {
      */
     private static ArrayList<Complex> createNaNs() {
         final double[] values = {0, 1, nan};
-        return createCombinations(values, Complex::isNaN);
+        return createCombinations(values, "NaN", Complex::isNaN, ComplexFunctions::isNaN);
     }
 
     /**
@@ -763,6 +802,35 @@ class CStandardTest {
             for (final double im : values) {
                 final Complex z = complex(re, im);
                 if (condition.test(z)) {
+                    list.add(z);
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Creates a list of Complex numbers as an all-vs-all combinations that pass the
+     * condition.
+     *
+     * <p>Assert the condition operation on the complex number is <em>exactly</em> equal to the condition
+     * operation on complex real and imaginary parts.
+     *
+     * @param values the values
+     * @param name Operation name.
+     * @param operation1 Condition operation on the Complex object.
+     * @param operation2 Condition operation on the complex real and imaginary parts.
+     * @return the list
+     */
+    private static ArrayList<Complex> createCombinations(final double[] values,
+        String name,
+        Predicate<Complex> operation1,
+        TestUtils.DoubleBinaryPredicate operation2) {
+        final ArrayList<Complex> list = new ArrayList<>();
+        for (final double re : values) {
+            for (final double im : values) {
+                final Complex z = complex(re, im);
+                if (TestUtils.assertSame(z, name, operation1, operation2)) {
                     list.add(z);
                 }
             }
@@ -801,18 +869,18 @@ class CStandardTest {
         // infinity, then the result of the * operator is an infinity;"
         for (final Complex z : infinites) {
             for (final Complex w : infinites) {
-                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
-                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
+                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
             }
             for (final Complex w : nonZeroFinites) {
-                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
-                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
+                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
             }
             // C.99 refers to non-zero finites.
             // Infer that Complex multiplication of zero with infinites is not defined.
             for (final Complex w : zeroFinites) {
-                assertOperation(z, w, Complex::multiply, "*", Complex::isNaN, "NaN");
-                assertOperation(w, z, Complex::multiply, "*", Complex::isNaN, "NaN");
+                assertOperation(z, w, Complex::multiply, "*", Complex::isNaN, ComplexFunctions::isNaN, "NaN");
+                assertOperation(w, z, Complex::multiply, "*", Complex::isNaN, ComplexFunctions::isNaN, "NaN");
             }
         }
 
@@ -828,16 +896,16 @@ class CStandardTest {
         // Check multiply with (NaN,NaN) is not corrected
         final double[] values = {0, 1, inf, negInf, nan};
         for (final Complex z : createCombinations(values, c -> true)) {
-            assertOperation(z, NAN, Complex::multiply, "*", Complex::isNaN, "NaN");
-            assertOperation(NAN, z, Complex::multiply, "*", Complex::isNaN, "NaN");
+            assertOperation(z, NAN, Complex::multiply, "*", Complex::isNaN, ComplexFunctions::isNaN, "NaN");
+            assertOperation(NAN, z, Complex::multiply, "*", Complex::isNaN, ComplexFunctions::isNaN, "NaN");
         }
 
         // Test multiply cases which result in overflow are corrected to infinity
-        assertOperation(maxMax, maxMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(maxNan, maxNan, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(nanMax, maxNan, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(maxNan, nanMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(nanMax, nanMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(maxMax, maxMax, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
+        assertOperation(maxNan, maxNan, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
+        assertOperation(nanMax, maxNan, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
+        assertOperation(maxNan, nanMax, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
+        assertOperation(nanMax, nanMax, Complex::multiply, "*", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
     }
 
     /**
@@ -856,14 +924,14 @@ class CStandardTest {
         // result of the / operator is an infinity;"
         for (final Complex z : infinites) {
             for (final Complex w : nonZeroFinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
             }
             for (final Complex w : zeroFinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
             }
             // Check inf/inf cannot be done
             for (final Complex w : infinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isNaN, "NaN");
+                assertOperation(z, w, Complex::divide, "/", Complex::isNaN, ComplexFunctions::isNaN, "NaN");
             }
         }
 
@@ -879,10 +947,10 @@ class CStandardTest {
         // a zero, then the result of the / operator is an infinity."
         for (final Complex w : zeroFinites) {
             for (final Complex z : nonZeroFinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
             }
             for (final Complex z : infinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, ComplexFunctions::isInfinite, "Inf");
             }
         }
 
@@ -900,10 +968,10 @@ class CStandardTest {
 
         // Check (NaN,NaN) divide is not corrected for the edge case of divide by zero or infinite
         for (final Complex w : zeroFinites) {
-            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
+            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, ComplexFunctions::isNaN, "NaN");
         }
         for (final Complex w : infinites) {
-            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
+            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, ComplexFunctions::isNaN, "NaN");
         }
     }
 
@@ -912,12 +980,12 @@ class CStandardTest {
      */
     @Test
     void testSqrt1() {
-        Complex input = complex(-2.0, 0.0);
-        Complex actual = TestUtils.assertSame(input, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
+        Complex z = complex(-2.0, 0.0);
+        Complex actual = TestUtils.assertSame(z, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
         assertComplex(actual, complex(0.0, Math.sqrt(2)));
 
-        input = complex(-2.0, -0.0);
-        actual = TestUtils.assertSame(input, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
+        z = complex(-2.0, -0.0);
+        actual = TestUtils.assertSame(z, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
         assertComplex(actual, complex(0.0, -Math.sqrt(2)));
     }
 
@@ -972,18 +1040,18 @@ class CStandardTest {
      */
     @Test
     void testAbs() {
-        TestUtils.assertAbs(inf, complex(inf, nan));
-        TestUtils.assertAbs(inf, complex(negInf, nan));
+        assertAbs(inf, complex(inf, nan));
+        assertAbs(inf, complex(negInf, nan));
         final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
         for (int i = 0; i < 10; i++) {
             final double x = next(rng);
             final double y = next(rng);
-            TestUtils.assertAbs(complex(x, y).abs(), complex(y, x));
-            TestUtils.assertAbs(complex(x, y).abs(), complex(x, -y));
-            TestUtils.assertAbs(Math.abs(x), complex(x, 0.0));
-            TestUtils.assertAbs(Math.abs(x), complex(x, -0.0));
-            TestUtils.assertAbs(inf, complex(inf, y));
-            TestUtils.assertAbs(inf, complex(negInf, y));
+            assertAbs(complex(x, y).abs(), complex(y, x));
+            assertAbs(complex(x, y).abs(), complex(x, -y));
+            assertAbs(Math.abs(x), complex(x, 0.0));
+            assertAbs(Math.abs(x), complex(x, -0.0));
+            assertAbs(inf, complex(inf, y));
+            assertAbs(inf, complex(negInf, y));
         }
 
         // Test verses Math.hypot due to the use of a custom implementation.
@@ -992,7 +1060,7 @@ class CStandardTest {
             Double.NEGATIVE_INFINITY, Double.NaN};
         for (final double x : parts) {
             for (final double y : parts) {
-                TestUtils.assertAbs(Math.hypot(x, y), complex(x, y));
+                assertAbs(Math.hypot(x, y), complex(x, y));
             }
         }
 
@@ -1007,7 +1075,7 @@ class CStandardTest {
                 {1.40905821964671, 1.4090583434236112},
                 {1.912164268932753, 1.9121638616231227}}) {
             final Complex z = complex(pair[0], pair[1]);
-            TestUtils.assertAbs(z.abs(), z.multiplyImaginary(1));
+            assertAbs(z.abs(), z.multiplyImaginary(1));
             Assertions.assertEquals(z.abs(), z.multiplyImaginary(1).abs(), "Expected |z| == |iz|");
         }
 

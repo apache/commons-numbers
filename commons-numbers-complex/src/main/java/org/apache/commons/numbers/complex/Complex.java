@@ -1296,9 +1296,6 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sin/">Sin</a>
      */
     public Complex sin() {
-        // Define in terms of sinh
-        // sin(z) = -i sinh(iz)
-        // Multiply this number by I, compute sinh, then multiply by back
         return ComplexFunctions.sin(real, imaginary, Complex::ofCartesian);
     }
 
@@ -1324,9 +1321,6 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cos/">Cos</a>
      */
     public Complex cos() {
-        // Define in terms of cosh
-        // cos(z) = cosh(iz)
-        // Multiply this number by I and compute cosh.
         return ComplexFunctions.cos(real, imaginary, Complex::ofCartesian);
     }
 
@@ -1350,9 +1344,6 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tan/">Tangent</a>
      */
     public Complex tan() {
-        // Define in terms of tanh
-        // tan(z) = -i tanh(iz)
-        // Multiply this number by I, compute tanh, then multiply by back
         return ComplexFunctions.tan(real, imaginary, Complex::ofCartesian);
     }
 
@@ -1476,9 +1467,6 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTan/">ArcTan</a>
      */
     public Complex atan() {
-        // Define in terms of atanh
-        // atan(z) = -i atanh(iz)
-        // Multiply this number by I, compute atanh, then multiply by back
         return ComplexFunctions.atan(real, imaginary, Complex::ofCartesian);
     }
 
@@ -1645,11 +1633,6 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSinh/">ArcSinh</a>
      */
     public Complex asinh() {
-        // Define in terms of asin
-        // asinh(z) = -i asin(iz)
-        // Note: This is the opposite to the identity defined in the C99 standard:
-        // asin(z) = -i asinh(iz)
-        // Multiply this number by I, compute asin, then multiply by back
         return ComplexFunctions.asinh(real, imaginary, Complex::ofCartesian);
     }
 

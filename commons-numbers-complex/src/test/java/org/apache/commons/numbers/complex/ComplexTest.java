@@ -302,20 +302,25 @@ class ComplexTest {
     @Test
     void testAbsNaN() {
         // The result is NaN if either argument is NaN and the other is not infinite
-        TestUtils.assertAbs(nan, NAN);
-        TestUtils.assertAbs(nan, Complex.ofCartesian(3.0, nan));
-        TestUtils.assertAbs(nan, Complex.ofCartesian(nan, 3.0));
+        assertAbs(nan, NAN);
+        assertAbs(nan, Complex.ofCartesian(3.0, nan));
+        assertAbs(nan, Complex.ofCartesian(nan, 3.0));
         // The result is positive infinite if either argument is infinite
-        TestUtils.assertAbs(inf, Complex.ofCartesian(inf, nan));
-        TestUtils.assertAbs(inf, Complex.ofCartesian(-inf, nan));
-        TestUtils.assertAbs(inf, Complex.ofCartesian(nan, inf));
-        TestUtils.assertAbs(inf, Complex.ofCartesian(nan, -inf));
-        TestUtils.assertAbs(inf, Complex.ofCartesian(inf, 3.0));
-        TestUtils.assertAbs(inf, Complex.ofCartesian(-inf, 3.0));
-        TestUtils.assertAbs(inf, Complex.ofCartesian(3.0, inf));
-        TestUtils.assertAbs(inf, Complex.ofCartesian(3.0, -inf));
+        assertAbs(inf, Complex.ofCartesian(inf, nan));
+        assertAbs(inf, Complex.ofCartesian(-inf, nan));
+        assertAbs(inf, Complex.ofCartesian(nan, inf));
+        assertAbs(inf, Complex.ofCartesian(nan, -inf));
+        assertAbs(inf, Complex.ofCartesian(inf, 3.0));
+        assertAbs(inf, Complex.ofCartesian(-inf, 3.0));
+        assertAbs(inf, Complex.ofCartesian(3.0, inf));
+        assertAbs(inf, Complex.ofCartesian(3.0, -inf));
     }
 
+    private static void assertAbs(double expected, Complex input) {
+        final double actual = TestUtils.assertSame(input, "abs", Complex::abs, ComplexFunctions::abs);
+        Assertions.assertEquals(expected, actual);
+    }
+    
     /**
      * Test standard values
      */
@@ -374,14 +379,13 @@ class ComplexTest {
     private static void assertArgument(double expected, Complex complex, double delta) {
         final double actual = TestUtils.assertSame(complex, "arg", Complex::arg, ComplexFunctions::arg);
         Assertions.assertEquals(expected, actual, delta);
-        Assertions.assertEquals(actual, TestUtils.assertSame(complex, "arg", Complex::arg, ComplexFunctions::arg), delta);
     }
 
     @Test
     void testNorm() {
-        final Complex input = Complex.ofCartesian(3.0, 4.0);
-        double z = TestUtils.assertSame(input, "norm", Complex::norm, ComplexFunctions::norm);
-        Assertions.assertEquals(25.0, z);
+        final Complex z = Complex.ofCartesian(3.0, 4.0);
+        double norm = TestUtils.assertSame(z, "norm", Complex::norm, ComplexFunctions::norm);
+        Assertions.assertEquals(25.0, norm);
     }
 
     @Test
@@ -400,7 +404,6 @@ class ComplexTest {
     private static void assertNorm(double expected, Complex input) {
         final double actual = TestUtils.assertSame(input, "norm", Complex::norm, ComplexFunctions::norm);
         Assertions.assertEquals(expected, actual);
-        Assertions.assertEquals(actual, TestUtils.assertSame(input, "norm", Complex::abs, ComplexFunctions::norm));
     }
 
     /**
@@ -439,9 +442,9 @@ class ComplexTest {
      */
     private static void assertNumberType(double real, double imaginary, NumberType type) {
         final Complex z = Complex.ofCartesian(real, imaginary);
-        final boolean isNaN = z.isNaN();
-        final boolean isInfinite = z.isInfinite();
-        final boolean isFinite = z.isFinite();
+        final boolean isNaN = TestUtils.assertSame(z, "NaN", Complex::isNaN, ComplexFunctions::isNaN);
+        final boolean isInfinite = TestUtils.assertSame(z, "Inf", Complex::isInfinite, ComplexFunctions::isInfinite);
+        final boolean isFinite = TestUtils.assertSame(z, "Fin", Complex::isFinite, ComplexFunctions::isFinite);;
         // A number can be only one
         int count = isNaN ? 1 : 0;
         count += isInfinite ? 1 : 0;
@@ -475,18 +478,18 @@ class ComplexTest {
     @Test
     void testConjugateNaN() {
         final Complex z = TestUtils.assertSame(NAN, "conj", Complex::conj, ComplexFunctions::conj);
-        Assertions.assertTrue(z.isNaN());
+        Assertions.assertTrue(TestUtils.assertSame(z, "NaN", Complex::isNaN, ComplexFunctions::isNaN));
     }
 
     @Test
     void testConjugateInfinite() {
         Complex z = Complex.ofCartesian(0, inf);
-        Complex actual = TestUtils.assertSame(z, "conj", Complex::conj, ComplexFunctions::conj);
-        Assertions.assertEquals(neginf, actual.getImaginary());
+        Complex zConj = TestUtils.assertSame(z, "conj", Complex::conj, ComplexFunctions::conj);
+        Assertions.assertEquals(neginf, zConj.getImaginary());
 
         z = Complex.ofCartesian(0, neginf);
-        actual = TestUtils.assertSame(z, "conj", Complex::conj, ComplexFunctions::conj);
-        Assertions.assertEquals(inf, actual.getImaginary());
+        zConj = TestUtils.assertSame(z, "conj", Complex::conj, ComplexFunctions::conj);
+        Assertions.assertEquals(inf, zConj.getImaginary());
     }
 
     @Test
@@ -500,7 +503,7 @@ class ComplexTest {
     @Test
     void testNegateNaN() {
         final Complex z = TestUtils.assertSame(NAN, "negate", Complex::negate, ComplexFunctions::negate);
-        Assertions.assertTrue(z.isNaN());
+        Assertions.assertTrue(TestUtils.assertSame(z, "NaN", Complex::isNaN, ComplexFunctions::isNaN));
     }
 
     @Test
@@ -522,7 +525,6 @@ class ComplexTest {
     private static void assertProj(Complex expected, Complex input) {
         final Complex actual = TestUtils.assertSame(input, "proj", Complex::proj, ComplexFunctions::proj);
         TestUtils.assertSame(expected, actual);
-        TestUtils.assertSame(actual, TestUtils.assertSame(input, "proj", Complex::proj, ComplexFunctions::proj));
     }
 
     @Test
@@ -851,7 +853,7 @@ class ComplexTest {
     void testMultiplyInfInf() {
         final Complex z = infInf.multiply(infInf);
         // Assert.assertTrue(z.isNaN()); // MATH-620
-        Assertions.assertTrue(z.isInfinite());
+        Assertions.assertTrue(TestUtils.assertSame(z, "Inf", Complex::isInfinite, ComplexFunctions::isInfinite));
 
         // Expected results from g++:
         Assertions.assertEquals(Complex.ofCartesian(nan, inf), infInf.multiply(infInf));
@@ -1115,7 +1117,7 @@ class ComplexTest {
     void testDivideNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex z = x.divide(NAN);
-        Assertions.assertTrue(z.isNaN());
+        Assertions.assertTrue(TestUtils.assertSame(z, "NaN", Complex::isNaN, ComplexFunctions::isNaN));
     }
 
     @Test
@@ -1527,8 +1529,8 @@ class ComplexTest {
                 theta += pi / 12;
                 final Complex z = Complex.ofPolar(r, theta);
                 final Complex sqrtz = Complex.ofPolar(Math.sqrt(r), theta / 2);
-                Complex act = TestUtils.assertSame(z, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
-                TestUtils.assertEquals(sqrtz, act, tol);
+                Complex actual = TestUtils.assertSame(z, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
+                TestUtils.assertEquals(sqrtz, actual, tol);
             }
         }
     }
@@ -1970,8 +1972,8 @@ class ComplexTest {
     @Test
     void testAtanhEdgeConditions() {
         // Hits the edge case when imaginary == 0 but real != 0 or 1
-        final Complex input = Complex.ofCartesian(2, 0);
-        final Complex c = TestUtils.assertSame(input, "atanh", Complex::atanh, ComplexFunctions::atanh);
+        final Complex z = Complex.ofCartesian(2, 0);
+        final Complex c = TestUtils.assertSame(z, "atanh", Complex::atanh, ComplexFunctions::atanh);
         // Answer from g++
         Assertions.assertEquals(0.54930614433405489, c.getReal());
         Assertions.assertEquals(1.5707963267948966, c.getImaginary());

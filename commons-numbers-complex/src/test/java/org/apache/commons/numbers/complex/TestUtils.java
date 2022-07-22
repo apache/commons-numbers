@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
@@ -39,6 +40,24 @@ import org.junit.jupiter.api.Assertions;
  * Test utilities. TODO: Cleanup (remove unused and obsolete methods).
  */
 public final class TestUtils {
+
+    /**
+     * Represents a predicate (boolean-valued function) of two {@code double}-valued
+     * arguments. This is the {@code double}-consuming primitive type specialization
+     * of {@link java.util.function.BiPredicate BiPredicate}.
+     */
+    @FunctionalInterface
+    public interface DoubleBinaryPredicate {
+        /**
+         * Evaluates this predicate on the given argument.
+         *
+         * @param a the first input argument
+         * @param b the second input argument
+         * @return {@code true} if the input arguments match the predicate,
+         * otherwise {@code false}
+         */
+        boolean test(double a, double b);
+    }
 
     /**
      * The option for how to process test data lines flagged (prefixed)
@@ -427,23 +446,31 @@ public final class TestUtils {
                                     String name,
                                     ToDoubleFunction<Complex> operation1,
                                     DoubleBinaryOperator operation2) {
-        final double z = operation1.applyAsDouble(c);
+        final double r1 = operation1.applyAsDouble(c);
         // Test operation2 produces the exact same result
-        final double z2 = operation2.applyAsDouble(c.real(), c.imag());
-        Assertions.assertEquals(z, z2, () -> "Unary operator mismatch: " + name);
-        return z;
+        final double r2 = operation2.applyAsDouble(c.real(), c.imag());
+        Assertions.assertEquals(r1, r2, () -> "Double operator mismatch: " + name);
+        return r1;
     }
 
     /**
-     * Verifies that the expected {@code abs} value is <em>exactly</em> equal to the
-     * actual {@code abs} value which is calculated by the given input argument.
+     * Assert the condition operation on the complex number is <em>exactly</em> equal to the condition
+     * operation on complex real and imaginary parts.
      *
-     * @param expected Expected double value.
-     * @param input Input complex number.
+     * @param c Input complex number.
+     * @param name Operation name.
+     * @param operation1 Condition operation on the Complex object.
+     * @param operation2 Condition peration on the complex real and imaginary parts.
+     * @return Result boolean from the given operation.
      */
-    public static void assertAbs(double expected, Complex input) {
-        final double actual = assertSame(input, "abs", Complex::abs, ComplexFunctions::abs);
-        Assertions.assertEquals(expected, actual);
-        Assertions.assertEquals(actual, assertSame(input, "abs", Complex::abs, ComplexFunctions::abs));
+    public static boolean assertSame(Complex c,
+                                     String name,
+                                     Predicate<Complex> operation1,
+                                     DoubleBinaryPredicate operation2) {
+        final boolean b1 = operation1.test(c);
+        // Test operation2 produces the exact same result
+        final boolean b2 = operation2.test(c.real(), c.imag());
+        Assertions.assertEquals(b1, b2, () -> "Predicate operator mismatch: " + name);
+        return b1;
     }
 }

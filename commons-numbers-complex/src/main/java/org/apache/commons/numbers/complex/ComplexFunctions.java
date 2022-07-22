@@ -64,7 +64,7 @@ public final class ComplexFunctions {
     private static final double PI_OVER_4 = 0.25 * Math.PI;
     /** Natural logarithm of 2 (ln(2)). */
     private static final double LN_2 = Math.log(2);
-    /** Base 10 logarithm of 10 divided by 2 (log10(e)/2). */
+    /** Base 10 logarithm of e divided by 2 */
     private static final double LOG_10E_O_2 = Math.log10(Math.E) / 2;
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
@@ -452,8 +452,7 @@ public final class ComplexFunctions {
                 zeroOrInf = real;
             }
             return action.apply(zeroOrInf * Math.cos(imaginary),
-                zeroOrInf * Math.sin(imaginary));
-
+                            zeroOrInf * Math.sin(imaginary));
         } else if (Double.isNaN(real)) {
             // (NaN + i0) returns (NaN + i0)
             // (NaN + iy) returns (NaN + iNaN) and optionally raises the invalid floating-point exception
@@ -478,8 +477,7 @@ public final class ComplexFunctions {
             return action.apply(exp, imaginary);
         }
         return action.apply(exp * Math.cos(imaginary),
-            exp * Math.sin(imaginary));
-
+                        exp * Math.sin(imaginary));
     }
 
     /**
@@ -796,6 +794,9 @@ public final class ComplexFunctions {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sin/">Sin</a>
      */
     public static <R> R sin(double real, double imaginary, ComplexSink<R> action) {
+        // Define in terms of sinh
+        // sin(z) = -i sinh(iz)
+        // Multiply this number by I, compute sinh, then multiply by back
         return sinh(-imaginary, real, (r, i) -> multiplyNegativeI(r, i, action));
     }
 
@@ -825,6 +826,9 @@ public final class ComplexFunctions {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cos/">Cos</a>
      */
     public static <R> R cos(double real, double imaginary, ComplexSink<R> action) {
+        // Define in terms of cosh
+        // cos(z) = cosh(iz)
+        // Multiply this number by I and compute cosh.
         return cosh(-imaginary, real, action);
     }
 
@@ -852,6 +856,9 @@ public final class ComplexFunctions {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tan/">Tangent</a>
      */
     public static <R> R tan(double real, double imaginary, ComplexSink<R> action) {
+        // Define in terms of tanh
+        // tan(z) = -i tanh(iz)
+        // Multiply this number by I, compute tanh, then multiply by back
         return tanh(-imaginary, real, (r, i) -> multiplyNegativeI(r, i, action));
     }
 
@@ -987,9 +994,8 @@ public final class ComplexFunctions {
                 }
             }
         }
-
         return action.apply(changeSign(re, real),
-            changeSign(im, imaginary));
+                            changeSign(im, imaginary));
     }
 
     /**
@@ -1123,9 +1129,8 @@ public final class ComplexFunctions {
                 }
             }
         }
-
         return action.apply(negative(real) ? Math.PI - re : re,
-            negative(imaginary) ? im : -im);
+                            negative(imaginary) ? im : -im);
     }
 
     /**
@@ -1153,6 +1158,9 @@ public final class ComplexFunctions {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTan/">ArcTan</a>
      */
     public static <R> R atan(double real, double imaginary, ComplexSink<R> action) {
+        // Define in terms of atanh
+        // atan(z) = -i atanh(iz)
+        // Multiply this number by I, compute atanh, then multiply by back
         return atanh(-imaginary, real, (r, i) -> multiplyNegativeI(r, i, action));
     }
 
@@ -1179,7 +1187,7 @@ public final class ComplexFunctions {
                 // Maintain periodic property with respect to the imaginary component.
                 // sinh(+/-0.0) * cos(+/-x) = +/-0 * cos(x)
                 return action.apply(changeSign(real, Math.cos(imaginary)),
-                    Math.sin(imaginary));
+                                    Math.sin(imaginary));
             }
             // If imaginary is inf/NaN the sign of the real part is unspecified.
             // Returning the same real value maintains the conjugate equality.
@@ -1197,7 +1205,7 @@ public final class ComplexFunctions {
         }
         // No overflow of sinh/cosh
         return action.apply(Math.sinh(real) * Math.cos(imaginary),
-            Math.cosh(real) * Math.sin(imaginary));
+                        Math.cosh(real) * Math.sin(imaginary));
     }
 
     /**
@@ -1225,7 +1233,7 @@ public final class ComplexFunctions {
                 // Maintain periodic property with respect to the imaginary component.
                 // sinh(+/-0.0) * sin(+/-x) = +/-0 * sin(x)
                 return action.apply(Math.cos(imaginary),
-                    changeSign(real, Math.sin(imaginary)));
+                                    changeSign(real, Math.sin(imaginary)));
             }
             // If imaginary is inf/NaN the sign of the imaginary part is unspecified.
             // Although not required by C99 changing the sign maintains the conjugate equality.
@@ -1247,7 +1255,7 @@ public final class ComplexFunctions {
         }
         // No overflow of sinh/cosh
         return action.apply(Math.cosh(real) * Math.cos(imaginary),
-            Math.sinh(real) * Math.sin(imaginary));
+                        Math.sinh(real) * Math.sin(imaginary));
     }
 
     /**
@@ -1340,7 +1348,7 @@ public final class ComplexFunctions {
                         imaginary :
                         Math.sin(imaginary) * Math.cos(imaginary);
                     return action.apply(Math.copySign(1, real),
-                        Math.copySign(0, sign));
+                                        Math.copySign(0, sign));
                 }
                 // imaginary is infinite or NaN
                 return action.apply(Math.copySign(1, real), Math.copySign(0, imaginary));
@@ -1354,7 +1362,7 @@ public final class ComplexFunctions {
             // (NaN + i y), returns (NaN + i NaN) for non-zero y (including infinite)
             // (NaN + i NaN), returns (NaN + i NaN)
             return action.apply(real == 0 ? real : Double.NaN,
-                imaginary == 0 ? imaginary : Double.NaN);
+                                imaginary == 0 ? imaginary : Double.NaN);
         }
 
         // Finite components
@@ -1416,7 +1424,7 @@ public final class ComplexFunctions {
         final double cosy = Math.cos(imaginary);
         final double divisor = sinhx * sinhx + cosy * cosy;
         return action.apply(sinhx * coshx / divisor,
-            siny * cosy / divisor);
+                        siny * cosy / divisor);
     }
 
     /**
@@ -1460,6 +1468,11 @@ public final class ComplexFunctions {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSinh/">ArcSinh</a>
      */
     public static <R> R asinh(double real, double imaginary, ComplexSink<R> action) {
+        // Define in terms of asin
+        // asinh(z) = -i asin(iz)
+        // Note: This is the opposite to the identity defined in the C99 standard:
+        // asin(z) = -i asinh(iz)
+        // Multiply this number by I, compute asin, then multiply by back
         return asin(-imaginary, real, (r, i) -> multiplyNegativeI(r, i, action));
     }
 
@@ -1700,7 +1713,7 @@ public final class ComplexFunctions {
         re /= 4;
         im /= 2;
         return action.apply(changeSign(re, real),
-            changeSign(im, imaginary));
+                            changeSign(im, imaginary));
     }
 
     /**
