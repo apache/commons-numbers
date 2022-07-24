@@ -229,9 +229,9 @@ class CReferenceTest {
      * @param maxUlps Maximum units of least precision between the two values.
      */
     private static void assertOperation(String name,
-        UnaryOperator<Complex> operation1,
-        ComplexUnaryOperator<ComplexNumber> operation2,
-        long maxUlps) {
+            UnaryOperator<Complex> operation1,
+            ComplexUnaryOperator<ComplexNumber> operation2,
+            long maxUlps) {
         final List<Complex[]> data = loadTestData(name);
         final long ulps = getTestUlps(maxUlps);
         for (final Complex[] pair : data) {

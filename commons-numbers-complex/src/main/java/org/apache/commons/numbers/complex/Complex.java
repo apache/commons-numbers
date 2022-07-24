@@ -516,7 +516,7 @@ public final class Complex implements Serializable  {
      * <p>\( z \) projects to \( z \), except that all complex infinities (even those
      * with one infinite part and one NaN part) project to positive infinity on the real axis.
      *
-     * If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
+     * <p>If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
      *
      * <pre>return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, z.imag());</pre>
      *

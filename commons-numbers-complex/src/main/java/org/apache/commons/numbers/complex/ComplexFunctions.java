@@ -64,7 +64,7 @@ public final class ComplexFunctions {
     private static final double PI_OVER_4 = 0.25 * Math.PI;
     /** Natural logarithm of 2 (ln(2)). */
     private static final double LN_2 = Math.log(2);
-    /** Base 10 logarithm of e divided by 2. */
+    /** Base 10 logarithm of e divided by 2 (log10(e)/2). */
     private static final double LOG_10E_O_2 = Math.log10(Math.E) / 2;
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
@@ -185,6 +185,42 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns the absolute value of the complex number. This is also called complex norm, modulus,
+     * or magnitude.
+     *
+     * <p>\[ \text{abs}(x + i y) = \sqrt{(x^2 + y^2)} \]
+     *
+     * <p>Special cases:
+     *
+     * <ul>
+     * <li>{@code abs(x + iy) == abs(y + ix) == abs(x - iy)}.
+     * <li>If {@code z} is ±∞ + iy for any y, returns +∞.
+     * <li>If {@code z} is x + iNaN for non-infinite x, returns NaN.
+     * <li>If {@code z} is x + i0, returns |x|.
+     * </ul>
+     *
+     * <p>The cases ensure that if either component is infinite then the result is positive
+     * infinity. If either component is NaN and this is not {@link #isInfinite(double, double) infinite} then
+     * the result is NaN.
+     *
+     * <p>This method follows the
+     * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
+     * in calculating the returned value without intermediate overflow or underflow.
+     *
+     * <p>The computed result will be within 1 ulp of the exact result.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @return The absolute value.
+     * @see #isInfinite(double, double)
+     * @see #isNaN(double, double)
+     * @see <a href="http://mathworld.wolfram.com/ComplexModulus.html">Complex modulus</a>
+     */
+    public static double abs(double real, double imaginary) {
+        return computeAbs(real, imaginary);
+    }
+
+    /**
      * Returns the absolute value of the complex number.
      * <pre>abs(x + i y) = sqrt(x^2 + y^2)</pre>
      *
@@ -205,7 +241,7 @@ public final class ComplexFunctions {
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
      * @return The absolute value.
      */
-    public static double abs(double real, double imaginary) {
+    private static double computeAbs(double real, double imaginary) {
         // Specialised implementation of hypot.
         // See NUMBERS-143
         return hypot(real, imaginary);
@@ -365,7 +401,7 @@ public final class ComplexFunctions {
      * <p>\( z \) projects to \( z \), except that all complex infinities (even those
      * with one infinite part and one NaN part) project to positive infinity on the real axis.
      *
-     * If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
+     * <p>If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
      *
      * <pre>return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, z.imag());</pre>
      *
@@ -388,7 +424,7 @@ public final class ComplexFunctions {
     /**
      * Returns the
      * <a href="http://mathworld.wolfram.com/ExponentialFunction.html">
-     * exponential function</a> of complex number using it's real and
+     * exponential function</a> of complex number using its real and
      * imaginary part.
      *
      * <p>\[ \exp(z) = e^z \]
@@ -452,7 +488,7 @@ public final class ComplexFunctions {
                 zeroOrInf = real;
             }
             return action.apply(zeroOrInf * Math.cos(imaginary),
-                            zeroOrInf * Math.sin(imaginary));
+                                zeroOrInf * Math.sin(imaginary));
         } else if (Double.isNaN(real)) {
             // (NaN + i0) returns (NaN + i0)
             // (NaN + iy) returns (NaN + iNaN) and optionally raises the invalid floating-point exception
@@ -477,7 +513,7 @@ public final class ComplexFunctions {
             return action.apply(exp, imaginary);
         }
         return action.apply(exp * Math.cos(imaginary),
-                        exp * Math.sin(imaginary));
+                            exp * Math.sin(imaginary));
     }
 
     /**
@@ -666,6 +702,61 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/SquareRoot.html">
+     * square root</a> of the complex number.
+     *
+     * <p>\[ \sqrt{x + iy} = \frac{1}{2} \sqrt{2} \left( \sqrt{ \sqrt{x^2 + y^2} + x } + i\ \text{sgn}(y) \sqrt{ \sqrt{x^2 + y^2} - x } \right) \]
+     *
+     * <p>The square root of \( z \) is in the range \( [0, +\infty) \) along the real axis and
+     * is unbounded along the imaginary axis. The imaginary part of the square root has a
+     * branch cut along the negative real axis \( (-infty,0) \). Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().sqrt() == z.sqrt().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns +0 + i0.
+     * <li>If {@code z} is x + i∞ for all x (including NaN), returns +∞ + i∞.
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is −∞ + iy for finite positive-signed y, returns +0 + i∞.
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +∞ + i0.
+     * <li>If {@code z} is −∞ + iNaN, returns NaN ± i∞ (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>Implements the following algorithm to compute \( \sqrt{x + iy} \):
+     * <ol>
+     * <li>Let \( t = \sqrt{2 (|x| + |x + iy|)} \)
+     * <li>if \( x \geq 0 \) return \( \frac{t}{2} + i \frac{y}{t} \)
+     * <li>else return \( \frac{|y|}{t} + i\ \text{sgn}(y) \frac{t}{2} \)
+     * </ol>
+     * where:
+     * <ul>
+     * <li>\( |x| =\ \){@link Math#abs(double) abs}(x)
+     * <li>\( |x + y i| =\ \){@link Complex#abs}
+     * <li>\( \text{sgn}(y) =\ \){@link Math#copySign(double,double) copySign}(1.0, y)
+     * </ul>
+     *
+     * <p>The implementation is overflow and underflow safe based on the method described in:</p>
+     * <blockquote>
+     * T E Hull, Thomas F Fairgrieve and Ping Tak Peter Tang (1994)
+     * Implementing complex elementary functions using exception handling.
+     * ACM Transactions on Mathematical Software, Vol 20, No 2, pp 215-244.
+     * </blockquote>
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param action Consumer for the square root of the complex number.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sqrt/">Sqrt</a>
+     */
+    public static <R> R sqrt(double real, double imaginary, ComplexSink<R> action) {
+        return computeSqrt(real, imaginary, action);
+    }
+
+    /**
      * Returns the square root of the complex number using its real
      * and imaginary parts {@code sqrt(x + i y)}.
      *
@@ -675,7 +766,7 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
-    public static <R> R sqrt(double real, double imaginary, ComplexSink<R> action) {
+    private static <R> R computeSqrt(double real, double imaginary, ComplexSink<R> action) {
         // Handle NaN
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             // Check for infinite
@@ -863,6 +954,53 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/InverseSine.html">
+     * inverse sine</a> of the complex number.
+     *
+     * <p>\[ \sin^{-1}(z) = - i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
+     *
+     * <p>The inverse sine of \( z \) is unbounded along the imaginary axis and
+     * in the range \( [-\pi, \pi] \) along the real axis. Special cases are handled
+     * as if the operation is implemented using \( \sin^{-1}(z) = -i \sinh^{-1}(iz) \).
+     *
+     * <p>The inverse sine is a multivalued function and requires a branch cut in
+     * the complex plane; the cut is conventionally placed at the line segments
+     * \( (\infty,-1) \) and \( (1,\infty) \) of the real axis.
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \begin{aligned}
+     *   \sin^{-1}(z) &amp;= \sin^{-1}(B) + i\ \text{sgn}(y)\ln \left(A + \sqrt{A^2-1} \right) \\
+     *   A &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
+     *   B &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \end{aligned} \]
+     *
+     * <p>where \( \text{sgn}(y) \) is the sign function implemented using
+     * {@link Math#copySign(double,double) copySign(1.0, y)}.
+     *
+     * <p>The implementation is based on the method described in:</p>
+     * <blockquote>
+     * T E Hull, Thomas F Fairgrieve and Ping Tak Peter Tang (1997)
+     * Implementing the complex Arcsine and Arccosine Functions using Exception Handling.
+     * ACM Transactions on Mathematical Software, Vol 23, No 3, pp 299-335.
+     * </blockquote>
+     *
+     * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+     * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the inverse sine of the complex number.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSin/">ArcSin</a>
+     */
+    public static <R> R asin(final double real, final double imaginary,
+                             ComplexSink<R> action) {
+        return computeAsin(real, imaginary, action);
+    }
+
+    /**
      * Returns the inverse sine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
@@ -883,8 +1021,8 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
-    public static <R> R asin(final double real, final double imaginary,
-                             ComplexSink<R> action) {
+    private static <R> R computeAsin(final double real, final double imaginary,
+                                    ComplexSink<R> action) {
         // Compute with positive values and determine sign at the end
         final double x = Math.abs(real);
         final double y = Math.abs(imaginary);
@@ -999,6 +1137,68 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/InverseCosine.html">
+     * inverse cosine</a> of the complex number.
+     *
+     * <p>\[ \cos^{-1}(z) = \frac{\pi}{2} + i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
+     *
+     * <p>The inverse cosine of \( z \) is in the range \( [0, \pi) \) along the real axis and
+     * unbounded along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().acos() == z.acos().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns π/2 − i0.
+     * <li>If {@code z} is ±0 + iNaN, returns π/2 + iNaN.
+     * <li>If {@code z} is x + i∞ for finite x, returns π/2 − i∞.
+     * <li>If {@code z} is x + iNaN, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns π − i∞.
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +0 − i∞.
+     * <li>If {@code z} is −∞ + i∞, returns 3π/4 − i∞.
+     * <li>If {@code z} is +∞ + i∞, returns π/4 − i∞.
+     * <li>If {@code z} is ±∞ + iNaN, returns NaN ± i∞ where the sign of the imaginary part of the result is unspecified.
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + i∞, returns NaN − i∞.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>The inverse cosine is a multivalued function and requires a branch cut in
+     * the complex plane; the cut is conventionally placed at the line segments
+     * \( (-\infty,-1) \) and \( (1,\infty) \) of the real axis.
+     *
+     * <p>This function is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \begin{aligned}
+     *   \cos^{-1}(z) &amp;= \cos^{-1}(B) - i\ \text{sgn}(y) \ln\left(A + \sqrt{A^2-1}\right) \\
+     *   A &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
+     *   B &amp;= \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \end{aligned} \]
+     *
+     * <p>where \( \text{sgn}(y) \) is the sign function implemented using
+     * {@link Math#copySign(double,double) copySign(1.0, y)}.
+     *
+     * <p>The implementation is based on the method described in:</p>
+     * <blockquote>
+     * T E Hull, Thomas F Fairgrieve and Ping Tak Peter Tang (1997)
+     * Implementing the complex Arcsine and Arccosine Functions using Exception Handling.
+     * ACM Transactions on Mathematical Software, Vol 23, No 3, pp 299-335.
+     * </blockquote>
+     *
+     * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+     * {@code c++} implementation {@code <boost/math/complex/acos.hpp>}.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the inverse cosine of the complex number.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCos/">ArcCos</a>
+     */
+    public static <R> R acos(final double real, final double imaginary,
+                             final ComplexSink<R> action) {
+        return computeAcos(real, imaginary, action);
+    }
+
+    /**
      * Returns the inverse cosine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
@@ -1019,7 +1219,7 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
-    public static <R> R acos(final double real, final double imaginary,
+    private static <R> R computeAcos(final double real, final double imaginary,
                              final ComplexSink<R> action) {
         // Compute with positive values and determine sign at the end
         final double x = Math.abs(real);
@@ -1165,6 +1365,49 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/HyperbolicSine.html">
+     * hyperbolic sine</a> of the complexnumber.
+     *
+     * <p>\[ \sinh(z) = \frac{1}{2} \left( e^{z} - e^{-z} \right) \]
+     *
+     * <p>The hyperbolic sine of \( z \) is an entire function in the complex plane
+     * and is periodic with respect to the imaginary component with period \( 2\pi i \).
+     * Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().sinh() == z.sinh().conj()}.
+     * <li>This is an odd function: \( \sinh(z) = -\sinh(-z) \).
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.
+     * <li>If {@code z} is +0 + i∞, returns ±0 + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).
+     * <li>If {@code z} is +0 + iNaN, returns ±0 + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is x + i∞ for positive finite x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
+     * <li>If {@code z} is +∞ + iy for positive finite y, returns +∞ cis(y) (see ofCis(double) in Complex class).
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).
+     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \sinh(x + iy) = \sinh(x)\cos(y) + i \cosh(x)\sin(y) \]
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the hyperbolic sine of the complex number.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action..
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sinh/">Sinh</a>
+     */
+    public static <R> R sinh(double real, double imaginary, ComplexSink<R> action) {
+        return computeSinh(real, imaginary, action);
+    }
+
+    /**
      * Returns the hyperbolic sine of the complex number using its real
      * and imaginary parts.
      *
@@ -1177,7 +1420,7 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
-    public static <R> R sinh(double real, double imaginary, ComplexSink<R> action) {
+    public static <R> R computeSinh(double real, double imaginary, ComplexSink<R> action) {
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
             return action.apply(real, Double.NaN);
         }
@@ -1205,7 +1448,50 @@ public final class ComplexFunctions {
         }
         // No overflow of sinh/cosh
         return action.apply(Math.sinh(real) * Math.cos(imaginary),
-                        Math.cosh(real) * Math.sin(imaginary));
+                            Math.cosh(real) * Math.sin(imaginary));
+    }
+
+    /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/HyperbolicCosine.html">
+     * hyperbolic cosine</a> of the complexnumber.
+     *
+     * <p>\[ \cosh(z) = \frac{1}{2} \left( e^{z} + e^{-z} \right) \]
+     *
+     * <p>The hyperbolic cosine of \( z \) is an entire function in the complex plane
+     * and is periodic with respect to the imaginary component with period \( 2\pi i \).
+     * Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().cosh() == z.cosh().conj()}.
+     * <li>This is an even function: \( \cosh(z) = \cosh(-z) \).
+     * <li>If {@code z} is +0 + i0, returns 1 + i0.
+     * <li>If {@code z} is +0 + i∞, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified; "invalid" floating-point operation).
+     * <li>If {@code z} is +0 + iNaN, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is x + i∞ for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
+     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y) (see ofCis(double) in Complex class).
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + i0, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \cosh(x + iy) = \cosh(x)\cos(y) + i \sinh(x)\sin(y) \]
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the hyperbolic tangent of the complex number.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cosh/">Cosh</a>
+     */
+    public static <R> R cosh(double real, double imaginary, ComplexSink<R> action) {
+        return computeCosh(real, imaginary, action);
     }
 
     /**
@@ -1221,7 +1507,7 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
-    public static <R> R cosh(double real, double imaginary, ComplexSink<R> action) {
+    public static <R> R computeCosh(double real, double imaginary, ComplexSink<R> action) {
         // ISO C99: Preserve the even function by mapping to positive
         // f(z) = f(-z)
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
@@ -1255,7 +1541,7 @@ public final class ComplexFunctions {
         }
         // No overflow of sinh/cosh
         return action.apply(Math.cosh(real) * Math.cos(imaginary),
-                        Math.sinh(real) * Math.sin(imaginary));
+                            Math.sinh(real) * Math.sin(imaginary));
     }
 
     /**
@@ -1320,6 +1606,58 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/HyperbolicTangent.html">
+     * hyperbolic tangent</a> of the complexnumber.
+     *
+     * <p>\[ \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} \]
+     *
+     * <p>The hyperbolic tangent of \( z \) is an entire function in the complex plane
+     * and is periodic with respect to the imaginary component with period \( \pi i \)
+     * and has poles of the first order along the imaginary line, at coordinates
+     * \( (0, \pi(\frac{1}{2} + n)) \).
+     * Note that the {@code double} floating-point representation is unable to exactly represent
+     * \( \pi/2 \) and there is no value for which a pole error occurs. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().tanh() == z.tanh().conj()}.
+     * <li>This is an odd function: \( \tanh(z) = -\tanh(-z) \).
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.
+     * <li>If {@code z} is 0 + i∞, returns 0 + iNaN.
+     * <li>If {@code z} is x + i∞ for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is 0 + iNaN, returns 0 + iNAN.
+     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns 1 + i0 sin(2y).
+     * <li>If {@code z} is +∞ + i∞, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>Special cases include the technical corrigendum
+     * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * DR 471: Complex math functions cacosh and ctanh</a>.
+     *
+     * <p>This is defined using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \tan(x + iy) = \frac{\sinh(2x)}{\cosh(2x)+\cos(2y)} + i \frac{\sin(2y)}{\cosh(2x)+\cos(2y)} \]
+     *
+     * <p>The implementation uses double-angle identities to avoid overflow of {@code 2x}
+     * and {@code 2y}.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the hyperbolic tangent of the complex number.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
+     */
+    public static <R> R tanh(double real, double imaginary, ComplexSink<R> action) {
+        return computeTanh(real, imaginary, action);
+    }
+
+    /**
      * Returns the hyperbolic tangent of the complex number using its real
      * and imaginary parts.
      *
@@ -1332,7 +1670,7 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
-    public static <R> R tanh(double real, double imaginary, ComplexSink<R> action) {
+    public static <R> R computeTanh(double real, double imaginary, ComplexSink<R> action) {
         // Cache the absolute real value
         final double x = Math.abs(real);
 
@@ -1424,7 +1762,7 @@ public final class ComplexFunctions {
         final double cosy = Math.cos(imaginary);
         final double divisor = sinhx * sinhx + cosy * cosy;
         return action.apply(sinhx * coshx / divisor,
-                        siny * cosy / divisor);
+                            siny * cosy / divisor);
     }
 
     /**
@@ -1546,6 +1884,59 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns the
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicTangent.html">
+     * inverse hyperbolic tangent</a> of the complex number.
+     *
+     * <p>\[ \tanh^{-1}(z) = \frac{1}{2} \ln \left( \frac{1 + z}{1 - z} \right) \]
+     *
+     * <p>The inverse hyperbolic tangent of \( z \) is unbounded along the real axis and
+     * in the range \( [-\pi/2, \pi/2] \) along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().atanh() == z.atanh().conj()}.
+     * <li>This is an odd function: \( \tanh^{-1}(z) = -\tanh^{-1}(-z) \).
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.
+     * <li>If {@code z} is +0 + iNaN, returns +0 + iNaN.
+     * <li>If {@code z} is +1 + i0, returns +∞ + i0 ("divide-by-zero" floating-point operation).
+     * <li>If {@code z} is x + i∞ for finite positive-signed x, returns +0 + iπ/2.
+     * <li>If {@code z} is x+iNaN for nonzero finite x, returns NaN+iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +0 + iπ/2.
+     * <li>If {@code z} is +∞ + i∞, returns +0 + iπ/2.
+     * <li>If {@code z} is +∞ + iNaN, returns +0 + iNaN.
+     * <li>If {@code z} is NaN+iy for finite y, returns NaN+iNaN ("invalid" floating-point operation).
+     * <li>If {@code z} is NaN + i∞, returns ±0 + iπ/2 (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>The inverse hyperbolic tangent is a multivalued function and requires a branch cut in
+     * the complex plane; the cut is conventionally placed at the line segments
+     * \( (\infty,-1] \) and \( [1,\infty) \) of the real axis.
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \tanh^{-1}(z) = \frac{1}{4} \ln \left(1 + \frac{4x}{(1-x)^2+y^2} \right) + \\
+     *                     i \frac{1}{2} \left( \tan^{-1} \left(\frac{2y}{1-x^2-y^2} \right) + \frac{\pi}{2} \left(\text{sgn}(x^2+y^2-1)+1 \right) \text{sgn}(y) \right) \]
+     *
+     * <p>The imaginary part is computed using {@link Math#atan2(double, double)} to ensure the
+     * correct quadrant is returned from \( \tan^{-1} \left(\frac{2y}{1-x^2-y^2} \right) \).
+     *
+     * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+     * {@code c++} implementation {@code <boost/math/complex/atanh.hpp>}.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the inverse hyperbolic tangent of the complex number.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTanh/">ArcTanh</a>
+     */
+    public static <R> R atanh(final double real, final double imaginary,
+                              final ComplexSink<R> action) {
+        return computeAtanh(real, imaginary, action);
+    }
+
+    /**
      * Returns the inverse hyperbolic tangent of the complex number using its
      * real and imaginary parts.
      *
@@ -1567,8 +1958,8 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
-    public static <R> R atanh(final double real, final double imaginary,
-                              final ComplexSink<R> action) {
+    private static <R> R computeAtanh(final double real, final double imaginary,
+                                     final ComplexSink<R> action) {
         // Compute with positive values and determine sign at the end
         double x = Math.abs(real);
         double y = Math.abs(imaginary);
