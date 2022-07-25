@@ -96,19 +96,24 @@ class ComplexEdgeCaseTest {
      *
      * <p>The results are considered equal if there are no floating-point values between them.
      *
+     * <p>Assert the operation on the complex numbers is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
      * @param a Real part of first number.
      * @param b Imaginary part of first number.
      * @param c Real part of second number.
      * @param d Imaginary part of second number.
      * @param name The operation name.
-     * @param operation The operation.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
      * @param x Expected real part.
      * @param y Expected imaginary part.
      */
     private static void assertComplex(double a, double b, double c, double d,
-            String name, BiFunction<Complex, Complex, Complex> operation,
+            String name, BiFunction<Complex, Complex, Complex> operation1,
+            ComplexBinaryOperator<ComplexNumber> operation2,
             double x, double y) {
-        assertComplex(a, b, c, d, name, operation, x, y, 1);
+        assertComplex(a, b, c, d, name, operation1, operation2, x, y, 1);
     }
 
     /**
@@ -118,23 +123,28 @@ class ComplexEdgeCaseTest {
      * precision. The maximum count of numbers allowed between the two values is
      * {@code maxUlps - 1}.
      *
+     * <p>Assert the operation on the complex numbers is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
      * @param a Real part of first number.
      * @param b Imaginary part of first number.
      * @param c Real part of second number.
      * @param d Imaginary part of second number.
      * @param name The operation name
-     * @param operation the operation
+     * @param operation1 Operation on the Complex objects.
+     * @param operation2 Operation on the complex real and imaginary parts.
      * @param x Expected real part.
      * @param y Expected imaginary part.
      * @param maxUlps the maximum units of least precision between the two values
      */
     private static void assertComplex(double a, double b, double c, double d,
-            String name, BiFunction<Complex, Complex, Complex> operation,
+            String name, BiFunction<Complex, Complex, Complex> operation1,
+            ComplexBinaryOperator<ComplexNumber> operation2,
             double x, double y, long maxUlps) {
         final Complex c1 = Complex.ofCartesian(a, b);
         final Complex c2 = Complex.ofCartesian(c, d);
         final Complex e = Complex.ofCartesian(x, y);
-        CReferenceTest.assertComplex(c1, c2, name, operation, e, maxUlps);
+        CReferenceTest.assertComplex(c1, c2, name, operation1, operation2, e, maxUlps);
     }
 
     @Test
@@ -657,7 +667,8 @@ class ComplexEdgeCaseTest {
     @Test
     void testDivide() {
         final String name = "divide";
-        final BiFunction<Complex, Complex, Complex> operation = Complex::divide;
+        final BiFunction<Complex, Complex, Complex> operation1 = Complex::divide;
+        final ComplexBinaryOperator<ComplexNumber> operation2 = ComplexFunctions::divide;
 
         // Should be able to divide by a complex whose absolute (c*c+d*d)
         // overflows or underflows including all sub-normal numbers.
@@ -674,30 +685,34 @@ class ComplexEdgeCaseTest {
         // In other words the result is (x+iy) / (x+iy) = (1+i0)
         // The result is the same if imaginary is zero (i.e. a real only divide)
 
-        assertComplex(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, name, operation, 1.0, 0.0);
-        assertComplex(Double.MAX_VALUE, 0.0, Double.MAX_VALUE, 0.0, name, operation, 1.0, 0.0);
+        assertComplex(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, name, operation1, operation2, 1.0,
+            0.0);
+        assertComplex(Double.MAX_VALUE, 0.0, Double.MAX_VALUE, 0.0, name, operation1, operation2, 1.0, 0.0);
 
-        assertComplex(1.0, 1.0, 1.0, 1.0, name, operation, 1.0, 0.0);
-        assertComplex(1.0, 0.0, 1.0, 0.0, name, operation, 1.0, 0.0);
+        assertComplex(1.0, 1.0, 1.0, 1.0, name, operation1, operation2, 1.0, 0.0);
+        assertComplex(1.0, 0.0, 1.0, 0.0, name, operation1, operation2, 1.0, 0.0);
         // Should work for all small values
         x = Double.MIN_NORMAL;
         while (x != 0) {
-            assertComplex(x, x, x, x, name, operation, 1.0, 0.0);
-            assertComplex(x, 0, x, 0, name, operation, 1.0, 0.0);
+            assertComplex(x, x, x, x, name, operation1, operation2, 1.0, 0.0);
+            assertComplex(x, 0, x, 0, name, operation1, operation2, 1.0, 0.0);
             x /= 2;
         }
 
         // Some cases of not self-divide
-        assertComplex(1, 1, Double.MIN_VALUE, Double.MIN_VALUE, name, operation, inf, 0);
+        assertComplex(1, 1, Double.MIN_VALUE, Double.MIN_VALUE, name, operation1, operation2, inf, 0);
         // As computed by GNU g++
-        assertComplex(Double.MIN_NORMAL, Double.MIN_NORMAL, Double.MIN_VALUE, Double.MIN_VALUE, name, operation, 4503599627370496L, 0);
-        assertComplex(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation, 2.2204460492503131e-16, 0);
+        assertComplex(Double.MIN_NORMAL, Double.MIN_NORMAL, Double.MIN_VALUE, Double.MIN_VALUE, name, operation1, operation2,
+            4503599627370496L, 0);
+        assertComplex(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation1, operation2,
+            2.2204460492503131e-16, 0);
     }
 
     @Test
     void testPow() {
         final String name = "pow";
-        final BiFunction<Complex, Complex, Complex> operation = Complex::pow;
+        final BiFunction<Complex, Complex, Complex> operation1 = Complex::pow;
+        final ComplexBinaryOperator<ComplexNumber> operation2 = ComplexFunctions::pow;
 
         // pow(Complex) is log().multiply(Complex).exp()
         // All are overflow safe and handle infinities as defined in the C99 standard.
@@ -706,15 +721,15 @@ class ComplexEdgeCaseTest {
         // using other library implementations.
 
         // Test NaN
-        assertComplex(1, 1, nan, nan, name, operation, nan, nan);
-        assertComplex(nan, nan, 1, 1, name, operation, nan, nan);
-        assertComplex(nan, 1, 1, 1, name, operation, nan, nan);
-        assertComplex(1, nan, 1, 1, name, operation, nan, nan);
-        assertComplex(1, 1, nan, 1, name, operation, nan, nan);
-        assertComplex(1, 1, 1, nan, name, operation, nan, nan);
+        assertComplex(1, 1, nan, nan, name, operation1, operation2, nan, nan);
+        assertComplex(nan, nan, 1, 1, name, operation1, operation2, nan, nan);
+        assertComplex(nan, 1, 1, 1, name, operation1, operation2, nan, nan);
+        assertComplex(1, nan, 1, 1, name, operation1, operation2, nan, nan);
+        assertComplex(1, 1, nan, 1, name, operation1, operation2, nan, nan);
+        assertComplex(1, 1, 1, nan, name, operation1, operation2, nan, nan);
 
         // Test overflow.
-        assertComplex(Double.MAX_VALUE, 1, 2, 2, name, operation, inf, -inf);
-        assertComplex(1, Double.MAX_VALUE, 2, 2, name, operation, -inf, inf);
+        assertComplex(Double.MAX_VALUE, 1, 2, 2, name, operation1, operation2, inf, -inf);
+        assertComplex(1, Double.MAX_VALUE, 2, 2, name, operation1, operation2, -inf, inf);
     }
 }
