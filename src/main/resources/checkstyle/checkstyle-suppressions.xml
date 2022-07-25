@@ -22,6 +22,7 @@
   <suppress checks="Indentation" files=".*[/\\]combinatorics[/\\]Factorial\.java" />
   <suppress checks="ParameterNumber" files=".*[/\\]core[/\\]LinearCombination[s]?\.java" />
   <suppress checks="FileLengthCheck" files=".*[/\\]Complex(Test)?\.java" />
+  <suppress checks="FileLengthCheck" files=".*[/\\]ComplexFunctions?\.java" />
   <suppress checks="FileLengthCheck" files=".*jmh[/\\]core[/\\]LinearCombinations.java" />
   <suppress checks="MethodLength" files=".*[/\\]Complex\.java" />
   <!-- Naming and method logic preserved from the original Boost C++ code -->

@@ -27,6 +27,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.numbers.core.Precision;
@@ -37,6 +40,24 @@ import org.junit.jupiter.api.Assertions;
  * Test utilities. TODO: Cleanup (remove unused and obsolete methods).
  */
 public final class TestUtils {
+
+    /**
+     * Represents a predicate (boolean-valued function) of two {@code double}-valued
+     * arguments. This is the {@code double}-consuming primitive type specialization
+     * of {@link java.util.function.BiPredicate BiPredicate}.
+     */
+    @FunctionalInterface
+    public interface DoubleBinaryPredicate {
+        /**
+         * Evaluates this predicate on the given argument.
+         *
+         * @param a the first input argument
+         * @param b the second input argument
+         * @return {@code true} if the input arguments match the predicate,
+         * otherwise {@code false}
+         */
+        boolean test(double a, double b);
+    }
 
     /**
      * The option for how to process test data lines flagged (prefixed)
@@ -409,5 +430,47 @@ public final class TestUtils {
         Assertions.assertEquals(z.real(), z2.getReal(), () -> "Unary operator mismatch: " + name + " real");
         Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Unary operator mismatch: " + name + " imaginary");
         return z;
+    }
+
+    /**
+     * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts.
+     *
+     * @param c Input complex number.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object.
+     * @param operation2 Operation on the complex real and imaginary parts.
+     * @return Result double from the given operation.
+     */
+    public static double assertSame(Complex c,
+                                    String name,
+                                    ToDoubleFunction<Complex> operation1,
+                                    DoubleBinaryOperator operation2) {
+        final double r1 = operation1.applyAsDouble(c);
+        // Test operation2 produces the exact same result
+        final double r2 = operation2.applyAsDouble(c.real(), c.imag());
+        Assertions.assertEquals(r1, r2, () -> "Double operator mismatch: " + name);
+        return r1;
+    }
+
+    /**
+     * Assert the condition operation on the complex number is <em>exactly</em> equal to the condition
+     * operation on complex real and imaginary parts.
+     *
+     * @param c Input complex number.
+     * @param name Operation name.
+     * @param operation1 Condition operation on the Complex object.
+     * @param operation2 Condition peration on the complex real and imaginary parts.
+     * @return Result boolean from the given operation.
+     */
+    public static boolean assertSame(Complex c,
+                                     String name,
+                                     Predicate<Complex> operation1,
+                                     DoubleBinaryPredicate operation2) {
+        final boolean b1 = operation1.test(c);
+        // Test operation2 produces the exact same result
+        final boolean b2 = operation2.test(c.real(), c.imag());
+        Assertions.assertEquals(b1, b2, () -> "Predicate operator mismatch: " + name);
+        return b1;
     }
 }

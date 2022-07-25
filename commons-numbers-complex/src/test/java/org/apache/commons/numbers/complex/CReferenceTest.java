@@ -223,38 +223,6 @@ class CReferenceTest {
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param name the operation name
-     * @param operation the operation
-     * @param maxUlps the maximum units of least precision between the two values
-     */
-    private static void assertOperation(String name,
-            UnaryOperator<Complex> operation, long maxUlps) {
-        final List<Complex[]> data = loadTestData(name);
-        final long ulps = getTestUlps(maxUlps);
-        for (final Complex[] pair : data) {
-            assertComplex(pair[0], name, operation, pair[1], ulps);
-        }
-    }
-
-    /**
-     * Assert the operation using the data loaded from test resources.
-     *
-     * @param name the operation name
-     * @param operation the operation
-     * @param maxUlps the maximum units of least precision between the two values
-     */
-    private static void assertBiOperation(String name,
-            BiFunction<Complex, Complex, Complex> operation, long maxUlps) {
-        final List<Complex[]> data = loadTestData(name);
-        final long ulps = getTestUlps(maxUlps);
-        for (final Complex[] triple : data) {
-            assertComplex(triple[0], triple[1], name, operation, triple[2], ulps);
-        }
-    }
-
-    /**
-     * Assert the operation using the data loaded from test resources.
-     *
      * @param name Operation name.
      * @param operation1 Operation on the Complex object.
      * @param operation2 Operation on the complex real and imaginary parts.
@@ -268,6 +236,21 @@ class CReferenceTest {
         final long ulps = getTestUlps(maxUlps);
         for (final Complex[] pair : data) {
             assertComplex(pair[0], name, operation1, operation2, pair[1], ulps);
+        }
+    }
+    /**
+     * Assert the operation using the data loaded from test resources.
+     *
+     * @param name the operation name
+     * @param operation the operation
+     * @param maxUlps the maximum units of least precision between the two values
+     */
+    private static void assertBiOperation(String name,
+            BiFunction<Complex, Complex, Complex> operation, long maxUlps) {
+        final List<Complex[]> data = loadTestData(name);
+        final long ulps = getTestUlps(maxUlps);
+        for (final Complex[] triple : data) {
+            assertComplex(triple[0], triple[1], name, operation, triple[2], ulps);
         }
     }
 
@@ -314,47 +297,47 @@ class CReferenceTest {
 
     @Test
     void testAcos() {
-        assertOperation("acos", Complex::acos, 2);
+        assertOperation("acos", Complex::acos, ComplexFunctions::acos, 2);
     }
 
     @Test
     void testAcosh() {
-        assertOperation("acosh", Complex::acosh, 2);
+        assertOperation("acosh", Complex::acosh, ComplexFunctions::acosh, 2);
     }
 
     @Test
     void testAsinh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("asinh", Complex::asinh, 3);
+        assertOperation("asinh", Complex::asinh, ComplexFunctions::asinh, 3);
     }
 
     @Test
     void testAtanh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("atanh", Complex::atanh, 1);
+        assertOperation("atanh", Complex::atanh, ComplexFunctions::atanh, 1);
     }
 
     @Test
     void testCosh() {
         // Even function: negative real cases defined by positive real cases
-        assertOperation("cosh", Complex::cosh, 2);
+        assertOperation("cosh", Complex::cosh, ComplexFunctions::cosh, 2);
     }
 
     @Test
     void testSinh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("sinh", Complex::sinh, 2);
+        assertOperation("sinh", Complex::sinh, ComplexFunctions::sinh, 2);
     }
 
     @Test
     void testTanh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("tanh", Complex::tanh, 2);
+        assertOperation("tanh", Complex::tanh, ComplexFunctions::tanh, 2);
     }
 
     @Test
     void testExp() {
-        assertOperation("exp", Complex::exp, 2);
+        assertOperation("exp", Complex::exp, ComplexFunctions::exp, 2);
     }
 
     @Test
@@ -364,7 +347,7 @@ class CReferenceTest {
 
     @Test
     void testSqrt() {
-        assertOperation("sqrt", Complex::sqrt, 1);
+        assertOperation("sqrt", Complex::sqrt, ComplexFunctions::sqrt, 1);
     }
 
     @Test

@@ -82,99 +82,12 @@ public final class Complex implements Serializable  {
 
     /** A complex number representing {@code NaN + i NaN}. */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
-    /** &pi;/2. */
-    private static final double PI_OVER_2 = 0.5 * Math.PI;
-    /** &pi;/4. */
-    private static final double PI_OVER_4 = 0.25 * Math.PI;
-    /** Natural logarithm of 2 (ln(2)). */
-    private static final double LN_2 = Math.log(2);
-    /** {@code 1.0 / sqrt(2)}.
-     * This is pre-computed to the closest double from the exact result.
-     * It is 1 ULP different from 1.0 / Math.sqrt(2) but equal to Math.sqrt(2) / 2.
-     */
-    private static final double ONE_OVER_ROOT2 = 0.7071067811865476;
     /** Exponent offset in IEEE754 representation. */
     private static final int EXPONENT_OFFSET = 1023;
-    /**
-     * Largest double-precision floating-point number such that
-     * {@code 1 + EPSILON} is numerically equal to 1. This value is an upper
-     * bound on the relative error due to rounding real numbers to double
-     * precision floating-point numbers.
-     *
-     * <p>In IEEE 754 arithmetic, this is 2<sup>-53</sup>.
-     * Copied from o.a.c.numbers.Precision.
-     *
-     * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
-     */
-    private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
     /** Mask to remove the sign bit from a long. */
     private static final long UNSIGN_MASK = 0x7fff_ffff_ffff_ffffL;
     /** Mask to extract the 52-bit mantissa from a long representation of a double. */
     private static final long MANTISSA_MASK = 0x000f_ffff_ffff_ffffL;
-
-    /**
-     * Crossover point to switch computation for asin/acos factor A.
-     * This has been updated from the 1.5 value used by Hull et al to 10
-     * as used in boost::math::complex.
-     * @see <a href="https://svn.boost.org/trac/boost/ticket/7290">Boost ticket 7290</a>
-     */
-    private static final double A_CROSSOVER = 10.0;
-    /** Crossover point to switch computation for asin/acos factor B. */
-    private static final double B_CROSSOVER = 0.6471;
-    /**
-     * The safe maximum double value {@code x} to avoid loss of precision in asin/acos.
-     * Equal to sqrt(M) / 8 in Hull, et al (1997) with M the largest normalised floating-point value.
-     */
-    private static final double SAFE_MAX = Math.sqrt(Double.MAX_VALUE) / 8;
-    /**
-     * The safe minimum double value {@code x} to avoid loss of precision/underflow in asin/acos.
-     * Equal to sqrt(u) * 4 in Hull, et al (1997) with u the smallest normalised floating-point value.
-     */
-    private static final double SAFE_MIN = Math.sqrt(Double.MIN_NORMAL) * 4;
-    /**
-     * The safe maximum double value {@code x} to avoid loss of precision in atanh.
-     * Equal to sqrt(M) / 2 with M the largest normalised floating-point value.
-     */
-    private static final double SAFE_UPPER = Math.sqrt(Double.MAX_VALUE) / 2;
-    /**
-     * The safe minimum double value {@code x} to avoid loss of precision/underflow in atanh.
-     * Equal to sqrt(u) * 2 with u the smallest normalised floating-point value.
-     */
-    private static final double SAFE_LOWER = Math.sqrt(Double.MIN_NORMAL) * 2;
-    /** The safe maximum double value {@code x} to avoid overflow in sqrt. */
-    private static final double SQRT_SAFE_UPPER = Double.MAX_VALUE / 8;
-    /**
-     * A safe maximum double value {@code m} where {@code e^m} is not infinite.
-     * This can be used when functions require approximations of sinh(x) or cosh(x)
-     * when x is large using exp(x):
-     * <pre>
-     * sinh(x) = (e^x - e^-x) / 2 = sign(x) * e^|x| / 2
-     * cosh(x) = (e^x + e^-x) / 2 = e^|x| / 2 </pre>
-     *
-     * <p>This value can be used to approximate e^x using a product:
-     *
-     * <pre>
-     * e^x = product_n (e^m) * e^(x-nm)
-     * n = (int) x/m
-     * e.g. e^2000 = e^m * e^m * e^(2000 - 2m) </pre>
-     *
-     * <p>The value should be below ln(max_value) ~ 709.783.
-     * The value m is set to an integer for less error when subtracting m and chosen as
-     * even (m=708) as it is used as a threshold in tanh with m/2.
-     *
-     * <p>The value is used to compute e^x multiplied by a small number avoiding
-     * overflow (sinh/cosh) or a small number divided by e^x without underflow due to
-     * infinite e^x (tanh). The following conditions are used:
-     * <pre>
-     * 0.5 * e^m * Double.MIN_VALUE * e^m * e^m = Infinity
-     * 2.0 / e^m / e^m = 0.0 </pre>
-     */
-    private static final double SAFE_EXP = 708;
-    /**
-     * The value of Math.exp(SAFE_EXP): e^708.
-     * To be used in overflow/underflow safe products of e^m to approximate e^x where x > m.
-     */
-    private static final double EXP_M = Math.exp(SAFE_EXP);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -203,22 +116,6 @@ public final class Complex implements Serializable  {
     private final double imaginary;
     /** The real part. */
     private final double real;
-
-    /**
-     * Define a constructor for a Complex.
-     * This is used in functions that implement trigonomic identities.
-     */
-    @FunctionalInterface
-    private interface ComplexConstructor {
-        /**
-         * Create a complex number given the real and imaginary parts.
-         *
-         * @param real Real part.
-         * @param imaginary Imaginary part.
-         * @return {@code Complex} object.
-         */
-        Complex create(double real, double imaginary);
-    }
 
     /**
      * Private default constructor.
@@ -484,33 +381,6 @@ public final class Complex implements Serializable  {
      * @see <a href="http://mathworld.wolfram.com/ComplexModulus.html">Complex modulus</a>
      */
     public double abs() {
-        return abs(real, imaginary);
-    }
-
-    /**
-     * Returns the absolute value of the complex number.
-     * <pre>abs(x + i y) = sqrt(x^2 + y^2)</pre>
-     *
-     * <p>This should satisfy the special cases of the hypot function in ISO C99 F.9.4.3:
-     * "The hypot functions compute the square root of the sum of the squares of x and y,
-     * without undue overflow or underflow."
-     *
-     * <ul>
-     * <li>hypot(x, y), hypot(y, x), and hypot(x, −y) are equivalent.
-     * <li>hypot(x, ±0) is equivalent to |x|.
-     * <li>hypot(±∞, y) returns +∞, even if y is a NaN.
-     * </ul>
-     *
-     * <p>This method is called by all methods that require the absolute value of the complex
-     * number, e.g. abs(), sqrt() and log().
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @return The absolute value.
-     */
-    private static double abs(double real, double imaginary) {
-        // Specialised implementation of hypot.
-        // See NUMBERS-143
         return ComplexFunctions.abs(real, imaginary);
     }
 
@@ -565,10 +435,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://mathworld.wolfram.com/AbsoluteSquare.html">Absolute square</a>
      */
     public double norm() {
-        if (isInfinite()) {
-            return Double.POSITIVE_INFINITY;
-        }
-        return real * real + imaginary * imaginary;
+        return ComplexFunctions.norm(real, imaginary);
     }
 
     /**
@@ -588,10 +455,7 @@ public final class Complex implements Serializable  {
      * @see #equals(Object) Complex.equals(Object)
      */
     public boolean isNaN() {
-        if (Double.isNaN(real) || Double.isNaN(imaginary)) {
-            return !isInfinite();
-        }
-        return false;
+        return ComplexFunctions.isNaN(real, imaginary);
     }
 
     /**
@@ -614,7 +478,7 @@ public final class Complex implements Serializable  {
      * @see Double#isFinite(double)
      */
     public boolean isFinite() {
-        return Double.isFinite(real) && Double.isFinite(imaginary);
+        return ComplexFunctions.isFinite(real, imaginary);
     }
 
     /**
@@ -652,7 +516,7 @@ public final class Complex implements Serializable  {
      * <p>\( z \) projects to \( z \), except that all complex infinities (even those
      * with one infinite part and one NaN part) project to positive infinity on the real axis.
      *
-     * If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
+     * <p>If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
      *
      * <pre>return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, z.imag());</pre>
      *
@@ -1217,55 +1081,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
     public Complex exp() {
-        if (Double.isInfinite(real)) {
-            // Set the scale factor applied to cis(y)
-            double zeroOrInf;
-            if (real < 0) {
-                if (!Double.isFinite(imaginary)) {
-                    // (−∞ + i∞) or (−∞ + iNaN) returns (±0 ± i0) (where the signs of the
-                    // real and imaginary parts of the result are unspecified).
-                    // Here we preserve the conjugate equality.
-                    return new Complex(0, Math.copySign(0, imaginary));
-                }
-                // (−∞ + iy) returns +0 cis(y), for finite y
-                zeroOrInf = 0;
-            } else {
-                // (+∞ + i0) returns +∞ + i0.
-                if (imaginary == 0) {
-                    return this;
-                }
-                // (+∞ + i∞) or (+∞ + iNaN) returns (±∞ + iNaN) and raises the invalid
-                // floating-point exception (where the sign of the real part of the
-                // result is unspecified).
-                if (!Double.isFinite(imaginary)) {
-                    return new Complex(real, Double.NaN);
-                }
-                // (+∞ + iy) returns (+∞ cis(y)), for finite nonzero y.
-                zeroOrInf = real;
-            }
-            return new Complex(zeroOrInf * Math.cos(imaginary),
-                               zeroOrInf * Math.sin(imaginary));
-        } else if (Double.isNaN(real)) {
-            // (NaN + i0) returns (NaN + i0)
-            // (NaN + iy) returns (NaN + iNaN) and optionally raises the invalid floating-point exception
-            // (NaN + iNaN) returns (NaN + iNaN)
-            return imaginary == 0 ? this : NAN;
-        } else if (!Double.isFinite(imaginary)) {
-            // (x + i∞) or (x + iNaN) returns (NaN + iNaN) and raises the invalid
-            // floating-point exception, for finite x.
-            return NAN;
-        }
-        // real and imaginary are finite.
-        // Compute e^a * (cos(b) + i sin(b)).
-
-        // Special case:
-        // (±0 + i0) returns (1 + i0)
-        final double exp = Math.exp(real);
-        if (imaginary == 0) {
-            return new Complex(exp, imaginary);
-        }
-        return new Complex(exp * Math.cos(imaginary),
-                           exp * Math.sin(imaginary));
+        return ComplexFunctions.exp(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -1455,107 +1271,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sqrt/">Sqrt</a>
      */
     public Complex sqrt() {
-        return sqrt(real, imaginary);
-    }
-
-    /**
-     * Returns the square root of the complex number {@code sqrt(x + i y)}.
-     *
-     * @param real Real component.
-     * @param imaginary Imaginary component.
-     * @return The square root of the complex number.
-     */
-    private static Complex sqrt(double real, double imaginary) {
-        // Handle NaN
-        if (Double.isNaN(real) || Double.isNaN(imaginary)) {
-            // Check for infinite
-            if (Double.isInfinite(imaginary)) {
-                return new Complex(Double.POSITIVE_INFINITY, imaginary);
-            }
-            if (Double.isInfinite(real)) {
-                if (real == Double.NEGATIVE_INFINITY) {
-                    return new Complex(Double.NaN, Math.copySign(Double.POSITIVE_INFINITY, imaginary));
-                }
-                return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-            }
-            return NAN;
-        }
-
-        // Compute with positive values and determine sign at the end
-        final double x = Math.abs(real);
-        final double y = Math.abs(imaginary);
-
-        // Compute
-        double t;
-
-        // This alters the implementation of Hull et al (1994) which used a standard
-        // precision representation of |z|: sqrt(x*x + y*y).
-        // This formula should use the same definition of the magnitude returned
-        // by Complex.abs() which is a high precision computation with scaling.
-        // Worry about overflow if 2 * (|z| + |x|) will overflow.
-        // Worry about underflow if |z| or |x| are sub-normal components.
-
-        if (inRegion(x, y, Double.MIN_NORMAL, SQRT_SAFE_UPPER)) {
-            // No over/underflow
-            t = Math.sqrt(2 * (abs(x, y) + x));
-        } else {
-            // Potential over/underflow. First check infinites and real/imaginary only.
-
-            // Check for infinite
-            if (isPosInfinite(y)) {
-                return new Complex(Double.POSITIVE_INFINITY, imaginary);
-            } else if (isPosInfinite(x)) {
-                if (real == Double.NEGATIVE_INFINITY) {
-                    return new Complex(0, Math.copySign(Double.POSITIVE_INFINITY, imaginary));
-                }
-                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(0, imaginary));
-            } else if (y == 0) {
-                // Real only
-                final double sqrtAbs = Math.sqrt(x);
-                if (real < 0) {
-                    return new Complex(0, Math.copySign(sqrtAbs, imaginary));
-                }
-                return new Complex(sqrtAbs, imaginary);
-            } else if (x == 0) {
-                // Imaginary only. This sets the two components to the same magnitude.
-                // Note: In polar coordinates this does not happen:
-                // real = sqrt(abs()) * Math.cos(arg() / 2)
-                // imag = sqrt(abs()) * Math.sin(arg() / 2)
-                // arg() / 2 = pi/4 and cos and sin should both return sqrt(2)/2 but
-                // are different by 1 ULP.
-                final double sqrtAbs = Math.sqrt(y) * ONE_OVER_ROOT2;
-                return new Complex(sqrtAbs, Math.copySign(sqrtAbs, imaginary));
-            } else {
-                // Over/underflow.
-                // Full scaling is not required as this is done in the hypotenuse function.
-                // Keep the number as big as possible for maximum precision in the second sqrt.
-                // Note if we scale by an even power of 2, we can re-scale by sqrt of the number.
-                // a = sqrt(b)
-                // a = sqrt(b/4) * sqrt(4)
-
-                double rescale;
-                double sx;
-                double sy;
-                if (Math.max(x, y) > SQRT_SAFE_UPPER) {
-                    // Overflow. Scale down by 16 and rescale by sqrt(16).
-                    sx = x / 16;
-                    sy = y / 16;
-                    rescale = 4;
-                } else {
-                    // Sub-normal numbers. Make them normal by scaling by 2^54,
-                    // i.e. more than the mantissa digits, and rescale by sqrt(2^54) = 2^27.
-                    sx = x * 0x1.0p54;
-                    sy = y * 0x1.0p54;
-                    rescale = 0x1.0p-27;
-                }
-                t = rescale * Math.sqrt(2 * (abs(sx, sy) + sx));
-            }
-        }
-
-        if (real >= 0) {
-            return new Complex(t / 2, imaginary / t);
-        }
-        return new Complex(y / t, Math.copySign(t / 2, imaginary));
+        return ComplexFunctions.sqrt(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -1580,10 +1296,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sin/">Sin</a>
      */
     public Complex sin() {
-        // Define in terms of sinh
-        // sin(z) = -i sinh(iz)
-        // Multiply this number by I, compute sinh, then multiply by back
-        return sinh(-imaginary, real, Complex::multiplyNegativeI);
+        return ComplexFunctions.sin(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -1608,10 +1321,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cos/">Cos</a>
      */
     public Complex cos() {
-        // Define in terms of cosh
-        // cos(z) = cosh(iz)
-        // Multiply this number by I and compute cosh.
-        return cosh(-imaginary, real, Complex::ofCartesian);
+        return ComplexFunctions.cos(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -1634,10 +1344,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tan/">Tangent</a>
      */
     public Complex tan() {
-        // Define in terms of tanh
-        // tan(z) = -i tanh(iz)
-        // Multiply this number by I, compute tanh, then multiply by back
-        return tanh(-imaginary, real, Complex::multiplyNegativeI);
+        return ComplexFunctions.tan(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -1679,145 +1386,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSin/">ArcSin</a>
      */
     public Complex asin() {
-        return asin(real, imaginary, Complex::ofCartesian);
-    }
-
-    /**
-     * Returns the inverse sine of the complex number.
-     *
-     * <p>This function exists to allow implementation of the identity
-     * {@code asinh(z) = -i asin(iz)}.
-     *
-     * <p>Adapted from {@code <boost/math/complex/asin.hpp>}. This method only (and not
-     * invoked methods within) is distributed under the Boost Software License V1.0.
-     * The original notice is shown below and the licence is shown in full in LICENSE:
-     * <pre>
-     * (C) Copyright John Maddock 2005.
-     * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
-     * </pre>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @param constructor Constructor.
-     * @return The inverse sine of this complex number.
-     */
-    private static Complex asin(final double real, final double imaginary,
-                                final ComplexConstructor constructor) {
-        // Compute with positive values and determine sign at the end
-        final double x = Math.abs(real);
-        final double y = Math.abs(imaginary);
-        // The result (without sign correction)
-        double re;
-        double im;
-
-        // Handle C99 special cases
-        if (Double.isNaN(x)) {
-            if (isPosInfinite(y)) {
-                re = x;
-                im = y;
-            } else {
-                // No-use of the input constructor
-                return NAN;
-            }
-        } else if (Double.isNaN(y)) {
-            if (x == 0) {
-                re = 0;
-                im = y;
-            } else if (isPosInfinite(x)) {
-                re = y;
-                im = x;
-            } else {
-                // No-use of the input constructor
-                return NAN;
-            }
-        } else if (isPosInfinite(x)) {
-            re = isPosInfinite(y) ? PI_OVER_4 : PI_OVER_2;
-            im = x;
-        } else if (isPosInfinite(y)) {
-            re = 0;
-            im = y;
-        } else {
-            // Special case for real numbers:
-            if (y == 0 && x <= 1) {
-                return constructor.create(Math.asin(real), imaginary);
-            }
-
-            final double xp1 = x + 1;
-            final double xm1 = x - 1;
-
-            if (inRegion(x, y, SAFE_MIN, SAFE_MAX)) {
-                final double yy = y * y;
-                final double r = Math.sqrt(xp1 * xp1 + yy);
-                final double s = Math.sqrt(xm1 * xm1 + yy);
-                final double a = 0.5 * (r + s);
-                final double b = x / a;
-
-                if (b <= B_CROSSOVER) {
-                    re = Math.asin(b);
-                } else {
-                    final double apx = a + x;
-                    if (x <= 1) {
-                        re = Math.atan(x / Math.sqrt(0.5 * apx * (yy / (r + xp1) + (s - xm1))));
-                    } else {
-                        re = Math.atan(x / (y * Math.sqrt(0.5 * (apx / (r + xp1) + apx / (s + xm1)))));
-                    }
-                }
-
-                if (a <= A_CROSSOVER) {
-                    double am1;
-                    if (x < 1) {
-                        am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
-                    } else {
-                        am1 = 0.5 * (yy / (r + xp1) + (s + xm1));
-                    }
-                    im = Math.log1p(am1 + Math.sqrt(am1 * (a + 1)));
-                } else {
-                    im = Math.log(a + Math.sqrt(a * a - 1));
-                }
-            } else {
-                // Hull et al: Exception handling code from figure 4
-                if (y <= (EPSILON * Math.abs(xm1))) {
-                    if (x < 1) {
-                        re = Math.asin(x);
-                        im = y / Math.sqrt(xp1 * (1 - x));
-                    } else {
-                        re = PI_OVER_2;
-                        if ((Double.MAX_VALUE / xp1) > xm1) {
-                            // xp1 * xm1 won't overflow:
-                            im = Math.log1p(xm1 + Math.sqrt(xp1 * xm1));
-                        } else {
-                            im = LN_2 + Math.log(x);
-                        }
-                    }
-                } else if (y <= SAFE_MIN) {
-                    // Hull et al: Assume x == 1.
-                    // True if:
-                    // E^2 > 8*sqrt(u)
-                    //
-                    // E = Machine epsilon: (1 + epsilon) = 1
-                    // u = Double.MIN_NORMAL
-                    re = PI_OVER_2 - Math.sqrt(y);
-                    im = Math.sqrt(y);
-                } else if (EPSILON * y - 1 >= x) {
-                    // Possible underflow:
-                    re = x / y;
-                    im = LN_2 + Math.log(y);
-                } else if (x > 1) {
-                    re = Math.atan(x / y);
-                    final double xoy = x / y;
-                    im = LN_2 + Math.log(y) + 0.5 * Math.log1p(xoy * xoy);
-                } else {
-                    final double a = Math.sqrt(1 + y * y);
-                    // Possible underflow:
-                    re = x / a;
-                    im = 0.5 * Math.log1p(2 * y * (y + a));
-                }
-            }
-        }
-
-        return constructor.create(changeSign(re, real),
-                                  changeSign(im, imaginary));
+        return ComplexFunctions.asin(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -1874,143 +1443,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCos/">ArcCos</a>
      */
     public Complex acos() {
-        return acos(real, imaginary, Complex::ofCartesian);
-    }
-
-    /**
-     * Returns the inverse cosine of the complex number.
-     *
-     * <p>This function exists to allow implementation of the identity
-     * {@code acosh(z) = +-i acos(z)}.
-     *
-     * <p>Adapted from {@code <boost/math/complex/acos.hpp>}. This method only (and not
-     * invoked methods within) is distributed under the Boost Software License V1.0.
-     * The original notice is shown below and the licence is shown in full in LICENSE:
-     * <pre>
-     * (C) Copyright John Maddock 2005.
-     * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
-     * </pre>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @param constructor Constructor.
-     * @return The inverse cosine of the complex number.
-     */
-    private static Complex acos(final double real, final double imaginary,
-                                final ComplexConstructor constructor) {
-        // Compute with positive values and determine sign at the end
-        final double x = Math.abs(real);
-        final double y = Math.abs(imaginary);
-        // The result (without sign correction)
-        double re;
-        double im;
-
-        // Handle C99 special cases
-        if (isPosInfinite(x)) {
-            if (isPosInfinite(y)) {
-                re = PI_OVER_4;
-                im = y;
-            } else if (Double.isNaN(y)) {
-                // sign of the imaginary part of the result is unspecified
-                return constructor.create(imaginary, real);
-            } else {
-                re = 0;
-                im = Double.POSITIVE_INFINITY;
-            }
-        } else if (Double.isNaN(x)) {
-            if (isPosInfinite(y)) {
-                return constructor.create(x, -imaginary);
-            }
-            // No-use of the input constructor
-            return NAN;
-        } else if (isPosInfinite(y)) {
-            re = PI_OVER_2;
-            im = y;
-        } else if (Double.isNaN(y)) {
-            return constructor.create(x == 0 ? PI_OVER_2 : y, y);
-        } else {
-            // Special case for real numbers:
-            if (y == 0 && x <= 1) {
-                return constructor.create(x == 0 ? PI_OVER_2 : Math.acos(real), -imaginary);
-            }
-
-            final double xp1 = x + 1;
-            final double xm1 = x - 1;
-
-            if (inRegion(x, y, SAFE_MIN, SAFE_MAX)) {
-                final double yy = y * y;
-                final double r = Math.sqrt(xp1 * xp1 + yy);
-                final double s = Math.sqrt(xm1 * xm1 + yy);
-                final double a = 0.5 * (r + s);
-                final double b = x / a;
-
-                if (b <= B_CROSSOVER) {
-                    re = Math.acos(b);
-                } else {
-                    final double apx = a + x;
-                    if (x <= 1) {
-                        re = Math.atan(Math.sqrt(0.5 * apx * (yy / (r + xp1) + (s - xm1))) / x);
-                    } else {
-                        re = Math.atan((y * Math.sqrt(0.5 * (apx / (r + xp1) + apx / (s + xm1)))) / x);
-                    }
-                }
-
-                if (a <= A_CROSSOVER) {
-                    double am1;
-                    if (x < 1) {
-                        am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
-                    } else {
-                        am1 = 0.5 * (yy / (r + xp1) + (s + xm1));
-                    }
-                    im = Math.log1p(am1 + Math.sqrt(am1 * (a + 1)));
-                } else {
-                    im = Math.log(a + Math.sqrt(a * a - 1));
-                }
-            } else {
-                // Hull et al: Exception handling code from figure 6
-                if (y <= (EPSILON * Math.abs(xm1))) {
-                    if (x < 1) {
-                        re = Math.acos(x);
-                        im = y / Math.sqrt(xp1 * (1 - x));
-                    } else {
-                        // This deviates from Hull et al's paper as per
-                        // https://svn.boost.org/trac/boost/ticket/7290
-                        if ((Double.MAX_VALUE / xp1) > xm1) {
-                            // xp1 * xm1 won't overflow:
-                            re = y / Math.sqrt(xm1 * xp1);
-                            im = Math.log1p(xm1 + Math.sqrt(xp1 * xm1));
-                        } else {
-                            re = y / x;
-                            im = LN_2 + Math.log(x);
-                        }
-                    }
-                } else if (y <= SAFE_MIN) {
-                    // Hull et al: Assume x == 1.
-                    // True if:
-                    // E^2 > 8*sqrt(u)
-                    //
-                    // E = Machine epsilon: (1 + epsilon) = 1
-                    // u = Double.MIN_NORMAL
-                    re = Math.sqrt(y);
-                    im = Math.sqrt(y);
-                } else if (EPSILON * y - 1 >= x) {
-                    re = PI_OVER_2;
-                    im = LN_2 + Math.log(y);
-                } else if (x > 1) {
-                    re = Math.atan(y / x);
-                    final double xoy = x / y;
-                    im = LN_2 + Math.log(y) + 0.5 * Math.log1p(xoy * xoy);
-                } else {
-                    re = PI_OVER_2;
-                    final double a = Math.sqrt(1 + y * y);
-                    im = 0.5 * Math.log1p(2 * y * (y + a));
-                }
-            }
-        }
-
-        return constructor.create(negative(real) ? Math.PI - re : re,
-                                  negative(imaginary) ? im : -im);
+        return ComplexFunctions.acos(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2034,10 +1467,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTan/">ArcTan</a>
      */
     public Complex atan() {
-        // Define in terms of atanh
-        // atan(z) = -i atanh(iz)
-        // Multiply this number by I, compute atanh, then multiply by back
-        return atanh(-imaginary, real, Complex::multiplyNegativeI);
+        return ComplexFunctions.atan(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2076,49 +1506,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sinh/">Sinh</a>
      */
     public Complex sinh() {
-        return sinh(real, imaginary, Complex::ofCartesian);
-    }
-
-    /**
-     * Returns the hyperbolic sine of the complex number.
-     *
-     * <p>This function exists to allow implementation of the identity
-     * {@code sin(z) = -i sinh(iz)}.<p>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @param constructor Constructor.
-     * @return The hyperbolic sine of the complex number.
-     */
-    private static Complex sinh(double real, double imaginary, ComplexConstructor constructor) {
-        if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
-            return constructor.create(real, Double.NaN);
-        }
-        if (real == 0) {
-            // Imaginary-only sinh(iy) = i sin(y).
-            if (Double.isFinite(imaginary)) {
-                // Maintain periodic property with respect to the imaginary component.
-                // sinh(+/-0.0) * cos(+/-x) = +/-0 * cos(x)
-                return constructor.create(changeSign(real, Math.cos(imaginary)),
-                                          Math.sin(imaginary));
-            }
-            // If imaginary is inf/NaN the sign of the real part is unspecified.
-            // Returning the same real value maintains the conjugate equality.
-            // It is not possible to also maintain the odd function (hence the unspecified sign).
-            return constructor.create(real, Double.NaN);
-        }
-        if (imaginary == 0) {
-            // Real-only sinh(x).
-            return constructor.create(Math.sinh(real), imaginary);
-        }
-        final double x = Math.abs(real);
-        if (x > SAFE_EXP) {
-            // Approximate sinh/cosh(x) using exp^|x| / 2
-            return coshsinh(x, real, imaginary, true, constructor);
-        }
-        // No overflow of sinh/cosh
-        return constructor.create(Math.sinh(real) * Math.cos(imaginary),
-                                  Math.cosh(real) * Math.sin(imaginary));
+        return ComplexFunctions.sinh(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2157,115 +1545,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cosh/">Cosh</a>
      */
     public Complex cosh() {
-        return cosh(real, imaginary, Complex::ofCartesian);
-    }
-
-    /**
-     * Returns the hyperbolic cosine of the complex number.
-     *
-     * <p>This function exists to allow implementation of the identity
-     * {@code cos(z) = cosh(iz)}.<p>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @param constructor Constructor.
-     * @return The hyperbolic cosine of the complex number.
-     */
-    private static Complex cosh(double real, double imaginary, ComplexConstructor constructor) {
-        // ISO C99: Preserve the even function by mapping to positive
-        // f(z) = f(-z)
-        if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
-            return constructor.create(Math.abs(real), Double.NaN);
-        }
-        if (real == 0) {
-            // Imaginary-only cosh(iy) = cos(y).
-            if (Double.isFinite(imaginary)) {
-                // Maintain periodic property with respect to the imaginary component.
-                // sinh(+/-0.0) * sin(+/-x) = +/-0 * sin(x)
-                return constructor.create(Math.cos(imaginary),
-                                          changeSign(real, Math.sin(imaginary)));
-            }
-            // If imaginary is inf/NaN the sign of the imaginary part is unspecified.
-            // Although not required by C99 changing the sign maintains the conjugate equality.
-            // It is not possible to also maintain the even function (hence the unspecified sign).
-            return constructor.create(Double.NaN, changeSign(real, imaginary));
-        }
-        if (imaginary == 0) {
-            // Real-only cosh(x).
-            // Change sign to preserve conjugate equality and even function.
-            // sin(+/-0) * sinh(+/-x) = +/-0 * +/-a (sinh is monotonic and same sign)
-            // => change the sign of imaginary using real. Handles special case of infinite real.
-            // If real is NaN the sign of the imaginary part is unspecified.
-            return constructor.create(Math.cosh(real), changeSign(imaginary, real));
-        }
-        final double x = Math.abs(real);
-        if (x > SAFE_EXP) {
-            // Approximate sinh/cosh(x) using exp^|x| / 2
-            return coshsinh(x, real, imaginary, false, constructor);
-        }
-        // No overflow of sinh/cosh
-        return constructor.create(Math.cosh(real) * Math.cos(imaginary),
-                                  Math.sinh(real) * Math.sin(imaginary));
-    }
-
-    /**
-     * Compute cosh or sinh when the absolute real component |x| is large. In this case
-     * cosh(x) and sinh(x) can be approximated by exp(|x|) / 2:
-     *
-     * <pre>
-     * cosh(x+iy) real = (e^|x| / 2) * cos(y)
-     * cosh(x+iy) imag = (e^|x| / 2) * sin(y) * sign(x)
-     * sinh(x+iy) real = (e^|x| / 2) * cos(y) * sign(x)
-     * sinh(x+iy) imag = (e^|x| / 2) * sin(y)
-     * </pre>
-     *
-     * @param x Absolute real component |x|.
-     * @param real Real part (x).
-     * @param imaginary Imaginary part (y).
-     * @param sinh Set to true to compute sinh, otherwise cosh.
-     * @param constructor Constructor.
-     * @return The hyperbolic sine/cosine of the complex number.
-     */
-    private static Complex coshsinh(double x, double real, double imaginary, boolean sinh,
-                                    ComplexConstructor constructor) {
-        // Always require the cos and sin.
-        double re = Math.cos(imaginary);
-        double im = Math.sin(imaginary);
-        // Compute the correct function
-        if (sinh) {
-            re = changeSign(re, real);
-        } else {
-            im = changeSign(im, real);
-        }
-        // Multiply by (e^|x| / 2).
-        // Overflow safe computation since sin/cos can be very small allowing a result
-        // when e^x overflows: e^x / 2 = (e^m / 2) * e^m * e^(x-2m)
-        if (x > SAFE_EXP * 3) {
-            // e^x > e^m * e^m * e^m
-            // y * (e^m / 2) * e^m * e^m will overflow when starting with Double.MIN_VALUE.
-            // Note: Do not multiply by +inf to safeguard against sin(y)=0.0 which
-            // will create 0 * inf = nan.
-            re *= Double.MAX_VALUE * Double.MAX_VALUE * Double.MAX_VALUE;
-            im *= Double.MAX_VALUE * Double.MAX_VALUE * Double.MAX_VALUE;
-        } else {
-            // Initial part of (e^x / 2) using (e^m / 2)
-            re *= EXP_M / 2;
-            im *= EXP_M / 2;
-            double xm;
-            if (x > SAFE_EXP * 2) {
-                // e^x = e^m * e^m * e^(x-2m)
-                re *= EXP_M;
-                im *= EXP_M;
-                xm = x - SAFE_EXP * 2;
-            } else {
-                // e^x = e^m * e^(x-m)
-                xm = x - SAFE_EXP;
-            }
-            final double exp = Math.exp(xm);
-            re *= exp;
-            im *= exp;
-        }
-        return constructor.create(re, im);
+        return ComplexFunctions.cosh(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2313,113 +1593,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
      */
     public Complex tanh() {
-        return tanh(real, imaginary, Complex::ofCartesian);
-    }
-
-    /**
-     * Returns the hyperbolic tangent of this complex number.
-     *
-     * <p>This function exists to allow implementation of the identity
-     * {@code tan(z) = -i tanh(iz)}.<p>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @param constructor Constructor.
-     * @return The hyperbolic tangent of the complex number.
-     */
-    private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
-        // Cache the absolute real value
-        final double x = Math.abs(real);
-
-        // Handle inf or nan.
-        if (!isPosFinite(x) || !Double.isFinite(imaginary)) {
-            if (isPosInfinite(x)) {
-                if (Double.isFinite(imaginary)) {
-                    // The sign is copied from sin(2y)
-                    // The identity sin(2a) = 2 sin(a) cos(a) is used for consistency
-                    // with the computation below. Only the magnitude is important
-                    // so drop the 2. When |y| is small sign(sin(2y)) = sign(y).
-                    final double sign = Math.abs(imaginary) < PI_OVER_2 ?
-                                        imaginary :
-                                        Math.sin(imaginary) * Math.cos(imaginary);
-                    return constructor.create(Math.copySign(1, real),
-                                              Math.copySign(0, sign));
-                }
-                // imaginary is infinite or NaN
-                return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
-            }
-            // Remaining cases:
-            // (0 + i inf), returns (0 + i NaN)
-            // (0 + i NaN), returns (0 + i NaN)
-            // (x + i inf), returns (NaN + i NaN) for non-zero x (including infinite)
-            // (x + i NaN), returns (NaN + i NaN) for non-zero x (including infinite)
-            // (NaN + i 0), returns (NaN + i 0)
-            // (NaN + i y), returns (NaN + i NaN) for non-zero y (including infinite)
-            // (NaN + i NaN), returns (NaN + i NaN)
-            return constructor.create(real == 0 ? real : Double.NaN,
-                                      imaginary == 0 ? imaginary : Double.NaN);
-        }
-
-        // Finite components
-        // tanh(x+iy) = (sinh(2x) + i sin(2y)) / (cosh(2x) + cos(2y))
-
-        if (real == 0) {
-            // Imaginary-only tanh(iy) = i tan(y)
-            // Identity: sin 2y / (1 + cos 2y) = tan(y)
-            return constructor.create(real, Math.tan(imaginary));
-        }
-        if (imaginary == 0) {
-            // Identity: sinh 2x / (1 + cosh 2x) = tanh(x)
-            return constructor.create(Math.tanh(real), imaginary);
-        }
-
-        // The double angles can be avoided using the identities:
-        // sinh(2x) = 2 sinh(x) cosh(x)
-        // sin(2y) = 2 sin(y) cos(y)
-        // cosh(2x) = 2 sinh^2(x) + 1
-        // cos(2y) = 2 cos^2(y) - 1
-        // tanh(x+iy) = (sinh(x)cosh(x) + i sin(y)cos(y)) / (sinh^2(x) + cos^2(y))
-        // To avoid a junction when swapping between the double angles and the identities
-        // the identities are used in all cases.
-
-        if (x > SAFE_EXP / 2) {
-            // Potential overflow in sinh/cosh(2x).
-            // Approximate sinh/cosh using exp^x.
-            // Ignore cos^2(y) in the divisor as it is insignificant.
-            // real = sinh(x)cosh(x) / sinh^2(x) = +/-1
-            final double re = Math.copySign(1, real);
-            // imag = sin(2y) / 2 sinh^2(x)
-            // sinh(x) -> sign(x) * e^|x| / 2 when x is large.
-            // sinh^2(x) -> e^2|x| / 4 when x is large.
-            // imag = sin(2y) / 2 (e^2|x| / 4) = 2 sin(2y) / e^2|x|
-            //      = 4 * sin(y) cos(y) / e^2|x|
-            // Underflow safe divide as e^2|x| may overflow:
-            // imag = 4 * sin(y) cos(y) / e^m / e^(2|x| - m)
-            // (|im| is a maximum of 2)
-            double im = Math.sin(imaginary) * Math.cos(imaginary);
-            if (x > SAFE_EXP) {
-                // e^2|x| > e^m * e^m
-                // This will underflow 2.0 / e^m / e^m
-                im = Math.copySign(0.0, im);
-            } else {
-                // e^2|x| = e^m * e^(2|x| - m)
-                im = 4 * im / EXP_M / Math.exp(2 * x - SAFE_EXP);
-            }
-            return constructor.create(re, im);
-        }
-
-        // No overflow of sinh(2x) and cosh(2x)
-
-        // Note: This does not use the definitional formula but uses the identity:
-        // tanh(x+iy) = (sinh(x)cosh(x) + i sin(y)cos(y)) / (sinh^2(x) + cos^2(y))
-
-        final double sinhx = Math.sinh(real);
-        final double coshx = Math.cosh(real);
-        final double siny = Math.sin(imaginary);
-        final double cosy = Math.cos(imaginary);
-        final double divisor = sinhx * sinhx + cosy * cosy;
-        return constructor.create(sinhx * coshx / divisor,
-                                  siny * cosy / divisor);
+        return ComplexFunctions.tanh(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2459,12 +1633,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSinh/">ArcSinh</a>
      */
     public Complex asinh() {
-        // Define in terms of asin
-        // asinh(z) = -i asin(iz)
-        // Note: This is the opposite to the identity defined in the C99 standard:
-        // asin(z) = -i asinh(iz)
-        // Multiply this number by I, compute asin, then multiply by back
-        return asin(-imaginary, real, Complex::multiplyNegativeI);
+        return ComplexFunctions.asinh(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2512,24 +1681,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
      */
     public Complex acosh() {
-        // Define in terms of acos
-        // acosh(z) = +-i acos(z)
-        // Note the special case:
-        // acos(+-0 + iNaN) = π/2 + iNaN
-        // acosh(0 + iNaN) = NaN + iπ/2
-        // will not appropriately multiply by I to maintain positive imaginary if
-        // acos() imaginary computes as NaN. So do this explicitly.
-        if (Double.isNaN(imaginary) && real == 0) {
-            return new Complex(Double.NaN, PI_OVER_2);
-        }
-        return acos(real, imaginary, (re, im) ->
-            // Set the sign appropriately for real >= 0
-            (negative(im)) ?
-                // Multiply by I
-                new Complex(-im, re) :
-                // Multiply by -I
-                new Complex(im, -re)
-        );
+        return ComplexFunctions.acosh(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2577,207 +1729,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTanh/">ArcTanh</a>
      */
     public Complex atanh() {
-        return atanh(real, imaginary, Complex::ofCartesian);
-    }
-
-    /**
-     * Returns the inverse hyperbolic tangent of this complex number.
-     *
-     * <p>This function exists to allow implementation of the identity
-     * {@code atan(z) = -i atanh(iz)}.
-     *
-     * <p>Adapted from {@code <boost/math/complex/atanh.hpp>}. This method only (and not
-     * invoked methods within) is distributed under the Boost Software License V1.0.
-     * The original notice is shown below and the licence is shown in full in LICENSE:
-     * <pre>
-     * (C) Copyright John Maddock 2005.
-     * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
-     * </pre>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @param constructor Constructor.
-     * @return The inverse hyperbolic tangent of the complex number.
-     */
-    private static Complex atanh(final double real, final double imaginary,
-                                 final ComplexConstructor constructor) {
-        // Compute with positive values and determine sign at the end
-        double x = Math.abs(real);
-        double y = Math.abs(imaginary);
-        // The result (without sign correction)
-        double re;
-        double im;
-
-        // Handle C99 special cases
-        if (Double.isNaN(x)) {
-            if (isPosInfinite(y)) {
-                // The sign of the real part of the result is unspecified
-                return constructor.create(0, Math.copySign(PI_OVER_2, imaginary));
-            }
-            // No-use of the input constructor.
-            // Optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
-            return NAN;
-        } else if (Double.isNaN(y)) {
-            if (isPosInfinite(x)) {
-                return constructor.create(Math.copySign(0, real), Double.NaN);
-            }
-            if (x == 0) {
-                return constructor.create(real, Double.NaN);
-            }
-            // No-use of the input constructor
-            return NAN;
-        } else {
-            // x && y are finite or infinite.
-
-            // Check the safe region.
-            // The lower and upper bounds have been copied from boost::math::atanh.
-            // They are different from the safe region for asin and acos.
-            // x >= SAFE_UPPER: (1-x) == -x
-            // x <= SAFE_LOWER: 1 - x^2 = 1
-
-            if (inRegion(x, y, SAFE_LOWER, SAFE_UPPER)) {
-                // Normal computation within a safe region.
-
-                // minus x plus 1: (-x+1)
-                final double mxp1 = 1 - x;
-                final double yy = y * y;
-                // The definition of real component is:
-                // real = log( ((x+1)^2+y^2) / ((1-x)^2+y^2) ) / 4
-                // This simplifies by adding 1 and subtracting 1 as a fraction:
-                //      = log(1 + ((x+1)^2+y^2) / ((1-x)^2+y^2) - ((1-x)^2+y^2)/((1-x)^2+y^2) ) / 4
-                //
-                // real(atanh(z)) == log(1 + 4*x / ((1-x)^2+y^2)) / 4
-                // imag(atanh(z)) == tan^-1 (2y, (1-x)(1+x) - y^2) / 2
-                // imag(atanh(z)) == tan^-1 (2y, (1 - x^2 - y^2) / 2
-                // The division is done at the end of the function.
-                re = Math.log1p(4 * x / (mxp1 * mxp1 + yy));
-                // Modified from boost which does not switch the magnitude of x and y.
-                // The denominator for atan2 is 1 - x^2 - y^2.
-                // This can be made more precise if |x| > |y|.
-                final double numerator = 2 * y;
-                double denominator;
-                if (x < y) {
-                    final double tmp = x;
-                    x = y;
-                    y = tmp;
-                }
-                // 1 - x is precise if |x| >= 1
-                if (x >= 1) {
-                    denominator = (1 - x) * (1 + x) - y * y;
-                } else {
-                    // |x| < 1: Use high precision if possible:
-                    // 1 - x^2 - y^2 = -(x^2 + y^2 - 1)
-                    // Modified from boost to use the custom high precision method.
-                    denominator = -x2y2m1(x, y);
-                }
-                im = Math.atan2(numerator, denominator);
-            } else {
-                // This section handles exception cases that would normally cause
-                // underflow or overflow in the main formulas.
-
-                // C99. G.7: Special case for imaginary only numbers
-                if (x == 0) {
-                    if (imaginary == 0) {
-                        return constructor.create(real, imaginary);
-                    }
-                    // atanh(iy) = i atan(y)
-                    return constructor.create(real, Math.atan(imaginary));
-                }
-
-                // Real part:
-                // real = Math.log1p(4x / ((1-x)^2 + y^2))
-                // real = Math.log1p(4x / (1 - 2x + x^2 + y^2))
-                // real = Math.log1p(4x / (1 + x(x-2) + y^2))
-                // without either overflow or underflow in the squared terms.
-                if (x >= SAFE_UPPER) {
-                    // (1-x) = -x to machine precision:
-                    // log1p(4x / (x^2 + y^2))
-                    if (isPosInfinite(x) || isPosInfinite(y)) {
-                        re = 0;
-                    } else if (y >= SAFE_UPPER) {
-                        // Big x and y: divide by x*y
-                        re = Math.log1p((4 / y) / (x / y + y / x));
-                    } else if (y > 1) {
-                        // Big x: divide through by x:
-                        re = Math.log1p(4 / (x + y * y / x));
-                    } else {
-                        // Big x small y, as above but neglect y^2/x:
-                        re = Math.log1p(4 / x);
-                    }
-                } else if (y >= SAFE_UPPER) {
-                    if (x > 1) {
-                        // Big y, medium x, divide through by y:
-                        final double mxp1 = 1 - x;
-                        re = Math.log1p((4 * x / y) / (mxp1 * mxp1 / y + y));
-                    } else {
-                        // Big y, small x, as above but neglect (1-x)^2/y:
-                        // Note: log1p(v) == v - v^2/2 + v^3/3 ... Taylor series when v is small.
-                        // Here v is so small only the first term matters.
-                        re = 4 * x / y / y;
-                    }
-                } else if (x == 1) {
-                    // x = 1, small y:
-                    // Special case when x == 1 as (1-x) is invalid.
-                    // Simplify the following formula:
-                    // real = log( sqrt((x+1)^2+y^2) ) / 2 - log( sqrt((1-x)^2+y^2) ) / 2
-                    //      = log( sqrt(4+y^2) ) / 2 - log(y) / 2
-                    // if: 4+y^2 -> 4
-                    //      = log( 2 ) / 2 - log(y) / 2
-                    //      = (log(2) - log(y)) / 2
-                    // Multiply by 2 as it will be divided by 4 at the end.
-                    // C99: if y=0 raises the ‘‘divide-by-zero’’ floating-point exception.
-                    re = 2 * (LN_2 - Math.log(y));
-                } else {
-                    // Modified from boost which checks y > SAFE_LOWER.
-                    // if y*y -> 0 it will be ignored so always include it.
-                    final double mxp1 = 1 - x;
-                    re = Math.log1p((4 * x) / (mxp1 * mxp1 + y * y));
-                }
-
-                // Imaginary part:
-                // imag = atan2(2y, (1-x)(1+x) - y^2)
-                // if x or y are large, then the formula:
-                //   atan2(2y, (1-x)(1+x) - y^2)
-                // evaluates to +(PI - theta) where theta is negligible compared to PI.
-                if (x >= SAFE_UPPER || y >= SAFE_UPPER) {
-                    im = Math.PI;
-                } else if (x <= SAFE_LOWER) {
-                    // (1-x)^2 -> 1
-                    if (y <= SAFE_LOWER) {
-                        // 1 - y^2 -> 1
-                        im = Math.atan2(2 * y, 1);
-                    } else {
-                        im = Math.atan2(2 * y, 1 - y * y);
-                    }
-                } else {
-                    // Medium x, small y.
-                    // Modified from boost which checks (y == 0) && (x == 1) and sets re = 0.
-                    // This is same as the result from calling atan2(0, 0) so exclude this case.
-                    // 1 - y^2 = 1 so ignore subtracting y^2
-                    im = Math.atan2(2 * y, (1 - x) * (1 + x));
-                }
-            }
-        }
-
-        re /= 4;
-        im /= 2;
-        return constructor.create(changeSign(re, real),
-                                  changeSign(im, imaginary));
-    }
-
-    /**
-     * Compute {@code x^2 + y^2 - 1} in high precision.
-     * Assumes that the values x and y can be multiplied without overflow; that
-     * {@code x >= y}; and both values are positive.
-     *
-     * @param x the x value
-     * @param y the y value
-     * @return {@code x^2 + y^2 - 1}.
-     */
-    //TODO - make it private in ComplexFunctions in future
-    private static double x2y2m1(double x, double y) {
-        return ComplexFunctions.x2y2m1(x, y);
+        return ComplexFunctions.atanh(real, imaginary, Complex::ofCartesian);
     }
 
     /**
@@ -2957,68 +1909,6 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Check that a value is positive infinity. Used to replace {@link Double#isInfinite()}
-     * when the input value is known to be positive (i.e. in the case where it has been
-     * set using {@link Math#abs(double)}).
-     *
-     * @param d Value.
-     * @return {@code true} if {@code d} is +inf.
-     */
-    //TODO - make private in ComplexFunctions in future
-    private static boolean isPosInfinite(double d) {
-        return ComplexFunctions.isPosInfinite(d);
-    }
-
-    /**
-     * Check that an absolute value is finite. Used to replace {@link Double#isFinite(double)}
-     * when the input value is known to be positive (i.e. in the case where it has been
-     * set using {@link Math#abs(double)}).
-     *
-     * @param d Value.
-     * @return {@code true} if {@code d} is +finite.
-     */
-    private static boolean isPosFinite(double d) {
-        return d <= Double.MAX_VALUE;
-    }
-
-    /**
-     * Create a complex number given the real and imaginary parts, then multiply by {@code -i}.
-     * This is used in functions that implement trigonomic identities. It is the functional
-     * equivalent of:
-     *
-     * <pre>
-     *  z = new Complex(real, imaginary).multiplyImaginary(-1);</pre>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @return {@code Complex} object.
-     */
-    private static Complex multiplyNegativeI(double real, double imaginary) {
-        return new Complex(imaginary, -real);
-    }
-
-    /**
-     * Change the sign of the magnitude based on the signed value.
-     *
-     * <p>If the signed value is negative then the result is {@code -magnitude}; otherwise
-     * return {@code magnitude}.
-     *
-     * <p>A signed value of {@code -0.0} is treated as negative. A signed value of {@code NaN}
-     * is treated as positive.
-     *
-     * <p>This is not the same as {@link Math#copySign(double, double)} as this method
-     * will change the sign based on the signed value rather than copy the sign.
-     *
-     * @param magnitude the magnitude
-     * @param signedValue the signed value
-     * @return magnitude or -magnitude.
-     * @see #negative(double)
-     */
-    private static double changeSign(double magnitude, double signedValue) {
-        return negative(signedValue) ? -magnitude : magnitude;
-    }
-
-    /**
      * Returns a scale suitable for use with {@link Math#scalb(double, int)} to normalise
      * the number to the interval {@code [1, 2)}.
      *
@@ -3105,18 +1995,5 @@ public final class Complex implements Serializable  {
         // Math.getExponent(Math.max(Math.abs(a), Math.abs(b)))
         // A speed test is required to determine performance.
         return Math.max(Math.getExponent(a), Math.getExponent(b));
-    }
-
-    /**
-     * Checks if both x and y are in the region defined by the minimum and maximum.
-     *
-     * @param x x value.
-     * @param y y value.
-     * @param min the minimum (exclusive).
-     * @param max the maximum (exclusive).
-     * @return true if inside the region.
-     */
-    private static boolean inRegion(double x, double y, double min, double max) {
-        return x < max && x > min && y < max && y > min;
     }
 }
