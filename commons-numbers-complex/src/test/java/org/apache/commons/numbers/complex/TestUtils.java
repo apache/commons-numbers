@@ -61,7 +61,7 @@ public final class TestUtils {
 
     /**
      * The option for how to process test data lines flagged (prefixed)
-     * with the {@code ;} character
+     * with the {@code ;} character.
      */
     public enum TestDataFlagOption {
         /** Ignore the line. */
@@ -449,7 +449,7 @@ public final class TestUtils {
         final double r1 = operation1.applyAsDouble(c);
         // Test operation2 produces the exact same result
         final double r2 = operation2.applyAsDouble(c.real(), c.imag());
-        Assertions.assertEquals(r1, r2, () -> "Double operator mismatch: " + name);
+        Assertions.assertEquals(r1, r2, () -> "ToDouble function mismatch: " + name);
         return r1;
     }
 
@@ -460,7 +460,7 @@ public final class TestUtils {
      * @param c Input complex number.
      * @param name Operation name.
      * @param operation1 Condition operation on the Complex object.
-     * @param operation2 Condition peration on the complex real and imaginary parts.
+     * @param operation2 Condition operation on the complex real and imaginary parts.
      * @return Result boolean from the given operation.
      */
     public static boolean assertSame(Complex c,
@@ -470,7 +470,7 @@ public final class TestUtils {
         final boolean b1 = operation1.test(c);
         // Test operation2 produces the exact same result
         final boolean b2 = operation2.test(c.real(), c.imag());
-        Assertions.assertEquals(b1, b2, () -> "Predicate operator mismatch: " + name);
+        Assertions.assertEquals(b1, b2, () -> "Predicate mismatch: " + name);
         return b1;
     }
 }

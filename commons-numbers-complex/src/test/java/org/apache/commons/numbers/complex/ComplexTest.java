@@ -295,7 +295,7 @@ class ComplexTest {
     @Test
     void testAbs() {
         final Complex input = Complex.ofCartesian(3.0, 4.0);
-        double z = TestUtils.assertSame(input, "abs", Complex::abs, ComplexFunctions::abs);
+        final double z = TestUtils.assertSame(input, "abs", Complex::abs, ComplexFunctions::abs);
         Assertions.assertEquals(5.0, z);
     }
 
@@ -384,7 +384,7 @@ class ComplexTest {
     @Test
     void testNorm() {
         final Complex z = Complex.ofCartesian(3.0, 4.0);
-        double norm = TestUtils.assertSame(z, "norm", Complex::norm, ComplexFunctions::norm);
+        final double norm = TestUtils.assertSame(z, "norm", Complex::norm, ComplexFunctions::norm);
         Assertions.assertEquals(25.0, norm);
     }
 
@@ -1529,7 +1529,7 @@ class ComplexTest {
                 theta += pi / 12;
                 final Complex z = Complex.ofPolar(r, theta);
                 final Complex sqrtz = Complex.ofPolar(Math.sqrt(r), theta / 2);
-                Complex actual = TestUtils.assertSame(z, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
+                final Complex actual = TestUtils.assertSame(z, "sqrt", Complex::sqrt, ComplexFunctions::sqrt);
                 TestUtils.assertEquals(sqrtz, actual, tol);
             }
         }

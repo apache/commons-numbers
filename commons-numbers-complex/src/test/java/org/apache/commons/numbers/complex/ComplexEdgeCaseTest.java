@@ -43,47 +43,6 @@ class ComplexEdgeCaseTest {
     /**
      * Assert the operation on the complex number is equal to the expected value.
      *
-     * <p>The results are are considered equal if there are no floating-point values between them.
-     *
-     * @param a Real part.
-     * @param b Imaginary part.
-     * @param name The operation name.
-     * @param operation The operation.
-     * @param x Expected real part.
-     * @param y Expected imaginary part.
-     */
-    private static void assertComplex(double a, double b,
-            String name, UnaryOperator<Complex> operation,
-            double x, double y) {
-        assertComplex(a, b, name, operation, x, y, 1);
-    }
-
-    /**
-     * Assert the operation on the complex number is equal to the expected value.
-     *
-     * <p>The results are considered equal within the provided units of least
-     * precision. The maximum count of numbers allowed between the two values is
-     * {@code maxUlps - 1}.
-     *
-     * @param a Real part.
-     * @param b Imaginary part.
-     * @param name The operation name.
-     * @param operation The operation.
-     * @param x Expected real part.
-     * @param y Expected imaginary part.
-     * @param maxUlps the maximum units of least precision between the two values
-     */
-    private static void assertComplex(double a, double b,
-            String name, UnaryOperator<Complex> operation,
-            double x, double y, long maxUlps) {
-        final Complex c = Complex.ofCartesian(a, b);
-        final Complex e = Complex.ofCartesian(x, y);
-        CReferenceTest.assertComplex(c, name, operation, e, maxUlps);
-    }
-
-    /**
-     * Assert the operation on the complex number is equal to the expected value.
-     *
      * <p>The results are considered equal if there are no floating-point values between them.
      *
      * <p>Assert the operation on the complex number is <em>exactly</em> equal to the operation on
@@ -448,8 +407,8 @@ class ComplexEdgeCaseTest {
         // im = 2 sin(2y) / e^2|x|
         // This can be computed when e^2|x| only just overflows.
         // Set a case where e^2|x| overflows but the imaginary can be computed
-        double x = 709.783 / 2;
-        double y = Math.PI / 4;
+        final double x = 709.783 / 2;
+        final double y = Math.PI / 4;
         Assertions.assertEquals(1.0, Math.sin(2 * y), 1e-16);
         Assertions.assertEquals(Double.POSITIVE_INFINITY, Math.exp(2 * x));
         // As computed by GNU g++
