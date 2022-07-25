@@ -578,7 +578,7 @@ public final class ComplexFunctions {
      * C++11 standards for complex numbers.</p>
      *
      * <p>Note: In the event of divide by zero this method produces the same result
-     * as dividing by a real-only zero using //TODO - add divide reference once moved to ComplexFunctions.
+     * as dividing by a real-only zero using (add divide reference)
      *
      * @param re1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param im1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
@@ -588,8 +588,8 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
-     * //TODO - add divide reference once moved to ComplexFunctions
      */
+    //TODO - add divide reference once moved to ComplexFunctions
     public static <R> R divide(double re1, double im1, double re2, double im2, ComplexSink<R> action) {
         double a = re1;
         double b = im1;
