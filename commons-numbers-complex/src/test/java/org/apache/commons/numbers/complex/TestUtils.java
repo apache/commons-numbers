@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Predicate;
@@ -429,6 +430,30 @@ public final class TestUtils {
         final ComplexNumber z2 = operation2.apply(c.real(), c.imag(), ComplexNumber::new);
         Assertions.assertEquals(z.real(), z2.getReal(), () -> "Unary operator mismatch: " + name + " real");
         Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Unary operator mismatch: " + name + " imaginary");
+        return z;
+    }
+
+    /**
+     * Assert the operation on the complex numbers is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts of two complex numbers.
+     *
+     * @param c1 First input complex number.
+     * @param c2 Second input complex number.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex objects.
+     * @param operation2 Operation on the complex real and imaginary parts of two complex numbers.
+     * @return Result complex number from the given operation.
+     */
+    public static Complex assertSame(Complex c1,
+                                     Complex c2,
+                                     String name,
+                                     BiFunction<Complex, Complex, Complex> operation1,
+                                     ComplexBinaryOperator<ComplexNumber> operation2) {
+        final Complex z = operation1.apply(c1, c2);
+        // Test operation2 produces the exact same result
+        final ComplexNumber z2 = operation2.apply(c1.real(), c1.imag(), c2.real(), c2.imag(), ComplexNumber::new);
+        Assertions.assertEquals(z.real(), z2.getReal(), () -> "Binary operator mismatch: " + name + " real");
+        Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Binary operator mismatch: " + name + " imaginary");
         return z;
     }
 

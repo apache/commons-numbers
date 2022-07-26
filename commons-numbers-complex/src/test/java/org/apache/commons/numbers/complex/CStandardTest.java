@@ -203,17 +203,23 @@ class CStandardTest {
     /**
      * Assert the operation on the two complex numbers.
      *
-     * @param c1 the first complex
-     * @param c2 the second complex
-     * @param operation the operation
-     * @param operationName the operation name
-     * @param expected the expected
-     * @param expectedName the expected name
+     * <p>Assert the operation on the complex numbers is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts of two complex numbers.
+     *
+     * @param c1 First input complex number.
+     * @param c2 Second input complex number.
+     * @param operation1 Operation on the Complex objects.
+     * @param operation2 Operation on the complex real and imaginary parts of two complex numbers.
+     * @param operationName Operation name.
+     * @param expected Expected complex number.
+     * @param expectedName Expected name.
      */
     private static void assertOperation(Complex c1, Complex c2,
-            BiFunction<Complex, Complex, Complex> operation, String operationName,
-            Predicate<Complex> expected, String expectedName) {
-        final Complex z = operation.apply(c1, c2);
+            BiFunction<Complex, Complex, Complex> operation1,
+            ComplexBinaryOperator<ComplexNumber> operation2,
+            String operationName, Predicate<Complex> expected,
+            String expectedName) {
+        final Complex z = TestUtils.assertSame(c1, c2, operationName, operation1, operation2);
         Assertions.assertTrue(expected.test(z),
             () -> String.format("%s expected: %s %s %s = %s", expectedName, c1, operationName, c2, z));
     }
@@ -844,18 +850,18 @@ class CStandardTest {
         // infinity, then the result of the * operator is an infinity;"
         for (final Complex z : infinites) {
             for (final Complex w : infinites) {
-                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
-                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(w, z, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
             }
             for (final Complex w : nonZeroFinites) {
-                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
-                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(w, z, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
             }
             // C.99 refers to non-zero finites.
             // Infer that Complex multiplication of zero with infinites is not defined.
             for (final Complex w : zeroFinites) {
-                assertOperation(z, w, Complex::multiply, "*", Complex::isNaN, "NaN");
-                assertOperation(w, z, Complex::multiply, "*", Complex::isNaN, "NaN");
+                assertOperation(z, w, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isNaN, "NaN");
+                assertOperation(w, z, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isNaN, "NaN");
             }
         }
 
@@ -871,16 +877,16 @@ class CStandardTest {
         // Check multiply with (NaN,NaN) is not corrected
         final double[] values = {0, 1, inf, negInf, nan};
         for (final Complex z : createCombinations(values, c -> true)) {
-            assertOperation(z, NAN, Complex::multiply, "*", Complex::isNaN, "NaN");
-            assertOperation(NAN, z, Complex::multiply, "*", Complex::isNaN, "NaN");
+            assertOperation(z, NAN, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isNaN, "NaN");
+            assertOperation(NAN, z, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isNaN, "NaN");
         }
 
         // Test multiply cases which result in overflow are corrected to infinity
-        assertOperation(maxMax, maxMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(maxNan, maxNan, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(nanMax, maxNan, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(maxNan, nanMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
-        assertOperation(nanMax, nanMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(maxMax, maxMax, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(maxNan, maxNan, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(nanMax, maxNan, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(maxNan, nanMax, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(nanMax, nanMax, Complex::multiply, ComplexFunctions::multiply, "*", Complex::isInfinite, "Inf");
     }
 
     /**
@@ -899,14 +905,14 @@ class CStandardTest {
         // result of the / operator is an infinity;"
         for (final Complex z : infinites) {
             for (final Complex w : nonZeroFinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", Complex::isInfinite, "Inf");
             }
             for (final Complex w : zeroFinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", Complex::isInfinite, "Inf");
             }
             // Check inf/inf cannot be done
             for (final Complex w : infinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isNaN, "NaN");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", Complex::isNaN, "NaN");
             }
         }
 
@@ -914,7 +920,7 @@ class CStandardTest {
         // result of the / operator is a zero;"
         for (final Complex z : finites) {
             for (final Complex w : infinites) {
-                assertOperation(z, w, Complex::divide, "/", CStandardTest::isZero, "Zero");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", CStandardTest::isZero, "Zero");
             }
         }
 
@@ -922,10 +928,10 @@ class CStandardTest {
         // a zero, then the result of the / operator is an infinity."
         for (final Complex w : zeroFinites) {
             for (final Complex z : nonZeroFinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", Complex::isInfinite, "Inf");
             }
             for (final Complex z : infinites) {
-                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", Complex::isInfinite, "Inf");
             }
         }
 
@@ -934,19 +940,19 @@ class CStandardTest {
         // infinite.
         for (final Complex w : nans) {
             for (final Complex z : finites) {
-                assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
             }
             for (final Complex z : infinites) {
-                assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
+                assertOperation(z, w, Complex::divide, ComplexFunctions::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
             }
         }
 
         // Check (NaN,NaN) divide is not corrected for the edge case of divide by zero or infinite
         for (final Complex w : zeroFinites) {
-            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
+            assertOperation(NAN, w, Complex::divide, ComplexFunctions::divide, "/", Complex::isNaN, "NaN");
         }
         for (final Complex w : infinites) {
-            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
+            assertOperation(NAN, w, Complex::divide, ComplexFunctions::divide, "/", Complex::isNaN, "NaN");
         }
     }
 

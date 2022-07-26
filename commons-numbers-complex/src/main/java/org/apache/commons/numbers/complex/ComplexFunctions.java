@@ -95,6 +95,8 @@ public final class ComplexFunctions {
     private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
     /** Mask to remove the sign bit from a long. */
     private static final long UNSIGN_MASK = 0x7fff_ffff_ffff_ffffL;
+    /** Mask to extract the 52-bit mantissa from a long representation of a double. */
+    private static final long MANTISSA_MASK = 0x000f_ffff_ffff_ffffL;
     /** The multiplier used to split the double value into hi and low parts. This must be odd
      * and a value of 2^s + 1 in the range {@code p/2 <= s <= p-1} where p is the number of
      * bits of precision of the floating point number. Here {@code s = 27}.*/
@@ -345,7 +347,7 @@ public final class ComplexFunctions {
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     * @param action Consumer for the exponential of the complex number.
+     * @param action Consumer for the conjugate of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
@@ -362,7 +364,7 @@ public final class ComplexFunctions {
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     * @param action Consumer for the exponential of the complex number.
+     * @param action Consumer for the negation of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      */
@@ -382,7 +384,7 @@ public final class ComplexFunctions {
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     * @param action Consumer for the exponential of the complex number.
+     * @param action Consumer for the projection of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see #isInfinite(double, double)
@@ -394,6 +396,259 @@ public final class ComplexFunctions {
             return action.apply(Double.POSITIVE_INFINITY, Math.copySign(0.0, imaginary));
         }
         return action.apply(real, imaginary);
+    }
+
+    /**
+     * Returns a {@code Object} whose value is {@code (real1 + real2, imaginary1 + imaginary2)}.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) + (c + i d) = (a + c) + i (b + d) \]
+     *
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the addition result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
+     */
+    public static <R> R add(double real1, double imaginary1,
+                            double real2, double imaginary2,
+                            ComplexSink<R> action) {
+        return action.apply(real1 + real2,
+                            imaginary1 + imaginary2);
+    }
+
+    /**
+     * Returns a {@code Object} whose value is {@code (real1 - real2, imaginary1 - imaginary2)}.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) - (c + i d) = (a - c) + i (b - d) \]
+     *
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the subtraction result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
+     */
+    public static <R> R subtract(double real1, double imaginary1,
+                                 double real2, double imaginary2,
+                                 ComplexSink<R> action) {
+        return action.apply(real1 - real2,
+                            imaginary1 - imaginary2);
+    }
+
+    /**
+     * Returns a {@code Object} whose value is {@code (real1 + i*imaginary1) * (real2 + i*imaginary2))}.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b)(c + i d) = (ac - bd) + i (ad + bc) \]
+     *
+     * <p>Recalculates to recover infinities as specified in C99 standard G.5.1.
+     *
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the multiplication result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
+     */
+    public static <R> R multiply(double real1, double imaginary1,
+                                 double real2, double imaginary2,
+                                 ComplexSink<R> action) {
+        double a = real1;
+        double b = imaginary1;
+        double c = real2;
+        double d = imaginary2;
+        final double ac = a * c;
+        final double bd = b * d;
+        final double ad = a * d;
+        final double bc = b * c;
+        double x = ac - bd;
+        double y = ad + bc;
+
+        // --------------
+        // NaN can occur if:
+        // - any of (a,b,c,d) are NaN (for NaN or Infinite complex numbers)
+        // - a multiplication of infinity by zero (ac,bd,ad,bc).
+        // - a subtraction of infinity from infinity (e.g. ac - bd)
+        //   Note that (ac,bd,ad,bc) can be infinite due to overflow.
+        //
+        // Detect a NaN result and perform correction.
+        //
+        // Modification from the listing in ISO C99 G.5.1 (6)
+        // Do not correct infinity multiplied by zero. This is left as NaN.
+        // --------------
+
+        if (Double.isNaN(x) && Double.isNaN(y)) {
+            // Recover infinities that computed as NaN+iNaN ...
+            boolean recalc = false;
+            if ((Double.isInfinite(a) || Double.isInfinite(b)) &&
+                isNotZero(c, d)) {
+                // This complex is infinite.
+                // "Box" the infinity and change NaNs in the other factor to 0.
+                a = boxInfinity(a);
+                b = boxInfinity(b);
+                c = changeNaNtoZero(c);
+                d = changeNaNtoZero(d);
+                recalc = true;
+            }
+            if ((Double.isInfinite(c) || Double.isInfinite(d)) &&
+                isNotZero(a, b)) {
+                // The other complex is infinite.
+                // "Box" the infinity and change NaNs in the other factor to 0.
+                c = boxInfinity(c);
+                d = boxInfinity(d);
+                a = changeNaNtoZero(a);
+                b = changeNaNtoZero(b);
+                recalc = true;
+            }
+            if (!recalc && (Double.isInfinite(ac) || Double.isInfinite(bd) ||
+                Double.isInfinite(ad) || Double.isInfinite(bc))) {
+                // The result overflowed to infinity.
+                // Recover infinities from overflow by changing NaNs to 0 ...
+                a = changeNaNtoZero(a);
+                b = changeNaNtoZero(b);
+                c = changeNaNtoZero(c);
+                d = changeNaNtoZero(d);
+                recalc = true;
+            }
+            if (recalc) {
+                x = Double.POSITIVE_INFINITY * (a * c - b * d);
+                y = Double.POSITIVE_INFINITY * (a * d + b * c);
+            }
+        }
+        return action.apply(x, y);
+    }
+
+    /**
+     * Box values for the real or imaginary component of an infinite complex number.
+     * Any infinite value will be returned as one. Non-infinite values will be returned as zero.
+     * The sign is maintained.
+     *
+     * <pre>
+     *  inf  =  1
+     * -inf  = -1
+     *  x    =  0
+     * -x    = -0
+     * </pre>
+     *
+     * @param component the component
+     * @return The boxed value
+     */
+    private static double boxInfinity(double component) {
+        return Math.copySign(Double.isInfinite(component) ? 1.0 : 0.0, component);
+    }
+
+    /**
+     * Checks if the complex number is not zero.
+     *
+     * @param real the real component
+     * @param imaginary the imaginary component
+     * @return true if the complex is not zero
+     */
+    private static boolean isNotZero(double real, double imaginary) {
+        // The use of equals is deliberate.
+        // This method must distinguish NaN from zero thus ruling out:
+        // (real != 0.0 || imaginary != 0.0)
+        return !(real == 0.0 && imaginary == 0.0);
+    }
+
+    /**
+     * Change NaN to zero preserving the sign; otherwise return the value.
+     *
+     * @param value the value
+     * @return The new value
+     */
+    private static double changeNaNtoZero(double value) {
+        return Double.isNaN(value) ? Math.copySign(0.0, value) : value;
+    }
+
+    /**
+     * Returns a {@code Object} whose value is {@code (real1 + i*imaginary1)/(real2 + i*imaginary2)}.
+     * Implements the formula:
+     *
+     * <p>\[ \frac{a + i b}{c + i d} = \frac{(ac + bd) + i (bc - ad)}{c^2+d^2} \]
+     *
+     * <p>Re-calculates NaN result values to recover infinities as specified in C99 standard G.5.1.
+     *
+     * <p>Note: In the event of divide by zero this method produces the same result
+     * as dividing by a real-only zero using (add divide reference)
+     *
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the division result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
+     */
+    //TODO - add divide reference once moved to ComplexFunctions
+    public static <R> R divide(double real1, double imaginary1,
+                               double real2, double imaginary2,
+                               ComplexSink<R> action) {
+        double a = real1;
+        double b = imaginary1;
+        double c = real2;
+        double d = imaginary2;
+        int ilogbw = 0;
+        // Get the exponent to scale the divisor parts to the range [1, 2).
+        final int exponent = getScale(c, d);
+        if (exponent <= Double.MAX_EXPONENT) {
+            ilogbw = exponent;
+            c = Math.scalb(c, -ilogbw);
+            d = Math.scalb(d, -ilogbw);
+        }
+        final double denom = c * c + d * d;
+
+        // Note: Modification from the listing in ISO C99 G.5.1 (8):
+        // Avoid overflow if a or b are very big.
+        // Since (c, d) in the range [1, 2) the sum (ac + bd) could overflow
+        // when (a, b) are both above (Double.MAX_VALUE / 4). The same applies to
+        // (bc - ad) with large negative values.
+        // Use the maximum exponent as an approximation to the magnitude.
+        if (getMaxExponent(a, b) > Double.MAX_EXPONENT - 2) {
+            ilogbw -= 2;
+            a /= 4;
+            b /= 4;
+        }
+
+        double x = Math.scalb((a * c + b * d) / denom, -ilogbw);
+        double y = Math.scalb((b * c - a * d) / denom, -ilogbw);
+        // Recover infinities and zeros that computed as NaN+iNaN
+        // the only cases are nonzero/zero, infinite/finite, and finite/infinite, ...
+        if (Double.isNaN(x) && Double.isNaN(y)) {
+            if (denom == 0.0 &&
+                (!Double.isNaN(a) || !Double.isNaN(b))) {
+                // nonzero/zero
+                // This case produces the same result as divide by a real-only zero
+                // using Complex.divide(+/-0.0)
+                x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
+                y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
+            } else if ((Double.isInfinite(a) || Double.isInfinite(b)) &&
+                Double.isFinite(c) && Double.isFinite(d)) {
+                // infinite/finite
+                a = boxInfinity(a);
+                b = boxInfinity(b);
+                x = Double.POSITIVE_INFINITY * (a * c + b * d);
+                y = Double.POSITIVE_INFINITY * (b * c - a * d);
+            } else if ((Double.isInfinite(c) || Double.isInfinite(d)) &&
+                Double.isFinite(a) && Double.isFinite(b)) {
+                // finite/infinite
+                c = boxInfinity(c);
+                d = boxInfinity(d);
+                x = 0.0 * (a * c + b * d);
+                y = 0.0 * (b * c - a * d);
+            }
+        }
+        return action.apply(x, y);
     }
 
     /**
@@ -675,6 +930,45 @@ public final class ComplexFunctions {
 
         // All ISO C99 edge cases for the imaginary are satisfied by the Math library.
         return action.apply(re, arg(real, imaginary));
+    }
+
+    /**
+     * Returns the complex power of the first complex number raised to the power of
+     * second complex number.
+     * Implements the formula:
+     *
+     * <p>\[ z^x = e^{x \ln(z)} \]
+     *
+     * <p>If the complex number is zero then this method returns zero if the second complex number is positive
+     * in the real component and zero in the imaginary component;
+     * otherwise it returns NaN + iNaN.
+     *
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the power result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #log(double, double, ComplexSink)
+     * @see #multiply(double, double, double, double, ComplexSink)
+     * @see #exp(double, double, ComplexSink)
+     * @see <a href="http://mathworld.wolfram.com/ComplexExponentiation.html">Complex exponentiation</a>
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
+     */
+    public static <R> R pow(double real1, double imaginary1, double real2, double imaginary2, ComplexSink<R> action) {
+        if (real1 == 0 &&
+            imaginary1 == 0) {
+            // This value is zero. Test the other.
+            if (real2 > 0 &&
+                imaginary2 == 0) {
+                // 0 raised to positive number is 0
+                return action.apply(0, 0);
+            }
+            // 0 raised to anything else is NaN
+            return action.apply(Double.NaN, Double.NaN);
+        }
+        return log(real1, imaginary1, (x, y) -> multiply(x, y, real2, imaginary2, (a, b) -> exp(a, b, action)));
     }
 
     /**
@@ -2549,6 +2843,95 @@ public final class ComplexFunctions {
      */
     private static double changeSign(double magnitude, double signedValue) {
         return negative(signedValue) ? -magnitude : magnitude;
+    }
+
+    /**
+     * Returns a scale suitable for use with {@link Math#scalb(double, int)} to normalise
+     * the number to the interval {@code [1, 2)}.
+     *
+     * <p>The scale is typically the largest unbiased exponent used in the representation of the
+     * two numbers. In contrast to {@link Math#getExponent(double)} this handles
+     * sub-normal numbers by computing the number of leading zeros in the mantissa
+     * and shifting the unbiased exponent. The result is that for all finite, non-zero,
+     * numbers {@code a, b}, the magnitude of {@code scalb(x, -getScale(a, b))} is
+     * always in the range {@code [1, 2)}, where {@code x = max(|a|, |b|)}.
+     *
+     * <p>This method is a functional equivalent of the c function ilogb(double) adapted for
+     * two input arguments.
+     *
+     * <p>The result is to be used to scale a complex number using {@link Math#scalb(double, int)}.
+     * Hence the special case of both zero arguments is handled using the return value for NaN
+     * as zero cannot be scaled. This is different from {@link Math#getExponent(double)}
+     * or {@link #getMaxExponent(double, double)}.
+     *
+     * <p>Special cases:
+     *
+     * <ul>
+     * <li>If either argument is NaN or infinite, then the result is
+     * {@link Double#MAX_EXPONENT} + 1.
+     * <li>If both arguments are zero, then the result is
+     * {@link Double#MAX_EXPONENT} + 1.
+     * </ul>
+     *
+     * @param a the first value
+     * @param b the second value
+     * @return The maximum unbiased exponent of the values to be used for scaling
+     * @see Math#getExponent(double)
+     * @see Math#scalb(double, int)
+     * @see <a href="http://www.cplusplus.com/reference/cmath/ilogb/">ilogb</a>
+     */
+    private static int getScale(double a, double b) {
+        // Only interested in the exponent and mantissa so remove the sign bit
+        final long x = Double.doubleToRawLongBits(a) & UNSIGN_MASK;
+        final long y = Double.doubleToRawLongBits(b) & UNSIGN_MASK;
+        // Only interested in the maximum
+        final long bits = Math.max(x, y);
+        // Get the unbiased exponent
+        int exp = ((int) (bits >>> 52)) - EXPONENT_OFFSET;
+
+        // No case to distinguish nan/inf
+        // Handle sub-normal numbers
+        if (exp == Double.MIN_EXPONENT - 1) {
+            // Special case for zero, return as nan/inf to indicate scaling is not possible
+            if (bits == 0) {
+                return Double.MAX_EXPONENT + 1;
+            }
+            // A sub-normal number has an exponent below -1022. The amount below
+            // is defined by the number of shifts of the most significant bit in
+            // the mantissa that is required to get a 1 at position 53 (i.e. as
+            // if it were a normal number with assumed leading bit)
+            final long mantissa = bits & MANTISSA_MASK;
+            exp -= Long.numberOfLeadingZeros(mantissa << 12);
+        }
+        return exp;
+    }
+
+    /**
+     * Returns the largest unbiased exponent used in the representation of the
+     * two numbers. Special cases:
+     *
+     * <ul>
+     * <li>If either argument is NaN or infinite, then the result is
+     * {@link Double#MAX_EXPONENT} + 1.
+     * <li>If both arguments are zero or subnormal, then the result is
+     * {@link Double#MIN_EXPONENT} -1.
+     * </ul>
+     *
+     * <p>This is used by {@link #divide(double, double, double, double, ComplexSink)} as
+     * a simple detection that a number may overflow if multiplied
+     * by a value in the interval [1, 2).
+     *
+     * @param a the first value
+     * @param b the second value
+     * @return The maximum unbiased exponent of the values.
+     * @see Math#getExponent(double)
+     * @see #divide(double, double, double, double, ComplexSink)
+     */
+    private static int getMaxExponent(double a, double b) {
+        // This could return:
+        // Math.getExponent(Math.max(Math.abs(a), Math.abs(b)))
+        // A speed test is required to determine performance.
+        return Math.max(Math.getExponent(a), Math.getExponent(b));
     }
 
     /**
