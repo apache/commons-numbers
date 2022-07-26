@@ -17,8 +17,6 @@
 
 package org.apache.commons.numbers.complex;
 
-import java.util.Objects;
-
 /**
  * Represents a binary operation on a Cartesian form of a complex number \( a + ib \)
  * where \( a \) and \( b \) are real numbers represented as two {@code double}
@@ -36,7 +34,8 @@ import java.util.Objects;
 public interface ComplexBinaryOperator<R> {
 
     /**
-     * Represents an operator that accepts real and imaginary parts of a complex number and supplies the complex result to the provided consumer.
+     * Represents an operator that accepts real and imaginary parts of two complex number and supplies the complex result to the provided consumer.
+     *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
      * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
@@ -45,16 +44,4 @@ public interface ComplexBinaryOperator<R> {
      * @return the object returned by the provided consumer.
      */
     R apply(double real1, double imaginary1, double real2, double imaginary2, ComplexSink<R> out);
-
-    /**
-     * Returns a composed function that first applies this function to its input, and then applies the after function to the result.
-     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
-     * @param after the function to apply after this function is applied
-     * @return a composed function that first applies this function and then applies the after function
-     */
-    default ComplexBinaryOperator<R> andThen(ComplexUnaryOperator<R> after) {
-        Objects.requireNonNull(after);
-        return (r1, i1, r2, i2, out) ->
-            apply(r1, i1, r2, i2, (x, y) -> after.apply(x, y, out));
-    }
 }

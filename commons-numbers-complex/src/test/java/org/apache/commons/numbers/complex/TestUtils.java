@@ -435,13 +435,13 @@ public final class TestUtils {
 
     /**
      * Assert the operation on the complex numbers is <em>exactly</em> equal to the operation on
-     * complex real and imaginary parts.
+     * complex real and imaginary parts of two complex numbers.
      *
      * @param c1 First input complex number.
      * @param c2 Second input complex number.
      * @param name Operation name.
      * @param operation1 Operation on the Complex objects.
-     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param operation2 Operation on the complex real and imaginary parts of two complex numbers.
      * @return Result complex number from the given operation.
      */
     public static Complex assertSame(Complex c1,

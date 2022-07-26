@@ -162,7 +162,7 @@ class CReferenceTest {
      * @param operation1 Operation on the Complex object.
      * @param operation2 Operation on the complex real and imaginary parts.
      * @param expected Expected result.
-     * @param maxUlps Maximum units of the least precision between the two values.
+     * @param maxUlps Maximum units of least precision between the two values.
      */
     static void assertComplex(Complex c,
             String name, UnaryOperator<Complex> operation1,
@@ -183,15 +183,15 @@ class CReferenceTest {
      * <p>Numbers must have the same sign. Thus -0.0 and 0.0 are never equal.
      *
      * <p>Assert the operation on the complex numbers is <em>exactly</em> equal to the operation on
-     * complex real and imaginary parts.
+     * complex real and imaginary parts of two complex numbers.
      *
      * @param c1 First input number.
      * @param c2 Second input number.
      * @param name Operation name.
      * @param operation1 Operation on the Complex objects.
-     * @param operation2 Operation on the complex real and imaginary parts.
+     * @param operation2 Operation on the complex real and imaginary parts of two complex numbers.
      * @param expected Expected result.
-     * @param maxUlps Maximum units of the least precision between the two values.
+     * @param maxUlps Maximum units of least precision between the two values.
      */
     static void assertComplex(Complex c1, Complex c2,
             String name, BiFunction<Complex, Complex, Complex> operation1,
@@ -225,8 +225,8 @@ class CReferenceTest {
      *
      * @param name Operation name.
      * @param operation1 Operation on the Complex objects.
-     * @param operation2 Operation on the complex real and imaginary parts.
-     * @param maxUlps the maximum units of the least precision between the two values
+     * @param operation2 Operation on the complex real and imaginary parts of two complex numbers.
+     * @param maxUlps the maximum units of least precision between the two values
      */
     private static void assertBiOperation(String name,
             BiFunction<Complex, Complex, Complex> operation1,

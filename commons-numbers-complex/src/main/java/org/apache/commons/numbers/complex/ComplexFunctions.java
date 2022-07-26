@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.complex;
 
-import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 
 /**
@@ -405,18 +404,18 @@ public final class ComplexFunctions {
      *
      * <p>\[ (a + i b) + (c + i d) = (a + c) + i (b + d) \]
      *
-     * @param re1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param im1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param re2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param im2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
-     * @param action Consumer for the final added complex number.
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the addition result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
      */
-    public static <R> R add(double re1, double im1, double re2, double im2, ComplexSink<R> action) {
-        return action.apply(re1 + re2,
-            im1 + im2);
+    public static <R> R add(double real1, double imaginary1, double real2, double imaginary2, ComplexSink<R> action) {
+        return action.apply(real1 + real2,
+                            imaginary1 + imaginary2);
     }
 
     /**
@@ -425,40 +424,46 @@ public final class ComplexFunctions {
      *
      * <p>\[ (a + i b) - (c + i d) = (a - c) + i (b - d) \]
      *
-     * @param re1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param im1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param re2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param im2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
-     * @param action Consumer for the final subtracted complex number.
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see <a href="http://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
      */
-    public static <R> R subtract(double re1, double im1, double re2, double im2, ComplexSink<R> action) {
-        return action.apply(re1 - re2,
-            im1 - im2);
+    public static <R> R subtract(double real1, double imaginary1,
+                                 double real2, double imaginary2,
+                                 ComplexSink<R> action) {
+        return action.apply(real1 - real2,
+                            imaginary1 - imaginary2);
     }
 
     /**
-     * Returns a {@code Object} whose value is:
-     * <pre>
-     *  (a + i b)(c + i d) = (ac - bd) + i (ad + bc)</pre>
+     * Returns a {@code Object} whose value is {@code (real1 + i*imaginary1) * (real2 + i*imaginary2))}.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b)(c + i d) = (ac - bd) + i (ad + bc) \]
      *
      * <p>Recalculates to recover infinities as specified in C99 standard G.5.1.
      *
-     * @param re1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param im1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param re2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param im2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
-     * @param action Consumer for the final multiplied complex number.
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the multiplication result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
+     * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
-    public static <R> R multiply(double re1, double im1, double re2, double im2, ComplexSink<R> action) {
-        double a = re1;
-        double b = im1;
-        double c = re2;
-        double d = im2;
+    public static <R> R multiply(double real1, double imaginary1,
+                                 double real2, double imaginary2,
+                                 ComplexSink<R> action) {
+        double a = real1;
+        double b = imaginary1;
+        double c = real2;
+        double d = imaginary2;
         final double ac = a * c;
         final double bd = b * d;
         final double ad = a * d;
@@ -564,37 +569,33 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Complex} whose value is:
-     * <pre>
-     * <code>
-     *   a + i b     (ac + bd) + i (bc - ad)
-     *   -------  =  -----------------------
-     *   c + i d            c<sup>2</sup> + d<sup>2</sup>
-     * </code>
-     * </pre>
+     * Returns a {@code Object} whose value is {@code (real1 + i*imaginary1)/(real2 + i*imaginary2)}.
+     * Implements the formula:
      *
-     * <p>Recalculates to recover infinities as specified in C99
-     * standard G.5.1. Method is fully in accordance with
-     * C++11 standards for complex numbers.</p>
+     * <p>\[ \frac{a + i b}{c + i d} = \frac{(ac + bd) + i (bc - ad)}{c^2+d^2} \]
+     *
+     * <p>Re-calculates NaN result values to recover infinities as specified in C99 standard G.5.1.
      *
      * <p>Note: In the event of divide by zero this method produces the same result
      * as dividing by a real-only zero using (add divide reference)
      *
-     * @param re1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param im1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param re2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param im2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
-     * @param action Consumer for the final divided complex number.
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the division result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
     //TODO - add divide reference once moved to ComplexFunctions
-    public static <R> R divide(double re1, double im1, double re2, double im2, ComplexSink<R> action) {
-        double a = re1;
-        double b = im1;
-        double c = re2;
-        double d = im2;
+    public static <R> R divide(double real1, double imaginary1,
+                               double real2, double imaginary2,
+                               ComplexSink<R> action) {
+        double a = real1;
+        double b = imaginary1;
+        double c = real2;
+        double d = imaginary2;
         int ilogbw = 0;
         // Get the exponent to scale the divisor parts to the range [1, 2).
         final int exponent = getScale(c, d);
@@ -940,11 +941,11 @@ public final class ComplexFunctions {
      * in the real component and zero in the imaginary component;
      * otherwise it returns NaN + iNaN.
      *
-     * @param re1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param im1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param re2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param im2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
-     * @param action Consumer for the power of the complex number.
+     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param action Consumer for the power result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see #log(double, double, ComplexSink)
@@ -953,22 +954,19 @@ public final class ComplexFunctions {
      * @see <a href="http://mathworld.wolfram.com/ComplexExponentiation.html">Complex exponentiation</a>
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
-    public static <R> R pow(double re1, double im1, double re2, double im2, ComplexSink<R> action) {
-        if (re1 == 0 &&
-            im1 == 0) {
+    public static <R> R pow(double real1, double imaginary1, double real2, double imaginary2, ComplexSink<R> action) {
+        if (real1 == 0 &&
+            imaginary1 == 0) {
             // This value is zero. Test the other.
-            if (re2 > 0 &&
-                im2 == 0) {
+            if (real2 > 0 &&
+                imaginary2 == 0) {
                 // 0 raised to positive number is 0
                 return action.apply(0, 0);
             }
             // 0 raised to anything else is NaN
             return action.apply(Double.NaN, Double.NaN);
         }
-        final ComplexUnaryOperator<R> log = ComplexFunctions::log;
-        final ComplexBinaryOperator<R> logMultiply = thenApplyBinaryOperator(log, ComplexFunctions::multiply);
-        final ComplexBinaryOperator<R> logMultiplyExp = logMultiply.andThen(ComplexFunctions::exp);
-        return logMultiplyExp.apply(re1, im1, re2, im2, action);
+        return log(real1, imaginary1, (x, y) -> multiply(x, y, real2, imaginary2, (a, b) -> exp(a, b, action)));
     }
 
     /**
@@ -2945,23 +2943,5 @@ public final class ComplexFunctions {
      */
     private static boolean inRegion(double x, double y, double min, double max) {
         return x < max && x > min && y < max && y > min;
-    }
-
-    /**
-     * Returns a composed BinaryOperator that first applies this function to its first binary input,
-     * and then applies the result and the second binary input to the after BinaryOperator to produce the result.
-     * If evaluation of either function throws an exception, it is relayed to the caller of the composed function.
-     *
-     * @param before the function as to which the apply function is applied
-     * @param after the function to apply after this function is applied
-     * @param <R> generic
-     * @return a composed function that first applies this function and then applies the after function
-     */
-    private static <R> ComplexBinaryOperator<R> thenApplyBinaryOperator(ComplexUnaryOperator<R> before,
-                                                                        ComplexBinaryOperator<R> after) {
-        Objects.requireNonNull(after);
-        return (real1, imaginary1, real2, imaginary2, out) ->
-            before.apply(real1, imaginary1, (unaryRealResult, unaryImaginaryResult) ->
-                after.apply(unaryRealResult, unaryImaginaryResult, real2, imaginary2, out));
     }
 }
