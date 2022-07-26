@@ -413,7 +413,9 @@ public final class ComplexFunctions {
      * @return the object returned by the supplied action.
      * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
      */
-    public static <R> R add(double real1, double imaginary1, double real2, double imaginary2, ComplexSink<R> action) {
+    public static <R> R add(double real1, double imaginary1,
+                            double real2, double imaginary2,
+                            ComplexSink<R> action) {
         return action.apply(real1 + real2,
                             imaginary1 + imaginary2);
     }

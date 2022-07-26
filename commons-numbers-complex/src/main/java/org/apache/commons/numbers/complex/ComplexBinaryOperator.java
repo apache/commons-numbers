@@ -34,7 +34,7 @@ package org.apache.commons.numbers.complex;
 public interface ComplexBinaryOperator<R> {
 
     /**
-     * Represents an operator that accepts real and imaginary parts of two complex number and supplies the complex result to the provided consumer.
+     * Represents an operator that accepts real and imaginary parts of two complex numbers and supplies the complex result to the provided consumer.
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
