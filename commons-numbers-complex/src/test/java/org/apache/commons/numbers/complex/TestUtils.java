@@ -458,6 +458,30 @@ public final class TestUtils {
     }
 
     /**
+     * Assert the operation on the complex number and double operand is <em>exactly</em> equal to the operation on
+     * complex real and imaginary parts and double operand.
+     *
+     * @param c Input complex number.
+     * @param operand Scalar operand.
+     * @param name Operation name.
+     * @param operation1 Operation on the Complex object and double operand.
+     * @param operation2 Operation on the complex real and imaginary parts and double operand.
+     * @return Result complex number from the given operation.
+     */
+    public static Complex assertSame(Complex c,
+                                     double operand,
+                                     String name,
+                                     BiFunction<Complex, Double, Complex> operation1,
+                                     ComplexScalarFunction<ComplexNumber> operation2) {
+        final Complex z = operation1.apply(c, operand);
+        // Test operation2 produces the exact same result
+        final ComplexNumber z2 = operation2.apply(c.real(), c.imag(), operand, ComplexNumber::new);
+        Assertions.assertEquals(z.real(), z2.getReal(), () -> "Complex-Scalar binary operator mismatch: " + name + " real");
+        Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Complex-Scalar binary operator mismatch: " + name + " imaginary");
+        return z;
+    }
+
+    /**
      * Assert the operation on the complex number is <em>exactly</em> equal to the operation on
      * complex real and imaginary parts.
      *

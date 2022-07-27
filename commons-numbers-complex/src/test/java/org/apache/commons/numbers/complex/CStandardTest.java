@@ -980,15 +980,17 @@ class CStandardTest {
             final double re = next(rng);
             final double im = next(rng);
             final Complex z = complex(re, im);
-            final Complex iz = z.multiplyImaginary(1);
+            final Complex iz = TestUtils.assertSame(z, 1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
 
             Complex actual = TestUtils.assertSame(z, "asin", Complex::asin, ComplexFunctions::asin);
             Complex expected = TestUtils.assertSame(iz, "asinh", Complex::asinh, ComplexFunctions::asinh);
-            assertComplex(actual, expected.multiplyImaginary(-1));
+            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
+            assertComplex(actual, expected);
 
             actual = TestUtils.assertSame(z, "atan", Complex::atan, ComplexFunctions::atan);
             expected = TestUtils.assertSame(iz, "atanh", Complex::atanh, ComplexFunctions::atanh);
-            assertComplex(actual, expected.multiplyImaginary(-1));
+            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
+            assertComplex(actual, expected);
 
             actual = TestUtils.assertSame(z, "cos", Complex::cos, ComplexFunctions::cos);
             expected = TestUtils.assertSame(iz, "cosh", Complex::cosh, ComplexFunctions::cosh);
@@ -996,11 +998,13 @@ class CStandardTest {
 
             actual = TestUtils.assertSame(z, "sin", Complex::sin, ComplexFunctions::sin);
             expected = TestUtils.assertSame(iz, "sinh", Complex::sinh, ComplexFunctions::sinh);
-            assertComplex(actual, expected.multiplyImaginary(-1));
+            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
+            assertComplex(actual, expected);
 
             actual = TestUtils.assertSame(z, "tan", Complex::tan, ComplexFunctions::tan);
             expected = TestUtils.assertSame(iz, "tanh", Complex::tanh, ComplexFunctions::tanh);
-            assertComplex(actual, expected.multiplyImaginary(-1));
+            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
+            assertComplex(actual, expected);
         }
     }
 
@@ -1056,8 +1060,10 @@ class CStandardTest {
                 {1.40905821964671, 1.4090583434236112},
                 {1.912164268932753, 1.9121638616231227}}) {
             final Complex z = complex(pair[0], pair[1]);
-            assertAbs(z.abs(), z.multiplyImaginary(1));
-            Assertions.assertEquals(z.abs(), z.multiplyImaginary(1).abs(), "Expected |z| == |iz|");
+            final Complex result = TestUtils.assertSame(z, 1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
+            assertAbs(z.abs(), result);
+            final double actual = TestUtils.assertSame(result, "abs", Complex::abs, ComplexFunctions::abs);
+            Assertions.assertEquals(z.abs(), actual, "Expected |z| == |iz|");
         }
 
         // Test with a range of numbers.
@@ -1267,7 +1273,8 @@ class CStandardTest {
         }
         assertComplex(infZero, name, operation1, operation2, infZero, type);
         for (final double y : nonZeroFinite) {
-            assertComplex(complex(inf, y), name, operation1, operation2, Complex.ofCis(y).multiply(inf), type);
+            final Complex expected = TestUtils.assertSame(Complex.ofCis(y), inf, "multiply", Complex::multiply, ComplexFunctions::multiply);
+            assertComplex(complex(inf, y), name, operation1, operation2, expected, type);
         }
         assertComplex(infInf, name, operation1, operation2, infNaN, type, UnspecifiedSign.REAL);
         assertComplex(infNaN, name, operation1, operation2, infNaN, type);
@@ -1302,7 +1309,8 @@ class CStandardTest {
         assertComplex(infZero, name, operation1, operation2, infZero, type);
         // Note: Error in the ISO C99 reference to use positive finite y but the zero case is different
         for (final double y : nonZeroFinite) {
-            assertComplex(complex(inf, y), name, operation1, operation2, Complex.ofCis(y).multiply(inf), type);
+            final Complex expected = TestUtils.assertSame(Complex.ofCis(y), inf, "multiply", Complex::multiply, ComplexFunctions::multiply);
+            assertComplex(complex(inf, y), name, operation1, operation2, expected, type);
         }
         assertComplex(infInf, name, operation1, operation2, infNaN, type, UnspecifiedSign.REAL);
         assertComplex(infNaN, name, operation1, operation2, infNaN, type, UnspecifiedSign.REAL);
@@ -1369,10 +1377,12 @@ class CStandardTest {
         }
         assertComplex(infZero, name, operation1, operation2, infZero);
         for (final double y : finite) {
-            assertComplex(complex(-inf, y), name, operation1, operation2, Complex.ofCis(y).multiply(0.0));
+            final Complex expected = TestUtils.assertSame(Complex.ofCis(y), 0.0, "multiply", Complex::multiply, ComplexFunctions::multiply);
+            assertComplex(complex(-inf, y), name, operation1, operation2, expected);
         }
         for (final double y : nonZeroFinite) {
-            assertComplex(complex(inf, y), name, operation1, operation2, Complex.ofCis(y).multiply(inf));
+            final Complex expected = TestUtils.assertSame(Complex.ofCis(y), inf, "multiply", Complex::multiply, ComplexFunctions::multiply);
+            assertComplex(complex(inf, y), name, operation1, operation2, expected);
         }
         assertComplex(negInfInf, name, operation1, operation2, Complex.ZERO, UnspecifiedSign.REAL_IMAGINARY);
         assertComplex(infInf, name, operation1, operation2, infNaN, UnspecifiedSign.REAL);

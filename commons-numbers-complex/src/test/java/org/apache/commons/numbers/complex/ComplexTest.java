@@ -553,44 +553,47 @@ class ComplexTest {
     void testAddReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.add(y);
+        final Complex z = TestUtils.assertSame(x, y, "add", Complex::add, ComplexFunctions::add);
         Assertions.assertEquals(8.0, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "add", Complex::add, ComplexFunctions::add);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testAddRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.add(y);
+        final Complex z = TestUtils.assertSame(x, y, "add", Complex::add, ComplexFunctions::add);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "add", Complex::add, ComplexFunctions::add);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testAddRealInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = x.add(y);
+        final Complex z = TestUtils.assertSame(x, y, "add", Complex::add, ComplexFunctions::add);
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "add", Complex::add, ComplexFunctions::add);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testAddRealWithNegZeroImaginary() {
         final Complex x = Complex.ofCartesian(3.0, -0.0);
         final double y = 5.0;
-        final Complex z = x.add(y);
+        final Complex z = TestUtils.assertSame(x, y, "add", Complex::add, ComplexFunctions::add);
         Assertions.assertEquals(8.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary(), "Expected sign preservation");
         // Sign-preservation is a problem: -0.0 + 0.0 == 0.0
-        final Complex z2 = x.add(ofReal(y));
+        final Complex z2 = TestUtils.assertSame(x, ofReal(y), "add", Complex::add, ComplexFunctions::add);
         Assertions.assertEquals(8.0, z2.getReal());
         Assertions.assertEquals(0.0, z2.getImaginary(), "Expected no-sign preservation");
     }
@@ -599,44 +602,47 @@ class ComplexTest {
     void testAddImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.addImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "addImaginary", Complex::addImaginary, ComplexFunctions::addImaginary);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(9.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "add", Complex::add, ComplexFunctions::add);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testAddImaginaryNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.addImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "addImaginary", Complex::addImaginary, ComplexFunctions::addImaginary);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "add", Complex::add, ComplexFunctions::add);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testAddImaginaryInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = x.addImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "addImaginary", Complex::addImaginary, ComplexFunctions::addImaginary);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "add", Complex::add, ComplexFunctions::add);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testAddImaginaryWithNegZeroReal() {
         final Complex x = Complex.ofCartesian(-0.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.addImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "addImaginary", Complex::addImaginary, ComplexFunctions::addImaginary);
         Assertions.assertEquals(-0.0, z.getReal(), "Expected sign preservation");
         Assertions.assertEquals(9.0, z.getImaginary());
         // Sign-preservation is a problem: -0.0 + 0.0 == 0.0
-        final Complex z2 = x.add(ofImaginary(y));
+        final Complex z2 = TestUtils.assertSame(x, ofImaginary(y), "add", Complex::add, ComplexFunctions::add);
         Assertions.assertEquals(0.0, z2.getReal(), "Expected no-sign preservation");
         Assertions.assertEquals(9.0, z2.getImaginary());
     }
@@ -667,178 +673,194 @@ class ComplexTest {
     void testSubtractReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.subtract(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtract", Complex::subtract, ComplexFunctions::subtract);
         Assertions.assertEquals(-2.0, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.subtract(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtract", Complex::subtract, ComplexFunctions::subtract);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractRealInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = x.subtract(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtract", Complex::subtract, ComplexFunctions::subtract);
         Assertions.assertEquals(-inf, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractRealWithNegZeroImaginary() {
         final Complex x = Complex.ofCartesian(3.0, -0.0);
         final double y = 5.0;
-        final Complex z = x.subtract(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtract", Complex::subtract, ComplexFunctions::subtract);
         Assertions.assertEquals(-2.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary());
         // Equivalent
         // Sign-preservation is not a problem: -0.0 - 0.0 == -0.0
-        Assertions.assertEquals(z, x.subtract(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.subtractImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractImaginary", Complex::subtractImaginary, ComplexFunctions::subtractImaginary);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(-1.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractImaginaryNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.subtractImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractImaginary", Complex::subtractImaginary, ComplexFunctions::subtractImaginary);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractImaginaryInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = x.subtractImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractImaginary", Complex::subtractImaginary, ComplexFunctions::subtractImaginary);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(-inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractImaginaryWithNegZeroReal() {
         final Complex x = Complex.ofCartesian(-0.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.subtractImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractImaginary", Complex::subtractImaginary, ComplexFunctions::subtractImaginary);
         Assertions.assertEquals(-0.0, z.getReal());
         Assertions.assertEquals(-1.0, z.getImaginary());
         // Equivalent
         // Sign-preservation is not a problem: -0.0 - 0.0 == -0.0
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractFromReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.subtractFrom(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
         Assertions.assertEquals(2.0, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofReal(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofReal(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractFromRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.subtractFrom(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofReal(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofReal(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractFromRealInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = x.subtractFrom(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofReal(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofReal(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractFromRealWithPosZeroImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 0.0);
         final double y = 5.0;
-        final Complex z = x.subtractFrom(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
         Assertions.assertEquals(2.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary(), "Expected sign inversion");
         // Sign-inversion is a problem: 0.0 - 0.0 == 0.0
-        Assertions.assertNotEquals(z, ofReal(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofReal(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertNotEquals(z, actual);
     }
 
     @Test
     void testSubtractFromImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.subtractFromImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(1.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofImaginary(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractFromImaginaryNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.subtractFromImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofImaginary(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractFromImaginaryInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = x.subtractFromImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofImaginary(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testSubtractFromImaginaryWithPosZeroReal() {
         final Complex x = Complex.ofCartesian(0.0, 4.0);
         final double y = 5.0;
-        final Complex z = x.subtractFromImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
         Assertions.assertEquals(-0.0, z.getReal(), "Expected sign inversion");
         Assertions.assertEquals(1.0, z.getImaginary());
         // Sign-inversion is a problem: 0.0 - 0.0 == 0.0
-        Assertions.assertNotEquals(z, ofImaginary(y).subtract(x));
+        final Complex actual = TestUtils.assertSame(ofImaginary(y), x, "subtract", Complex::subtract, ComplexFunctions::subtract);
+        Assertions.assertNotEquals(z, actual);
     }
 
     @Test
@@ -872,62 +894,68 @@ class ComplexTest {
     void testMultiplyReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 2.0;
-        Complex z = x.multiply(y);
+        Complex z = TestUtils.assertSame(x, y, "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(6.0, z.getReal());
         Assertions.assertEquals(8.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofReal(y)));
+        Complex actual = TestUtils.assertSame(x, ofReal(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
 
-        z = x.multiply(-y);
+        z = TestUtils.assertSame(x, -y, "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(-6.0, z.getReal());
         Assertions.assertEquals(-8.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofReal(-y)));
+        actual = TestUtils.assertSame(x, ofReal(-y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testMultiplyRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.multiply(y);
+        final Complex z = TestUtils.assertSame(x, y, "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testMultiplyRealInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        Complex z = x.multiply(y);
+        Complex z = TestUtils.assertSame(x, y, "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofReal(y)));
+        Complex actual = TestUtils.assertSame(x, ofReal(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
 
-        z = x.multiply(-y);
+        z = TestUtils.assertSame(x, -y, "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(-inf, z.getReal());
         Assertions.assertEquals(-inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofReal(-y)));
+        actual = TestUtils.assertSame(x, ofReal(-y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testMultiplyRealZero() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 0.0;
-        Complex z = x.multiply(y);
+        Complex z = TestUtils.assertSame(x, y, "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(0.0, z.getReal());
         Assertions.assertEquals(0.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofReal(y)));
+        Complex actual = TestUtils.assertSame(x, ofReal(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
 
-        z = x.multiply(-y);
+        z = TestUtils.assertSame(x, -y, "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(-0.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary());
         // Sign-preservation is a problem for imaginary: 0.0 - -0.0 == 0.0
-        final Complex z2 = x.multiply(ofReal(-y));
+        final Complex z2 = TestUtils.assertSame(x, ofReal(-y), "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(-0.0, z2.getReal());
         Assertions.assertEquals(0.0, z2.getImaginary(), "Expected no sign preservation");
     }
@@ -936,64 +964,69 @@ class ComplexTest {
     void testMultiplyImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 2.0;
-        Complex z = x.multiplyImaginary(y);
+        Complex z = TestUtils.assertSame(x, y, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
         Assertions.assertEquals(-8.0, z.getReal());
         Assertions.assertEquals(6.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofImaginary(y)));
+        Complex actual = TestUtils.assertSame(x, ofImaginary(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
 
-        z = x.multiplyImaginary(-y);
+        z = TestUtils.assertSame(x, -y, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
         Assertions.assertEquals(8.0, z.getReal());
         Assertions.assertEquals(-6.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofImaginary(-y)));
+        actual = TestUtils.assertSame(x, ofImaginary(-y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testMultiplyImaginaryNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.multiplyImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testMultiplyImaginaryInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        Complex z = x.multiplyImaginary(y);
+        Complex z = TestUtils.assertSame(x, y, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
         Assertions.assertEquals(-inf, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofImaginary(y)));
+        Complex actual = TestUtils.assertSame(x, ofImaginary(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
 
-        z = x.multiplyImaginary(-y);
+        z = TestUtils.assertSame(x, -y, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(-inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.multiply(ofImaginary(-y)));
+        actual = TestUtils.assertSame(x, ofImaginary(-y), "multiply", Complex::multiply, ComplexFunctions::multiply);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testMultiplyImaginaryZero() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 0.0;
-        Complex z = x.multiplyImaginary(y);
+        Complex z = TestUtils.assertSame(x, y, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
         Assertions.assertEquals(-0.0, z.getReal());
         Assertions.assertEquals(0.0, z.getImaginary());
         // Sign-preservation is a problem for real: 0.0 - -0.0 == 0.0
-        Complex z2 = x.multiply(ofImaginary(y));
+        Complex z2 = TestUtils.assertSame(x, ofImaginary(y), "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(0.0, z2.getReal(), "Expected no sign preservation");
         Assertions.assertEquals(0.0, z2.getImaginary());
 
-        z = x.multiplyImaginary(-y);
+        z = TestUtils.assertSame(x, -y, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
         Assertions.assertEquals(0.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary());
         // Sign-preservation is a problem for imaginary: -0.0 - 0.0 == 0.0
-        z2 = x.multiply(ofImaginary(-y));
+        z2 = TestUtils.assertSame(x, ofImaginary(-y), "multiply", Complex::multiply, ComplexFunctions::multiply);
         Assertions.assertEquals(0.0, z2.getReal());
         Assertions.assertEquals(0.0, z2.getImaginary(), "Expected no sign preservation");
     }
@@ -1004,11 +1037,11 @@ class ComplexTest {
         for (final double a : parts) {
             for (final double b : parts) {
                 final Complex c = Complex.ofCartesian(a, b);
-                final Complex x = c.multiplyImaginary(1.0);
+                final Complex x = TestUtils.assertSame(c, 1.0, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
                 // Check verses algebra solution
                 Assertions.assertEquals(-b, x.getReal());
                 Assertions.assertEquals(a, x.getImaginary());
-                final Complex z = c.multiply(Complex.I);
+                final Complex z = TestUtils.assertSame(c, Complex.I, "multiply", Complex::multiply, ComplexFunctions::multiply);
                 Assertions.assertEquals(x, z);
             }
         }
@@ -1022,12 +1055,12 @@ class ComplexTest {
         for (final double a : parts) {
             for (final double b : parts) {
                 final Complex c = Complex.ofCartesian(a, b);
-                final Complex x = c.multiplyImaginary(-1.0);
+                final Complex x = TestUtils.assertSame(c, -1.0, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
                 // Check verses algebra solution
                 Assertions.assertEquals(b, x.getReal());
                 Assertions.assertEquals(-a, x.getImaginary());
                 for (final Complex negI : negIs) {
-                    final Complex z = c.multiply(negI);
+                    final Complex z = TestUtils.assertSame(c, negI, "multiply", Complex::multiply, ComplexFunctions::multiply);
                     Assertions.assertEquals(x, z);
                 }
             }
@@ -1040,11 +1073,11 @@ class ComplexTest {
         for (final double a : zeros) {
             for (final double b : zeros) {
                 final Complex c = Complex.ofCartesian(a, b);
-                final Complex x = c.multiplyImaginary(1.0);
+                final Complex x = TestUtils.assertSame(c, 1.0, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
                 // Check verses algebra solution
                 Assertions.assertEquals(-b, x.getReal());
                 Assertions.assertEquals(a, x.getImaginary());
-                final Complex z = c.multiply(Complex.I);
+                final Complex z = TestUtils.assertSame(c, Complex.I, "multiply", Complex::multiply, ComplexFunctions::multiply);
                 // Does not work when imaginary part is +0.0.
                 if (Double.compare(b, 0.0) == 0) {
                     // (-0.0, 0.0).multiply( (0,1) ) => (-0.0, 0.0) expected (-0.0,-0.0)
@@ -1069,12 +1102,13 @@ class ComplexTest {
         for (final double a : zeros) {
             for (final double b : zeros) {
                 final Complex c = Complex.ofCartesian(a, b);
-                final Complex x = c.multiplyImaginary(-1.0);
+                final Complex x = TestUtils.assertSame(c, -1.0, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
                 // Check verses algebra solution
                 Assertions.assertEquals(b, x.getReal());
                 Assertions.assertEquals(-a, x.getImaginary());
-                final Complex z = c.multiply(negI);
-                final Complex z2 = c.multiply(Complex.I).negate();
+                final Complex z = TestUtils.assertSame(c, negI, "multiply", Complex::multiply, ComplexFunctions::multiply);
+                final Complex result1 = TestUtils.assertSame(c, Complex.I, "multiply", Complex::multiply, ComplexFunctions::multiply);
+                final Complex z2 = TestUtils.assertSame(result1, "negate", Complex::negate, ComplexFunctions::negate);
                 // Does not work when imaginary part is -0.0.
                 if (Double.compare(b, -0.0) == 0) {
                     // (-0.0,-0.0).multiply( (-0.0,-1) ) => ( 0.0, 0.0) expected (-0.0, 0.0)
@@ -1145,126 +1179,138 @@ class ComplexTest {
     void testDivideReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 2.0;
-        Complex z = x.divide(y);
+        Complex z = TestUtils.assertSame(x, y, "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(1.5, z.getReal());
         Assertions.assertEquals(2.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofReal(y)));
+        Complex actual = TestUtils.assertSame(x, ofReal(y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
 
-        z = x.divide(-y);
+        z = TestUtils.assertSame(x, -y, "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(-1.5, z.getReal());
         Assertions.assertEquals(-2.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofReal(-y)));
+        actual = TestUtils.assertSame(x, ofReal(-y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testDivideRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.divide(y);
+        final Complex z = TestUtils.assertSame(x, y, "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofReal(y)));
+        final Complex actual = TestUtils.assertSame(x, ofReal(y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testDivideRealInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        Complex z = x.divide(y);
+        Complex z = TestUtils.assertSame(x, y, "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(0.0, z.getReal());
         Assertions.assertEquals(0.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofReal(y)));
+        Complex actual = TestUtils.assertSame(x, ofReal(y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
 
-        z = x.divide(-y);
+        z = TestUtils.assertSame(x, -y, "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(-0.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofReal(-y)));
+        actual = TestUtils.assertSame(x, ofReal(-y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testDivideRealZero() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 0.0;
-        Complex z = x.divide(y);
+        Complex z = TestUtils.assertSame(x, y, "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofReal(y)));
+        Complex actual = TestUtils.assertSame(x, ofReal(y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
 
-        z = x.divide(-y);
+        z = TestUtils.assertSame(x, -y, "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(-inf, z.getReal());
         Assertions.assertEquals(-inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofReal(-y)));
+        actual = TestUtils.assertSame(x, ofReal(-y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testDivideImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 2.0;
-        Complex z = x.divideImaginary(y);
+        Complex z = TestUtils.assertSame(x, y, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
         Assertions.assertEquals(2.0, z.getReal());
         Assertions.assertEquals(-1.5, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofImaginary(y)));
+        Complex actual = TestUtils.assertSame(x, ofImaginary(y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
 
-        z = x.divideImaginary(-y);
+        z = TestUtils.assertSame(x, -y, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
         Assertions.assertEquals(-2.0, z.getReal());
         Assertions.assertEquals(1.5, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofImaginary(-y)));
+        actual = TestUtils.assertSame(x, ofImaginary(-y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testDivideImaginaryNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = x.divideImaginary(y);
+        final Complex z = TestUtils.assertSame(x, y, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofImaginary(y)));
+        final Complex actual = TestUtils.assertSame(x, ofImaginary(y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testDivideImaginaryInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        Complex z = x.divideImaginary(y);
+        Complex z = TestUtils.assertSame(x, y, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
         Assertions.assertEquals(0.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofImaginary(y)));
+        Complex actual = TestUtils.assertSame(x, ofImaginary(y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
 
-        z = x.divideImaginary(-y);
+        z = TestUtils.assertSame(x, -y, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
         Assertions.assertEquals(-0.0, z.getReal());
         Assertions.assertEquals(0.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.divide(ofImaginary(-y)));
+        actual = TestUtils.assertSame(x, ofImaginary(-y), "divide", Complex::divide, ComplexFunctions::divide);
+        Assertions.assertEquals(z, actual);
     }
 
     @Test
     void testDivideImaginaryZero() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 0.0;
-        Complex z = x.divideImaginary(y);
+        Complex z = TestUtils.assertSame(x, y, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(-inf, z.getImaginary());
         // Sign-preservation is a problem for imaginary: 0.0 - -0.0 == 0.0
-        Complex z2 = x.divide(ofImaginary(y));
+        Complex z2 = TestUtils.assertSame(x, ofImaginary(y), "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(inf, z2.getReal());
         Assertions.assertEquals(inf, z2.getImaginary(), "Expected no sign preservation");
 
-        z = x.divideImaginary(-y);
+        z = TestUtils.assertSame(x, -y, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
         Assertions.assertEquals(-inf, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Sign-preservation is a problem for real: 0.0 + -0.0 == 0.0
-        z2 = x.divide(ofImaginary(-y));
+        z2 = TestUtils.assertSame(x, ofImaginary(-y), "divide", Complex::divide, ComplexFunctions::divide);
         Assertions.assertEquals(inf, z2.getReal(), "Expected no sign preservation");
         Assertions.assertEquals(inf, z2.getImaginary());
     }
@@ -1304,21 +1350,21 @@ class ComplexTest {
         // and the javadoc in Complex does not break down the actual cases.
 
         // 16: (x,-0.0) + x
-        assertSignedZeroArithmetic("addReal", Complex::add, ComplexTest::ofReal, Complex::add,
+        assertSignedZeroArithmetic("addReal", Complex::add, ComplexFunctions::add, ComplexTest::ofReal, Complex::add, ComplexFunctions::add,
             0b1111000000000000111100000000000011110000000000001111L);
         // 16: (-0.0,x) + x
-        assertSignedZeroArithmetic("addImaginary", Complex::addImaginary, ComplexTest::ofImaginary, Complex::add,
+        assertSignedZeroArithmetic("addImaginary", Complex::addImaginary, ComplexFunctions::addImaginary, ComplexTest::ofImaginary, Complex::add, ComplexFunctions::add,
             0b1111111111111111L);
         // 0:
-        assertSignedZeroArithmetic("subtractReal", Complex::subtract, ComplexTest::ofReal, Complex::subtract, 0);
+        assertSignedZeroArithmetic("subtractReal", Complex::subtract, ComplexFunctions::subtract, ComplexTest::ofReal, Complex::subtract, ComplexFunctions::subtract, 0);
         // 0:
-        assertSignedZeroArithmetic("subtractImaginary", Complex::subtractImaginary, ComplexTest::ofImaginary,
-            Complex::subtract, 0);
+        assertSignedZeroArithmetic("subtractImaginary", Complex::subtractImaginary, ComplexFunctions::subtractImaginary, ComplexTest::ofImaginary,
+            Complex::subtract, ComplexFunctions::subtract, 0);
         // 16: x - (x,+0.0)
-        assertSignedZeroArithmetic("subtractFromReal", Complex::subtractFrom, ComplexTest::ofReal,
+        assertSignedZeroArithmetic("subtractFromReal", Complex::subtractFrom, ComplexFunctions::subtractFrom, ComplexTest::ofReal,
             (y, z) -> z.subtract(y), 0b11110000000000001111000000000000111100000000000011110000L);
         // 16: x - (+0.0,x)
-        assertSignedZeroArithmetic("subtractFromImaginary", Complex::subtractFromImaginary, ComplexTest::ofImaginary,
+        assertSignedZeroArithmetic("subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary, ComplexTest::ofImaginary,
             (y, z) -> z.subtract(y), 0b11111111111111110000000000000000L);
         // 4: (-0.0,-x) * +x
         // 4: (+0.0,-0.0) * x
@@ -1329,7 +1375,7 @@ class ComplexTest {
         // 2: (+y,-x) * -0.0
         // 2: (+x,-y) * +0.0
         // 2: (+x,+y) * -0.0
-        assertSignedZeroArithmetic("multiplyReal", Complex::multiply, ComplexTest::ofReal, Complex::multiply,
+        assertSignedZeroArithmetic("multiplyReal", Complex::multiply, ComplexFunctions::multiply, ComplexTest::ofReal, Complex::multiply, ComplexFunctions::multiply,
             0b1001101011011000000100000001000010111010111110000101000001010L);
         // 4: (-0.0,+x) * +x
         // 2: (+0.0,-0.0) * -x
@@ -1340,21 +1386,22 @@ class ComplexTest {
         // 2: (+0.0,+/-y) * -/+0
         // 2: (+y,+/-0.0) * +/-y (sign 0.0 matches sign y)
         // 2: (+y,+x) * +0.0
-        assertSignedZeroArithmetic("multiplyImaginary", Complex::multiplyImaginary, ComplexTest::ofImaginary,
-            Complex::multiply, 0b11000110110101001000000010000001110001111101011010000010100000L);
+        assertSignedZeroArithmetic("multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary, ComplexTest::ofImaginary,
+            Complex::multiply, ComplexFunctions::multiply, 0b11000110110101001000000010000001110001111101011010000010100000L);
         // 2: (-0.0,0) / +y
         // 2: (+0.0,+x) / -y
         // 2: (-x,0) / -y
         // 1: (-0.0,+y) / +y
         // 1: (-y,+0.0) / -y
-        assertSignedZeroArithmetic("divideReal", Complex::divide, ComplexTest::ofReal, Complex::divide,
+        assertSignedZeroArithmetic("divideReal", Complex::divide, ComplexFunctions::divide, ComplexTest::ofReal, Complex::divide, ComplexFunctions::divide,
             0b100100001000000010000001000000011001000L);
 
         // DivideImaginary has its own test as the result is not always equal ignoring the
         // sign.
     }
 
-    private static void assertSignedZeroArithmetic(String name, BiFunction<Complex, Double, Complex> doubleOperation,
+    private static void assertSignedZeroArithmetic(String name, BiFunction<Complex, Double, Complex> doubleOperation1,
+        ComplexScalarFunction<ComplexNumber> doubleOperation2,
         DoubleFunction<Complex> doubleToComplex, BiFunction<Complex, Complex, Complex> complexOperation,
         long expectedFailures) {
         // With an operation on zero or non-zero arguments
@@ -1363,8 +1410,34 @@ class ComplexTest {
             for (final double b : arguments) {
                 final Complex c = Complex.ofCartesian(a, b);
                 for (final double arg : arguments) {
-                    final Complex y = doubleOperation.apply(c, arg);
+                    final Complex y = TestUtils.assertSame(c, arg, name, doubleOperation1, doubleOperation2);
                     final Complex z = complexOperation.apply(c, doubleToComplex.apply(arg));
+                    final boolean expectedFailure = (expectedFailures & 0x1) == 1;
+                    expectedFailures >>>= 1;
+                    // Check the same answer. Sign is allowed to be different for zero.
+                    Assertions.assertEquals(y.getReal(), z.getReal(), 0, () -> c + " " + name + " " + arg + ": real");
+                    Assertions.assertEquals(y.getImaginary(), z.getImaginary(), 0,
+                        () -> c + " " + name + " " + arg + ": imaginary");
+                    Assertions.assertEquals(expectedFailure, !y.equals(z),
+                        () -> c + " " + name + " " + arg + ": sign-difference");
+                }
+            }
+        }
+    }
+
+    private static void assertSignedZeroArithmetic(String name, BiFunction<Complex, Double, Complex> doubleOperation1,
+                                                   ComplexScalarFunction<ComplexNumber> doubleOperation2,
+                                                   DoubleFunction<Complex> doubleToComplex, BiFunction<Complex, Complex, Complex> complexOperation1,
+                                                   ComplexBinaryOperator<ComplexNumber> complexOperation2,
+                                                   long expectedFailures) {
+        // With an operation on zero or non-zero arguments
+        final double[] arguments = {-0.0, 0.0, -2, 3};
+        for (final double a : arguments) {
+            for (final double b : arguments) {
+                final Complex c = Complex.ofCartesian(a, b);
+                for (final double arg : arguments) {
+                    final Complex y = TestUtils.assertSame(c, arg, name, doubleOperation1, doubleOperation2);
+                    final Complex z = TestUtils.assertSame(c, doubleToComplex.apply(arg), name, complexOperation1, complexOperation2);
                     final boolean expectedFailure = (expectedFailures & 0x1) == 1;
                     expectedFailures >>>= 1;
                     // Check the same answer. Sign is allowed to be different for zero.
@@ -1406,7 +1479,7 @@ class ComplexTest {
             for (final double b : arguments) {
                 final Complex c = Complex.ofCartesian(a, b);
                 for (final double arg : arguments) {
-                    final Complex y = c.divideImaginary(arg);
+                    final Complex y = TestUtils.assertSame(c, arg, "divideImaginary", Complex::divideImaginary, ComplexFunctions::divideImaginary);
                     Complex z = TestUtils.assertSame(c, ofImaginary(arg), "divide", Complex::divide, ComplexFunctions::divide);
                     final boolean expectedFailure = (expectedFailures & 0x1) == 1;
                     expectedFailures >>>= 1;
@@ -1415,7 +1488,7 @@ class ComplexTest {
                     if (arg == 0) {
                         // Same result if multiplied by I. The sign may not match so
                         // optionally ignore the sign of the infinity.
-                        z = z.multiplyImaginary(1);
+                        z = TestUtils.assertSame(z, 1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
                         final double ya = expectedFailure ? Math.abs(y.getReal()) : y.getReal();
                         final double yb = expectedFailure ? Math.abs(y.getImaginary()) : y.getImaginary();
                         final double za = expectedFailure ? Math.abs(z.getReal()) : z.getReal();
@@ -1458,7 +1531,8 @@ class ComplexTest {
         final double yDouble = 5.0;
         final Complex yComplex = ofReal(yDouble);
         final Complex expected = TestUtils.assertSame(x, yComplex, "pow", Complex::pow, ComplexFunctions::pow);
-        Assertions.assertEquals(expected, x.pow(yDouble));
+        final Complex actual = TestUtils.assertSame(x, yDouble, "pow", Complex::pow, ComplexFunctions::pow);
+        Assertions.assertEquals(expected, actual);
     }
 
     @Test
@@ -1491,7 +1565,7 @@ class ComplexTest {
     void testPowScalerRealZero() {
         // Hits the edge case when real == 0 but imaginary != 0
         final Complex x = Complex.ofCartesian(0, 1);
-        final Complex c = x.pow(2);
+        final Complex c = TestUtils.assertSame(x, 2, "pow", Complex::pow, ComplexFunctions::pow);
         // Answer from g++
         Assertions.assertEquals(-1, c.getReal());
         Assertions.assertEquals(1.2246467991473532e-16, c.getImaginary());
@@ -1505,7 +1579,7 @@ class ComplexTest {
     }
 
     private static void assertPowScalarZeroBase(double exp, Complex expected) {
-        final Complex c = Complex.ZERO.pow(exp);
+        final Complex c = TestUtils.assertSame(Complex.ZERO, exp, "pow", Complex::pow, ComplexFunctions::pow);
         Assertions.assertEquals(expected, c);
     }
 
@@ -1515,7 +1589,8 @@ class ComplexTest {
         final double yDouble = 5.0;
         final Complex yComplex = ofReal(yDouble);
         final Complex expected = TestUtils.assertSame(x, yComplex, "pow", Complex::pow, ComplexFunctions::pow);
-        Assertions.assertEquals(expected, x.pow(yDouble));
+        final Complex actual = TestUtils.assertSame(x, yDouble, "pow", Complex::pow, ComplexFunctions::pow);
+        Assertions.assertEquals(expected, actual);
     }
 
     @Test
@@ -1524,7 +1599,8 @@ class ComplexTest {
         final double yDouble = Double.NaN;
         final Complex yComplex = ofReal(yDouble);
         final Complex expected = TestUtils.assertSame(x, yComplex, "pow", Complex::pow, ComplexFunctions::pow);
-        Assertions.assertEquals(expected, x.pow(yDouble));
+        final Complex actual = TestUtils.assertSame(x, yDouble, "pow", Complex::pow, ComplexFunctions::pow);
+        Assertions.assertEquals(expected, actual);
     }
 
     @Test
