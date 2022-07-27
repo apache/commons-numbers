@@ -771,7 +771,7 @@ class ComplexTest {
     void testSubtractFromReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, TestUtils::subtractFrom);
         Assertions.assertEquals(2.0, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
@@ -783,7 +783,7 @@ class ComplexTest {
     void testSubtractFromRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, TestUtils::subtractFrom);
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
@@ -795,7 +795,7 @@ class ComplexTest {
     void testSubtractFromRealInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, TestUtils::subtractFrom);
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
@@ -807,7 +807,7 @@ class ComplexTest {
     void testSubtractFromRealWithPosZeroImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 0.0);
         final double y = 5.0;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, ComplexFunctions::subtractFrom);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFrom", Complex::subtractFrom, TestUtils::subtractFrom);
         Assertions.assertEquals(2.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary(), "Expected sign inversion");
         // Sign-inversion is a problem: 0.0 - 0.0 == 0.0
@@ -819,7 +819,7 @@ class ComplexTest {
     void testSubtractFromImaginary() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = 5.0;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, TestUtils::subtractFromImaginary);
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(1.0, z.getImaginary());
         // Equivalent
@@ -831,7 +831,7 @@ class ComplexTest {
     void testSubtractFromImaginaryNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = nan;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, TestUtils::subtractFromImaginary);
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
@@ -843,7 +843,7 @@ class ComplexTest {
     void testSubtractFromImaginaryInf() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double y = inf;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, TestUtils::subtractFromImaginary);
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
@@ -855,7 +855,7 @@ class ComplexTest {
     void testSubtractFromImaginaryWithPosZeroReal() {
         final Complex x = Complex.ofCartesian(0.0, 4.0);
         final double y = 5.0;
-        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary);
+        final Complex z = TestUtils.assertSame(x, y, "subtractFromImaginary", Complex::subtractFromImaginary, TestUtils::subtractFromImaginary);
         Assertions.assertEquals(-0.0, z.getReal(), "Expected sign inversion");
         Assertions.assertEquals(1.0, z.getImaginary());
         // Sign-inversion is a problem: 0.0 - 0.0 == 0.0
@@ -1107,8 +1107,8 @@ class ComplexTest {
                 Assertions.assertEquals(b, x.getReal());
                 Assertions.assertEquals(-a, x.getImaginary());
                 final Complex z = TestUtils.assertSame(c, negI, "multiply", Complex::multiply, ComplexFunctions::multiply);
-                final Complex result1 = TestUtils.assertSame(c, Complex.I, "multiply", Complex::multiply, ComplexFunctions::multiply);
-                final Complex z2 = TestUtils.assertSame(result1, "negate", Complex::negate, ComplexFunctions::negate);
+                final Complex ci = TestUtils.assertSame(c, Complex.I, "multiply", Complex::multiply, ComplexFunctions::multiply);
+                final Complex z2 = TestUtils.assertSame(ci, "negate", Complex::negate, ComplexFunctions::negate);
                 // Does not work when imaginary part is -0.0.
                 if (Double.compare(b, -0.0) == 0) {
                     // (-0.0,-0.0).multiply( (-0.0,-1) ) => ( 0.0, 0.0) expected (-0.0, 0.0)
@@ -1361,11 +1361,11 @@ class ComplexTest {
         assertSignedZeroArithmetic("subtractImaginary", Complex::subtractImaginary, ComplexFunctions::subtractImaginary, ComplexTest::ofImaginary,
             Complex::subtract, ComplexFunctions::subtract, 0);
         // 16: x - (x,+0.0)
-        assertSignedZeroArithmetic("subtractFromReal", Complex::subtractFrom, ComplexFunctions::subtractFrom, ComplexTest::ofReal,
-            (y, z) -> z.subtract(y), 0b11110000000000001111000000000000111100000000000011110000L);
+        assertSignedZeroArithmetic("subtractFromReal", Complex::subtractFrom, TestUtils::subtractFrom, ComplexTest::ofReal,
+            (y, z) -> z.subtract(y), (a, b, c, d, action) -> ComplexFunctions.subtract(c, d, a, b, action), 0b11110000000000001111000000000000111100000000000011110000L);
         // 16: x - (+0.0,x)
-        assertSignedZeroArithmetic("subtractFromImaginary", Complex::subtractFromImaginary, ComplexFunctions::subtractFromImaginary, ComplexTest::ofImaginary,
-            (y, z) -> z.subtract(y), 0b11111111111111110000000000000000L);
+        assertSignedZeroArithmetic("subtractFromImaginary", Complex::subtractFromImaginary, TestUtils::subtractFromImaginary, ComplexTest::ofImaginary,
+            (y, z) -> z.subtract(y), (a, b, c, d, action) -> ComplexFunctions.subtract(c, d, a, b, action), 0b11111111111111110000000000000000L);
         // 4: (-0.0,-x) * +x
         // 4: (+0.0,-0.0) * x
         // 4: (+0.0,x) * -x
@@ -1401,35 +1401,10 @@ class ComplexTest {
     }
 
     private static void assertSignedZeroArithmetic(String name, BiFunction<Complex, Double, Complex> doubleOperation1,
-        ComplexScalarFunction<ComplexNumber> doubleOperation2,
-        DoubleFunction<Complex> doubleToComplex, BiFunction<Complex, Complex, Complex> complexOperation,
-        long expectedFailures) {
-        // With an operation on zero or non-zero arguments
-        final double[] arguments = {-0.0, 0.0, -2, 3};
-        for (final double a : arguments) {
-            for (final double b : arguments) {
-                final Complex c = Complex.ofCartesian(a, b);
-                for (final double arg : arguments) {
-                    final Complex y = TestUtils.assertSame(c, arg, name, doubleOperation1, doubleOperation2);
-                    final Complex z = complexOperation.apply(c, doubleToComplex.apply(arg));
-                    final boolean expectedFailure = (expectedFailures & 0x1) == 1;
-                    expectedFailures >>>= 1;
-                    // Check the same answer. Sign is allowed to be different for zero.
-                    Assertions.assertEquals(y.getReal(), z.getReal(), 0, () -> c + " " + name + " " + arg + ": real");
-                    Assertions.assertEquals(y.getImaginary(), z.getImaginary(), 0,
-                        () -> c + " " + name + " " + arg + ": imaginary");
-                    Assertions.assertEquals(expectedFailure, !y.equals(z),
-                        () -> c + " " + name + " " + arg + ": sign-difference");
-                }
-            }
-        }
-    }
-
-    private static void assertSignedZeroArithmetic(String name, BiFunction<Complex, Double, Complex> doubleOperation1,
-                                                   ComplexScalarFunction<ComplexNumber> doubleOperation2,
-                                                   DoubleFunction<Complex> doubleToComplex, BiFunction<Complex, Complex, Complex> complexOperation1,
-                                                   ComplexBinaryOperator<ComplexNumber> complexOperation2,
-                                                   long expectedFailures) {
+            ComplexScalarFunction<ComplexNumber> doubleOperation2,
+            DoubleFunction<Complex> doubleToComplex, BiFunction<Complex, Complex, Complex> complexOperation1,
+            ComplexBinaryOperator<ComplexNumber> complexOperation2,
+            long expectedFailures) {
         // With an operation on zero or non-zero arguments
         final double[] arguments = {-0.0, 0.0, -2, 3};
         for (final double a : arguments) {

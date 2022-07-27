@@ -982,29 +982,25 @@ class CStandardTest {
             final Complex z = complex(re, im);
             final Complex iz = TestUtils.assertSame(z, 1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
 
-            Complex actual = TestUtils.assertSame(z, "asin", Complex::asin, ComplexFunctions::asin);
-            Complex expected = TestUtils.assertSame(iz, "asinh", Complex::asinh, ComplexFunctions::asinh);
-            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
-            assertComplex(actual, expected);
+            Complex c1 = TestUtils.assertSame(z, "asin", Complex::asin, ComplexFunctions::asin);
+            Complex c2 = TestUtils.assertSame(iz, "asinh", Complex::asinh, ComplexFunctions::asinh);
+            assertComplex(c1, TestUtils.assertSame(c2, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary));
 
-            actual = TestUtils.assertSame(z, "atan", Complex::atan, ComplexFunctions::atan);
-            expected = TestUtils.assertSame(iz, "atanh", Complex::atanh, ComplexFunctions::atanh);
-            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
-            assertComplex(actual, expected);
+            c1 = TestUtils.assertSame(z, "atan", Complex::atan, ComplexFunctions::atan);
+            c2 = TestUtils.assertSame(iz, "atanh", Complex::atanh, ComplexFunctions::atanh);
+            assertComplex(c1, TestUtils.assertSame(c2, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary));
 
-            actual = TestUtils.assertSame(z, "cos", Complex::cos, ComplexFunctions::cos);
-            expected = TestUtils.assertSame(iz, "cosh", Complex::cosh, ComplexFunctions::cosh);
-            assertComplex(actual, expected);
+            c1 = TestUtils.assertSame(z, "cos", Complex::cos, ComplexFunctions::cos);
+            c2 = TestUtils.assertSame(iz, "cosh", Complex::cosh, ComplexFunctions::cosh);
+            assertComplex(c1, c2);
 
-            actual = TestUtils.assertSame(z, "sin", Complex::sin, ComplexFunctions::sin);
-            expected = TestUtils.assertSame(iz, "sinh", Complex::sinh, ComplexFunctions::sinh);
-            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
-            assertComplex(actual, expected);
+            c1 = TestUtils.assertSame(z, "sin", Complex::sin, ComplexFunctions::sin);
+            c2 = TestUtils.assertSame(iz, "sinh", Complex::sinh, ComplexFunctions::sinh);
+            assertComplex(c1, TestUtils.assertSame(c2, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary));
 
-            actual = TestUtils.assertSame(z, "tan", Complex::tan, ComplexFunctions::tan);
-            expected = TestUtils.assertSame(iz, "tanh", Complex::tanh, ComplexFunctions::tanh);
-            expected = TestUtils.assertSame(expected, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
-            assertComplex(actual, expected);
+            c1 = TestUtils.assertSame(z, "tan", Complex::tan, ComplexFunctions::tan);
+            c2 = TestUtils.assertSame(iz, "tanh", Complex::tanh, ComplexFunctions::tanh);
+            assertComplex(c1, TestUtils.assertSame(c2, -1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary));
         }
     }
 
@@ -1060,10 +1056,8 @@ class CStandardTest {
                 {1.40905821964671, 1.4090583434236112},
                 {1.912164268932753, 1.9121638616231227}}) {
             final Complex z = complex(pair[0], pair[1]);
-            final Complex result = TestUtils.assertSame(z, 1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
-            assertAbs(z.abs(), result);
-            final double actual = TestUtils.assertSame(result, "abs", Complex::abs, ComplexFunctions::abs);
-            Assertions.assertEquals(z.abs(), actual, "Expected |z| == |iz|");
+            final Complex iz = TestUtils.assertSame(z, 1, "multiplyImaginary", Complex::multiplyImaginary, ComplexFunctions::multiplyImaginary);
+            Assertions.assertEquals(z.abs(), iz.abs(), "Expected |z| == |iz|");
         }
 
         // Test with a range of numbers.

@@ -476,8 +476,8 @@ public final class TestUtils {
         final Complex z = operation1.apply(c, operand);
         // Test operation2 produces the exact same result
         final ComplexNumber z2 = operation2.apply(c.real(), c.imag(), operand, ComplexNumber::new);
-        Assertions.assertEquals(z.real(), z2.getReal(), () -> "Complex-Scalar binary operator mismatch: " + name + " real");
-        Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Complex-Scalar binary operator mismatch: " + name + " imaginary");
+        Assertions.assertEquals(z.real(), z2.getReal(), () -> "Scalar operator mismatch: " + name + " real");
+        Assertions.assertEquals(z.imag(), z2.getImaginary(), () -> "Scalar operator mismatch: " + name + " imaginary");
         return z;
     }
 
@@ -521,5 +521,47 @@ public final class TestUtils {
         final boolean b2 = operation2.test(c.real(), c.imag());
         Assertions.assertEquals(b1, b2, () -> "Predicate mismatch: " + name);
         return b1;
+    }
+
+    /**
+     * Computes the result of the subtraction of a complex number from an imaginary number.
+     * Implements the formula:
+     * \[ i d - (a + i b) = -a + i (d - b) \]
+     *
+     * <p>This method is a helper to replicate the method signature of the object-orientated
+     * API in Complex (i.e. the complex argument is first) using the equivalent static API
+     * function in ComplexFunctions.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param minuend Value the complex number is to be subtracted from.
+     * @param action Consumer for the subtraction result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     */
+    public static <R> R subtractFromImaginary(double real, double imaginary, double minuend, ComplexSink<R> action) {
+        // Call the equivalent static API function
+        return ComplexFunctions.imaginarySubtract(minuend, real, imaginary, action);
+    }
+
+    /**
+     * Computes the result of the subtraction of a complex number from a real number.
+     * Implements the formula:
+     * \[ c - (a + i b) = (c - a) - i b \]
+     *
+     * <p>This method is a helper to replicate the method signature of the object-orientated
+     * API in Complex (i.e. the complex argument is first) using the equivalent static API
+     * function in ComplexFunctions.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param minuend Value the complex number is to be subtracted from.
+     * @param action Consumer for the subtraction result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     */
+    public static <R> R subtractFrom(double real, double imaginary, double minuend, ComplexSink<R> action) {
+        // Call the equivalent static API function
+        return ComplexFunctions.realSubtract(minuend, real, imaginary, action);
     }
 }

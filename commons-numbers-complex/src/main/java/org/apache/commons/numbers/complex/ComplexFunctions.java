@@ -228,7 +228,7 @@ public final class ComplexFunctions {
      * Returns the argument of the complex number.
      *
      * <p>The argument is the angle phi between the positive real axis and
-     * the point representing this number in the complex plane.
+     * the point representing the number in the complex plane.
      * The value returned is between \( -\pi \) (not inclusive)
      * and \( \pi \) (inclusive), with negative values returned for numbers with
      * negative imaginary parts.
@@ -406,8 +406,8 @@ public final class ComplexFunctions {
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (a +id) \).
      * @param action Consumer for the addition result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -421,8 +421,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (real + addend, imaginary)},
-     * with {@code addend} interpreted as a real number.
+     * Computes the result of the addition of a complex number and a real number.
      * Implements the formula:
      *
      * <p>\[ (a + i b) + c = (a + c) + i b \]
@@ -432,7 +431,7 @@ public final class ComplexFunctions {
      *
      * <p>Note: This method preserves the sign of the imaginary component \( b \) if it is {@code -0.0}.
      * The sign would be lost if adding \( (c + i 0) \) using
-     * {@link #add(double, double, double, double, ComplexSink) add(Complex.ofCartesian(addend, 0))} since
+     * {@link #add(double, double, double, double, ComplexSink) add(real, imaginary, addend, 0, action)} since
      * {@code -0.0 + 0.0 = 0.0}.
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
@@ -442,15 +441,13 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see #add(double, double, double, double, ComplexSink)
-     * #ofCartesian(double, double)
      */
     public static <R> R add(double real, double imaginary, double addend, ComplexSink<R> action) {
         return action.apply(real + addend, imaginary);
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (real, imaginary + addend)},
-     * with {@code addend} interpreted as an imaginary number.
+     * Computes the result of the addition of a complex number and an imaginary number.
      * Implements the formula:
      *
      * <p>\[ (a + i b) + i d = a + i (b + d) \]
@@ -460,7 +457,7 @@ public final class ComplexFunctions {
      *
      * <p>Note: This method preserves the sign of the real component \( a \) if it is {@code -0.0}.
      * The sign would be lost if adding \( (0 + i d) \) using
-     * {@link #add(double, double, double, double, ComplexSink) add(Complex.ofCartesian(0, addend))} since
+     * {@link #add(double, double, double, double, ComplexSink) add(real, imaginary, 0, addend, action)} since
      * {@code -0.0 + 0.0 = 0.0}.
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
@@ -470,7 +467,6 @@ public final class ComplexFunctions {
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see #add(double, double, double, double, ComplexSink)
-     * #ofCartesian(double, double)
      */
     public static <R> R addImaginary(double real, double imaginary, double addend, ComplexSink<R> action) {
         return action.apply(real, imaginary + addend);
@@ -484,8 +480,8 @@ public final class ComplexFunctions {
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -499,7 +495,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (this - subtrahend)},
+     * Returns a {@code Object} whose value is {@code (real - subtrahend, imaginary)},
      * with {@code subtrahend} interpreted as a real number.
      * Implements the formula:
      *
@@ -521,8 +517,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (real, imaginary - subtrahend)},
-     * with {@code subtrahend} interpreted as an imaginary number.
+     * Computes the result of the subtraction of an imaginary number from a complex number.
      * Implements the formula:
      *
      * <p>\[ (a + i b) - i d = a + i (b - d) \]
@@ -543,8 +538,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (minuend - real, -imaginary)},
-     * with {@code minuend} interpreted as a real number.
+     * Computes the result of the subtraction of a complex number from a real number.
      * Implements the formula:
      * \[ c - (a + i b) = (c - a) - i b \]
      *
@@ -553,25 +547,23 @@ public final class ComplexFunctions {
      *
      * <p>Note: This method inverts the sign of the imaginary component \( b \) if it is {@code 0.0}.
      * The sign would not be inverted if subtracting from \( c + i 0 \) using
-     * {@link #subtract(double, double, double, double, ComplexSink) Complex.ofCartesian(minuend, 0).subtract(this)} since
+     * {@link #subtract(double, double, double, double, ComplexSink) subtract(minuend, 0, real, imaginary, action)} since
      * {@code 0.0 - 0.0 = 0.0}.
      *
+     * @param minuend Value the complex number is to be subtracted from.
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     * @param minuend Value the complex number is to be subtracted from.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see #subtract(double, double, double, double, ComplexSink)
-     * #ofCartesian(double, double)
      */
-    public static <R> R subtractFrom(double real, double imaginary, double minuend, ComplexSink<R> action) {
+    public static <R> R realSubtract(double minuend, double real, double imaginary, ComplexSink<R> action) {
         return action.apply(minuend - real, -imaginary);
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (-real, minuend - imaginary)},
-     * with {@code minuend} interpreted as an imaginary number.
+     * Computes the result of the subtraction of a complex number from an imaginary number.
      * Implements the formula:
      * \[ i d - (a + i b) = -a + i (d - b) \]
      *
@@ -580,19 +572,18 @@ public final class ComplexFunctions {
      *
      * <p>Note: This method inverts the sign of the real component \( a \) if it is {@code 0.0}.
      * The sign would not be inverted if subtracting from \( 0 + i d \) using
-     * {@link #subtract(double, double, double, double, ComplexSink) Complex.ofCartesian(0, minuend).subtract(this)} since
+     * {@link #subtract(double, double, double, double, ComplexSink) subtract(0, minuend, real, imaginary, action)} since
      * {@code 0.0 - 0.0 = 0.0}.
      *
+     * @param minuend Value the complex number is to be subtracted from.
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     * @param minuend Value the complex number is to be subtracted from.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see #subtract(double, double, double, double, ComplexSink)
-     * #ofCartesian(double, double)
      */
-    public static <R> R subtractFromImaginary(double real, double imaginary, double minuend, ComplexSink<R> action) {
+    public static <R> R imaginarySubtract(double minuend, double real, double imaginary, ComplexSink<R> action) {
         return action.apply(-real, minuend - imaginary);
     }
 
@@ -607,7 +598,7 @@ public final class ComplexFunctions {
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
      * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the multiplication result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -725,8 +716,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (real * factor, imaginary * factor)}, with {@code factor}
-     * interpreted as a real number.
+     * Computes the result of the multiplication of a complex number and a real number.
      * Implements the formula:
      *
      * <p>\[ (a + i b) c =  (ac) + i (bc) \]
@@ -735,8 +725,8 @@ public final class ComplexFunctions {
      * real-only and complex numbers.</p>
      *
      * <p>Note: This method should be preferred over using
-     * {@link #multiply(double, double, double, double, ComplexSink) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
-     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * {@link #multiply(double, double, double, double, ComplexSink) multiply(a, b, factor, 0, action)}. Multiplication
+     * can generate signed zeros if either the complex has zeros for the real
      * and/or imaginary component, or if the factor is zero. The summation of signed zeros
      * in {@link #multiply(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
      * from the equivalent call to multiply by a real-only number.
@@ -754,8 +744,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (-imaginary * factor, real * factor)}, with {@code factor}
-     * interpreted as an imaginary number.
+     * Computes the result of the multiplication of a complex number and an imaginary number.
      * Implements the formula:
      *
      * <p>\[ (a + i b) id = (-bd) + i (ad) \]
@@ -772,8 +761,8 @@ public final class ComplexFunctions {
      * imaginary-only and complex numbers.</p>
      *
      * <p>Note: This method should be preferred over using
-     * {@link #multiply(double, double, double, double, ComplexSink) multiply(Complex.ofCartesian(0, factor))}. Multiplication
-     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * {@link #multiply(double, double, double, double, ComplexSink) multiply(a, b, 0, factor, action)}. Multiplication
+     * can generate signed zeros if either the complex has zeros for the real
      * and/or imaginary component, or if the factor is zero. The summation of signed zeros
      * in {@link #multiply(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
      * from the equivalent call to multiply by an imaginary-only number.
@@ -803,8 +792,8 @@ public final class ComplexFunctions {
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the division result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -872,8 +861,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (real / divisor, imaginary / divisor)},
-     * with {@code divisor} interpreted as a real number.
+     * Computes the result of the division of a complex number by a real number.
      * Implements the formula:
      *
      * <p>\[ \frac{a + i b}{c} = \frac{a}{c} + i \frac{b}{c} \]
@@ -882,8 +870,8 @@ public final class ComplexFunctions {
      * real-only and complex numbers.</p>
      *
      * <p>Note: This method should be preferred over using
-     * {@link #divide(double, double, double, double, ComplexSink) divide(Complex.ofCartesian(divisor, 0))}. Division
-     * can generate signed zeros if {@code this} complex has zeros for the real
+     * {@link #divide(double, double, double, double, ComplexSink) divide(a, b, divisor, 0, action)}. Division
+     * can generate signed zeros if the complex has zeros for the real
      * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
      * in {@link #divide(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
      * from the equivalent call to divide by a real-only number.
@@ -901,8 +889,7 @@ public final class ComplexFunctions {
     }
 
     /**
-     * Returns a {@code Object} whose value is {@code (imaginary / divisor, -real / divisor)},
-     * with {@code divisor} interpreted as an imaginary number.
+     * Computes the result of the division of a complex number by an imaginary number.
      * Implements the formula:
      *
      * <p>\[ \frac{a + i b}{id} = \frac{b}{d} - i \frac{a}{d} \]
@@ -911,18 +898,18 @@ public final class ComplexFunctions {
      * imaginary-only and complex numbers.</p>
      *
      * <p>Note: This method should be preferred over using
-     * {@link #divide(double, double, double, double, ComplexSink) divide(Complex.ofCartesian(0, divisor))}. Division
-     * can generate signed zeros if {@code this} complex has zeros for the real
+     * {@link #divide(double, double, double, double, ComplexSink) divide(a, b, 0, divisor, action)}. Division
+     * can generate signed zeros if the complex has zeros for the real
      * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
      * in {@link #divide(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
      * from the equivalent call to divide by an imaginary-only number.
      *
      * <p>Warning: This method will generate a different result from
-     * {@link #divide(double, double, double, double, ComplexSink) divide(Complex.ofCartesian(0, divisor))} if the divisor is zero.
+     * {@link #divide(double, double, double, double, ComplexSink) divide(a, b, 0, divisor, action)} if the divisor is zero.
      * In this case the divide method using a zero-valued Complex will produce the same result
      * as dividing by a real-only zero. The output from dividing by imaginary zero will create
      * infinite and NaN values in the same component parts as the output from
-     * {@code this.divide(Complex.ZERO).multiplyImaginary(1)}, however the sign
+     * {@code divide(real, imaginary, Complex.ZERO, action).multiplyImaginary(real, imaginary, 1, action)}, however the sign
      * of some infinite values may be negated.
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
@@ -1232,8 +1219,8 @@ public final class ComplexFunctions {
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the power result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
