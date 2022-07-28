@@ -228,7 +228,7 @@ public final class ComplexFunctions {
      * Returns the argument of the complex number.
      *
      * <p>The argument is the angle phi between the positive real axis and
-     * the point representing this number in the complex plane.
+     * the point representing the number in the complex plane.
      * The value returned is between \( -\pi \) (not inclusive)
      * and \( \pi \) (inclusive), with negative values returned for numbers with
      * negative imaginary parts.
@@ -406,8 +406,8 @@ public final class ComplexFunctions {
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (a +id) \).
      * @param action Consumer for the addition result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -421,6 +421,58 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Computes the result of the addition of a complex number and a real number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) + c = (a + c) + i b \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method preserves the sign of the imaginary component \( b \) if it is {@code -0.0}.
+     * The sign would be lost if adding \( (c + i 0) \) using
+     * {@link #add(double, double, double, double, ComplexSink) add(real, imaginary, addend, 0, action)} since
+     * {@code -0.0 + 0.0 = 0.0}.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param addend Value to be added to the complex number.
+     * @param action Consumer for the addition result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #add(double, double, double, double, ComplexSink)
+     */
+    public static <R> R add(double real, double imaginary, double addend, ComplexSink<R> action) {
+        return action.apply(real + addend, imaginary);
+    }
+
+    /**
+     * Computes the result of the addition of a complex number and an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) + i d = a + i (b + d) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method preserves the sign of the real component \( a \) if it is {@code -0.0}.
+     * The sign would be lost if adding \( (0 + i d) \) using
+     * {@link #add(double, double, double, double, ComplexSink) add(real, imaginary, 0, addend, action)} since
+     * {@code -0.0 + 0.0 = 0.0}.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param addend Value to be added to the complex number.
+     * @param action Consumer for the addition result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #add(double, double, double, double, ComplexSink)
+     */
+    public static <R> R addImaginary(double real, double imaginary, double addend, ComplexSink<R> action) {
+        return action.apply(real, imaginary + addend);
+    }
+
+    /**
      * Returns a {@code Object} whose value is {@code (real1 - real2, imaginary1 - imaginary2)}.
      * Implements the formula:
      *
@@ -428,8 +480,8 @@ public final class ComplexFunctions {
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -443,6 +495,99 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Returns a {@code Object} whose value is {@code (real - subtrahend, imaginary)},
+     * with {@code subtrahend} interpreted as a real number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) - c = (a - c) + i b \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param subtrahend Value to be subtracted from the complex number.
+     * @param action Consumer for the subtraction result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #subtract(double, double, double, double, ComplexSink)
+     */
+    public static <R> R subtract(double real, double imaginary, double subtrahend, ComplexSink<R> action) {
+        return action.apply(real - subtrahend, imaginary);
+    }
+
+    /**
+     * Computes the result of the subtraction of an imaginary number from a complex number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) - i d = a + i (b - d) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param subtrahend Value to be subtracted from the complex number.
+     * @param action Consumer for the subtraction result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #subtract(double, double, double, double, ComplexSink)
+     */
+    public static <R> R subtractImaginary(double real, double imaginary, double subtrahend, ComplexSink<R> action) {
+        return action.apply(real, imaginary - subtrahend);
+    }
+
+    /**
+     * Computes the result of the subtraction of a complex number from a real number.
+     * Implements the formula:
+     * \[ c - (a + i b) = (c - a) - i b \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method inverts the sign of the imaginary component \( b \) if it is {@code 0.0}.
+     * The sign would not be inverted if subtracting from \( c + i 0 \) using
+     * {@link #subtract(double, double, double, double, ComplexSink) subtract(minuend, 0, real, imaginary, action)} since
+     * {@code 0.0 - 0.0 = 0.0}.
+     *
+     * @param minuend Value the complex number is to be subtracted from.
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the subtraction result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #subtract(double, double, double, double, ComplexSink)
+     */
+    public static <R> R realSubtract(double minuend, double real, double imaginary, ComplexSink<R> action) {
+        return action.apply(minuend - real, -imaginary);
+    }
+
+    /**
+     * Computes the result of the subtraction of a complex number from an imaginary number.
+     * Implements the formula:
+     * \[ i d - (a + i b) = -a + i (d - b) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method inverts the sign of the real component \( a \) if it is {@code 0.0}.
+     * The sign would not be inverted if subtracting from \( 0 + i d \) using
+     * {@link #subtract(double, double, double, double, ComplexSink) subtract(0, minuend, real, imaginary, action)} since
+     * {@code 0.0 - 0.0 = 0.0}.
+     *
+     * @param minuend Value the complex number is to be subtracted from.
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param action Consumer for the subtraction result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #subtract(double, double, double, double, ComplexSink)
+     */
+    public static <R> R imaginarySubtract(double minuend, double real, double imaginary, ComplexSink<R> action) {
+        return action.apply(-real, minuend - imaginary);
+    }
+
+    /**
      * Returns a {@code Object} whose value is {@code (real1 + i*imaginary1) * (real2 + i*imaginary2))}.
      * Implements the formula:
      *
@@ -453,7 +598,7 @@ public final class ComplexFunctions {
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
      * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the multiplication result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -571,6 +716,70 @@ public final class ComplexFunctions {
     }
 
     /**
+     * Computes the result of the multiplication of a complex number and a real number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) c =  (ac) + i (bc) \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(double, double, double, double, ComplexSink) multiply(a, b, factor, 0, action)}. Multiplication
+     * can generate signed zeros if either the complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by a real-only number.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param factor Value to be multiplied by the complex number.
+     * @param action Consumer for the multiplication result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action
+     * @see #multiply(double, double, double, double, ComplexSink)
+     */
+    public static <R> R multiply(double real, double imaginary, double factor, ComplexSink<R> action) {
+        return action.apply(real * factor, imaginary * factor);
+    }
+
+    /**
+     * Computes the result of the multiplication of a complex number and an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ (a + i b) id = (-bd) + i (ad) \]
+     *
+     * <p>This method can be used to compute the multiplication of the complex number \( z \)
+     * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
+     * {@link #multiply(double, double, double, double, ComplexSink) multiply(Complex.I)} with or without {@link #negate(double, double, ComplexSink) negation}:</p>
+     *
+     * \[ \begin{aligned}
+     *    iz &amp;= (-b + i a) \\
+     *   -iz &amp;= (b - i a) \end{aligned} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(double, double, double, double, ComplexSink) multiply(a, b, 0, factor, action)}. Multiplication
+     * can generate signed zeros if either the complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by an imaginary-only number.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param factor Value to be multiplied by the complex number.
+     * @param action Consumer for the multiplication result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #multiply(double, double, double, double, ComplexSink)
+     */
+    public static <R> R multiplyImaginary(double real, double imaginary, double factor, ComplexSink<R> action) {
+        return action.apply(-imaginary * factor, real * factor);
+    }
+
+    /**
      * Returns a {@code Object} whose value is {@code (real1 + i*imaginary1)/(real2 + i*imaginary2)}.
      * Implements the formula:
      *
@@ -579,18 +788,18 @@ public final class ComplexFunctions {
      * <p>Re-calculates NaN result values to recover infinities as specified in C99 standard G.5.1.
      *
      * <p>Note: In the event of divide by zero this method produces the same result
-     * as dividing by a real-only zero using (add divide reference)
+     * as dividing by a real-only zero using {@link #divide(double, double, double, ComplexSink)}.
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the division result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
+     * @see #divide(double, double, double, ComplexSink)
      */
-    //TODO - add divide reference once moved to ComplexFunctions
     public static <R> R divide(double real1, double imaginary1,
                                double real2, double imaginary2,
                                ComplexSink<R> action) {
@@ -649,6 +858,71 @@ public final class ComplexFunctions {
             }
         }
         return action.apply(x, y);
+    }
+
+    /**
+     * Computes the result of the division of a complex number by a real number.
+     * Implements the formula:
+     *
+     * <p>\[ \frac{a + i b}{c} = \frac{a}{c} + i \frac{b}{c} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #divide(double, double, double, double, ComplexSink) divide(a, b, divisor, 0, action)}. Division
+     * can generate signed zeros if the complex has zeros for the real
+     * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
+     * in {@link #divide(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
+     * from the equivalent call to divide by a real-only number.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param divisor Value by which the complex number is to be divided.
+     * @param action Consumer for the division result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #divide(double, double, double, double, ComplexSink)
+     */
+    public static <R> R divide(double real, double imaginary, double divisor, ComplexSink<R> action) {
+        return action.apply(real / divisor, imaginary / divisor);
+    }
+
+    /**
+     * Computes the result of the division of a complex number by an imaginary number.
+     * Implements the formula:
+     *
+     * <p>\[ \frac{a + i b}{id} = \frac{b}{d} - i \frac{a}{d} \]
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method should be preferred over using
+     * {@link #divide(double, double, double, double, ComplexSink) divide(a, b, 0, divisor, action)}. Division
+     * can generate signed zeros if the complex has zeros for the real
+     * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
+     * in {@link #divide(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
+     * from the equivalent call to divide by an imaginary-only number.
+     *
+     * <p>Warning: This method will generate a different result from
+     * {@link #divide(double, double, double, double, ComplexSink) divide(a, b, 0, divisor, action)} if the divisor is zero.
+     * In this case the divide method using a zero-valued Complex will produce the same result
+     * as dividing by a real-only zero. The output from dividing by imaginary zero will create
+     * infinite and NaN values in the same component parts as the output from
+     * {@code divide(real, imaginary, Complex.ZERO, action).multiplyImaginary(real, imaginary, 1, action)}, however the sign
+     * of some infinite values may be negated.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param divisor Value by which the complex number is to be divided.
+     * @param action Consumer for the division result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #divide(double, double, double, double, ComplexSink)
+     * @see #divide(double, double, double, ComplexSink)
+     */
+    public static <R> R divideImaginary(double real, double imaginary, double divisor, ComplexSink<R> action) {
+        return action.apply(imaginary / divisor, -real / divisor);
     }
 
     /**
@@ -945,8 +1219,8 @@ public final class ComplexFunctions {
      *
      * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
      * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( b \) of the second complex number \( (a +ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
      * @param action Consumer for the power result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -969,6 +1243,42 @@ public final class ComplexFunctions {
             return action.apply(Double.NaN, Double.NaN);
         }
         return log(real1, imaginary1, (x, y) -> multiply(x, y, real2, imaginary2, (a, b) -> exp(a, b, action)));
+    }
+
+    /**
+     * Returns the complex power of the complex number raised to the power of {@code x},
+     * with {@code x} interpreted as a real number.
+     * Implements the formula:
+     *
+     * <p>\[ z^x = e^{x \ln(z)} \]
+     *
+     * <p>If the complex number is zero then this method returns zero if {@code x} is positive;
+     * otherwise it returns NaN + iNaN.
+     *
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param x The exponent to which the complex number is to be raised.
+     * @param action Consumer for the power result.
+     * @param <R> the return type of the supplied action.
+     * @return the object returned by the supplied action.
+     * @see #log(double, double, ComplexSink)
+     * @see #multiply(double, double, double, ComplexSink)
+     * @see #exp(double, double, ComplexSink)
+     * @see #pow(double, double, double, double, ComplexSink)
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
+     */
+    public static <R> R pow(double real, double imaginary, double x, ComplexSink<R> action) {
+        if (real == 0 &&
+            imaginary == 0) {
+            // This value is zero. Test the other.
+            if (x > 0) {
+                // 0 raised to positive number is 0
+                return action.apply(0, 0);
+            }
+            // 0 raised to anything else is NaN
+            return action.apply(Double.NaN, Double.NaN);
+        }
+        return log(real, imaginary, (y, z) -> multiply(y, z, x, (a, b) -> exp(a, b, action)));
     }
 
     /**
