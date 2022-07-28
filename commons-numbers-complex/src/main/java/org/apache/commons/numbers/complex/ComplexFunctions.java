@@ -289,19 +289,13 @@ public final class ComplexFunctions {
      * Returns {@code true} if either the real <em>or</em> imaginary component of the complex number is NaN
      * <em>and</em> the complex number is not infinite.
      *
-     * <p>Note that:
-     * <ul>
-     *   <li>There is more than one complex number that can return {@code true}.
-     *   <li>Different representations of NaN can be distinguished by the
-     *       {@link #equals(Object) Complex.equals(Object)} method.
-     * </ul>
+     * <p>Note that there is more than one complex number that can return {@code true}.
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
      * @return {@code true} if the complex number contains NaN and no infinite parts.
      * @see Double#isNaN(double)
      * @see #isInfinite(double, double)
-     * @see #equals(Object) Complex.equals(Object)
      */
     public static boolean isNaN(double real, double imaginary) {
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
@@ -751,7 +745,8 @@ public final class ComplexFunctions {
      *
      * <p>This method can be used to compute the multiplication of the complex number \( z \)
      * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
-     * {@link #multiply(double, double, double, double, ComplexSink) multiply(Complex.I)} with or without {@link #negate(double, double, ComplexSink) negation}:</p>
+     * {@link #multiply(double, double, double, double, ComplexSink) multiply(real, imaginary, 0, 1, action)}
+     * with or without {@link #negate(double, double, ComplexSink) negation}:</p>
      *
      * \[ \begin{aligned}
      *    iz &amp;= (-b + i a) \\
@@ -838,7 +833,7 @@ public final class ComplexFunctions {
                 (!Double.isNaN(a) || !Double.isNaN(b))) {
                 // nonzero/zero
                 // This case produces the same result as divide by a real-only zero
-                // using Complex.divide(+/-0.0)
+                // using divide(a, b, +/-0.0, action)
                 x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
                 y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
             } else if ((Double.isInfinite(a) || Double.isInfinite(b)) &&
@@ -1162,7 +1157,7 @@ public final class ComplexFunctions {
         // This alters the implementation of Hull et al (1994) which used a standard
         // precision representation of |z|: sqrt(x*x + y*y).
         // This formula should use the same definition of the magnitude returned
-        // by Complex.abs() which is a high precision computation with scaling.
+        // by abs(x, y) which is a high precision computation with scaling.
         // The checks for overflow thus only require ensuring the output of |z|
         // will not overflow or underflow.
 
@@ -1358,7 +1353,7 @@ public final class ComplexFunctions {
         // This alters the implementation of Hull et al (1994) which used a standard
         // precision representation of |z|: sqrt(x*x + y*y).
         // This formula should use the same definition of the magnitude returned
-        // by Complex.abs() which is a high precision computation with scaling.
+        // by abs(x, y) which is a high precision computation with scaling.
         // Worry about overflow if 2 * (|z| + |x|) will overflow.
         // Worry about underflow if |z| or |x| are sub-normal components.
 
