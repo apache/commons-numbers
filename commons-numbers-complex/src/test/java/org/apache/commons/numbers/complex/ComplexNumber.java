@@ -34,8 +34,8 @@ class ComplexNumber {
     /**
      * Constructor representing a complex number by its real and imaginary parts.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      */
     ComplexNumber(double real, double imaginary) {
         this.real = real;

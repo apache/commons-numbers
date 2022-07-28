@@ -36,10 +36,10 @@ public interface ComplexBinaryOperator<R> {
     /**
      * Represents an operator that accepts real and imaginary parts of two complex numbers and supplies the complex result to the provided consumer.
      *
-     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
-     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
+     * @param real1 Real part \( a \) of the first complex number \( (a + ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a + ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c + id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c + id) \).
      * @param action Consumer for the complex result.
      * @return the object returned by the provided consumer.
      */

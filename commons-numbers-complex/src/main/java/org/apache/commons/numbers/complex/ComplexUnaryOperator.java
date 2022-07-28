@@ -36,8 +36,8 @@ public interface ComplexUnaryOperator<R> {
     /**
      * Represents an operator that accepts real and imaginary parts of a complex number and supplies the complex result to the provided consumer.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the complex result.
      * @return the object returned by the provided consumer.
      */

@@ -532,8 +532,8 @@ public final class TestUtils {
      * API in Complex (i.e. the complex argument is first) using the equivalent static API
      * function in ComplexFunctions.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param minuend Real value the complex number is to be subtracted from.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
@@ -555,8 +555,8 @@ public final class TestUtils {
      * API in Complex (i.e. the complex argument is first) using the equivalent static API
      * function in ComplexFunctions.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param minuend Imaginary value the complex number is to be subtracted from.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.

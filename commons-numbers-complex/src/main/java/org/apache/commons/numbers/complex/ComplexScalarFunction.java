@@ -38,8 +38,8 @@ public interface ComplexScalarFunction<R> {
      * and a double operand to produce a Complex result.
      * The complex result is supplied to the provided consumer.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param operand Scalar operand.
      * @param action Consumer for the complex result.
      * @return the object returned by the provided consumer.

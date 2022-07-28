@@ -211,8 +211,8 @@ public final class ComplexFunctions {
      *
      * <p>The computed result will be within 1 ulp of the exact result.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @return The absolute value.
      * @see #isInfinite(double, double)
      * @see #isNaN(double, double)
@@ -244,8 +244,8 @@ public final class ComplexFunctions {
      * in calculating the returned value using the {@code atan2(y, x)} method for complex
      * \( x + iy \).
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \). part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \). part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @return The argument of the complex number.
      * @see Math#atan2(double, double)
      */
@@ -270,8 +270,8 @@ public final class ComplexFunctions {
      * magnitude. If used for ranking any overflow to infinity will create an equal ranking for
      * values that may be still distinguished by {@code abs()}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @return The square norm value.
      * @see #isInfinite(double, double)
      * @see #isNaN(double, double)
@@ -291,8 +291,8 @@ public final class ComplexFunctions {
      *
      * <p>Note that there is more than one complex number that can return {@code true}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @return {@code true} if the complex number contains NaN and no infinite parts.
      * @see Double#isNaN(double)
      * @see #isInfinite(double, double)
@@ -309,8 +309,8 @@ public final class ComplexFunctions {
      *
      * <p>Note: A complex number with at least one infinite part is regarded
      * as an infinity (even if its other part is a NaN).
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @return {@code true} if the complex number contains an infinite value.
      * @see Double#isInfinite(double)
      */
@@ -321,8 +321,8 @@ public final class ComplexFunctions {
     /**
      * Returns {@code true} if both real and imaginary component of the complex number are finite.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @return {@code true} if the complex number instance contains finite values.
      * @see Double#isFinite(double)
      */
@@ -339,8 +339,8 @@ public final class ComplexFunctions {
      *                z  &amp;= a + i b \\
      *      \overline{z} &amp;= a - i b \end{aligned}\]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the conjugate of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -356,8 +356,8 @@ public final class ComplexFunctions {
      *       z  &amp;=  a + i b \\
      *      -z  &amp;= -a - i b \end{aligned} \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the negation of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -376,8 +376,8 @@ public final class ComplexFunctions {
      *
      * <pre>(Double.POSITIVE_INFINITY, Math.copySign(0.0, imaginary))</pre>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the projection of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -398,10 +398,10 @@ public final class ComplexFunctions {
      *
      * <p>\[ (a + i b) + (c + i d) = (a + c) + i (b + d) \]
      *
-     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
-     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (a +id) \).
+     * @param real1 Real part \( a \) of the first complex number \( (a + ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a + ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c + id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (a + id) \).
      * @param action Consumer for the addition result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -428,8 +428,8 @@ public final class ComplexFunctions {
      * {@link #add(double, double, double, double, ComplexSink) add(real, imaginary, addend, 0, action)} since
      * {@code -0.0 + 0.0 = 0.0}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param addend Value to be added to the complex number.
      * @param action Consumer for the addition result.
      * @param <R> the return type of the supplied action.
@@ -454,8 +454,8 @@ public final class ComplexFunctions {
      * {@link #add(double, double, double, double, ComplexSink) add(real, imaginary, 0, addend, action)} since
      * {@code -0.0 + 0.0 = 0.0}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param addend Value to be added to the complex number.
      * @param action Consumer for the addition result.
      * @param <R> the return type of the supplied action.
@@ -472,10 +472,10 @@ public final class ComplexFunctions {
      *
      * <p>\[ (a + i b) - (c + i d) = (a - c) + i (b - d) \]
      *
-     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
-     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
+     * @param real1 Real part \( a \) of the first complex number \( (a + ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a + ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c + id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c + id) \).
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -498,8 +498,8 @@ public final class ComplexFunctions {
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * real-only and complex numbers.</p>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param subtrahend Value to be subtracted from the complex number.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
@@ -519,8 +519,8 @@ public final class ComplexFunctions {
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * imaginary-only and complex numbers.</p>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param subtrahend Value to be subtracted from the complex number.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
@@ -545,8 +545,8 @@ public final class ComplexFunctions {
      * {@code 0.0 - 0.0 = 0.0}.
      *
      * @param minuend Value the complex number is to be subtracted from.
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -570,8 +570,8 @@ public final class ComplexFunctions {
      * {@code 0.0 - 0.0 = 0.0}.
      *
      * @param minuend Value the complex number is to be subtracted from.
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -589,10 +589,10 @@ public final class ComplexFunctions {
      *
      * <p>Recalculates to recover infinities as specified in C99 standard G.5.1.
      *
-     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( a \) of the second complex number \( (a +ib) \).
-     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
+     * @param real1 Real part \( a \) of the first complex number \( (a + ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a + ib) \).
+     * @param real2 Real part \( a \) of the second complex number \( (a + ib) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c + id) \).
      * @param action Consumer for the multiplication result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -725,8 +725,8 @@ public final class ComplexFunctions {
      * in {@link #multiply(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
      * from the equivalent call to multiply by a real-only number.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param factor Value to be multiplied by the complex number.
      * @param action Consumer for the multiplication result.
      * @param <R> the return type of the supplied action.
@@ -762,8 +762,8 @@ public final class ComplexFunctions {
      * in {@link #multiply(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
      * from the equivalent call to multiply by an imaginary-only number.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param factor Value to be multiplied by the complex number.
      * @param action Consumer for the multiplication result.
      * @param <R> the return type of the supplied action.
@@ -785,10 +785,10 @@ public final class ComplexFunctions {
      * <p>Note: In the event of divide by zero this method produces the same result
      * as dividing by a real-only zero using {@link #divide(double, double, double, ComplexSink)}.
      *
-     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
-     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
+     * @param real1 Real part \( a \) of the first complex number \( (a + ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a + ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c + id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c + id) \).
      * @param action Consumer for the division result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -871,8 +871,8 @@ public final class ComplexFunctions {
      * in {@link #divide(double, double, double, double, ComplexSink)} may create zeros in the result that differ in sign
      * from the equivalent call to divide by a real-only number.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param divisor Value by which the complex number is to be divided.
      * @param action Consumer for the division result.
      * @param <R> the return type of the supplied action.
@@ -907,8 +907,8 @@ public final class ComplexFunctions {
      * {@code divide(real, imaginary,  0, 0, (x, y) -> multiplyImaginary(x, y, 1, action))}, however the sign
      * of some infinite values may be negated.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param divisor Value by which the complex number is to be divided.
      * @param action Consumer for the division result.
      * @param <R> the return type of the supplied action.
@@ -952,8 +952,8 @@ public final class ComplexFunctions {
      *
      * <p>\[ \exp(x + iy) = e^x (\cos(y) + i \sin(y)) \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \). part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \). part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the exponential of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1055,8 +1055,8 @@ public final class ComplexFunctions {
      * ACM Transactions on Mathematical Software, Vol 20, No 2, pp 215-244.
      * </blockquote>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the natural logarithm of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1083,8 +1083,8 @@ public final class ComplexFunctions {
      *
      * <p>where \( |z| \) is the absolute and \( \arg(z) \) is the argument.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the base 10 common logarithm of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1109,8 +1109,8 @@ public final class ComplexFunctions {
      * @param log Log function.
      * @param logOfeOver2 The log function applied to e, then divided by 2.
      * @param logOf2 The log function applied to 2.
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the natural logarithm of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1212,10 +1212,10 @@ public final class ComplexFunctions {
      * in the real component and zero in the imaginary component;
      * otherwise it returns NaN + iNaN.
      *
-     * @param real1 Real part \( a \) of the first complex number \( (a +ib) \).
-     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a +ib) \).
-     * @param real2 Real part \( c \) of the second complex number \( (c +id) \).
-     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c +id) \).
+     * @param real1 Real part \( a \) of the first complex number \( (a + ib) \).
+     * @param imaginary1 Imaginary part \( b \) of the first complex number \( (a + ib) \).
+     * @param real2 Real part \( c \) of the second complex number \( (c + id) \).
+     * @param imaginary2 Imaginary part \( d \) of the second complex number \( (c + id) \).
      * @param action Consumer for the power result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1250,8 +1250,8 @@ public final class ComplexFunctions {
      * <p>If the complex number is zero then this method returns zero if {@code x} is positive;
      * otherwise it returns NaN + iNaN.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param x The exponent to which the complex number is to be raised.
      * @param action Consumer for the power result.
      * @param <R> the return type of the supplied action.
@@ -1320,8 +1320,8 @@ public final class ComplexFunctions {
      * ACM Transactions on Mathematical Software, Vol 20, No 2, pp 215-244.
      * </blockquote>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the square root of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1438,8 +1438,8 @@ public final class ComplexFunctions {
      *
      * <p>\[ \sin(z) = -i \sinh(iz) \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the sine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1470,8 +1470,8 @@ public final class ComplexFunctions {
      *
      * <p>\[ cos(z) = cosh(iz) \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the cosine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1500,8 +1500,8 @@ public final class ComplexFunctions {
      * <p>As per the C99 standard this function is computed using the trigonomic identity:</p>
      * \[ \tan(z) = -i \tanh(iz) \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the tangent of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1549,8 +1549,8 @@ public final class ComplexFunctions {
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
      * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse sine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1573,8 +1573,8 @@ public final class ComplexFunctions {
      * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse sine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1744,8 +1744,8 @@ public final class ComplexFunctions {
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
      * {@code c++} implementation {@code <boost/math/complex/acos.hpp>}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse cosine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1768,8 +1768,8 @@ public final class ComplexFunctions {
      * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse cosine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1905,8 +1905,8 @@ public final class ComplexFunctions {
      * <p>As per the C99 standard this function is computed using the trigonomic identity:
      * \[ \tan^{-1}(z) = -i \tanh^{-1}(iz) \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse tangent of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -1951,8 +1951,8 @@ public final class ComplexFunctions {
      *
      * <p>\[ \sinh(x + iy) = \sinh(x)\cos(y) + i \cosh(x)\sin(y) \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the hyperbolic sine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action..
@@ -2022,8 +2022,8 @@ public final class ComplexFunctions {
      *
      * <p>\[ \cosh(x + iy) = \cosh(x)\cos(y) + i \sinh(x)\sin(y) \]
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the hyperbolic tangent of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -2169,8 +2169,8 @@ public final class ComplexFunctions {
      * <p>The implementation uses double-angle identities to avoid overflow of {@code 2x}
      * and {@code 2y}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the hyperbolic tangent of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -2305,7 +2305,7 @@ public final class ComplexFunctions {
      * <p>\[ \sinh^{-1}(z) = -i \sin^{-1}(iz) \]
      *
      * @param real part of Complex number
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib \).
      * @param action Consumer for the inverse hyperbolic sine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -2361,8 +2361,8 @@ public final class ComplexFunctions {
      * <p>The sign of the multiplier is chosen to give {@code z.acosh().real() >= 0}
      * and compatibility with the C99 standard.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse hyperbolic cosine of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -2430,8 +2430,8 @@ public final class ComplexFunctions {
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
      * {@code c++} implementation {@code <boost/math/complex/atanh.hpp>}.
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse hyperbolic tangent of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -2455,8 +2455,8 @@ public final class ComplexFunctions {
      * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the inverse hyperbolic tangent of the complex number.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
@@ -3119,8 +3119,8 @@ public final class ComplexFunctions {
      * <pre>
      *  z = new Complex(real, imaginary).multiplyImaginary(-1);</pre>
      *
-     * @param real Real part \( a \) of the complex number \( (a +ib \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param real Real part \( a \) of the complex number \( (a + ib \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @param action Consumer for the complex number multiplied by {@code -i}.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
