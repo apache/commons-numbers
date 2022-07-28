@@ -18,10 +18,11 @@
 package org.apache.commons.numbers.complex;
 
 /**
- * Represents a binary operation on a Cartesian form of a complex number \( a + ib \)
- * and a {@code double} scalar operand, where \( a \) and \( b \) are real numbers represented as two {@code double}
- * The operation creates a complex number result; the result is supplied to a terminating consumer function
- * which may return an object representation of the complex result.
+ * Represents a binary operation on a Cartesian form of a complex number \( a + ib \) and
+ * a {@code double} scalar operand, where \( a \) and \( b \) are real numbers represented
+ * as two {@code double} parts. The operation creates a complex number result; the result
+ * is supplied to a terminating consumer function which may return an object
+ * representation of the complex result.
  *
  * <p>This is a functional interface whose functional method is
  * {@link #apply(double, double, double, ComplexSink)}.

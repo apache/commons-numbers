@@ -534,10 +534,12 @@ public final class TestUtils {
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     * @param minuend Value the complex number is to be subtracted from.
+     * @param minuend Real value the complex number is to be subtracted from.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
+     * @see Complex#subtractFrom(double)
+     * @see ComplexFunctions#realSubtract(double, double, double, ComplexSink)
      */
     public static <R> R subtractFrom(double real, double imaginary, double minuend, ComplexSink<R> action) {
         // Call the equivalent static API function
@@ -555,10 +557,12 @@ public final class TestUtils {
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     * @param minuend Value the complex number is to be subtracted from.
+     * @param minuend Imaginary value the complex number is to be subtracted from.
      * @param action Consumer for the subtraction result.
      * @param <R> the return type of the supplied action.
      * @return the object returned by the supplied action.
+     * @see Complex#subtractFromImaginary(double)
+     * @see ComplexFunctions#imaginarySubtract(double, double, double, ComplexSink)
      */
     public static <R> R subtractFromImaginary(double real, double imaginary, double minuend, ComplexSink<R> action) {
         // Call the equivalent static API function

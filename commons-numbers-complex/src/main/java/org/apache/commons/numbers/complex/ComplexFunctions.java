@@ -909,7 +909,7 @@ public final class ComplexFunctions {
      * In this case the divide method using a zero-valued Complex will produce the same result
      * as dividing by a real-only zero. The output from dividing by imaginary zero will create
      * infinite and NaN values in the same component parts as the output from
-     * {@code divide(real, imaginary, Complex.ZERO, action).multiplyImaginary(real, imaginary, 1, action)}, however the sign
+     * {@code divide(real, imaginary,  0, 0, (x, y) -> multiplyImaginary(x, y, 1, action))}, however the sign
      * of some infinite values may be negated.
      *
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
