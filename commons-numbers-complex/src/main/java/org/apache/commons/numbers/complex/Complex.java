@@ -51,7 +51,7 @@ import java.util.function.DoubleUnaryOperator;
  * exceptions</a> return the documented value without an explicit mechanism to notify
  * of the exception case, that is no exceptions are thrown during computations in-line with
  * the convention of the corresponding single-valued functions in
- * {@link java.lang.Math java.lang.Math}.
+ * {@link Math Math}.
  * These cases are documented in the method special cases as "invalid" or "divide-by-zero"
  * floating-point operation.
  * Note: Invalid floating-point exception cases will result in a complex number where the
