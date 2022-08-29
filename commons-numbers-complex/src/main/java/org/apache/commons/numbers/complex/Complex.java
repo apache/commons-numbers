@@ -3215,7 +3215,7 @@ public final class Complex implements Serializable  {
      * @return {@code true} if the objects are equal, {@code false} if object
      * is {@code null}, not an instance of {@code Complex}, or not equal to
      * this instance.
-     * @see java.lang.Double#doubleToLongBits(double)
+     * @see Double#doubleToLongBits(double)
      * @see java.util.Arrays#equals(double[], double[])
      */
     @Override
