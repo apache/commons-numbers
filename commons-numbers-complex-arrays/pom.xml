@@ -62,6 +62,10 @@
         <!-- Workaround to avoid duplicating config files. -->
         <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
     </properties>
+
+    <!--
+    TODO - remove japicmp skip after a release
+    -->
     <build>
         <plugins>
             <plugin>

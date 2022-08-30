@@ -29,8 +29,11 @@ import java.util.Collection;
  * this class provides methods to manipulate the size of the array that is used internally to store the list.
  *
  * <p>Each ComplexList instance has a capacity. The capacity is half the size of the double array used to store the elements
- * in the list. It is always at least twice as large as the list size. As elements are added to an ComplexList,
- * its capacity grows automatically.</p>
+ * in the list. As elements are added to an ComplexList, its capacity grows automatically.
+ * The complex number is stored using an interleaved format and so the maximum number of elements that may be added is
+ * approximately 2^30. This is half the maximum capacity of java.util.ArrayList.
+ * The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
+ * using instances of Complex.</p>
  *
  * <p>An application can increase the capacity of an ComplexList instance before adding a large number of elements
  * using the ensureCapacity operation. This may reduce the amount of incremental reallocation.</p>
@@ -43,7 +46,7 @@ public class ComplexList extends AbstractList<Complex> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 9;
 
     /** Max capacity for size of complex numbers in the list. */
-    public static final int MAX_CAPACITY = MAX_ARRAY_SIZE / 2;
+    protected static final int MAX_CAPACITY = MAX_ARRAY_SIZE / 2;
 
     /** error in case of allocation above max capacity. */
     private static final String OOM_ERROR_STRING = "cannot allocate capacity %s greater than max " + MAX_CAPACITY;
@@ -70,12 +73,12 @@ public class ComplexList extends AbstractList<Complex> {
      * Constructs an empty list with the specified capacity, if it's
      * greater than the default capacity of 8.
      *
-     * @param capacity - Capacity of list.
-     * @throws OutOfMemoryError - if the {@code capacity} is greater than {@code MAX_CAPACITY}.
+     * @param capacity Capacity of list.
+     * @throws IllegalArgumentException if the {@code capacity} is greater than {@code MAX_CAPACITY}.
      */
     public ComplexList(int capacity) {
         if (capacity > MAX_CAPACITY) {
-            throw new OutOfMemoryError(String.format(OOM_ERROR_STRING, capacity));
+            throw new IllegalArgumentException(String.format(OOM_ERROR_STRING, capacity));
         }
         final int arrayLength = Math.max(DEFAULT_CAPACITY, capacity) * 2;
         realAndImagParts = new double[arrayLength];
@@ -89,9 +92,7 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * Gives the size of this ComplexList.
-     *
-     * @return the number of elements it contains.
+     * {@inheritDoc}
      */
     @Override
     public int size() {
@@ -101,8 +102,8 @@ public class ComplexList extends AbstractList<Complex> {
     /**
      * Checks if the given index is in range.
      *
-     * @param index - Index of the element to range check.
-     * @throws IndexOutOfBoundsException - if index isn't within the range.
+     * @param index Index of the element to range check.
+     * @throws IndexOutOfBoundsException if index isn't within the range.
      */
     private void rangeCheck(int index) {
         if (index < 0 || index >= size) {
@@ -113,8 +114,8 @@ public class ComplexList extends AbstractList<Complex> {
     /**
      * A version of rangeCheck used by add and addAll.
      *
-     * @param index - Index of the element to range check.
-     * @throws IndexOutOfBoundsException - if index isn't within the range of list.
+     * @param index Index of the element to range check.
+     * @throws IndexOutOfBoundsException if index isn't within the range of list.
      */
     private void rangeCheckForInsert(int index) {
         if (index < 0 || index > size) {
@@ -125,7 +126,7 @@ public class ComplexList extends AbstractList<Complex> {
     /**
      * Gets the complex number \( (a + i b) \) at the indexed position of the list.
      *
-     * @param index - Index of the element to get.
+     * @param index {@inheritDoc}
      * @return the complex number.
      */
     @Override
@@ -139,9 +140,9 @@ public class ComplexList extends AbstractList<Complex> {
      * Replaces the element at the specified position in this list with the specified element's
      * real and imaginary parts. No range checks are done.
      *
-     * @param index - Index of the element to replace.
-     * @param real - Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary - Imaginary part \( b \) of the complex number \( (a +ib) \).
+     * @param index Index of the element to replace.
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
      */
     private void setNoRangeCheck(int index, double real, double imaginary) {
         final int i = index << 1;
@@ -150,12 +151,12 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * Replaces the element at the specified position in this list with the specified element.
-
-     * @param index - Index of the element to replace.
-     * @param element - Element to be stored at the specified position.
-     * @return the element previously at the specified position.
-     * @throws IndexOutOfBoundsException - if index isn't within the range of list.
+     * {@inheritDoc}
+     *
+     * @param index {@inheritDoc}
+     * @param element Complex element to be set.
+     * @return {@inheritDoc}
+     * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
     public Complex set(int index, Complex element) {
@@ -170,33 +171,24 @@ public class ComplexList extends AbstractList<Complex> {
      * Increases the capacity of this ComplexList instance, if necessary, to ensure that it can hold at
      * least the number of elements specified by the minimum capacity argument.
      *
-     * @param minCapacity – Desired minimum capacity.
-     * @throws OutOfMemoryError - if the {@code minCapacity} is greater than {@code MAX_ARRAY_SIZE}.
-     */
-    public void ensureCapacity(int minCapacity) {
-        ensureCapacityInternal(minCapacity);
-    }
-
-    /**
-     * Increases the capacity of this ComplexList instance, if necessary, to ensure that it can hold at
-     * least the number of elements specified by the minimum capacity argument.
-     *
-     * @param minCapacity – Desired minimum capacity.
+     * @param minCapacity Desired minimum capacity.
      * @return the backing double array.
-     * @throws OutOfMemoryError - if the {@code minCapacity} is greater than {@code MAX_ARRAY_SIZE}.
+     * @throws OutOfMemoryError if the {@code minCapacity} is greater than {@code MAX_ARRAY_SIZE}.
      */
     private double[] ensureCapacityInternal(int minCapacity) {
         modCount++;
-        final long minArrayCapacity = minCapacity * 2L;
+        final long minArrayCapacity = Integer.toUnsignedLong(minCapacity) << 1;
         if (minArrayCapacity > MAX_ARRAY_SIZE) {
             throw new OutOfMemoryError(String.format(OOM_ERROR_STRING, minArrayCapacity));
         }
         final long oldArrayCapacity = realAndImagParts.length;
         if (minArrayCapacity > oldArrayCapacity) {
             long newArrayCapacity = oldArrayCapacity + (oldArrayCapacity >> 1);
-            if (newArrayCapacity % 2 != 0) {
-                ++newArrayCapacity;
-            }
+            // Round-odd up to even
+            newArrayCapacity += newArrayCapacity & 1;
+
+            // Ensure minArrayCapacity <= newArrayCapacity <= MAX_ARRAY_SIZE
+            // Note: At this point minArrayCapacity <= MAX_ARRAY_SIZE
             if (newArrayCapacity > MAX_ARRAY_SIZE) {
                 newArrayCapacity = MAX_ARRAY_SIZE;
             } else if (newArrayCapacity < minArrayCapacity) {
@@ -211,17 +203,17 @@ public class ComplexList extends AbstractList<Complex> {
      * Increases the capacity of this ComplexList instance, if necessary, to ensure that it can hold at
      * least an additional number of elements specified by the capacity argument.
      *
-     * @param capacity - Desired capacity.
+     * @param capacity Desired capacity.
      */
     private void expand(int capacity) {
         ensureCapacityInternal(size + capacity);
     }
 
     /**
-     * Appends the specified complex element to the end of this list.
+     * {@inheritDoc}
      *
-     * @param element - Complex element to be appended to this list.
-     * @return true after element has been added and size has been updated.
+     * @param element Complex element to be appended to this list.
+     * @return {@inheritDoc}
      */
     @Override
     public boolean add(Complex element) {
@@ -237,12 +229,11 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * Inserts the specified element at the specified position in this list. Shifts the element currently at that
-     * position (if any) and any subsequent elements to the right (adds one to their indices).
+     * {@inheritDoc}
      *
-     * @param index – Index at which the specified element is to be inserted.
-     * @param element – Complex element to be inserted.
-     * @throws IndexOutOfBoundsException – if index isn't within the range of list.
+     * @param index {@inheritDoc}
+     * @param element Complex element to be inserted.
+     * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
     public void add(int index, Complex element) {
@@ -252,64 +243,56 @@ public class ComplexList extends AbstractList<Complex> {
             e = ensureCapacityInternal(size + 1);
         }
         final int i = index << 1;
-        System.arraycopy(e, 2 * index, e, i + 2, (size * 2) - i);
+        final int s = size << 1;
+        System.arraycopy(e, i, e, i + 2, s - i);
         e[i] = element.real();
         e[i + 1] = element.imag();
         size++;
     }
 
     /**
-     * Appends all the elements in the specified collection to the end of this list, in the order that they are
-     * returned by the specified collection's Iterator. The behavior of this operation is undefined if the
-     * specified collection is modified while the operation is in progress.
-     * (This implies that the behavior of this call is undefined if the specified collection is this list,
-     * and this list is nonempty.)
+     * {@inheritDoc}
      *
-     * @param c – Collection containing elements to be added to this list.
-     * @return true if this list changed as a result of the call.
-     * @throws NullPointerException – if the specified collection is null.
+     * @param c {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     @Override
     public boolean addAll(Collection<? extends Complex> c) {
         final int numNew = c.size();
-        expand(numNew * 2);
-        double[] realAndImgData = new double[c.size() * 2];
+        expand(numNew);
+        double[] realAndImgData = new double[numNew * 2];
         int i = 0;
         for (final Complex val : c) {
-            final int i2 = i << 1;
-            realAndImgData[i2] = val.getReal();
-            realAndImgData[i2 + 1] = val.getImaginary();
-            i++;
+            realAndImgData[i++] = val.getReal();
+            realAndImgData[i++] = val.getImaginary();
         }
-        System.arraycopy(realAndImgData, 0, realAndImagParts, size * 2, realAndImgData.length);
+        final int s = size << 1;
+        System.arraycopy(realAndImgData, 0, realAndImagParts, s, realAndImgData.length);
         size += numNew;
         return numNew != 0;
     }
 
     /**
-     * Inserts all the elements in the specified collection into this list, starting at the specified position.
-     * Shifts the element currently at that position (if any) and any subsequent elements to the right (increases their indices).
-     * The new elements will appear in the list in the order that they are returned by the specified collection's iterator.
+     * {@inheritDoc}
      *
-     * @param index – Index at which to insert the first element from the specified collection.
-     * @param c – Collection containing elements to be added to this list.
-     * @return true if this list changed as a result of the call.
-     * @throws IndexOutOfBoundsException – if index isn't within the range of list.
-     * @throws NullPointerException – if the specified collection is null.
+     * @param index {@inheritDoc}
+     * @param c {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     @Override
     public boolean addAll(int index, Collection<? extends Complex> c) {
         rangeCheckForInsert(index);
         final int numNew = c.size();
         final int numNew2 = numNew << 1;
-        expand(numNew * 2);
-        final double[] realAndImgData = new double[c.size() * 2];
+        expand(numNew);
+        final double[] realAndImgData = new double[numNew * 2];
         int i = 0;
         for (final Complex val : c) {
-            final int i2 = i << 1;
-            realAndImgData[i2] = val.getReal();
-            realAndImgData[i2 + 1] = val.getImaginary();
-            i++;
+            realAndImgData[i++] = val.getReal();
+            realAndImgData[i++] = val.getImaginary();
         }
         final int numMoved = (size - index) * 2;
         final int index2 = index << 1;
@@ -320,16 +303,16 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * Removes the element at the specified position in this list.
-     * Shifts any subsequent elements to the left (subtracts one from their indices).
+     * {@inheritDoc}
      *
-     * @param index – Index of the element to be removed.
-     * @return the element that was removed from the list.
-     * @throws IndexOutOfBoundsException – if index isn't within the range of list.
+     * @param index {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
     public Complex remove(int index) {
         rangeCheck(index);
+        modCount++;
         final int i = index << 1;
         final int s = size << 1;
         final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
@@ -338,8 +321,6 @@ public class ComplexList extends AbstractList<Complex> {
             System.arraycopy(realAndImagParts, i + 2, realAndImagParts, i, numMoved);
         }
         size--;
-        realAndImagParts[s] = 0;
-        realAndImagParts[s + 1] = 0;
 
         return oldValue;
     }
@@ -347,11 +328,10 @@ public class ComplexList extends AbstractList<Complex> {
     /**
      * Constructs an IndexOutOfBoundsException detail message.
      *
-     * @param index – Index of the element.
+     * @param index Index of the element.
      * @return message detailing the exception.
      */
     private String outOfBoundsMsg(int index) {
         return INDEX_MSG + index + SIZE_MSG + size;
     }
-
 }
