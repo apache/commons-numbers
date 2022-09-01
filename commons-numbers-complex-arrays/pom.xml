@@ -34,22 +34,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-numbers-complex</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-rng-client-api</artifactId>
-            <version>1.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-rng-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-numbers-core</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <properties>

@@ -24,9 +24,14 @@
   </properties>
 
   <body>
-      <p>
-        The "complex arrays" module contains utilities for working with complex number arrays and lists.
-      </p>
+      <section name="Apache Commons Numbers: Number Types and Utilities" href="summary">
+          <p>
+              Commons Numbers provides number types and utilities.
+          </p>
+          <p>
+            The "complex arrays" module contains utilities for working with complex number arrays and lists.
+          </p>
+      </section>
   </body>
 
 </document>

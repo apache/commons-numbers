@@ -28,7 +28,10 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+
 public class ComplexListTest {
+
+    private static final int MAX_CAPACITY = (Integer.MAX_VALUE - 9) / 2;
 
     @Test
     void testGetAndSetMethod() {
@@ -61,6 +64,7 @@ public class ComplexListTest {
         assertListOperation(list -> list.add(Complex.ofCartesian(21, 22)), l1, l2);
         assertListOperation(list -> list.add(Complex.ofCartesian(23, 24)), l1, l2);
 
+        //Testing add at an index for branch condition (size == realAndImagParts.length >>> 1)
         List<Complex> l3 = new ArrayList<>();
         List<Complex> l4 = new ComplexList();
         assertListOperation(list -> list.add(Complex.ofCartesian(1, 2)), l3, l4);
@@ -90,22 +94,11 @@ public class ComplexListTest {
         List<Complex> l5 = new ArrayList<>();
         List<Complex> l6 = new ComplexList();
         assertListOperation(list -> list.add(Complex.ofCartesian(1, 2)), l5, l6);
-        assertListOperation(list -> {
-            list.addAll(list);
-            return Boolean.TRUE;
-        }, l5, l6);
-        assertListOperation(list -> {
-            list.addAll(list);
-            return Boolean.TRUE;
-        }, l5, l6);
-        assertListOperation(list -> {
-            list.addAll(list);
-            return Boolean.TRUE;
-        }, l5, l6);
-        assertListOperation(list -> {
-            list.addAll(list1);
-            return Boolean.TRUE;
-        }, l5, l6);
+        // Expand the list by doubling in size until at the known minArrayCapacity
+        while (l5.size() < 8) {
+            assertListOperation(list -> list.addAll(list), l5, l6);
+        }
+        assertListOperation(list -> list.addAll(list1), l5, l6);
 
         //Test for adding an empty list to an empty list
         ComplexList list = new ComplexList();
@@ -181,14 +174,14 @@ public class ComplexListTest {
     @Test
     void testCapacityExceptions() {
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ComplexList(ComplexList.MAX_CAPACITY + 1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ComplexList(MAX_CAPACITY + 1));
 
         // Set-up required sizes
         ComplexList list = new ComplexList();
         List<Complex> l = new SizedList(Integer.MAX_VALUE);
         Assertions.assertThrows(OutOfMemoryError.class, () -> list.addAll(l));
 
-        List<Complex> l2 = new SizedList(ComplexList.MAX_CAPACITY + 1);
+        List<Complex> l2 = new SizedList(MAX_CAPACITY + 1);
         Assertions.assertThrows(OutOfMemoryError.class, () -> list.addAll(l2));
     }
 
@@ -204,6 +197,10 @@ public class ComplexListTest {
         assertListOperation(operation, new ArrayList<>(), new ComplexList());
     }
 
+    /**
+     * This class purposely gives a fixed size and so is a non-functional list.
+     * It is used to trigger capacity exceptions when adding a collection to ComplexList.
+     */
     private static class SizedList extends ArrayList<Complex> {
         private final int fixedSize;
 
