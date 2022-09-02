@@ -18,6 +18,7 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
+import org.apache.commons.numbers.complex.ComplexConsumer;
 import org.apache.commons.numbers.complex.ComplexUnaryOperator;
 
 import java.util.AbstractList;
@@ -138,8 +139,9 @@ public class ComplexList extends AbstractList<Complex> {
 
     /**
      * Gets the complex number \( (a + i b) \) at the indexed position of the list.
-     *
+     * <p>
      * {@inheritDoc}
+     *
      * @return the complex number.
      */
     @Override
@@ -147,6 +149,30 @@ public class ComplexList extends AbstractList<Complex> {
         rangeCheck(index);
         final int i = index << 1;
         return Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
+    }
+
+    /**
+     * Gets the real part \( a \) of the complex number \( (a + i b) \) at the indexed position of the list.
+     *
+     * @param index Index of the element's real part to get.
+     * @return The real part.
+     */
+    public double getReal(int index) {
+        rangeCheck(index);
+        final int i = index << 1;
+        return realAndImagParts[i];
+    }
+
+    /**
+     * Gets the imaginary part \( b \) of this complex number \( (a + i b) \).
+     *
+     * @param index Index of the element's imaginary part to get.
+     * @return The imaginary part.
+     */
+    public double getImaginary(int index) {
+        rangeCheck(index);
+        final int i = index << 1;
+        return realAndImagParts[i + 1];
     }
 
     /**
@@ -175,6 +201,63 @@ public class ComplexList extends AbstractList<Complex> {
         final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
         setNoRangeCheck(index, element.getReal(), element.getImaginary());
         return oldValue;
+    }
+
+    /**
+     * Replaces the complex element's real part at the specified position
+     * in this list with the specified real element.
+     *
+     * @param index Index of the element's real part to replace.
+     * @param real Real part \( a \) of the complex number \( (a +ib) \).
+     */
+    public void setReal(int index, double real) {
+        rangeCheck(index);
+        final int i = index << 1;
+        realAndImagParts[i] = real;
+    }
+
+    /**
+     * Replaces the complex element's imaginary part at the specified position
+     * in this list with the specified imaginary element.
+     * @param index Index of the element's imaginary part to replace.
+     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
+     */
+    public void setImaginary(int index, double imaginary) {
+        rangeCheck(index);
+        final int i = index << 1;
+        realAndImagParts[i + 1] = imaginary;
+    }
+
+    /**
+     * Returns an array containing all the complex element's real parts in
+     * the list in proper sequence (from first to last element).
+     *
+     * @return Array of real parts.
+     */
+    double[] toArrayReal() {
+        final int length = size;
+        double[] real = new double[length];
+        for (int i = 0; i < length; i++) {
+            final int index = i << 1;
+            real[i] = realAndImagParts[index];
+        }
+        return real;
+    }
+
+    /**
+     * Returns an array containing all the complex element's imaginary parts in
+     * the list in proper sequence (from first to last element).
+     *
+     * @return Array of imaginary parts.
+     */
+    double[] toArrayImaginary() {
+        final int length = size;
+        double[] imag = new double[length];
+        for (int i = 0; i < length; i++) {
+            final int index = i << 1;
+            imag[i] = realAndImagParts[index + 1];
+        }
+        return imag;
     }
 
     /**
@@ -327,7 +410,9 @@ public class ComplexList extends AbstractList<Complex> {
 
     /**
      * Replaces each element of the list with the result of applying the operator to that element.
+     *
      * @param operator The operator to apply to each element.
+     * @throws ConcurrentModificationException if expected modCount isn't equal to modCount.
      */
     public void replaceAll(ComplexUnaryOperator<Void> operator) {
         Objects.requireNonNull(operator);
@@ -341,6 +426,27 @@ public class ComplexList extends AbstractList<Complex> {
                 parts[index + 1] = y;
                 return null;
             });
+        }
+        // check for comodification
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
+        }
+        modCount++;
+    }
+
+    /**
+     * Replaces each element of the list with the result of applying the action to that element.
+     *
+     * @param action The action to apply to each element.
+     */
+    public void forEach(ComplexConsumer action) {
+        Objects.requireNonNull(action);
+        final double[] parts = this.realAndImagParts;
+        final int m = size;
+        final int expectedModCount = modCount;
+        for (int i = 0; i < m; i++) {
+            final int index = i << 1;
+            action.apply(parts[index], parts[index + 1]);
         }
         // check for comodification
         if (modCount != expectedModCount) {

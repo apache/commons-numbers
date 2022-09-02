@@ -18,6 +18,7 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
+import org.apache.commons.numbers.complex.ComplexConsumer;
 import org.apache.commons.numbers.complex.ComplexFunctions;
 import org.apache.commons.numbers.complex.ComplexUnaryOperator;
 import org.junit.jupiter.api.Assertions;
@@ -221,6 +222,71 @@ public class ComplexListTest {
         objectList.replaceAll(c -> c.pow(factor));
         actualList.replaceAll((x, y, action) -> ComplexFunctions.pow(x, y, factor, action));
         Assertions.assertEquals(objectList, actualList);
+    }
+
+    @Test
+    void testReplaceAllComplexConsumer() {
+        List<Complex> data1 = generateList(10);
+        ArrayList<Complex> actual1 = new ArrayList<>();
+        ComplexList expected = new ComplexList();
+        expected.addAll(data1);
+        Assertions.assertThrows(NullPointerException.class, () -> expected.forEach((ComplexConsumer) null));
+        expected.forEach((real, imaginary) -> actual1.add(Complex.ofCartesian(real, imaginary)));
+        Assertions.assertEquals(expected, actual1);
+
+        //Testing case of when list is empty
+        List<Complex> data2 = new ArrayList<>();
+        ArrayList<Complex> actual2 = new ArrayList<>();
+        ComplexList expected2 = new ComplexList();
+        expected2.addAll(data2);
+        expected2.forEach((real, imaginary) -> actual2.add(Complex.ofCartesian(real, imaginary)));
+        Assertions.assertEquals(expected2, actual2);
+    }
+
+    @Test
+    void testGetRealAndImaginary() {
+        ComplexList list = new ComplexList();
+        list.add(Complex.ofCartesian(42, 13));
+        list.addAll(1, list);
+        list.addAll(list);
+        list.set(2, Complex.ofCartesian(200, 1));
+        for (int i = 0; i < list.size(); i++) {
+            Assertions.assertEquals(list.get(i).getReal(), list.getReal(i));
+        }
+        for (int i = 0; i < list.size(); i++) {
+            Assertions.assertEquals(list.get(i).getImaginary(), list.getImaginary(i));
+        }
+    }
+
+    @Test
+    void testSetRealAndImaginary() {
+        ComplexList list = new ComplexList();
+        list.add(Complex.ofCartesian(42, 13));
+        list.addAll(1, list);
+        list.addAll(list);
+        list.setReal(2, 200);
+        list.setImaginary(2, 1);
+        Assertions.assertEquals(Complex.ofCartesian(200, 1), list.get(2));
+    }
+
+    @Test
+    void testToArrayRealAndImaginary() {
+        ComplexList list = new ComplexList();
+        list.add(Complex.ofCartesian(42, 13));
+        list.addAll(1, list);
+        list.addAll(list);
+        list.set(2, Complex.ofCartesian(200, 1));
+
+        double[] expectedReal = {42, 42, 200, 42};
+        double[] actualReal = list.toArrayReal();
+        for (int i = 0; i < expectedReal.length; i++) {
+            Assertions.assertEquals(expectedReal[i], actualReal[i]);
+        }
+        double[] expectedImaginary = {13, 13, 1, 13};
+        double[] actualImaginary = list.toArrayImaginary();
+        for (int i = 0; i < expectedImaginary.length; i++) {
+            Assertions.assertEquals(expectedImaginary[i], actualImaginary[i]);
+        }
     }
 
     /**
