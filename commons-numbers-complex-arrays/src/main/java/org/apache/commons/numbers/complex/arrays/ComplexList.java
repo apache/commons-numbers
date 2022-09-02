@@ -18,10 +18,17 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
+import org.apache.commons.numbers.complex.ComplexBinaryOperator;
+import org.apache.commons.numbers.complex.ComplexDouble;
+import org.apache.commons.numbers.complex.ComplexScalarFunction;
+import org.apache.commons.numbers.complex.ComplexSink;
+import org.apache.commons.numbers.complex.ComplexUnaryOperator;
 
+import java.io.File;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.UnaryOperator;
 
 /**
  * Resizable-double array implementation of the List interface. Implements all optional list operations,
@@ -322,4 +329,69 @@ public class ComplexList extends AbstractList<Complex> {
         return INDEX_MSG + index + SIZE_MSG + size;
     }
 
+    public static ComplexList load(File file) {
+        return null;
+    }
+
+    public void save(File file) {
+
+    }
+
+    class ComplexCursor implements ComplexDouble, ComplexSink<Void> {
+
+        private int index;
+
+        @Override
+        public Void apply(double r, double i) {
+            ComplexList.this.realAndImagParts[index * 2] = r;
+            ComplexList.this.realAndImagParts[(index * 2) + 1] = i;
+            return null;
+        }
+
+        @Override
+        public double real() {
+            return ComplexList.this.realAndImagParts[index * 2];
+        }
+
+        @Override
+        public double imag() {
+            return ComplexList.this.realAndImagParts[(index * 2) + 1];
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void replaceAll(UnaryOperator<Complex> operator) {
+        replaceAll((x, y, action) -> {
+            final Complex c = operator.apply(Complex.ofCartesian(x, y));
+            action.apply(c.real(), c.imag());
+            return null;
+        });
+    }
+
+    private void replaceAll(ComplexUnaryOperator<Void> operator) {
+        ComplexCursor cursor = new ComplexCursor();
+        while (cursor.index < size) {
+            operator.apply(cursor.real(), cursor.imag(), cursor);
+            cursor.index++;
+        }
+    }
+
+    public void replaceAll(double realOperand, double imaginaryOperand, ComplexBinaryOperator<Void> operator) {
+        ComplexCursor cursor = new ComplexCursor();
+        while (cursor.index < size) {
+            operator.apply(cursor.real(), cursor.imag(), realOperand, imaginaryOperand, cursor);
+            cursor.index++;
+        }
+    }
+
+    public void replaceAll(double input, ComplexScalarFunction<Void> operator) {
+        ComplexCursor cursor = new ComplexCursor();
+        while (cursor.index < size) {
+            operator.apply(cursor.real(), cursor.imag(), input, cursor);
+            cursor.index++;
+        }
+    }
 }

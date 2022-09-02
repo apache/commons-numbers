@@ -185,7 +185,7 @@ public class ComplexListTest {
         Assertions.assertThrows(OutOfMemoryError.class, () -> list.addAll(l2));
     }
 
-    private static <T> void assertListOperation(Function<List<Complex>, T> operation,
+    public static <T> void assertListOperation(Function<List<Complex>, T> operation,
                                                 List<Complex> l1, List<Complex> l2) {
         T t1 = operation.apply(l1);
         T t2 = operation.apply(l2);
@@ -193,7 +193,7 @@ public class ComplexListTest {
         Assertions.assertEquals(l1, l2);
     }
 
-    private static <T> void assertListOperation(Function<List<Complex>, T> operation) {
+    public static <T> void assertListOperation(Function<List<Complex>, T> operation) {
         assertListOperation(operation, new ArrayList<>(), new ComplexList());
     }
 
