@@ -31,11 +31,11 @@ public class ComplexListFunctionsTest {
     @Test
     void testComplexUnaryOperator() {
         List<Complex> objectList = generateList(10);
-        List<Complex> expectedList = objectList.stream().map(Complex::conj).collect(Collectors.toList());
         ComplexList actualList = new ComplexList();
         actualList.addAll(objectList);
+        objectList.replaceAll(Complex::conj);
         actualList.replaceAll(ComplexFunctions::conj);
-        Assertions.assertEquals(expectedList, actualList);
+        Assertions.assertEquals(objectList, actualList);
     }
 
     @Test
@@ -44,22 +44,22 @@ public class ComplexListFunctionsTest {
         double r = 2;
         double i = 3;
         Complex multiplier = Complex.ofCartesian(r, i);
-        List<Complex> expectedList = objectList.stream().map(c -> c.multiply(multiplier)).collect(Collectors.toList());
         ComplexList actualList = new ComplexList();
         actualList.addAll(objectList);
+        objectList.replaceAll(c -> c.multiply(multiplier));
         actualList.replaceAll((x, y, action) -> ComplexFunctions.multiply(x, y, r, i, action));
-        Assertions.assertEquals(expectedList, actualList);
+        Assertions.assertEquals(objectList, actualList);
     }
 
     @Test
     void testComplexScalarFunction() {
         List<Complex> objectList = generateList(10);
         double factor = 2;
-        List<Complex> expectedList = objectList.stream().map(c -> c.pow(factor)).collect(Collectors.toList());
         ComplexList actualList = new ComplexList();
         actualList.addAll(objectList);
+        objectList.replaceAll(c -> c.pow(factor));
         actualList.replaceAll((x, y, action) -> ComplexFunctions.pow(x, y, factor, action));
-        Assertions.assertEquals(expectedList, actualList);
+        Assertions.assertEquals(objectList, actualList);
     }
 
     private List<Complex> generateList(int size) {
