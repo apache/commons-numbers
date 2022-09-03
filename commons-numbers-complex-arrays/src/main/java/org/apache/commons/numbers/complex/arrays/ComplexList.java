@@ -18,17 +18,13 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
-import org.apache.commons.numbers.complex.ComplexBinaryOperator;
-import org.apache.commons.numbers.complex.ComplexDouble;
-import org.apache.commons.numbers.complex.ComplexScalarFunction;
 import org.apache.commons.numbers.complex.ComplexSink;
 import org.apache.commons.numbers.complex.ComplexUnaryOperator;
 
-import java.io.File;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.UnaryOperator;
+import java.util.ConcurrentModificationException;
 
 /**
  * Resizable-double array implementation of the List interface. Implements all optional list operations,
@@ -329,69 +325,79 @@ public class ComplexList extends AbstractList<Complex> {
         return INDEX_MSG + index + SIZE_MSG + size;
     }
 
-    public static ComplexList load(File file) {
-        return null;
-    }
+    /**
+     * This class acts as an iterator over the ComplexList class.
+     */
+    private class ComplexCursor implements ComplexSink<Void> {
 
-    public void save(File file) {
-
-    }
-
-    class ComplexCursor implements ComplexDouble, ComplexSink<Void> {
-
+        /**
+         * Index of element to be returned by subsequent call to next.
+         */
         private int index;
 
+        /**
+         * The modCount value that the cursor believes that the backing List should have.
+         * If this expectation is violated, the cursor has detected concurrent modification.
+         */
+        private final int expectedModCount = modCount;
+
+        /**
+         * Checks if the iteration has more elements.
+         * @return true if the iteration has more elements.
+         */
+        public boolean next() {
+            return index != size;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public Void apply(double r, double i) {
-            ComplexList.this.realAndImagParts[index * 2] = r;
-            ComplexList.this.realAndImagParts[(index * 2) + 1] = i;
+        public Void apply(double real, double imaginary) {
+            ComplexList.this.realAndImagParts[index * 2] = real;
+            ComplexList.this.realAndImagParts[(index * 2) + 1] = imaginary;
             return null;
         }
 
-        @Override
+        /**
+         * Gets the real part \( a \) of the complex number \( (a + i b) \) in the list.
+         *
+         * @return The real part.
+         */
         public double real() {
             return ComplexList.this.realAndImagParts[index * 2];
         }
 
-        @Override
+        /**
+         * Gets the imaginary part \( b \) of the complex number \( (a + i b) \) in the list.
+         *
+         * @return The imaginary part.
+         */
         public double imag() {
             return ComplexList.this.realAndImagParts[(index * 2) + 1];
+        }
+
+        /**
+         * Checks for concurrent modification by looking at the modCount.
+         * @throws ConcurrentModificationException if expected modCount isn't equal to modCount.
+         */
+        final void checkForComodification() {
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
         }
     }
 
     /**
-     * {@inheritDoc}
+     * Replaces each element of the list with the result of applying the operator to that element.
+     * @param operator The operator to apply to each element.
      */
-    @Override
-    public void replaceAll(UnaryOperator<Complex> operator) {
-        replaceAll((x, y, action) -> {
-            final Complex c = operator.apply(Complex.ofCartesian(x, y));
-            action.apply(c.real(), c.imag());
-            return null;
-        });
-    }
-
-    private void replaceAll(ComplexUnaryOperator<Void> operator) {
+    public void replaceAll(ComplexUnaryOperator<Void> operator) {
         ComplexCursor cursor = new ComplexCursor();
-        while (cursor.index < size) {
+        while (cursor.next()) {
             operator.apply(cursor.real(), cursor.imag(), cursor);
             cursor.index++;
         }
-    }
-
-    public void replaceAll(double realOperand, double imaginaryOperand, ComplexBinaryOperator<Void> operator) {
-        ComplexCursor cursor = new ComplexCursor();
-        while (cursor.index < size) {
-            operator.apply(cursor.real(), cursor.imag(), realOperand, imaginaryOperand, cursor);
-            cursor.index++;
-        }
-    }
-
-    public void replaceAll(double input, ComplexScalarFunction<Void> operator) {
-        ComplexCursor cursor = new ComplexCursor();
-        while (cursor.index < size) {
-            operator.apply(cursor.real(), cursor.imag(), input, cursor);
-            cursor.index++;
-        }
+        cursor.checkForComodification();
     }
 }

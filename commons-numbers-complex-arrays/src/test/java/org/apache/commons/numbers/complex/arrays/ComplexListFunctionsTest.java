@@ -18,180 +18,52 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
+import org.apache.commons.numbers.complex.ComplexFunctions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class ComplexListFunctionsTest {
 
-
     @Test
-    void testListConj() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::conj), l5, l6);
-
-    }
-
-    @Test
-    void testListNegate() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::negate), l5, l6);
+    void testComplexUnaryOperator() {
+        List<Complex> objectList = generateList(10);
+        List<Complex> expectedList = objectList.stream().map(Complex::conj).collect(Collectors.toList());
+        ComplexList actualList = new ComplexList();
+        actualList.addAll(objectList);
+        actualList.replaceAll(ComplexFunctions::conj);
+        Assertions.assertEquals(expectedList, actualList);
     }
 
     @Test
-    void testListProj() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::proj), l5, l6);
+    void testComplexBinaryOperator() {
+        List<Complex> objectList = generateList(10);
+        double r = 2;
+        double i = 3;
+        Complex multiplier = Complex.ofCartesian(r, i);
+        List<Complex> expectedList = objectList.stream().map(c -> c.multiply(multiplier)).collect(Collectors.toList());
+        ComplexList actualList = new ComplexList();
+        actualList.addAll(objectList);
+        actualList.replaceAll((x, y, action) -> ComplexFunctions.multiply(x, y, r, i, action));
+        Assertions.assertEquals(expectedList, actualList);
     }
 
     @Test
-    void testListExp() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::exp), l5, l6);
+    void testComplexScalarFunction() {
+        List<Complex> objectList = generateList(10);
+        double factor = 2;
+        List<Complex> expectedList = objectList.stream().map(c -> c.pow(factor)).collect(Collectors.toList());
+        ComplexList actualList = new ComplexList();
+        actualList.addAll(objectList);
+        actualList.replaceAll((x, y, action) -> ComplexFunctions.pow(x, y, factor, action));
+        Assertions.assertEquals(expectedList, actualList);
     }
 
-    @Test
-    void testListLog() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::log), l5, l6);
-    }
-
-    @Test
-    void testListLog10() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::log10), l5, l6);
-    }
-
-    @Test
-    void testListSqrt() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::sqrt), l5, l6);
-    }
-
-    @Test
-    void testListSin() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::sin), l5, l6);
-    }
-
-    @Test
-    void testListCos() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::cos), l5, l6);
-    }
-
-    @Test
-    void testListTan() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::tan), l5, l6);
-    }
-
-    @Test
-    void testListAsin() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::asin), l5, l6);
-    }
-
-    @Test
-    void testListAcos() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::acos), l5, l6);
-    }
-
-    @Test
-    void testListAtan() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::atan), l5, l6);
-    }
-
-    @Test
-    void testListSinh() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::sinh), l5, l6);
-    }
-
-    @Test
-    void testListCosh() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::cosh), l5, l6);
-    }
-
-    @Test
-    void testListTanh() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::tanh), l5, l6);
-    }
-
-    @Test
-    void testListAsinh() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::asinh), l5, l6);
-    }
-
-    @Test
-    void testListAcosh() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::acosh), l5, l6);
-    }
-
-    @Test
-    void testListAtanh() {
-        List<Complex> l5 = new ArrayList<>();
-        List<Complex> l6 = new ComplexList();
-        createList(l5, l6);
-        assertListOperation(list -> list.replaceAll(Complex::atanh), l5, l6);
-    }
-
-    private void createList(List<Complex> l1, List<Complex> l2) {
-        assertListOperation(list -> list.add(Complex.ofCartesian(1, 2)), l1, l2);
-        while (l1.size() < 8) {
-            assertListOperation(list -> list.addAll(list), l1, l2);
-        }
-    }
-
-    private static void assertListOperation(Consumer<List<Complex>> operation,
-                                            List<Complex> l1, List<Complex> l2) {
-        operation.accept(l1);
-        operation.accept(l2);
-        Assertions.assertEquals(l1, l2);
+    private List<Complex> generateList(int size) {
+        return ThreadLocalRandom.current().doubles(size, -Math.PI, Math.PI)
+           .mapToObj(Complex::ofCis).collect(Collectors.toList());
     }
 }
