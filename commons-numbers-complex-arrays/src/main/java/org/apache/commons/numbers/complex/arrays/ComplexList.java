@@ -327,6 +327,7 @@ public class ComplexList extends AbstractList<Complex> {
     /**
      * Replaces each element of the list with the result of applying the operator to that element.
      * @param operator The operator to apply to each element.
+     * @throws ConcurrentModificationException if expected modCount isn't equal to modCount.
      */
     public void replaceAll(ComplexUnaryOperator<Void> operator) {
         final double[] parts = this.realAndImagParts;
