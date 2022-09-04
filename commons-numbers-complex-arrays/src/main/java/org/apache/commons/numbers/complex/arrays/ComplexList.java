@@ -18,7 +18,6 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
-import org.apache.commons.numbers.complex.ComplexSink;
 import org.apache.commons.numbers.complex.ComplexUnaryOperator;
 
 import java.util.AbstractList;
@@ -326,78 +325,23 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * This class acts as an iterator over the ComplexList class.
-     */
-    private class ComplexCursor implements ComplexSink<Void> {
-
-        /**
-         * Index of element to be returned by subsequent call to next.
-         */
-        private int index;
-
-        /**
-         * The modCount value that the cursor believes that the backing List should have.
-         * If this expectation is violated, the cursor has detected concurrent modification.
-         */
-        private final int expectedModCount = modCount;
-
-        /**
-         * Checks if the iteration has more elements.
-         * @return true if the iteration has more elements.
-         */
-        public boolean next() {
-            return index != size;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Void apply(double real, double imaginary) {
-            ComplexList.this.realAndImagParts[index * 2] = real;
-            ComplexList.this.realAndImagParts[(index * 2) + 1] = imaginary;
-            return null;
-        }
-
-        /**
-         * Gets the real part \( a \) of the complex number \( (a + i b) \) in the list.
-         *
-         * @return The real part.
-         */
-        public double real() {
-            return ComplexList.this.realAndImagParts[index * 2];
-        }
-
-        /**
-         * Gets the imaginary part \( b \) of the complex number \( (a + i b) \) in the list.
-         *
-         * @return The imaginary part.
-         */
-        public double imag() {
-            return ComplexList.this.realAndImagParts[(index * 2) + 1];
-        }
-
-        /**
-         * Checks for concurrent modification by looking at the modCount.
-         * @throws ConcurrentModificationException if expected modCount isn't equal to modCount.
-         */
-        final void checkForComodification() {
-            if (modCount != expectedModCount) {
-                throw new ConcurrentModificationException();
-            }
-        }
-    }
-
-    /**
      * Replaces each element of the list with the result of applying the operator to that element.
      * @param operator The operator to apply to each element.
      */
     public void replaceAll(ComplexUnaryOperator<Void> operator) {
-        ComplexCursor cursor = new ComplexCursor();
-        while (cursor.next()) {
-            operator.apply(cursor.real(), cursor.imag(), cursor);
-            cursor.index++;
+        final double[] parts = this.realAndImagParts;
+        final int m = size;
+        final int expectedModCount = modCount;
+        for (int i = 0; i < m; i++) {
+            final int index = i << 1;
+            operator.apply(parts[index], parts[index + 1], (x, y) -> {
+                parts[index] = x; parts[index + 1] = y;
+                return null;
+            });
         }
-        cursor.checkForComodification();
+        // check for comodification
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
+        }
     }
 }

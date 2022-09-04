@@ -18,14 +18,17 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
+import org.apache.commons.numbers.complex.ComplexFunctions;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ComplexListTest {
@@ -182,6 +185,50 @@ public class ComplexListTest {
 
         List<Complex> l2 = new SizedList(MAX_CAPACITY + 1);
         Assertions.assertThrows(OutOfMemoryError.class, () -> list.addAll(l2));
+    }
+
+    @Test
+    void testComplexUnaryOperator() {
+        List<Complex> objectList = generateList(10);
+        ComplexList actualList = new ComplexList();
+        actualList.addAll(objectList);
+        objectList.replaceAll(Complex::conj);
+        actualList.replaceAll(ComplexFunctions::conj);
+        Assertions.assertEquals(objectList, actualList);
+    }
+
+    @Test
+    void testComplexBinaryOperator() {
+        List<Complex> objectList = generateList(10);
+        double r = 2;
+        double i = 3;
+        Complex multiplier = Complex.ofCartesian(r, i);
+        ComplexList actualList = new ComplexList();
+        actualList.addAll(objectList);
+        objectList.replaceAll(c -> c.multiply(multiplier));
+        actualList.replaceAll((x, y, action) -> ComplexFunctions.multiply(x, y, r, i, action));
+        Assertions.assertEquals(objectList, actualList);
+    }
+
+    @Test
+    void testComplexScalarFunction() {
+        List<Complex> objectList = generateList(10);
+        double factor = 2;
+        ComplexList actualList = new ComplexList();
+        actualList.addAll(objectList);
+        objectList.replaceAll(c -> c.pow(factor));
+        actualList.replaceAll((x, y, action) -> ComplexFunctions.pow(x, y, factor, action));
+        Assertions.assertEquals(objectList, actualList);
+    }
+
+    /**
+     * Generates a list of random complex numbers of the given size.
+     * @param size number of complex numbers in the list.
+     * @return the list of random complex numbers.
+     */
+    private static List<Complex> generateList(int size) {
+        return ThreadLocalRandom.current().doubles(size, -Math.PI, Math.PI)
+            .mapToObj(Complex::ofCis).collect(Collectors.toList());
     }
 
     private static <T> void assertListOperation(Function<List<Complex>, T> operation,
