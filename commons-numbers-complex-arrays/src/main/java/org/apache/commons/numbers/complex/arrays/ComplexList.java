@@ -18,10 +18,13 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
+import org.apache.commons.numbers.complex.ComplexUnaryOperator;
 
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Objects;
 
 /**
  * Resizable-double array implementation of the List interface. Implements all optional list operations,
@@ -322,4 +325,27 @@ public class ComplexList extends AbstractList<Complex> {
         return INDEX_MSG + index + SIZE_MSG + size;
     }
 
+    /**
+     * Replaces each element of the list with the result of applying the operator to that element.
+     * @param operator The operator to apply to each element.
+     */
+    public void replaceAll(ComplexUnaryOperator<Void> operator) {
+        Objects.requireNonNull(operator);
+        final double[] parts = this.realAndImagParts;
+        final int m = size;
+        final int expectedModCount = modCount;
+        for (int i = 0; i < m; i++) {
+            final int index = i << 1;
+            operator.apply(parts[index], parts[index + 1], (x, y) -> {
+                parts[index] = x;
+                parts[index + 1] = y;
+                return null;
+            });
+        }
+        // check for comodification
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
+        }
+        modCount++;
+    }
 }
