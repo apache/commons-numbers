@@ -32,6 +32,7 @@ public interface ComplexSink<R> {
 
     /**
      * Represents a function that accepts real and imaginary part of complex number and returns an object.
+     *
      * @param real Real part \( a \) of the complex number \( (a + ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      * @return R the object encapsulating the complex result

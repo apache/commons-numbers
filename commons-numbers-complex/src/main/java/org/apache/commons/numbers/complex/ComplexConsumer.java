@@ -21,7 +21,7 @@ package org.apache.commons.numbers.complex;
  * Represents an operation that accepts two double input arguments and returns no result.
  *
  * <p>This is a functional interface whose functional method is
- * {@link #apply(double, double)}.
+ * {@link #accept(double, double)}.
  *
  * @since 1.1
  */
@@ -30,8 +30,9 @@ public interface ComplexConsumer {
 
     /**
      * Represents a function that accepts real and imaginary part of complex number and returns no result.
+     *
      * @param real Real part \( a \) of the complex number \( (a + ib) \).
      * @param imaginary Imaginary part \( b \) of the complex number \( (a + ib) \).
      */
-    void apply(double real, double imaginary);
+    void accept(double real, double imaginary);
 }
