@@ -35,57 +35,44 @@ import java.util.Objects;
  * <p>Each ComplexList instance has a capacity. The capacity is half the size of the double array used to store the complex numbers
  * in the list. As complex numbers are added to an ComplexList, its capacity grows automatically.
  * The complex number is stored using an interleaved format and so the maximum number of complex numbers that may be added is
- * approximately 2^30. This is half the maximum capacity of java.util.ArrayList.
+ * approximately 2<sup>30</sup>. This is half the maximum capacity of java.util.ArrayList.
  * The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
  * using instances of Complex.</p>
  *
  * <p>An application can increase the capacity of an ComplexList instance before adding a large number of complex numbers
  * using the ensureCapacity operation. This may reduce the amount of incremental reallocation.</p>
+ *
+ * <p>This list does not support {@code null} Complex objects.
  */
 public class ComplexList extends AbstractList<Complex> {
 
     /**
      * The maximum size of array to allocate.
-     * Ensuring Max capacity is even with additional space for vm array headers.
+     * Ensuring max capacity is even with additional space for VM array headers.
      */
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 9;
-
-    /**
-     * Max capacity for size of complex numbers in the list.
-     */
+    /** Max capacity for size of complex numbers in the list. */
     private static final int MAX_CAPACITY = MAX_ARRAY_SIZE / 2;
-
-    /**
-     * Error in case of allocation above max capacity.
-     */
+    /** Error in case of allocation above max capacity. */
     private static final String OOM_ERROR_STRING = "cannot allocate capacity %s greater than max " + MAX_CAPACITY;
-
-    /**
-     * Default initial capacity.
-     */
+    /** Default initial capacity. */
     private static final int DEFAULT_CAPACITY = 8;
-
-    /**
-     * Size label message.
-     */
+    /** Size label message. */
     private static final String SIZE_MSG = ", Size: ";
-    /**
-     * Index position label message.
-     */
+    /** Index position label message. */
     private static final String INDEX_MSG = "Index: ";
 
     /**
-     * The double array buffer into which the complex numbers of the ComplexList are stored.
+     * Storage for the complex numbers.
+     * Data is stored in an interleaved format using (real, imaginary) pairs.
      */
     private double[] realAndImagParts;
 
-    /**
-     * Size of ComplexList.
-     */
+    /** Size of complex numbers in the list. */
     private int size;
 
     /**
-     * Constructs an empty list up to the specified capacity without a memory reallocation.
+     * Constructs an empty list which can store up to the specified capacity without a memory reallocation.
      *
      * @param capacity Capacity of list.
      * @throws IllegalArgumentException if the {@code capacity} is greater than {@code MAX_CAPACITY}.
@@ -105,9 +92,7 @@ public class ComplexList extends AbstractList<Complex> {
         realAndImagParts = new double[DEFAULT_CAPACITY * 2];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int size() {
         return size;
@@ -139,8 +124,6 @@ public class ComplexList extends AbstractList<Complex> {
 
     /**
      * Gets the complex number \( (a + i b) \) at the indexed position of the list.
-     * <p>
-     * {@inheritDoc}
      *
      * @return the complex number.
      */
@@ -174,9 +157,13 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * {@inheritDoc}
+     * Replaces the complex number at the specified position in this list with the specified
+     * complex number.
      *
+     * @param index Index of the complex number.
      * @param number Complex number to be set.
+     * @return The previous number.
+     * @throws NullPointerException if the number is null.
      */
     @Override
     public Complex set(int index, Complex number) {
@@ -285,9 +272,10 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * {@inheritDoc}
+     * Appends the specified complex number to the end of this list.
      *
      * @param number Complex number to be appended to this list
+     * @throws NullPointerException if the number is null.
      */
     @Override
     public boolean add(Complex number) {
@@ -303,7 +291,11 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * {@inheritDoc}
+     * Inserts the specified complex number at the specified position in this list.
+     *
+     * @param index Index at which the specified number is to be inserted.
+     * @param number Complex number to be inserted into this list.
+     * @throws NullPointerException if the number is null.
      */
     @Override
     public void add(int index, Complex number) {
@@ -321,7 +313,10 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * {@inheritDoc}
+     * Appends all of the elements in the specified collection to the end of this list.
+     *
+     * @param c Collection containing numbers to be added to this list.
+     * @throws NullPointerException if the any number in the collection null.
      */
     @Override
     public boolean addAll(Collection<? extends Complex> c) {
@@ -340,7 +335,11 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * {@inheritDoc}
+     * Inserts all of the elements in the specified collection into this list at the specified position.
+     *
+     * @param index Index at which the specified collection is to be inserted.
+     * @param c Collection containing numbers to be inserted into this list.
+     * @throws NullPointerException if the any number in the collection null.
      */
     @Override
     public boolean addAll(int index, Collection<? extends Complex> c) {
@@ -363,7 +362,12 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * {@inheritDoc}
+     * Removes the complex number at the specified position in this list.
+     * Shifts any subsequent numbers to the left (subtracts one from their indices).
+     * Returns the number that was removed from the list.
+     *
+     * @param index Index of the number to be removed.
+     * @return The number previously at the index.
      */
     @Override
     public Complex remove(int index) {
@@ -394,7 +398,6 @@ public class ComplexList extends AbstractList<Complex> {
      * Replaces each complex number of the list with the result of applying the operator to that complex number.
      *
      * @param operator The operator to apply to each complex number.
-     * @throws ConcurrentModificationException if expected modCount isn't equal to modCount.
      * @throws NullPointerException if the specified operator is null.
      */
     public void replaceAll(ComplexUnaryOperator<Void> operator) {
