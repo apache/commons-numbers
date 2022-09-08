@@ -147,7 +147,8 @@ public class ComplexList extends AbstractList<Complex> {
     @Override
     public Complex get(int index) {
         rangeCheck(index);
-        return Complex.ofCartesian(realAndImagParts[index << 1], realAndImagParts[(index << 1) + 1]);
+        final int i = index << 1;
+        return Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
     }
 
     /**
@@ -173,19 +174,6 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * Replaces the complex number at the specified position in the list with the specified complex number's
-     * real and imaginary parts. No range checks are done.
-     *
-     * @param index Index of the complex number to replace.
-     * @param real Real part \( a \) of the complex number \( (a +ib) \).
-     * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
-     */
-    private void setNoRangeCheck(int index, double real, double imaginary) {
-        realAndImagParts[index << 1] = real;
-        realAndImagParts[(index << 1) + 1] = imaginary;
-    }
-
-    /**
      * {@inheritDoc}
      *
      * @param number Complex number to be set.
@@ -193,8 +181,10 @@ public class ComplexList extends AbstractList<Complex> {
     @Override
     public Complex set(int index, Complex number) {
         rangeCheck(index);
-        final Complex oldValue = Complex.ofCartesian(realAndImagParts[index << 1], realAndImagParts[(index << 1) + 1]);
-        setNoRangeCheck(index, number.getReal(), number.getImaginary());
+        final int i = index << 1;
+        final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
+        realAndImagParts[i] = number.getReal();
+        realAndImagParts[i + 1] = number.getImaginary();
         return oldValue;
     }
 
