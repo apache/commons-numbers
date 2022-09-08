@@ -147,8 +147,7 @@ public class ComplexList extends AbstractList<Complex> {
     @Override
     public Complex get(int index) {
         rangeCheck(index);
-        final int i = index << 1;
-        return Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
+        return Complex.ofCartesian(realAndImagParts[index << 1], realAndImagParts[(index << 1) + 1]);
     }
 
     /**
@@ -182,9 +181,8 @@ public class ComplexList extends AbstractList<Complex> {
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
      */
     private void setNoRangeCheck(int index, double real, double imaginary) {
-        final int i = index << 1;
-        realAndImagParts[i] = real;
-        realAndImagParts[i + 1] = imaginary;
+        realAndImagParts[index << 1] = real;
+        realAndImagParts[(index << 1) + 1] = imaginary;
     }
 
     /**
@@ -195,8 +193,7 @@ public class ComplexList extends AbstractList<Complex> {
     @Override
     public Complex set(int index, Complex number) {
         rangeCheck(index);
-        final int i = index << 1;
-        final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
+        final Complex oldValue = Complex.ofCartesian(realAndImagParts[index << 1], realAndImagParts[(index << 1) + 1]);
         setNoRangeCheck(index, number.getReal(), number.getImaginary());
         return oldValue;
     }
