@@ -18,6 +18,7 @@
 package org.apache.commons.numbers.complex.arrays;
 
 import org.apache.commons.numbers.complex.Complex;
+import org.apache.commons.numbers.complex.ComplexConsumer;
 import org.apache.commons.numbers.complex.ComplexFunctions;
 import org.apache.commons.numbers.complex.ComplexUnaryOperator;
 import org.junit.jupiter.api.Assertions;
@@ -152,9 +153,7 @@ public class ComplexListTest {
 
     @Test
     void testRemoveIndexOutOfBoundExceptions() {
-        ComplexList list = new ComplexList();
-        list.add(Complex.ofCartesian(42, 13));
-        list.addAll(list);
+        ComplexList list = generateComplexList(2);
         list.remove(0);
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.remove(1));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
@@ -176,7 +175,6 @@ public class ComplexListTest {
 
     @Test
     void testCapacityExceptions() {
-
         Assertions.assertThrows(IllegalArgumentException.class, () -> new ComplexList(MAX_CAPACITY + 1));
 
         // Set-up required sizes
@@ -221,6 +219,88 @@ public class ComplexListTest {
         objectList.replaceAll(c -> c.pow(factor));
         actualList.replaceAll((x, y, action) -> ComplexFunctions.pow(x, y, factor, action));
         Assertions.assertEquals(objectList, actualList);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 10})
+    void testForEachComplexConsumer(int size) {
+        ComplexList expected = generateComplexList(size);
+        ArrayList<Complex> actual = new ArrayList<>();
+        Assertions.assertThrows(NullPointerException.class, () -> expected.forEach((ComplexConsumer) null));
+        expected.forEach((real, imaginary) -> actual.add(Complex.ofCartesian(real, imaginary)));
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void testGetRealAndImaginary() {
+        ComplexList list = generateComplexList(10);
+        for (int i = 0; i < list.size(); i++) {
+            Assertions.assertEquals(list.get(i).getReal(), list.getReal(i), "real");
+            Assertions.assertEquals(list.get(i).getImaginary(), list.getImaginary(i), "imaginary");
+        }
+    }
+
+    @Test
+    void testSetRealAndImaginary() {
+        ComplexList list = generateComplexList(10);
+        for (int i = 0; i < list.size(); i++) {
+            final double value = Math.PI * i;
+            list.setReal(i, value);
+            list.setImaginary(i, value);
+            Assertions.assertEquals(value, list.get(i).getReal());
+            Assertions.assertEquals(value, list.get(i).getImaginary());
+        }
+    }
+
+    @Test
+    void testGetAndSetRealAndImaginaryIndexOutOfBoundsException() {
+        ComplexList list = new ComplexList();
+        // Empty list throws
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getReal(0));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getImaginary(0));
+
+        int size = 5;
+        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(list::add);
+
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getReal(-1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getReal(size));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getReal(size + 1));
+
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getImaginary(-1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getImaginary(size));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.getImaginary(size + 1));
+
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.setReal(-2, 200));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.setReal(size, 200));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.setReal(size + 1, 200));
+
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.setImaginary(-2, 200));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.setImaginary(size, 200));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.setImaginary(size + 1, 200));
+    }
+
+    @Test
+    void testToArrayRealAndImaginary() {
+        ComplexList list = generateComplexList(10);
+        double[] expectedReal = list.stream().mapToDouble(Complex::getReal).toArray();
+        double[] actualReal = list.toArrayReal();
+        Assertions.assertArrayEquals(expectedReal, actualReal);
+        double[] expectedImaginary = list.stream().mapToDouble(Complex::getImaginary).toArray();
+        double[] actualImaginary = list.toArrayImaginary();
+        Assertions.assertArrayEquals(expectedImaginary, actualImaginary);
+    }
+
+    /**
+     * Generates a ComplexList of random complex numbers of the given size.
+     * @param size number of complex numbers in the list.
+     * @return the ComplexList of random complex numbers.
+     */
+    private static ComplexList generateComplexList(int size) {
+        List<Complex> objectList = generateList(size);
+        ComplexList list = new ComplexList();
+        list.addAll(objectList);
+        Assertions.assertEquals(objectList, list);
+        return list;
     }
 
     /**
