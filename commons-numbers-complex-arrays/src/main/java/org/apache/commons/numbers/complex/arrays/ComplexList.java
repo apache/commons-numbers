@@ -264,14 +264,14 @@ public abstract class ComplexList extends AbstractList<Complex> {
      * and permits all complex numbers. In addition to implementing the List interface,
      * this class provides methods to manipulate the size of the array that is used internally to store the list.
      *
-     * <p>Each ComplexList instance has a capacity. The capacity is half the size of the double array used to store the complex numbers
-     * in the list. As complex numbers are added to an ComplexList, its capacity grows automatically.
+     * <p>Each ComplexInterleavedList instance has a capacity. The capacity is half the size of the double array used to store the complex numbers
+     * in the list. As complex numbers are added to an ComplexInterleavedList, its capacity grows automatically.
      * The complex number is stored using an interleaved format and so the maximum number of complex numbers that may be added is
      * approximately 2<sup>30</sup>. This is half the maximum capacity of java.util.ArrayList.
      * The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
      * using instances of Complex.</p>
      *
-     * <p>An application can increase the capacity of an ComplexList instance before adding a large number of complex numbers
+     * <p>An application can increase the capacity of an ComplexInterleavedList instance before adding a large number of complex numbers
      * using the ensureCapacity operation. This may reduce the amount of incremental reallocation.</p>
      *
      * <p>This list does not support {@code null} Complex objects.
@@ -388,7 +388,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
         }
 
         /**
-         * Increases the capacity of this ComplexList instance, if necessary, to ensure that it can hold at
+         * Increases the capacity of this ComplexInterleavedList instance, if necessary, to ensure that it can hold at
          * least the amount of complex numbers specified by the minimum capacity argument.
          *
          * @param minCapacity Desired minimum capacity.
@@ -420,7 +420,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
         }
 
         /**
-         * Increases the capacity of this ComplexList instance, if necessary, to ensure that it can hold at
+         * Increases the capacity of this ComplexInterleavedList instance, if necessary, to ensure that it can hold at
          * least an additional amount of complex numbers specified by the capacity argument.
          *
          * @param capacity Desired capacity.
