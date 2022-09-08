@@ -153,9 +153,7 @@ public class ComplexListTest {
 
     @Test
     void testRemoveIndexOutOfBoundExceptions() {
-        List<Complex> objectList = generateList(2);
-        ComplexList list = new ComplexList();
-        list.addAll(objectList);
+        ComplexList list = generateList(2);
         list.remove(0);
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.remove(1));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
@@ -227,10 +225,8 @@ public class ComplexListTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 10})
     void testForEachComplexConsumer(int size) {
-        List<Complex> data = generateList(size);
+        ComplexList expected = generateList(size);
         ArrayList<Complex> actual = new ArrayList<>();
-        ComplexList expected = new ComplexList();
-        expected.addAll(data);
         Assertions.assertThrows(NullPointerException.class, () -> expected.forEach((ComplexConsumer) null));
         expected.forEach((real, imaginary) -> actual.add(Complex.ofCartesian(real, imaginary)));
         Assertions.assertEquals(expected, actual);
@@ -238,9 +234,7 @@ public class ComplexListTest {
 
     @Test
     void testGetRealAndImaginary() {
-        List<Complex> objectList = generateList(10);
-        ComplexList list = new ComplexList();
-        list.addAll(objectList);
+        ComplexList list = generateList(10);
         for (int i = 0; i < list.size(); i++) {
             Assertions.assertEquals(list.get(i).getReal(), list.getReal(i), "real");
             Assertions.assertEquals(list.get(i).getImaginary(), list.getImaginary(i), "imaginary");
@@ -249,9 +243,7 @@ public class ComplexListTest {
 
     @Test
     void testSetRealAndImaginary() {
-        List<Complex> objectList = generateList(10);
-        ComplexList list = new ComplexList();
-        list.addAll(objectList);
+        ComplexList list = generateList(10);
 
         for (int i = 0; i < list.size(); i++) {
             final double value = Math.PI * i;
@@ -291,10 +283,7 @@ public class ComplexListTest {
 
     @Test
     void testToArrayRealAndImaginary() {
-        List<Complex> objectList = generateList(10);
-        ComplexList list = new ComplexList();
-        list.addAll(objectList);
-
+        ComplexList list = generateList(10);
         double[] expectedReal = list.stream().mapToDouble(Complex::getReal).toArray();
         double[] actualReal = list.toArrayReal();
         Assertions.assertArrayEquals(expectedReal, actualReal);
@@ -304,13 +293,16 @@ public class ComplexListTest {
     }
 
     /**
-     * Generates a list of random complex numbers of the given size.
+     * Generates a ComplexList of random complex numbers of the given size.
      * @param size number of complex numbers in the list.
-     * @return the list of random complex numbers.
+     * @return the ComplexList of random complex numbers.
      */
-    private static List<Complex> generateList(int size) {
-        return ThreadLocalRandom.current().doubles(size, -Math.PI, Math.PI)
+    private static ComplexList generateList(int size) {
+        List<Complex> objectList = ThreadLocalRandom.current().doubles(size, -Math.PI, Math.PI)
             .mapToObj(Complex::ofCis).collect(Collectors.toList());
+        ComplexList list = new ComplexList();
+        list.addAll(objectList);
+        return list;
     }
 
     private static <T> void assertListOperation(Function<List<Complex>, T> operation,

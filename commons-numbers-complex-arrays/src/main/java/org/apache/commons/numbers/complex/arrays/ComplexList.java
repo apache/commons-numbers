@@ -210,8 +210,7 @@ public class ComplexList extends AbstractList<Complex> {
      */
     public void setReal(int index, double real) {
         rangeCheck(index);
-        final int i = index << 1;
-        realAndImagParts[i] = real;
+        realAndImagParts[index << 1] = real;
     }
 
     /**
@@ -223,8 +222,7 @@ public class ComplexList extends AbstractList<Complex> {
      */
     public void setImaginary(int index, double imaginary) {
         rangeCheck(index);
-        final int i = index << 1;
-        realAndImagParts[i + 1] = imaginary;
+        realAndImagParts[(index << 1) + 1] = imaginary;
     }
 
     /**
