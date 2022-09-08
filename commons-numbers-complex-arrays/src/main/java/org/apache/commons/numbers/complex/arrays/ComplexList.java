@@ -29,6 +29,11 @@ import java.util.Objects;
 
 /**
  * This is an abstract class that implements all the common data and operations for a ComplexList.
+ *
+ * <p>The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
+ * using instances of Complex.</p>
+ *
+ * <p>This list does not support {@code null} Complex objects.
  */
 public abstract class ComplexList extends AbstractList<Complex> {
 
@@ -50,6 +55,13 @@ public abstract class ComplexList extends AbstractList<Complex> {
 
     /** Size of complex numbers in the list. */
     protected int size;
+
+    /**
+     * Constructor to prevent extension of this class outside inner clases.
+     */
+    private ComplexList() {
+
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -277,6 +289,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
      * <p>This list does not support {@code null} Complex objects.
      */
     private static class ComplexInterleavedList extends ComplexList {
+
         /**
          * Storage for the complex numbers.
          * Data is stored in an interleaved format using (real, imaginary) pairs.
@@ -311,7 +324,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
          * @throws IllegalArgumentException if the specified double array doesn't have an even amount of doubles.
          */
         ComplexInterleavedList(double[] fromArray) {
-            if (fromArray.length % 2 != 0) {
+            if ((fromArray.length & 1) != 0) {
                 throw new IllegalArgumentException("Length of array has to be even");
             }
             realAndImagParts = fromArray;
@@ -451,11 +464,13 @@ public abstract class ComplexList extends AbstractList<Complex> {
             if (size == e.length >>> 1) {
                 e = ensureCapacityInternal(size + 1);
             }
+            final double real = number.real();
+            final double imaginary = number.imag();
             final int i = index << 1;
             final int s = size << 1;
             System.arraycopy(e, i, e, i + 2, s - i);
-            e[i] = number.real();
-            e[i + 1] = number.imag();
+            e[i] = real;
+            e[i + 1] = imaginary;
             size++;
         }
 
