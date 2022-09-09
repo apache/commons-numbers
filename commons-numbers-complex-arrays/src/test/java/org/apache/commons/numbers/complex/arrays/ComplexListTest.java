@@ -128,6 +128,7 @@ public class ComplexListTest {
     void testSetAddAndAddAllNullPointerException() {
         ComplexList copy = ComplexList.interleaved();
         ComplexList list1 = generateComplexList(3);
+        copy.addAll(list1);
         Assertions.assertThrows(NullPointerException.class, () -> list1.add(null));
         Assertions.assertThrows(NullPointerException.class, () -> list1.add(0, null));
         Assertions.assertThrows(NullPointerException.class, () -> list1.set(1, null));
@@ -136,7 +137,6 @@ public class ComplexListTest {
         list2.set(1, null);
         Assertions.assertThrows(NullPointerException.class, () -> list1.addAll(list2));
         Assertions.assertThrows(NullPointerException.class, () -> list1.addAll(0, list2));
-        copy.addAll(list1);
         Assertions.assertEquals(copy, list1);
     }
 

@@ -60,7 +60,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
      * Constructor to prevent extension of this class outside inner clases.
      */
     private ComplexList() {
-        //Intentional empty
+        //Intentionally empty
     }
 
     /** {@inheritDoc} */
