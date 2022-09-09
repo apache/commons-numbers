@@ -28,23 +28,14 @@ import java.util.ConcurrentModificationException;
 import java.util.Objects;
 
 /**
- * Resizable-double array implementation of the List interface. Implements all optional list operations,
- * and permits all complex numbers. In addition to implementing the List interface,
- * this class provides methods to manipulate the size of the array that is used internally to store the list.
+ * This is an abstract class that implements all the common data and operations for a ComplexList.
  *
- * <p>Each ComplexList instance has a capacity. The capacity is half the size of the double array used to store the complex numbers
- * in the list. As complex numbers are added to an ComplexList, its capacity grows automatically.
- * The complex number is stored using an interleaved format and so the maximum number of complex numbers that may be added is
- * approximately 2<sup>30</sup>. This is half the maximum capacity of java.util.ArrayList.
- * The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
+ * <p>The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
  * using instances of Complex.</p>
- *
- * <p>An application can increase the capacity of an ComplexList instance before adding a large number of complex numbers
- * using the ensureCapacity operation. This may reduce the amount of incremental reallocation.</p>
  *
  * <p>This list does not support {@code null} Complex objects.
  */
-public class ComplexList extends AbstractList<Complex> {
+public abstract class ComplexList extends AbstractList<Complex> {
 
     /**
      * The maximum size of array to allocate.
@@ -62,34 +53,14 @@ public class ComplexList extends AbstractList<Complex> {
     /** Index position label message. */
     private static final String INDEX_MSG = "Index: ";
 
-    /**
-     * Storage for the complex numbers.
-     * Data is stored in an interleaved format using (real, imaginary) pairs.
-     */
-    private double[] realAndImagParts;
-
     /** Size of complex numbers in the list. */
-    private int size;
+    protected int size;
 
     /**
-     * Constructs an empty list which can store up to the specified capacity without a memory reallocation.
-     *
-     * @param capacity Capacity of list.
-     * @throws IllegalArgumentException if the {@code capacity} is greater than {@code MAX_CAPACITY}.
+     * Constructor to prevent extension of this class outside inner clases.
      */
-    public ComplexList(int capacity) {
-        if (capacity > MAX_CAPACITY) {
-            throw new IllegalArgumentException(String.format(OOM_ERROR_STRING, capacity));
-        }
-        final int arrayLength = Math.max(DEFAULT_CAPACITY, capacity) * 2;
-        realAndImagParts = new double[arrayLength];
-    }
-
-    /**
-     * Constructs an empty list.
-     */
-    public ComplexList() {
-        realAndImagParts = new double[DEFAULT_CAPACITY * 2];
+    private ComplexList() {
+        //Intentionally empty
     }
 
     /** {@inheritDoc} */
@@ -104,7 +75,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @param index Index of the complex number to range check.
      * @throws IndexOutOfBoundsException if index isn't within the range.
      */
-    private void rangeCheck(int index) {
+    protected void rangeCheck(int index) {
         if (index >= size) {
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
         }
@@ -116,7 +87,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @param index Index of the complex number to range check.
      * @throws IndexOutOfBoundsException if index isn't within the range of list.
      */
-    private void rangeCheckForInsert(int index) {
+    protected void rangeCheckForInsert(int index) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
         }
@@ -128,11 +99,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @return the complex number.
      */
     @Override
-    public Complex get(int index) {
-        rangeCheck(index);
-        final int i = index << 1;
-        return Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
-    }
+    public abstract Complex get(int index);
 
     /**
      * Gets the real part \( a \) of the complex number \( (a + i b) \) at the indexed position of the list.
@@ -140,10 +107,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @param index Index of the complex number.
      * @return The real part.
      */
-    public double getReal(int index) {
-        rangeCheck(index);
-        return realAndImagParts[index << 1];
-    }
+    public abstract double getReal(int index);
 
     /**
      * Gets the imaginary part \( b \) of the complex number \( (a + i b) \) at the indexed position of the list.
@@ -151,10 +115,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @param index Index of the complex number.
      * @return The imaginary part.
      */
-    public double getImaginary(int index) {
-        rangeCheck(index);
-        return realAndImagParts[(index << 1) + 1];
-    }
+    public abstract double getImaginary(int index);
 
     /**
      * Replaces the complex number at the specified position in this list with the specified
@@ -166,14 +127,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @throws NullPointerException if the number is null.
      */
     @Override
-    public Complex set(int index, Complex number) {
-        rangeCheck(index);
-        final int i = index << 1;
-        final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
-        realAndImagParts[i] = number.getReal();
-        realAndImagParts[i + 1] = number.getImaginary();
-        return oldValue;
-    }
+    public abstract Complex set(int index, Complex number);
 
     /**
      * Replaces the complex number's real part at the specified position
@@ -182,10 +136,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @param index Index of the complex number.
      * @param real Real part \( a \) of the complex number \( (a +ib) \).
      */
-    public void setReal(int index, double real) {
-        rangeCheck(index);
-        realAndImagParts[index << 1] = real;
-    }
+    public abstract void setReal(int index, double real);
 
     /**
      * Replaces the complex number's imaginary part at the specified position
@@ -194,10 +145,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @param index Index of the complex number.
      * @param imaginary Imaginary part \( b \) of the complex number \( (a +ib) \).
      */
-    public void setImaginary(int index, double imaginary) {
-        rangeCheck(index);
-        realAndImagParts[(index << 1) + 1] = imaginary;
-    }
+    public abstract void setImaginary(int index, double imaginary);
 
     /**
      * Returns an array containing all the complex number's real parts in
@@ -205,14 +153,7 @@ public class ComplexList extends AbstractList<Complex> {
      *
      * @return Array of real parts.
      */
-    double[] toArrayReal() {
-        final int length = size;
-        double[] real = new double[length];
-        for (int i = 0; i < length; i++) {
-            real[i] = realAndImagParts[i << 1];
-        }
-        return real;
-    }
+    abstract double[] toArrayReal();
 
     /**
      * Returns an array containing all the complex number's imaginary parts in
@@ -220,56 +161,7 @@ public class ComplexList extends AbstractList<Complex> {
      *
      * @return Array of imaginary parts.
      */
-    double[] toArrayImaginary() {
-        final int length = size;
-        double[] imag = new double[length];
-        for (int i = 0; i < length; i++) {
-            imag[i] = realAndImagParts[(i << 1) + 1];
-        }
-        return imag;
-    }
-
-    /**
-     * Increases the capacity of this ComplexList instance, if necessary, to ensure that it can hold at
-     * least the amount of complex numbers specified by the minimum capacity argument.
-     *
-     * @param minCapacity Desired minimum capacity.
-     * @return the backing double array.
-     * @throws OutOfMemoryError if the {@code minCapacity} is greater than {@code MAX_ARRAY_SIZE}.
-     */
-    private double[] ensureCapacityInternal(int minCapacity) {
-        modCount++;
-        final long minArrayCapacity = Integer.toUnsignedLong(minCapacity) << 1;
-        if (minArrayCapacity > MAX_ARRAY_SIZE) {
-            throw new OutOfMemoryError(String.format(OOM_ERROR_STRING, minArrayCapacity));
-        }
-        final long oldArrayCapacity = realAndImagParts.length;
-        if (minArrayCapacity > oldArrayCapacity) {
-            long newArrayCapacity = oldArrayCapacity + (oldArrayCapacity >> 1);
-            // Round-odd up to even
-            newArrayCapacity += newArrayCapacity & 1;
-
-            // Ensure minArrayCapacity <= newArrayCapacity <= MAX_ARRAY_SIZE
-            // Note: At this point minArrayCapacity <= MAX_ARRAY_SIZE
-            if (newArrayCapacity > MAX_ARRAY_SIZE) {
-                newArrayCapacity = MAX_ARRAY_SIZE;
-            } else if (newArrayCapacity < minArrayCapacity) {
-                newArrayCapacity = minArrayCapacity;
-            }
-            realAndImagParts = Arrays.copyOf(realAndImagParts, (int) newArrayCapacity);
-        }
-        return realAndImagParts;
-    }
-
-    /**
-     * Increases the capacity of this ComplexList instance, if necessary, to ensure that it can hold at
-     * least an additional amount of complex numbers specified by the capacity argument.
-     *
-     * @param capacity Desired capacity.
-     */
-    private void expand(int capacity) {
-        ensureCapacityInternal(size + capacity);
-    }
+    abstract double[] toArrayImaginary();
 
     /**
      * Appends the specified complex number to the end of this list.
@@ -278,17 +170,7 @@ public class ComplexList extends AbstractList<Complex> {
      * @throws NullPointerException if the number is null.
      */
     @Override
-    public boolean add(Complex number) {
-        double[] e = realAndImagParts;
-        if (size == (e.length >>> 1)) {
-            e = ensureCapacityInternal(size + 1);
-        }
-        final int i = size << 1;
-        e[i] = number.real();
-        e[i + 1] = number.imag();
-        size++;
-        return true;
-    }
+    public abstract boolean add(Complex number);
 
     /**
      * Inserts the specified complex number at the specified position in this list.
@@ -298,68 +180,26 @@ public class ComplexList extends AbstractList<Complex> {
      * @throws NullPointerException if the number is null.
      */
     @Override
-    public void add(int index, Complex number) {
-        rangeCheckForInsert(index);
-        double[] e = realAndImagParts;
-        if (size == e.length >>> 1) {
-            e = ensureCapacityInternal(size + 1);
-        }
-        final int i = index << 1;
-        final int s = size << 1;
-        System.arraycopy(e, i, e, i + 2, s - i);
-        e[i] = number.real();
-        e[i + 1] = number.imag();
-        size++;
-    }
+    public abstract void add(int index, Complex number);
 
     /**
      * Appends all of the elements in the specified collection to the end of this list.
      *
      * @param c Collection containing numbers to be added to this list.
-     * @throws NullPointerException if the any number in the collection null.
+     * @throws NullPointerException if any number in the collection null.
      */
     @Override
-    public boolean addAll(Collection<? extends Complex> c) {
-        final int numNew = c.size();
-        expand(numNew);
-        double[] realAndImgData = new double[numNew * 2];
-        int i = 0;
-        for (final Complex val : c) {
-            realAndImgData[i++] = val.getReal();
-            realAndImgData[i++] = val.getImaginary();
-        }
-        final int s = size << 1;
-        System.arraycopy(realAndImgData, 0, realAndImagParts, s, realAndImgData.length);
-        size += numNew;
-        return numNew != 0;
-    }
+    public abstract boolean addAll(Collection<? extends Complex> c);
 
     /**
      * Inserts all of the elements in the specified collection into this list at the specified position.
      *
      * @param index Index at which the specified collection is to be inserted.
      * @param c Collection containing numbers to be inserted into this list.
-     * @throws NullPointerException if the any number in the collection null.
+     * @throws NullPointerException if any number in the collection null.
      */
     @Override
-    public boolean addAll(int index, Collection<? extends Complex> c) {
-        rangeCheckForInsert(index);
-        final int numNew = c.size();
-        final int numNew2 = numNew << 1;
-        expand(numNew);
-        final double[] realAndImgData = new double[numNew * 2];
-        int i = 0;
-        for (final Complex val : c) {
-            realAndImgData[i++] = val.getReal();
-            realAndImgData[i++] = val.getImaginary();
-        }
-        final int numMoved = (size - index) * 2;
-        final int index2 = index << 1;
-        System.arraycopy(realAndImagParts, index2, realAndImagParts, index2 + numNew2, numMoved);
-        System.arraycopy(realAndImgData, 0, realAndImagParts, index2, realAndImgData.length);
-        size += numNew;
-        return numNew != 0;
-    }
+    public abstract boolean addAll(int index, Collection<? extends Complex> c);
 
     /**
      * Removes the complex number at the specified position in this list.
@@ -370,19 +210,25 @@ public class ComplexList extends AbstractList<Complex> {
      * @return The number previously at the index.
      */
     @Override
-    public Complex remove(int index) {
-        rangeCheck(index);
-        modCount++;
-        final int i = index << 1;
-        final int s = size << 1;
-        final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
-        final int numMoved = s - i - 2;
-        if (numMoved > 0) {
-            System.arraycopy(realAndImagParts, i + 2, realAndImagParts, i, numMoved);
-        }
-        size--;
-        return oldValue;
-    }
+    public abstract Complex remove(int index);
+
+    /**
+     * Replaces each complex number of the list with the result of applying the operator to that complex number.
+     *
+     * @param operator The operator to apply to each complex number.
+     * @throws NullPointerException if the specified operator is null.
+     */
+    public abstract void replaceAll(ComplexUnaryOperator<Void> operator);
+
+    /**
+     * Performs the given action for each complex number of the list until all complex numbers
+     * have been processed or the action throws an exception. Unless otherwise specified by the
+     * implementing class, actions are performed in the order of iteration.
+     *
+     * @param action The action to apply to each complex number.
+     * @throws NullPointerException if the specified action is null.
+     */
+    public abstract void forEach(ComplexConsumer action);
 
     /**
      * Constructs an IndexOutOfBoundsException detail message.
@@ -395,46 +241,329 @@ public class ComplexList extends AbstractList<Complex> {
     }
 
     /**
-     * Replaces each complex number of the list with the result of applying the operator to that complex number.
+     * Constructs an empty interleaved list which can store up to the specified capacity without a memory reallocation.
      *
-     * @param operator The operator to apply to each complex number.
-     * @throws NullPointerException if the specified operator is null.
+     * @param capacity Capacity of interleaved list.
+     * @return ComplexList object.
+     * @throws IllegalArgumentException if the {@code capacity} is greater than {@code MAX_CAPACITY}.
      */
-    public void replaceAll(ComplexUnaryOperator<Void> operator) {
-        Objects.requireNonNull(operator);
-        final double[] parts = this.realAndImagParts;
-        final int m = size;
-        final int expectedModCount = modCount;
-        for (int i = 0; i < m; i++) {
-            final int index = i << 1;
-            operator.apply(parts[index], parts[index + 1], (x, y) -> {
-                parts[index] = x;
-                parts[index + 1] = y;
-                return null;
-            });
-        }
-        // check for comodification
-        if (modCount != expectedModCount) {
-            throw new ConcurrentModificationException();
-        }
-        modCount++;
+    public static ComplexList interleaved(int capacity) {
+        return new ComplexInterleavedList(capacity);
     }
 
     /**
-     * Performs the given action for each complex number of the list until all complex numbers
-     * have been processed or the action throws an exception. Unless otherwise specified by the
-     * implementing class, actions are performed in the order of iteration.
+     * Constructs an empty interleaved list.
      *
-     * @param action The action to apply to each complex number.
-     * @throws NullPointerException if the specified action is null.
+     * @return ComplexList object.
      */
-    public void forEach(ComplexConsumer action) {
-        Objects.requireNonNull(action);
-        final double[] parts = this.realAndImagParts;
-        final int m = size;
-        for (int i = 0; i < m; i++) {
-            final int index = i << 1;
-            action.accept(parts[index], parts[index + 1]);
+    public static ComplexList interleaved() {
+        return new ComplexInterleavedList();
+    }
+
+    /**
+     * Constructs an interleaved list using the specified double array.
+     * The data isn't defensively copied, the specified array is used in-place
+     * and therefore any external modifications to the array will reflect on the list
+     * unless a structural modification like resize is made to the data storage.
+     *
+     * @param data Specified backing double array.
+     * @return ComplexList object.
+     * @throws IllegalArgumentException if the specified double array doesn't have an even amount of doubles.
+     */
+    public static ComplexList from(double[] data) {
+        return new ComplexInterleavedList(data);
+    }
+
+    /**
+     * Resizable-double array implementation of the List interface. Implements all optional list operations,
+     * and permits all complex numbers. In addition to implementing the List interface,
+     * this class provides methods to manipulate the size of the array that is used internally to store the list.
+     *
+     * <p>Each ComplexInterleavedList instance has a capacity. The capacity is half the size of the double array used to store the complex numbers
+     * in the list. As complex numbers are added to an ComplexInterleavedList, its capacity grows automatically.
+     * The complex number is stored using an interleaved format and so the maximum number of complex numbers that may be added is
+     * approximately 2<sup>30</sup>. This is half the maximum capacity of java.util.ArrayList.
+     * The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
+     * using instances of Complex.</p>
+     *
+     * <p>An application can increase the capacity of an ComplexInterleavedList instance before adding a large number of complex numbers
+     * using the ensureCapacity operation. This may reduce the amount of incremental reallocation.</p>
+     *
+     * <p>This list does not support {@code null} Complex objects.
+     */
+    private static class ComplexInterleavedList extends ComplexList {
+
+        /**
+         * Storage for the complex numbers.
+         * Data is stored in an interleaved format using (real, imaginary) pairs.
+         */
+        private double[] realAndImagParts;
+
+        /**
+         * Constructs an empty list which can store up to the specified capacity without a memory reallocation.
+         *
+         * @param capacity Capacity of list.
+         * @throws IllegalArgumentException if the {@code capacity} is greater than {@code MAX_CAPACITY}.
+         */
+        ComplexInterleavedList(int capacity) {
+            if (capacity > MAX_CAPACITY) {
+                throw new IllegalArgumentException(String.format(OOM_ERROR_STRING, capacity));
+            }
+            final int arrayLength = Math.max(DEFAULT_CAPACITY, capacity) * 2;
+            realAndImagParts = new double[arrayLength];
+        }
+
+        /**
+         * Constructs an empty list.
+         */
+        ComplexInterleavedList() {
+            realAndImagParts = new double[DEFAULT_CAPACITY * 2];
+        }
+
+        /**
+         * Constructs an interleaved list using the specified double array.
+         * The data isn't defensively copied, the specified array is used in-place.
+         *
+         * @param fromArray Specified backing double array.
+         * @throws IllegalArgumentException if the specified double array doesn't have an even amount of doubles.
+         */
+        ComplexInterleavedList(double[] fromArray) {
+            if ((fromArray.length & 1) != 0) {
+                throw new IllegalArgumentException("Length of array has to be even");
+            }
+            realAndImagParts = fromArray;
+            size = fromArray.length >> 1;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public Complex get(int index) {
+            rangeCheck(index);
+            final int i = index << 1;
+            return Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public double getReal(int index) {
+            rangeCheck(index);
+            return realAndImagParts[index << 1];
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public double getImaginary(int index) {
+            rangeCheck(index);
+            return realAndImagParts[(index << 1) + 1];
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public Complex set(int index, Complex number) {
+            rangeCheck(index);
+            final int i = index << 1;
+            final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
+            realAndImagParts[i] = number.getReal();
+            realAndImagParts[i + 1] = number.getImaginary();
+            return oldValue;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void setReal(int index, double real) {
+            rangeCheck(index);
+            realAndImagParts[index << 1] = real;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void setImaginary(int index, double imaginary) {
+            rangeCheck(index);
+            realAndImagParts[(index << 1) + 1] = imaginary;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        double[] toArrayReal() {
+            final int length = size;
+            double[] real = new double[length];
+            for (int i = 0; i < length; i++) {
+                real[i] = realAndImagParts[i << 1];
+            }
+            return real;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        double[] toArrayImaginary() {
+            final int length = size;
+            double[] imag = new double[length];
+            for (int i = 0; i < length; i++) {
+                imag[i] = realAndImagParts[(i << 1) + 1];
+            }
+            return imag;
+        }
+
+        /**
+         * Increases the capacity of this ComplexInterleavedList instance, if necessary, to ensure that it can hold at
+         * least the amount of complex numbers specified by the minimum capacity argument.
+         *
+         * @param minCapacity Desired minimum capacity.
+         * @return the backing double array.
+         * @throws OutOfMemoryError if the {@code minCapacity} is greater than {@code MAX_ARRAY_SIZE}.
+         */
+        private double[] ensureCapacityInternal(int minCapacity) {
+            modCount++;
+            final long minArrayCapacity = Integer.toUnsignedLong(minCapacity) << 1;
+            if (minArrayCapacity > MAX_ARRAY_SIZE) {
+                throw new OutOfMemoryError(String.format(OOM_ERROR_STRING, minArrayCapacity));
+            }
+            final long oldArrayCapacity = realAndImagParts.length;
+            if (minArrayCapacity > oldArrayCapacity) {
+                long newArrayCapacity = oldArrayCapacity + (oldArrayCapacity >> 1);
+                // Round-odd up to even
+                newArrayCapacity += newArrayCapacity & 1;
+
+                // Ensure minArrayCapacity <= newArrayCapacity <= MAX_ARRAY_SIZE
+                // Note: At this point minArrayCapacity <= MAX_ARRAY_SIZE
+                if (newArrayCapacity > MAX_ARRAY_SIZE) {
+                    newArrayCapacity = MAX_ARRAY_SIZE;
+                } else if (newArrayCapacity < minArrayCapacity) {
+                    newArrayCapacity = minArrayCapacity;
+                }
+                realAndImagParts = Arrays.copyOf(realAndImagParts, (int) newArrayCapacity);
+            }
+            return realAndImagParts;
+        }
+
+        /**
+         * Increases the capacity of this ComplexInterleavedList instance, if necessary, to ensure that it can hold at
+         * least an additional amount of complex numbers specified by the capacity argument.
+         *
+         * @param capacity Desired capacity.
+         */
+        private void expand(int capacity) {
+            ensureCapacityInternal(size + capacity);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public boolean add(Complex number) {
+            double[] e = realAndImagParts;
+            if (size == (e.length >>> 1)) {
+                e = ensureCapacityInternal(size + 1);
+            }
+            final int i = size << 1;
+            e[i] = number.real();
+            e[i + 1] = number.imag();
+            size++;
+            return true;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void add(int index, Complex number) {
+            rangeCheckForInsert(index);
+            double[] e = realAndImagParts;
+            if (size == e.length >>> 1) {
+                e = ensureCapacityInternal(size + 1);
+            }
+            final double real = number.real();
+            final double imaginary = number.imag();
+            final int i = index << 1;
+            final int s = size << 1;
+            System.arraycopy(e, i, e, i + 2, s - i);
+            e[i] = real;
+            e[i + 1] = imaginary;
+            size++;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public boolean addAll(Collection<? extends Complex> c) {
+            final int numNew = c.size();
+            expand(numNew);
+            double[] realAndImgData = new double[numNew * 2];
+            int i = 0;
+            for (final Complex val : c) {
+                realAndImgData[i++] = val.getReal();
+                realAndImgData[i++] = val.getImaginary();
+            }
+            final int s = size << 1;
+            System.arraycopy(realAndImgData, 0, realAndImagParts, s, realAndImgData.length);
+            size += numNew;
+            return numNew != 0;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public boolean addAll(int index, Collection<? extends Complex> c) {
+            rangeCheckForInsert(index);
+            final int numNew = c.size();
+            final int numNew2 = numNew << 1;
+            expand(numNew);
+            final double[] realAndImgData = new double[numNew * 2];
+            int i = 0;
+            for (final Complex val : c) {
+                realAndImgData[i++] = val.getReal();
+                realAndImgData[i++] = val.getImaginary();
+            }
+            final int numMoved = (size - index) * 2;
+            final int index2 = index << 1;
+            System.arraycopy(realAndImagParts, index2, realAndImagParts, index2 + numNew2, numMoved);
+            System.arraycopy(realAndImgData, 0, realAndImagParts, index2, realAndImgData.length);
+            size += numNew;
+            return numNew != 0;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public Complex remove(int index) {
+            rangeCheck(index);
+            modCount++;
+            final int i = index << 1;
+            final int s = size << 1;
+            final Complex oldValue = Complex.ofCartesian(realAndImagParts[i], realAndImagParts[i + 1]);
+            final int numMoved = s - i - 2;
+            if (numMoved > 0) {
+                System.arraycopy(realAndImagParts, i + 2, realAndImagParts, i, numMoved);
+            }
+            size--;
+            return oldValue;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void replaceAll(ComplexUnaryOperator<Void> operator) {
+            Objects.requireNonNull(operator);
+            final double[] parts = this.realAndImagParts;
+            final int m = size;
+            final int expectedModCount = modCount;
+            for (int i = 0; i < m; i++) {
+                final int index = i << 1;
+                operator.apply(parts[index], parts[index + 1], (x, y) -> {
+                    parts[index] = x;
+                    parts[index + 1] = y;
+                    return null;
+                });
+            }
+            // check for comodification
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
+            modCount++;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void forEach(ComplexConsumer action) {
+            Objects.requireNonNull(action);
+            final double[] parts = this.realAndImagParts;
+            final int m = size;
+            for (int i = 0; i < m; i++) {
+                final int index = i << 1;
+                action.accept(parts[index], parts[index + 1]);
+            }
         }
     }
 }
