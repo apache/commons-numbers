@@ -37,17 +37,6 @@ import java.util.Objects;
  */
 public abstract class ComplexList extends AbstractList<Complex> {
 
-    /**
-     * The maximum size of array to allocate.
-     * Ensuring max capacity is even with additional space for VM array headers.
-     */
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 9;
-    /** Max capacity for size of complex numbers in the list. */
-    private static final int MAX_CAPACITY = MAX_ARRAY_SIZE / 2;
-    /** Error in case of allocation above max capacity. */
-    private static final String OOM_ERROR_STRING = "cannot allocate capacity %s greater than max " + MAX_CAPACITY;
-    /** Default initial capacity. */
-    private static final int DEFAULT_CAPACITY = 8;
     /** Size label message. */
     private static final String SIZE_MSG = ", Size: ";
     /** Index position label message. */
@@ -292,6 +281,17 @@ public abstract class ComplexList extends AbstractList<Complex> {
      * <p>This list does not support {@code null} Complex objects.
      */
     private static class ComplexInterleavedList extends ComplexList {
+        /**
+         * The maximum size of array to allocate.
+         * Ensuring max capacity is even with additional space for VM array headers.
+         */
+        private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 9;
+        /** Default initial capacity. */
+        private static final int DEFAULT_CAPACITY = 8;
+        /** Max capacity for size of complex numbers in the list. */
+        private static final int MAX_CAPACITY = MAX_ARRAY_SIZE / 2;
+        /** Error in case of allocation above max capacity. */
+        private static final String OOM_ERROR_STRING = "cannot allocate capacity %s greater than max " + MAX_CAPACITY;
 
         /**
          * Storage for the complex numbers.
