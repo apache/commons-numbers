@@ -60,7 +60,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
      * Constructor to prevent extension of this class outside inner clases.
      */
     private ComplexList() {
-
+        //Intentional empty
     }
 
     /** {@inheritDoc} */
@@ -262,6 +262,9 @@ public abstract class ComplexList extends AbstractList<Complex> {
 
     /**
      * Constructs an interleaved list using the specified double array.
+     * The data isn't defensively copied, the specified array is used in-place
+     * and therefore any external modifications to the array will reflect on the list
+     * unless a structural modification like resize is made to the data storage.
      *
      * @param data Specified backing double array.
      * @return ComplexList object.
@@ -319,6 +322,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
 
         /**
          * Constructs an interleaved list using the specified double array.
+         * The data isn't defensively copied, the specified array is used in-place.
          *
          * @param fromArray Specified backing double array.
          * @throws IllegalArgumentException if the specified double array doesn't have an even amount of doubles.

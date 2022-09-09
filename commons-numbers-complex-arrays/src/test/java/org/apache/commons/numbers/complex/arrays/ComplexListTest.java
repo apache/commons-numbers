@@ -42,7 +42,7 @@ public class ComplexListTest {
         int size = 3;
         double[] fromArray1 = ThreadLocalRandom.current().doubles(size * 2, -Math.PI, Math.PI).toArray();
         ComplexList list = ComplexList.from(fromArray1);
-        for (int i = 0; i < size >> 1; i++) {
+        for (int i = 0; i < size; i++) {
             Assertions.assertEquals(Complex.ofCartesian(fromArray1[i * 2], fromArray1[(i * 2) + 1]), list.get(i));
         }
         double[] fromArray2 = ThreadLocalRandom.current().doubles(5, -Math.PI, Math.PI).toArray();
@@ -126,18 +126,18 @@ public class ComplexListTest {
 
     @Test
     void testSetAddAndAddAllNullPointerException() {
+        ComplexList copy = ComplexList.interleaved();
         ComplexList list1 = generateComplexList(3);
         Assertions.assertThrows(NullPointerException.class, () -> list1.add(null));
         Assertions.assertThrows(NullPointerException.class, () -> list1.add(0, null));
         Assertions.assertThrows(NullPointerException.class, () -> list1.set(1, null));
 
-        ComplexList copy = ComplexList.interleaved();
-        copy.addAll(list1);
         List<Complex> list2 = generateList(3);
         list2.set(1, null);
         Assertions.assertThrows(NullPointerException.class, () -> list1.addAll(list2));
-        Assertions.assertEquals(copy.size(), list1.size());
         Assertions.assertThrows(NullPointerException.class, () -> list1.addAll(0, list2));
+        copy.addAll(list1);
+        Assertions.assertEquals(copy, list1);
     }
 
     @Test
