@@ -44,10 +44,8 @@ public abstract class ComplexList extends AbstractList<Complex> {
     protected static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 9;
     /** Default initial capacity. */
     protected static final int DEFAULT_CAPACITY = 8;
-    /** Max capacity for size of complex numbers in the list. */
-    protected static final int MAX_CAPACITY = MAX_ARRAY_SIZE / 2;
-    /** Error in case of allocation above max capacity. */
-    protected static final String OOM_ERROR_STRING = "cannot allocate capacity %s greater than max " + MAX_CAPACITY;
+    /** Memory error message. */
+    protected static final String OOM_ERROR_STRING = "cannot allocate capacity %s greater than max ";
     /** Size label message. */
     private static final String SIZE_MSG = ", Size: ";
     /** Index position label message. */
@@ -328,6 +326,10 @@ public abstract class ComplexList extends AbstractList<Complex> {
      */
     private static class ComplexInterleavedList extends ComplexList {
 
+        /** Max capacity for size of complex numbers in the list. */
+        private static final int MAX_CAPACITY = MAX_ARRAY_SIZE / 2;
+        /** Error in case of allocation above max capacity. */
+        private static final String OOM_ERROR = OOM_ERROR_STRING + MAX_CAPACITY;
         /**
          * Storage for the complex numbers.
          * Data is stored in an interleaved format using (real, imaginary) pairs.
@@ -342,7 +344,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
          */
         ComplexInterleavedList(int capacity) {
             if (capacity > MAX_CAPACITY) {
-                throw new IllegalArgumentException(String.format(OOM_ERROR_STRING, capacity));
+                throw new IllegalArgumentException(String.format(OOM_ERROR, capacity));
             }
             final int arrayLength = Math.max(DEFAULT_CAPACITY, capacity) * 2;
             realAndImagParts = new double[arrayLength];
@@ -361,6 +363,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
          *
          * @param fromArray Specified backing double array.
          * @throws IllegalArgumentException if the specified double array doesn't have an even amount of doubles.
+         * @throws NullPointerException if the specified double array is null.
          */
         ComplexInterleavedList(double[] fromArray) {
             if ((fromArray.length & 1) != 0) {
@@ -451,7 +454,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
             modCount++;
             final long minArrayCapacity = Integer.toUnsignedLong(minCapacity) << 1;
             if (minArrayCapacity > MAX_ARRAY_SIZE) {
-                throw new OutOfMemoryError(String.format(OOM_ERROR_STRING, minArrayCapacity));
+                throw new OutOfMemoryError(String.format(OOM_ERROR, minArrayCapacity));
             }
             final long oldArrayCapacity = realAndImagParts.length;
             if (minArrayCapacity > oldArrayCapacity) {
@@ -610,7 +613,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
      * <p>Each ComplexNonInterleavedList instance has a capacity. The capacity is the size of the double arrays used to store the complex numbers
      * in the list. As complex numbers are added to an ComplexNonInterleavedList, its capacity grows automatically.
      * The complex number is stored using an non-interleaved format and so the maximum number of complex numbers that may be added is
-     * approximately 2<sup>30</sup>. This is half the maximum capacity of java.util.ArrayList.
+     * approximately 2<sup>31</sup>. This is also the maximum capacity of java.util.ArrayList.
      * The memory usage is more efficient than using a List of Complex objects as the underlying numbers are not stored
      * using instances of Complex.</p>
      *
@@ -621,6 +624,10 @@ public abstract class ComplexList extends AbstractList<Complex> {
      */
     private static class ComplexNonInterleavedList extends ComplexList {
 
+        /** Max capacity for size of complex numbers in the list. */
+        private static final int MAX_CAPACITY = MAX_ARRAY_SIZE;
+        /** Error in case of allocation above max capacity. */
+        private static final String OOM_ERROR = OOM_ERROR_STRING + MAX_CAPACITY;
         /**
          * Storage for the real parts of complex numbers.
          */
@@ -639,7 +646,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
          */
         ComplexNonInterleavedList(int capacity) {
             if (capacity > MAX_CAPACITY) {
-                throw new IllegalArgumentException(String.format(OOM_ERROR_STRING, capacity));
+                throw new IllegalArgumentException(String.format(OOM_ERROR, capacity));
             }
             final int arrayLength = Math.max(DEFAULT_CAPACITY, capacity);
             realParts = new double[arrayLength];
@@ -661,6 +668,7 @@ public abstract class ComplexList extends AbstractList<Complex> {
          * @param fromReal Specified backing double array for real parts.
          * @param fromImaginary Specified backing double array for imaginary parts.
          * @throws IllegalArgumentException if the specified double arrays don't have the same amount of doubles.
+         * @throws NullPointerException if either of the specified double arrays are null.
          */
         ComplexNonInterleavedList(double[] fromReal, double[] fromImaginary) {
             if (fromReal.length != fromImaginary.length) {
@@ -719,19 +727,13 @@ public abstract class ComplexList extends AbstractList<Complex> {
         /** {@inheritDoc} */
         @Override
         double[] toArrayReal() {
-            final int length = size;
-            final double[] real = new double[length];
-            System.arraycopy(realParts, 0, real, 0, length);
-            return real;
+            return Arrays.copyOf(realParts, size);
         }
 
         /** {@inheritDoc} */
         @Override
         double[] toArrayImaginary() {
-            final int length = size;
-            final double[] imaginary = new double[length];
-            System.arraycopy(imaginaryParts, 0, imaginary, 0, length);
-            return imaginary;
+            return Arrays.copyOf(imaginaryParts, size);
         }
 
         /**
@@ -745,13 +747,11 @@ public abstract class ComplexList extends AbstractList<Complex> {
             modCount++;
             final long minArrayCapacity = Integer.toUnsignedLong(minCapacity);
             if (minArrayCapacity > MAX_ARRAY_SIZE) {
-                throw new OutOfMemoryError(String.format(OOM_ERROR_STRING, minArrayCapacity));
+                throw new OutOfMemoryError(String.format(OOM_ERROR, minArrayCapacity));
             }
             final long oldArrayCapacity = realParts.length;
             if (minArrayCapacity > oldArrayCapacity) {
                 long newArrayCapacity = oldArrayCapacity + (oldArrayCapacity >> 1);
-                // Round-odd up to even
-                newArrayCapacity += newArrayCapacity & 1;
 
                 // Ensure minArrayCapacity <= newArrayCapacity <= MAX_ARRAY_SIZE
                 // Note: At this point minArrayCapacity <= MAX_ARRAY_SIZE
