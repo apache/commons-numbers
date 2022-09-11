@@ -29,6 +29,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -40,6 +41,62 @@ public class ComplexListTest {
 
     private static final int MAX_CAPACITY_INTERLEAVED = (Integer.MAX_VALUE - 9) / 2;
     private static final int MAX_CAPACITY_NON_INTERLEAVED = Integer.MAX_VALUE - 9;
+
+    /**
+     * Generate a stream of arguments containing empty {@code Complex<List>} implementations.
+     *
+     * @return the stream of arguments
+     */
+    static Stream<Arguments> listImplementations() {
+        return Stream.of(Arguments.of(ComplexList.interleaved()),
+            Arguments.of(ComplexList.nonInterleaved()));
+    }
+
+    /**
+     * Generate a stream of arguments containing {@code Complex<List>} implementations with a set size.
+     *
+     * @return the stream of arguments
+     */
+    static Stream<Arguments> listImplementationsWithSize() {
+        return Stream.of(Arguments.of(ComplexList.interleaved(), 2),
+            Arguments.of(ComplexList.nonInterleaved(), 2));
+    }
+
+    /**
+     * Generates a ComplexList in interleaved format of random complex numbers of the given size using the.
+     * @param size number of complex numbers in the list.
+     * @return the ComplexList of random complex numbers.
+     */
+    private static ComplexList generateComplexInterleavedList(int size) {
+        List<Complex> objectList = generateList(size);
+        ComplexList list = ComplexList.interleaved();
+        list.addAll(objectList);
+        Assertions.assertEquals(objectList, list);
+        return list;
+    }
+
+    /**
+     * Generates a ComplexList in non-interleaved format of random complex numbers of the given size.
+     * @param size number of complex numbers in the list.
+     * @return the ComplexList of random complex numbers.
+     */
+    private static ComplexList generateComplexNonInterleavedList(int size) {
+        List<Complex> objectList = generateList(size);
+        ComplexList list = ComplexList.nonInterleaved();
+        list.addAll(objectList);
+        Assertions.assertEquals(objectList, list);
+        return list;
+    }
+
+    /**
+     * Generates a list of random complex numbers of the given size.
+     * @param size number of complex numbers in the list.
+     * @return the list of random complex numbers.
+     */
+    private static List<Complex> generateList(int size) {
+        return ThreadLocalRandom.current().doubles(size, -Math.PI, Math.PI)
+            .mapToObj(Complex::ofCis).collect(Collectors.toList());
+    }
 
     @Test
     void testFromArray() {
@@ -76,6 +133,22 @@ public class ComplexListTest {
         Assertions.assertThrows(NullPointerException.class, () -> ComplexList.from(null, fromImaginaryArray2));
     }
 
+    @Test
+    void testFromEmptyInterleaved() {
+        final List<Complex> l = ComplexList.from(new double[0]);
+        final Complex c = Complex.ofCartesian(1, 2);
+        l.add(c);
+        Assertions.assertEquals(Arrays.asList(c), l);
+    }
+
+    @Test
+    void testFromEmptyNonInterleaved() {
+        final List<Complex> l = ComplexList.from(new double[0], new double[0]);
+        final Complex c = Complex.ofCartesian(1, 2);
+        l.add(c);
+        Assertions.assertEquals(Arrays.asList(c), l);
+    }
+
     @ParameterizedTest
     @MethodSource({"listImplementations"})
     void testGetAndSetMethod(List<Complex> l2) {
@@ -85,16 +158,6 @@ public class ComplexListTest {
         assertListOperation(list -> list.addAll(list), l1, l2);
         assertListOperation(list -> list.set(2, Complex.ofCartesian(200, 1)), l1, l2);
         assertListOperation(list -> list.get(2), l1, l2);
-    }
-
-    /**
-     * Generate a stream of arguments containing empty {@code Complex<List>} implementations.
-     *
-     * @return the stream of arguments
-     */
-    static Stream<Arguments> listImplementations() {
-        return Stream.of(Arguments.of(ComplexList.interleaved()),
-            Arguments.of(ComplexList.nonInterleaved()));
     }
 
     @ParameterizedTest
@@ -170,11 +233,21 @@ public class ComplexListTest {
         assertListOperation(l -> l.addAll(0, list), l5, l6);
     }
 
-    @Test
-    void testSetAddAndAddAllNullPointerException() {
-        ComplexList copy1 = ComplexList.interleaved();
-        ComplexList list1 = generateComplexInterleavedList(3);
-        copy1.addAll(list1);
+    @ParameterizedTest
+    @MethodSource({"listImplementationsWithSize"})
+    void testSetAddAndAddAllNullPointerException(List<Complex> list1, int size) {
+        // Reference copy. This could be populated in a method.
+        // It should not be a ComplexList to avoid testing
+        // an implementation against itself.
+        List<Complex> copy = new ArrayList<>();
+        IntStream.range(0, size).forEach(i -> copy.add(Complex.ofCartesian(i, -i)));
+
+        // Populate the list under test
+        list1.addAll(copy);
+
+        // Check it worked
+        Assertions.assertEquals(copy, list1);
+
         Assertions.assertThrows(NullPointerException.class, () -> list1.add(null));
         Assertions.assertThrows(NullPointerException.class, () -> list1.add(0, null));
         Assertions.assertThrows(NullPointerException.class, () -> list1.set(1, null));
@@ -183,20 +256,9 @@ public class ComplexListTest {
         list2.set(1, null);
         Assertions.assertThrows(NullPointerException.class, () -> list1.addAll(list2));
         Assertions.assertThrows(NullPointerException.class, () -> list1.addAll(0, list2));
-        Assertions.assertEquals(copy1, list1);
 
-        ComplexList copy2 = ComplexList.nonInterleaved();
-        ComplexList list3 = generateComplexNonInterleavedList(3);
-        copy2.addAll(list3);
-        Assertions.assertThrows(NullPointerException.class, () -> list3.add(null));
-        Assertions.assertThrows(NullPointerException.class, () -> list3.add(0, null));
-        Assertions.assertThrows(NullPointerException.class, () -> list3.set(1, null));
-
-        List<Complex> list4 = generateList(3);
-        list4.set(1, null);
-        Assertions.assertThrows(NullPointerException.class, () -> list3.addAll(list4));
-        Assertions.assertThrows(NullPointerException.class, () -> list3.addAll(0, list4));
-        Assertions.assertEquals(copy2, list3);
+        // Check no modifications were made
+        Assertions.assertEquals(copy, list1);
     }
 
     @ParameterizedTest
@@ -209,63 +271,42 @@ public class ComplexListTest {
         assertListOperation(list -> list.remove(0), l1, l2);
     }
 
-    @Test
-    void testGetAndSetIndexOutOfBoundExceptions() {
-        ComplexList list1 = ComplexList.interleaved();
-        ComplexList list2 = ComplexList.nonInterleaved();
+    @ParameterizedTest
+    @MethodSource({"listImplementations"})
+    void testGetAndSetIndexOutOfBoundExceptions(List<Complex> l) {
         // Empty list throws
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.get(0));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.get(0));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(0));
         int size = 5;
-        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(list1::add);
-        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(list2::add);
+        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(l::add);
 
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.get(-1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.get(size));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.get(size + 1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(-1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(size));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(size + 1));
 
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.get(-1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.get(size));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.get(size + 1));
-
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.set(-2, Complex.ofCartesian(200, 1)));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.set(size, Complex.ofCartesian(200, 1)));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.set(size + 1, Complex.ofCartesian(200, 1)));
-
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.set(-2, Complex.ofCartesian(200, 1)));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.set(size, Complex.ofCartesian(200, 1)));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.set(size + 1, Complex.ofCartesian(200, 1)));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.set(-2, Complex.ofCartesian(200, 1)));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.set(size, Complex.ofCartesian(200, 1)));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.set(size + 1, Complex.ofCartesian(200, 1)));
     }
 
-    @Test
-    void testAddIndexOutOfBoundExceptions() {
-        ComplexList list1 = ComplexList.interleaved();
-        ComplexList list2 = ComplexList.nonInterleaved();
+    @ParameterizedTest
+    @MethodSource({"listImplementations"})
+    void testAddIndexOutOfBoundExceptions(List<Complex> l) {
         int size = 5;
-        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(list1::add);
-        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(list2::add);
+        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(l::add);
 
         Assertions.assertThrows(IndexOutOfBoundsException.class, () ->
-            list1.add(-1, Complex.ofCartesian(42, 13)));
+            l.add(-1, Complex.ofCartesian(42, 13)));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () ->
-            list1.add(size + 1, Complex.ofCartesian(42, 13)));
-
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () ->
-            list2.add(-1, Complex.ofCartesian(42, 13)));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () ->
-            list2.add(size + 1, Complex.ofCartesian(42, 13)));
+            l.add(size + 1, Complex.ofCartesian(42, 13)));
     }
 
-    @Test
-    void testRemoveIndexOutOfBoundExceptions() {
-        ComplexList list1 = generateComplexInterleavedList(2);
-        ComplexList list2 = generateComplexNonInterleavedList(2);
-        list1.remove(0);
-        list2.remove(0);
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.remove(1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list1.remove(-1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.remove(1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list2.remove(-1));
+    @ParameterizedTest
+    @MethodSource({"listImplementationsWithSize"})
+    void testRemoveIndexOutOfBoundExceptions(List<Complex> l, int size) {
+        IntStream.range(0, size).forEach(i -> l.add(Complex.ofCartesian(i, -i)));
+        l.remove(0);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.remove(1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.remove(-1));
     }
 
     @ParameterizedTest
@@ -275,8 +316,10 @@ public class ComplexListTest {
         List<Complex> l2 = ComplexList.interleaved(size);
         List<Complex> l3 = new ArrayList<>(size);
         List<Complex> l4 = ComplexList.nonInterleaved(size);
+
         Assertions.assertEquals(l1, l2);
         Assertions.assertEquals(l3, l4);
+
         assertListOperation(l -> l.add(Complex.ofCartesian(10, 20)), l1, l2);
         assertListOperation(l -> {
             l.add(1, Complex.ofCartesian(10, 20));
@@ -471,42 +514,6 @@ public class ComplexListTest {
         Assertions.assertArrayEquals(expectedImaginary1, actualImaginary1);
         Assertions.assertArrayEquals(expectedImaginary2, actualImaginary2);
 
-    }
-
-    /**
-     * Generates a ComplexList in interleaved format of random complex numbers of the given size using the.
-     * @param size number of complex numbers in the list.
-     * @return the ComplexList of random complex numbers.
-     */
-    private static ComplexList generateComplexInterleavedList(int size) {
-        List<Complex> objectList = generateList(size);
-        ComplexList list = ComplexList.interleaved();
-        list.addAll(objectList);
-        Assertions.assertEquals(objectList, list);
-        return list;
-    }
-
-    /**
-     * Generates a ComplexList in non-interleaved format of random complex numbers of the given size.
-     * @param size number of complex numbers in the list.
-     * @return the ComplexList of random complex numbers.
-     */
-    private static ComplexList generateComplexNonInterleavedList(int size) {
-        List<Complex> objectList = generateList(size);
-        ComplexList list = ComplexList.nonInterleaved();
-        list.addAll(objectList);
-        Assertions.assertEquals(objectList, list);
-        return list;
-    }
-
-    /**
-     * Generates a list of random complex numbers of the given size.
-     * @param size number of complex numbers in the list.
-     * @return the list of random complex numbers.
-     */
-    private static List<Complex> generateList(int size) {
-        return ThreadLocalRandom.current().doubles(size, -Math.PI, Math.PI)
-            .mapToObj(Complex::ofCis).collect(Collectors.toList());
     }
 
     private static <T> void assertListOperation(Function<List<Complex>, T> operation,
