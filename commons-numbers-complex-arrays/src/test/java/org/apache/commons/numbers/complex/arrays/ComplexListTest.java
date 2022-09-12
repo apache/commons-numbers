@@ -48,8 +48,10 @@ public class ComplexListTest {
      * @return the stream of arguments
      */
     static Stream<Arguments> listImplementations() {
-        return Stream.of(Arguments.of(ComplexList.interleaved()),
-                         Arguments.of(ComplexList.nonInterleaved()));
+        return Stream.of(
+            Arguments.of(ComplexList.interleaved()),
+            Arguments.of(ComplexList.nonInterleaved())
+        );
     }
 
     /**
@@ -58,8 +60,10 @@ public class ComplexListTest {
      * @return the stream of arguments
      */
     static Stream<Arguments> listImplementationsWithSize() {
-        return Stream.of(Arguments.of(ComplexList.interleaved(), 2),
-                         Arguments.of(ComplexList.nonInterleaved(), 2));
+        return Stream.of(
+            Arguments.of(ComplexList.interleaved(), 2),
+            Arguments.of(ComplexList.nonInterleaved(), 2)
+        );
     }
 
     /**
@@ -150,18 +154,18 @@ public class ComplexListTest {
 
     @Test
     void testFromEmptyInterleaved() {
-        final List<Complex> l = ComplexList.from(new double[0]);
+        final List<Complex> list = ComplexList.from(new double[0]);
         final Complex c = Complex.ofCartesian(1, 2);
-        l.add(c);
-        Assertions.assertEquals(Arrays.asList(c), l);
+        list.add(c);
+        Assertions.assertEquals(Arrays.asList(c), list);
     }
 
     @Test
     void testFromEmptyNonInterleaved() {
-        final List<Complex> l = ComplexList.from(new double[0], new double[0]);
+        final List<Complex> list = ComplexList.from(new double[0], new double[0]);
         final Complex c = Complex.ofCartesian(1, 2);
-        l.add(c);
-        Assertions.assertEquals(Arrays.asList(c), l);
+        list.add(c);
+        Assertions.assertEquals(Arrays.asList(c), list);
     }
 
     @ParameterizedTest
@@ -243,9 +247,9 @@ public class ComplexListTest {
     void testAddingEmptyListToEmptyList(List<Complex> l2) {
         //Test for adding an empty list to an empty list
         List<Complex> l1 = new ArrayList<>();
-        List<Complex> list = new ArrayList<>();
-        assertListOperation(l -> l.addAll(list), l1, l2);
-        assertListOperation(l -> l.addAll(0, list), l1, l2);
+        List<Complex> list2 = new ArrayList<>();
+        assertListOperation(list -> list.addAll(list2), l1, l2);
+        assertListOperation(list -> list.addAll(0, list2), l1, l2);
     }
 
     @ParameterizedTest
@@ -283,40 +287,40 @@ public class ComplexListTest {
 
     @ParameterizedTest
     @MethodSource({"listImplementations"})
-    void testGetAndSetIndexOutOfBoundExceptions(List<Complex> l) {
+    void testGetAndSetIndexOutOfBoundExceptions(List<Complex> list) {
         // Empty list throws
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(0));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.get(0));
         int size = 5;
-        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(l::add);
+        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(list::add);
 
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(-1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(size));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.get(size + 1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.get(-1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.get(size));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.get(size + 1));
 
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.set(-2, Complex.ofCartesian(200, 1)));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.set(size, Complex.ofCartesian(200, 1)));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.set(size + 1, Complex.ofCartesian(200, 1)));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.set(-2, Complex.ofCartesian(200, 1)));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.set(size, Complex.ofCartesian(200, 1)));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.set(size + 1, Complex.ofCartesian(200, 1)));
     }
 
     @ParameterizedTest
     @MethodSource({"listImplementations"})
-    void testAddIndexOutOfBoundExceptions(List<Complex> l) {
+    void testAddIndexOutOfBoundExceptions(List<Complex> list) {
         int size = 5;
-        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(l::add);
+        IntStream.range(0, size).mapToObj(i -> Complex.ofCartesian(i, -i)).forEach(list::add);
 
         Assertions.assertThrows(IndexOutOfBoundsException.class, () ->
-            l.add(-1, Complex.ofCartesian(42, 13)));
+            list.add(-1, Complex.ofCartesian(42, 13)));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () ->
-            l.add(size + 1, Complex.ofCartesian(42, 13)));
+            list.add(size + 1, Complex.ofCartesian(42, 13)));
     }
 
     @ParameterizedTest
     @MethodSource({"listImplementationsWithSize"})
-    void testRemoveIndexOutOfBoundExceptions(List<Complex> l, int size) {
-        IntStream.range(0, size).forEach(i -> l.add(Complex.ofCartesian(i, -i)));
-        l.remove(0);
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.remove(1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> l.remove(-1));
+    void testRemoveIndexOutOfBoundExceptions(List<Complex> list, int size) {
+        IntStream.range(0, size).forEach(i -> list.add(Complex.ofCartesian(i, -i)));
+        list.remove(0);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.remove(1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
     }
 
     /**
@@ -344,12 +348,12 @@ public class ComplexListTest {
 
         Assertions.assertEquals(l1, l2);
 
-        assertListOperation(l -> l.add(Complex.ofCartesian(10, 20)), l1, l2);
-        assertListOperation(l -> {
-            l.add(1, Complex.ofCartesian(10, 20));
+        assertListOperation(list -> list.add(Complex.ofCartesian(10, 20)), l1, l2);
+        assertListOperation(list -> {
+            list.add(1, Complex.ofCartesian(10, 20));
             return Boolean.TRUE;
         }, l1, l2);
-        assertListOperation(l -> l.addAll(1, l), l1, l2);
+        assertListOperation(list -> list.addAll(1, list), l1, l2);
     }
 
     /**
