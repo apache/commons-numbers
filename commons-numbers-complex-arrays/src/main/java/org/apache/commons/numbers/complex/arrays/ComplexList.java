@@ -628,11 +628,11 @@ public abstract class ComplexList extends AbstractList<Complex> {
         private static final int MAX_CAPACITY = MAX_ARRAY_SIZE;
         /** Error in case of allocation above max capacity. */
         private static final String OOM_ERROR = OOM_ERROR_STRING + MAX_CAPACITY;
+
         /**
          * Storage for the real parts of complex numbers.
          */
         private double[] realParts;
-
         /**
          * Storage for the imaginary parts of complex numbers.
          */
