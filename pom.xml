@@ -356,12 +356,16 @@
         </configuration>
       </plugin>
       <plugin>
-      <!-- NOTE: javadoc config must also be set under <reporting> -->
+        <!-- NOTE: javadoc config must also be set under <reporting> -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <!-- Java API links configured in commons-parent create redirect warnings on JDK 17
+            and fail the build. The links are not required as detectJavaApiLink=true (default). -->
+          <links combine.self="override">
+          </links>
           <failOnWarnings>true</failOnWarnings>
-          <!--  Enable MathJax -->
+          <!-- Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
         </configuration>
       </plugin>
@@ -490,8 +494,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <!-- Java API links configured in commons-parent create redirect warnings on JDK 17
+            and fail the build. The links are not required as detectJavaApiLink=true (default). -->
+          <links combine.self="override">
+          </links>
           <failOnWarnings>true</failOnWarnings>
-          <!--  Enable MathJax -->
+          <!-- Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
         </configuration>
       </plugin>
