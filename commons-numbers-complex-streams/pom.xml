@@ -40,6 +40,7 @@
     <commons.osgi.export>org.apache.commons.numbers.complex.streams</commons.osgi.export>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <numbers.jira.component>complex-streams</numbers.jira.component>
   </properties>
 
   <dependencies>

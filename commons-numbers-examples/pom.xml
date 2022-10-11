@@ -41,6 +41,7 @@
     <commons.automatic.module.name>org.apache.commons.numbers.examples</commons.automatic.module.name>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <numbers.jira.component>examples</numbers.jira.component>
 
     <!-- Disable JApiCmp failures (but keep the report). The examples API is allowed to change. -->
     <commons.japicmp.breakBuildOnBinaryIncompatibleModifications>false</commons.japicmp.breakBuildOnBinaryIncompatibleModifications>

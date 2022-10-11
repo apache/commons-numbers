@@ -104,6 +104,9 @@
     <!-- Workaround to avoid the SVN site checkout in all modules.
          This flag should be deactivated by child modules. -->
     <perform.site.checkout>true</perform.site.checkout>
+
+    <!-- Set by modules to create a custom jira report -->
+    <numbers.jira.component />
   </properties>
 
   <modules>
@@ -383,19 +386,11 @@
         <artifactId>maven-changes-plugin</artifactId>
         <version>${commons.changes.version}</version>
         <configuration>
-          <xmlPath>${basedir}/src/changes/changes.xml</xmlPath>
-          <columnNames>Fix Version,Key,Component,Summary,Type,Resolution,Status</columnNames>
-          <!-- Sort cols in natural order when using JQL for JIRA 5.1 -->
-          <sortColumnNames>Fix Version DESC,Type,Key DESC</sortColumnNames>
           <resolutionIds>Fixed,Implemented</resolutionIds>
           <statusIds>Resolved,Closed</statusIds>
           <!-- Don't include sub-task -->
           <typeIds>Bug,New Feature,Task,Improvement,Wish,Test</typeIds>
-          <!-- For JIRA >= 5.1 -->
-          <useJql>true</useJql>
-          <onlyCurrentVersion>${commons.changes.onlyCurrentVersion}</onlyCurrentVersion>
-          <maxEntries>${commons.changes.maxEntries}</maxEntries>
-          <runOnlyAtExecutionRoot>${commons.changes.runOnlyAtExecutionRoot}</runOnlyAtExecutionRoot>
+          <component>${numbers.jira.component}</component>
         </configuration>
         <reportSets>
           <reportSet>

@@ -38,6 +38,7 @@
     <commons.osgi.export>org.apache.commons.numbers.quaternion</commons.osgi.export>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <numbers.jira.component>quaternion</numbers.jira.component>
   </properties>
 
   <dependencies>

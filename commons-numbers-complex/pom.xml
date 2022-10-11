@@ -38,6 +38,7 @@
     <commons.osgi.export>org.apache.commons.numbers.complex</commons.osgi.export>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <numbers.jira.component>complex</numbers.jira.component>
   </properties>
 
   <dependencies>

@@ -38,6 +38,7 @@
     <commons.osgi.export>org.apache.commons.numbers.rootfinder</commons.osgi.export>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <numbers.jira.component>rootfinder</numbers.jira.component>
   </properties>
 
 </project>
