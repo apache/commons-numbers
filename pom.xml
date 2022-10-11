@@ -58,8 +58,6 @@
     <commons.encoding>UTF-8</commons.encoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <numbers.checkstyle.version>3.1.2</numbers.checkstyle.version>
-    <numbers.checkstyle.dep.version>8.45</numbers.checkstyle.dep.version>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
     <numbers.commons.rng.version>1.5</numbers.commons.rng.version>
@@ -249,13 +247,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>com.puppycrawl.tools</groupId>
-            <artifactId>checkstyle</artifactId>
-            <version>${numbers.checkstyle.dep.version}</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <includeTestSourceDirectory>true</includeTestSourceDirectory>
           <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
@@ -268,7 +259,6 @@
           <logViolationsToConsole>true</logViolationsToConsole>
           <failOnViolation>true</failOnViolation>
           <resourceExcludes>NOTICE,LICENSE,**/pom.properties,**/resolver-status.properties,**/sha512.properties</resourceExcludes>
-          <excludes>**/generated/**.java</excludes>
         </configuration>
         <executions>
           <execution>
@@ -367,16 +357,6 @@
         </configuration>
       </plugin>
     </plugins>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>${numbers.checkstyle.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
   <reporting>
@@ -428,14 +408,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${numbers.checkstyle.version}</version>
         <configuration>
           <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
           <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
           <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
           <enableRulesSummary>false</enableRulesSummary>
           <includeResources>false</includeResources>
-          <excludes>**/generated/**.java</excludes>
         </configuration>
         <reportSets>
           <reportSet>
