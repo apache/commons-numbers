@@ -76,9 +76,6 @@
     <commons.jacoco.methodRatio>1.00</commons.jacoco.methodRatio>
     <commons.jacoco.haltOnFailure>true</commons.jacoco.haltOnFailure>
 
-    <!-- Override commons parent 51 to allow build on JDK 17.  -->
-    <commons.japicmp.version>0.15.3</commons.japicmp.version>
-
     <commons.site.path>numbers</commons.site.path>
     <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-numbers</commons.scmPubUrl>
     <commons.scmPubCheckoutDirectory>site-content</commons.scmPubCheckoutDirectory>
