@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-parent</artifactId>
-    <version>52</version>
+    <version>54</version>
   </parent>
 
   <artifactId>commons-numbers-parent</artifactId>
@@ -44,6 +44,8 @@
     <commons.osgi.symbolicName>org.apache.commons.numbers</commons.osgi.symbolicName>
     <!-- OSGi -->
     <commons.osgi.export>org.apache.commons.numbers</commons.osgi.export>
+    <!-- This flag should only be true in the dist-archive module. -->
+    <commons.release.isDistModule>false</commons.release.isDistModule>
     <!-- do not use snapshot suffix here -->
     <commons.release.version>1.0</commons.release.version>
     <commons.bc.version>${commons.release.version}</commons.bc.version>
@@ -67,6 +69,8 @@
     <numbers.antrun.version>1.8</numbers.antrun.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
+    <!-- Multi-module support fixed in commons-parent 55 -->
+    <cyclonedx.skip>true</cyclonedx.skip>
 
     <!-- Increase from commons-parent -->
     <commons.jacoco.methodRatio>1.00</commons.jacoco.methodRatio>
@@ -125,10 +129,16 @@
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/commons-numbers.git</developerConnection>
     <url>https://gitbox.apache.org/repos/asf/commons-numbers.git</url>
   </scm>
+
   <issueManagement>
     <system>jira</system>
     <url>https://issues.apache.org/jira/browse/NUMBERS</url>
   </issueManagement>
+
+  <ciManagement>
+    <system>GitHub</system>
+    <url>https://github.com/apache/commons-numbers/actions</url>
+  </ciManagement>
 
   <distributionManagement>
     <site>
@@ -349,6 +359,8 @@
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
             <exclude>**/site-content/**</exclude>
+            <!-- Moved to commons-parent 55 -->
+            <exclude>.gitattributes</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -403,6 +415,8 @@
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
             <exclude>**/site-content/**</exclude>
+            <!-- Moved to commons-parent 55 -->
+            <exclude>.gitattributes</exclude>
           </excludes>
         </configuration>
       </plugin>
