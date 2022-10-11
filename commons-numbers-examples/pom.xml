@@ -52,7 +52,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>${numbers.pmd.version}</version>
         <configuration>
           <failOnViolation>false</failOnViolation>
         </configuration>
