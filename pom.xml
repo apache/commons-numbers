@@ -63,7 +63,7 @@
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <numbers.junit.bom.version>5.4.2</numbers.junit.bom.version>
     <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
-    <numbers.commons.rng.version>1.4</numbers.commons.rng.version>
+    <numbers.commons.rng.version>1.5</numbers.commons.rng.version>
     <numbers.antrun.version>1.8</numbers.antrun.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
@@ -186,13 +186,10 @@
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
-        <artifactId>commons-rng-simple</artifactId>
+        <artifactId>commons-rng-bom</artifactId>
         <version>${numbers.commons.rng.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-rng-sampling</artifactId>
-        <version>${numbers.commons.rng.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
     </dependencies>
   </dependencyManagement>
