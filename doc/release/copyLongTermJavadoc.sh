@@ -18,7 +18,7 @@
 set -e
 
 # List of all modules paths for which the long-term Javadoc links must be copied
-# We keep only the official distribution (i.e. _not_ "commons-rng-examples").
+# We keep only the official distribution (i.e. _not_ "commons-numbers-examples").
 MODULES=(commons-numbers-angle \
              commons-numbers-arrays \
              commons-numbers-combinatorics \
