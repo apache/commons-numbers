@@ -61,7 +61,6 @@
     <numbers.checkstyle.version>3.1.2</numbers.checkstyle.version>
     <numbers.checkstyle.dep.version>8.45</numbers.checkstyle.dep.version>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
-    <numbers.junit.bom.version>5.4.2</numbers.junit.bom.version>
     <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
     <numbers.commons.rng.version>1.5</numbers.commons.rng.version>
     <numbers.antrun.version>1.8</numbers.antrun.version>
@@ -184,13 +183,6 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-math3</artifactId>
         <version>${numbers.commons.math3.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit</groupId>
-        <artifactId>junit-bom</artifactId>
-        <version>${numbers.junit.bom.version}</version>
-        <scope>import</scope>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
