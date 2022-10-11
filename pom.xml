@@ -59,8 +59,6 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
-    <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
-    <numbers.commons.rng.version>1.5</numbers.commons.rng.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
     <!-- Multi-module support fixed in commons-parent 55 -->
@@ -94,6 +92,10 @@
     <allowscript.javadoc.qualifier>--allow-script-in-comments</allowscript.javadoc.qualifier>
     <!-- Check for all javadoc errors -->
     <doclint.javadoc.qualifier>-Xdoclint:all</doclint.javadoc.qualifier>
+
+    <!-- Dependency versions -->
+    <numbers.commons.rng.version>1.5</numbers.commons.rng.version>
+    <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
 
     <!-- Workaround to avoid the SVN site checkout in all modules.
          This flag should be deactivated by child modules. -->
