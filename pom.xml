@@ -58,8 +58,6 @@
     <commons.encoding>UTF-8</commons.encoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <numbers.pmd.version>3.13.0</numbers.pmd.version>
-    <numbers.pmd.dep.version>6.21.0</numbers.pmd.dep.version>
     <numbers.checkstyle.version>3.1.2</numbers.checkstyle.version>
     <numbers.checkstyle.dep.version>8.45</numbers.checkstyle.dep.version>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
@@ -309,19 +307,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>${numbers.pmd.version}</version>
-        <dependencies>
-          <dependency>
-            <groupId>net.sourceforge.pmd</groupId>
-            <artifactId>pmd-core</artifactId>
-            <version>${numbers.pmd.dep.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>net.sourceforge.pmd</groupId>
-            <artifactId>pmd-java</artifactId>
-            <version>${numbers.pmd.dep.version}</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <printFailingErrors>true</printFailingErrors>
           <!-- TODO: remove this when PMD has been fixed. -->
@@ -480,7 +465,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>${numbers.pmd.version}</version>
         <configuration>
           <verbose>false</verbose>
           <printFailingErrors>true</printFailingErrors>

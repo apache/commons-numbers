@@ -72,7 +72,7 @@
       <!-- The ported method follows the original C++ usage of the 'invert' flag.
            Inversion of complementary functions may swap the arguments. -->
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostErf'
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta']"/>
     </properties>
@@ -81,7 +81,7 @@
   <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
       <!-- TODO: Current regex effectively disables this rule. -->
-      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[matches(@SimpleName, '^.*$')]"/>
+      <property name="violationSuppressXPath" value="./ancestor-or-self::ClassOrInterfaceDeclaration[matches(@SimpleName, '^.*$')]"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ClassNamingConventions">
@@ -98,20 +98,20 @@
     <properties>
       <!-- Naming conventions preserved from the original Boost C++ code -->
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf' or @SimpleName='BoostGamma']"/>
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostErf' or @SimpleName='BoostGamma']"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ConfusingTernary">
     <properties>
       <!-- Use the original C++ code logic for identifying the erf domain. -->
-      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
+      <property name="violationSuppressXPath" value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/PrematureDeclaration">
     <properties>
       <!-- False positive declaring the numerator a0. -->
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostTools']"/>
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostTools']"/>
     </properties>
   </rule>
 
@@ -120,21 +120,21 @@
       <!-- Increase from default of 10 -->
       <property name="methodReportLevel" value="20"/>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
                or @SimpleName='BoostBeta']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/NPathComplexity">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
                or @SimpleName='BoostBeta']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/ExcessivePublicCount">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BigFraction']"/>
     </properties>
@@ -142,7 +142,7 @@
   <rule ref="category/java/design.xml/ExcessiveClassLength">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BigFraction'
                or @SimpleName='BoostGamma'
@@ -152,7 +152,7 @@
   <rule ref="category/java/design.xml/GodClass">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='Fraction'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Fraction'
                or @SimpleName='BigFraction'
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta']"/>
@@ -163,7 +163,7 @@
     <properties>
       <property name="ignoreMagicNumbers" value="-1,0,1" />
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='LogGamma'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='LogGamma'
                or @SimpleName='LogGammaSum'
                or @SimpleName='InverseErf'
                or @SimpleName='InvGamma1pm1'
@@ -179,7 +179,7 @@
   <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BigFraction']"/>
     </properties>
@@ -189,7 +189,7 @@
   <rule ref="category/java/design.xml/ExcessiveMethodLength">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex'
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='BigFraction'
                or @SimpleName='Fraction'
                or @SimpleName='BoostErf'
@@ -204,13 +204,13 @@
   <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
     </properties>
   </rule>
   <rule ref="category/java/bestpractices.xml/PreserveStackTrace">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
     </properties>
   </rule>
 
