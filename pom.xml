@@ -77,7 +77,6 @@
     <commons.jacoco.haltOnFailure>true</commons.jacoco.haltOnFailure>
 
     <!-- Override commons parent 51 to allow build on JDK 17.  -->
-    <commons.spotbugs.version>4.4.2</commons.spotbugs.version>
     <commons.jacoco.version>0.8.7</commons.jacoco.version>
     <commons.japicmp.version>0.15.3</commons.japicmp.version>
 
@@ -276,7 +275,6 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${commons.spotbugs.version}</version>
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
@@ -422,7 +420,6 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${commons.spotbugs.version}</version>
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
