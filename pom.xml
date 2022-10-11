@@ -61,7 +61,6 @@
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
     <numbers.commons.rng.version>1.5</numbers.commons.rng.version>
-    <numbers.antrun.version>1.8</numbers.antrun.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
     <!-- Multi-module support fixed in commons-parent 55 -->
@@ -511,7 +510,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>${numbers.antrun.version}</version>
             <executions>
               <!-- For multi-module builds, only the parent directory requires a site checkout.
                    This task will create an empty directory as the site checkout is missing. -->
@@ -571,7 +569,6 @@ This is avoided by creating an empty directory when svn is not available.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>${numbers.antrun.version}</version>
             <executions>
               <execution>
                 <id>remove-checkout</id>
