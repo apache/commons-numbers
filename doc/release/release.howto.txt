@@ -69,6 +69,21 @@ This process allows:
  - if necessary to have multiple release managers or help on the
    release as the X.Y-release branch is shared
 
+NOTE
+----
+
+When performing a release it is good practice to edit a copy of these notes during the process
+and merge the updated document into the repository following a release. To assist in this process
+a find-and-replace can be performed to update all the version numbers in order. For example
+based on a previous release of 1.0:
+
+- Next development version  : 1.1 -> 1.2
+- Next release version      : 1.0 -> 1.1
+- Previous release version  : 1.0-beta1 -> 1.0
+- Release candidate version : RC1 -> RC2   (if applicable)
+
+This allows the included commands to be coped during the release process.
+
 
 (0)
 Preliminary checks:
@@ -79,11 +94,15 @@ Preliminary checks:
    appropriate properties:
      <properties>
        <!-- ... -->
-       <commons.release.version>1.0</commons.release.version>
+       <!-- upcoming release version -->
+       <commons.release.version>1.1</commons.release.version>
+       <!-- previous release version -->
        <commons.bc.version>1.0</commons.bc.version>
        <!-- ... -->
      </properties>
-   Check all the issues reported by the "Clirr" and "japicmp" plugin.
+   Check all the issues reported by the "japicmp" plugin.
+   Check the new public/protected API classes/interfaces/methods/enums have an appropriate
+   @since tag for the release.
  * Clear all "CheckStyle" warnings.
  * Make sure that the construct reported by "SpotBugs" and "PMD" are intentional.
  * Mark all issues fixed in the release as resolved in the bug-tracking system (JIRA). Issues marked
@@ -98,9 +117,18 @@ that the build process can create all the necessary artifacts.
   (1a)
   The command
 
-    $ JAVA_HOME="__Path_to_a_JDK__" mvn -Duser.name="__Your_Apache_id__" -Ptest-deploy -Prelease clean test package site site:stage deploy
+    $ JAVA_HOME="__Path_to_a_JDK__" mvn -Duser.name="__Your_Apache_id__" -Ptest-deploy -Prelease clean verify site site:stage deploy [-Dgpg.skip]
 
-  should create the artifacts in the "target/deploy" directory.
+  should create the artifacts in the "target/deploy" directory. The site goal
+  is required for the commons release plugin even though the site is
+  built separately for the full multi-module project to include the examples.
+
+  The "dist-archive/target" directory will contain those files:
+
+    commons-numbers-1.1-SNAPSHOT-bin.tar.gz
+    commons-numbers-1.1-SNAPSHOT-bin.zip
+    commons-numbers-1.1-SNAPSHOT-src.tar.gz
+    commons-numbers-1.1-SNAPSHOT-src.zip
 
   At some point when processing the above command, the GPG passphrase will be
   requested; to avoid problems, the "gpg2" executable should be specified in
@@ -117,17 +145,19 @@ that the build process can create all the necessary artifacts.
     $ export GPG_TTY=$(tty)
   in order to set up the environment for entering the passphrase.
 
+  For testing, or when GPG is not configured, this can be avoided using "-Dgpg.skip" argument
+  in the maven release dry run command.
+
   (1b)
-  When the above works, you can test the creation of the full distribution
-  files with the following commands:
+  The command (requires Java 11):
 
-    $ ( cd dist-archive && mvn assembly:single )
+    $ JAVA_HOME="__Path_to_a_JDK__" mvn -Pcommons-numbers-examples package site site:stage
 
-  The "dist-archive/target" directory will then contain those files:
-    commons-numbers-1.0-SNAPSHOT-bin.tar.gz
-    commons-numbers-1.0-SNAPSHOT-bin.zip
-    commons-numbers-1.0-SNAPSHOT-src.tar.gz
-    commons-numbers-1.0-SNAPSHOT-src.zip
+  should create the site in the "target/staging" directory. The JMH example modules require
+  Java 9+.
+
+  Note: The examples are not part of the binary distribution (release profile) but are
+  included in the site for documentation.
 
 
 (2)
@@ -162,9 +192,9 @@ branch since the creation of the release branch, there are two cases:
 
     $ git merge master
 
-  or, if the version branch is called "1.x-release"
+  or, if the version branch is called "1.0-develop"
 
-    $ git merge 1.x-release
+    $ git merge 1.0-develop
 
   (4b)
   if only part of these changes must be included in version 1.0,
@@ -178,7 +208,7 @@ Update the release specific files, checking you are really working on the
 release branch and *not* on the master branch.
 
 In particular:
- * Update and commit the "src/site/site.xml" file in each maven module to contain
+ * Update and commit the "src/site/site.xml" file in **each** maven module to contain
    the information about the API docs of the new release.
  * Estimate a release date (taking into account the release vote delay) and
    insert it in the "src/changes/changes.xml" file.
@@ -214,6 +244,7 @@ This file is updated automatically by running the command:
 
   $ mvn -N -Pcommons-numbers-examples commons-build:download-page
 
+  Note: This command presently requires Java 8.
 
 (7)
 The "release notes" file will be created by gathering all the changes
@@ -234,20 +265,26 @@ issue field. Update changes.xml if appropriate.
 Append the previous release notes from src/site/resources/release-notes/ to the current one:
 
   $ (echo "=============================================================================" &&
-     cat src/site/resources/release-notes/RELEASE-NOTES-<old version>.txt) >> RELEASE-NOTES.txt
+     cat src/site/resources/release-notes/RELEASE-NOTES-1.0-beta1.txt) >> RELEASE-NOTES.txt
 
 Copy the RELEASE-NOTES.txt to src/site/resources/release-notes:
 
-  $ cp RELEASE-NOTES.txt src/site/resources/release-notes/RELEASE-NOTES-<version>.txt
+  $ cp RELEASE-NOTES.txt src/site/resources/release-notes/RELEASE-NOTES-1.0.txt
 
 Update the src/site/xdoc/release-history.xml to include the latest version. This generates
 the release history page on the web site.
 
 Commit the updated files to git:
 
-  $ git add .
+  $ git add */src/site/site.xml \
+            src/changes/changes.xml \
+            pom.xml \
+            src/site/xdoc/download_numbers.xml \
+            RELEASE-NOTES.txt \
+            src/site/resources/release-notes/RELEASE-NOTES-* \
+            src/site/xdoc/release-history.xml
 
-Check the modified files:
+Check you did not forget any files:
 
   $ git status
 
@@ -266,7 +303,7 @@ Then, assuming the first candidate, the suffix will be "RC1" (this should
 be the same as in the "<properties>" in the "pom.xml"), and the command
 will be:
 
-  $ git tag -u "__Your_key_id__" -s -m "RC1" commons-numbers-1.0-rc1
+  $ git tag -u "__Your_key_id__" -s -m "RC1" commons-numbers-1.0-RC1
 
 If you have several GPG keys, you may prefer to use "-u keyId" to select a specific
 key for signing the tag instead of "-s" which select automatically one key
@@ -274,13 +311,13 @@ from the configured e-mail address.
 
 Check the tag GPG signature:
 
-  $ git tag -v commons-numbers-1.0-rc1
+  $ git tag -v commons-numbers-1.0-RC1
 
 You will get something like:
 
   object cf4a9d70c9ac24dd7196995390171150e4e56451
   type commit
-  tag commons-numbers-1.0-rc1
+  tag commons-numbers-1.0-RC1
   tagger YourName <YourApacheEmail> 1418934614 +0100
 
   RC1
@@ -292,7 +329,7 @@ as it is the most stable reference for traceability.
 
 Push everything (including the tag!) on the Apache repository:
 
-  $ git push --tags
+  $ git push && git push --tags
 
 
 (9)
@@ -300,7 +337,7 @@ Switch to a new directory out of your regular workspace, and retrieve
 the official tag from the Apache repository:
 
   $ cd /tmp
-  $ git clone https://gitbox.apache.org/repos/asf/commons-numbers.git --branch commons-numbers-1.0-rc1
+  $ git clone https://gitbox.apache.org/repos/asf/commons-numbers.git --branch commons-numbers-1.0-RC1
 
 In the command above, the --branch option accepts both branch names and tags names,
 so we specify directly the tag here. Git will warn that the resulting workspace
@@ -343,36 +380,49 @@ the maven settings.xml file. Typically the username is the same for Nexus reposi
 settings.xml file can be used by setting the commons.distServer property for the commons release
 plugin (see https://commons.apache.org/proper/commons-release-plugin/index.html).
 
-You can then run
-
-  With site generation:
+You can then generate the release artifacts without the site generation (using Java 8):
 
   $ mvn -Duser.name="__Your_Apache_id__" [-Dcommons.distServer=apache.releases.https] \
-        -Pcommons-numbers-examples -Prelease clean package site site:stage deploy
-
-  Or without the site generation:
-
-  $ mvn -Duser.name="__Your_Apache_id__" [-Dcommons.distServer=apache.releases.https] \
-        -Pcommons-numbers-examples -Prelease clean deploy
-
-  The site can be generated afterwards using 'mvn -Pcommons-numbers-examples package site site stage'.
+        [-Duser.password=<yourApacheIdsPassword] \
+        -Prelease clean package site deploy
 
 which will transfer the artifacts to the Nexus repository located at
   https://repository.apache.org/index.html#stagingRepositories
+
+The apache ID password is required to clean and deploy the binary distribution
+files to svn if the svn client is not configured to locally cache the user
+password.
+
+Note: The 'site' goal is required for the release plugin. The live site
+should be generated separately to include the examples modules for
+documentation. The release profile will not include the example modules as they
+are not part of the binary release artifacts. The 'package' goal is required
+to generate a jar file for the japicmp report.
+
+Using Java 8 ensures a package-list is created for the javadoc in each module. Later Java
+versions may generate an element-list. If the site is generated including the examples
+module using JDK 11+ without running 'mvn clean' then the package-list will coexist
+alongside the newly generated element-list. This allows the javadocs to be searchable
+from new and old JDKs.
 
 This process transfers more files than really needed in the the "staging" (i.e.
 non official) maven repository. The files expected in the repository are
   commons-numbers-<ModuleArtifactID>-1.0.pom
   commons-numbers-<ModuleArtifactID>-1.0.jar
-  commons-numbers-<ModuleArtifactID>-1.0.javadoc
-  commons-numbers-<ModuleArtifactID>-1.0.sources
-  commons-numbers-<ModuleArtifactID>-1.0.test-sources
-  commons-numbers-<ModuleArtifactID>-1.0.tests
+  commons-numbers-<ModuleArtifactID>-1.0.javadoc.jar
+  commons-numbers-<ModuleArtifactID>-1.0.sources.jar
+  commons-numbers-<ModuleArtifactID>-1.0.test-sources.jar
+  commons-numbers-<ModuleArtifactID>-1.0.tests.jar
+  commons-numbers-<ModuleArtifactID>-1.5.spdx.rdf.xml
 and their associated fingerprints
   <file-name>.md5
   <file-name>.sha1
 and their signatures
   <file-name>.asc
+
+The commons-numbers-parent artifact should contain the pom
+and the associated fingerprints and signatures. The commons-parent also
+contains a Software Package Data Exchange (SPDX) file.
 
 Nexus used to add "md5" and "sha1" checksums files to the "asc" files
 (cryptographic signature). If these fingerprints on signatures are
@@ -394,52 +444,61 @@ before other people review the deliverables just created.
 How to "close" the staging repository is explained at this page:
   http://www.apache.org/dev/publishing-maven-artifacts.html#close-stage
 
+The nexus staging ID should be noted so that it can be used in the generation
+of the VOTE email. The id is the XXXX number from the repository id with the
+format orgapachecommons-XXXX.
 
 (12)
-Create and upload the other distribution files to the "dev" distribution
-area on the Apache servers.
+[NOTE: The "Commons release-plugin" now automatically performs all the tasks
+referred to in this section.]
+
+***
+Verify that the release plugin has performed the steps below.
+You may be required to remove the staged site from the "dev" area
+and add missing files. The following was performed for release 1.0:
+
+  $ cd /tmp
+  $ svn checkout https://dist.apache.org/repos/dist/dev/commons/numbers
+  $ cd numbers/1.5-RC1
+  $ cp path-to-the-RC-workspace/CONTRIBUTING.md .
+  $ svn add CONTRIBUTING.md
+  $ svn del site
+  $ svn commit -m "Distribution files for Commons Numbers v1.0 (RC1)."
+***
+
+Create and upload the other distribution files to the Apache servers.
 
   (12a)
-  The module "dist-archive" is dedicated to creating the archive files.
+  Perform a server-side copy of the README.html from the "release" area of
+  the Apache dist server to the "dev" area:
+
+    $ svn cp https://dist.apache.org/repos/dist/release/commons/numbers/README.html \
+             https://dist.apache.org/repos/dist/dev/commons/numbers/README.html
+
+  (12b)
+  The modules "dist-archive" dedicated to creating the archive files.
   Run the following command:
 
     $ ( cd dist-archive && mvn -P release assembly:single )
 
-  (12b)
+  (12c)
   Go to a temporary directory and check out the "dev" area.
 
     $ cd /tmp
     $ svn checkout https://dist.apache.org/repos/dist/dev/commons/numbers
     $ cd numbers
 
-  (12c)
-  Create a new folder for the release candidate artifacts.
-
-    $ svn mkdir 1.0-RC1
-
   (12d)
-  Copy the README.html and HEADER.html files from the last released version and add to the new directory.
-
-    $ curl https://dist.apache.org/repos/dist/release/commons/numbers/README.html > 1.0-RC1/README.html
-    $ curl https://dist.apache.org/repos/dist/release/commons/numbers/HEADER.html > 1.0-RC1/HEADER.html
-
-  (12e)
   Edit the "README.html" file to contain the released version number.
 
-  (12f)
+  (12e)
   Copy other files from the RC workspace:
 
     $ cp path-to-the-RC-workspace/RELEASE-NOTES.txt .
     $ cp path-to-the-RC-workspace/CONTRIBUTING.md .
+    $ cp path-to-the-RC-workspace/dist-archive/target/commons-release-plugin/scm/1.5-RC1/README.html .
     $ cp path-to-the-RC-workspace/dist-archive/target/*-bin.* binaries
     $ cp path-to-the-RC-workspace/dist-archive/target/*-src.* source
-
-  (12g)
-  Create copies of the HEADER.html and README.html files in the subdirectories
-    $ cp README.html binaries
-    $ cp HEADER.html binaries
-    $ cp README.html source
-    $ cp HEADER.html source
 
   Currently, the commons-parent build does not create the
    * signatures (".asc"),
@@ -454,7 +513,7 @@ area on the Apache servers.
     $ gpg --verify asc-file
     $ sha512sum -c hash-file
 
-  (12h)
+  (12f)
   Commit to SVN:
 
     $ svn add \
@@ -467,6 +526,10 @@ area on the Apache servers.
 
 
 (13)
+[NOTE: The "Commons release-plugin" now automatically uploads the web site
+to the "dist dev" area of the svn repository.  However, for multi-module
+maven projects, the site is incomplete.]
+
 As the web site staging area is shared among all commons components and therefore
 could be published before the vote ends, it is not recommended to use the standard
 staging area for the release candidate. So you will just archive the site and
@@ -481,9 +544,15 @@ login and copy the contents of your
 file to "SSH Key (authorized_keys line)".
 Then run these commands:
 
-  (Optional. Use this if the release step in (11) was performed without site generation.
-  Do not run 'clean' as it will delete the release source/binary artifacts and the release
-  plugin cannot be used to generate the template VOTE.txt file with the correct hashes.)
+  Note: Site generation requires Java 11 for the examples JMH module.
+  With site generation the 'package' goal is required for the site report javadoc
+  of the Java 11 JPMS modules and for japicmp.
+
+  Do not run 'clean' as it will delete the release source/binary artifacts and the
+  release plugin cannot be used to generate the template VOTE.txt file with the
+  correct hashes. It also removes the previous javadocs package-list generated using
+  Java 8.
+
   $ mvn -Pcommons-numbers-examples package site site:stage
 
   $ cd target
@@ -494,6 +563,10 @@ Then run these commands:
      lftp you@home.apache.org:~/public_html> mirror -R commons-numbers-1.0-RC1-site
      lftp you@home.apache.org:~/public_html> bye
 
+If lftp fails with 'Fatal error: Host key verification failed.' then the host
+key for home.apache.org may have changed. Try to ssh to the server. This will be
+refused as only ftp connections are allowed but the error message should
+describe how to update the SSH known hosts to remove the error.
 
 (14)
 [NOTE: The "Commons release-plugin" can generate the text for the "[VOTE]"
@@ -502,9 +575,12 @@ a result that must be heavily edited.]
 
 Template the vote using this command (run from the dist-archive module):
 
-  $ mvn org.apache.commons:commons-release-plugin:vote-txt -Dcommons.nexus.repo.id=1476
+  $ mvn org.apache.commons:commons-release-plugin:vote-txt \
+        -Dgit.tag.commit=commons-numbers-1.0-RC1 \
+        -Dcommons.nexus.repo.id=XXXX
 
-See target/VOTE.txt. This must be heavily edited. It is useful to generate the release hashes.
+where XXXX is the nexus repository staging ID. The output is target/VOTE.txt.
+This must be heavily edited. It is useful to generate the release hashes.
 
 Call to vote by sending a message to the "dev" ML with subject
 "[VOTE] Release Commons Numbers 1.0 based on RC1". You can use the following example as
@@ -516,10 +592,11 @@ so I would like to release Apache Commons Numbers 1.0.
 Apache Commons Numbers (full distribution) 1.0 RC1 is available for review here:
     https://dist.apache.org/repos/dist/dev/commons/numbers/1.0-RC1 (svn revision 48777)
 
-The Git tag commons-numbers-1.0-rc1 commit for this RC is 89a9c3817222a6c67d7a231b19f6c5c7fc995208 which you can browse here:
-    https://gitbox.apache.org/repos/asf?p=commons-numbers.git;a=commit;h=89a9c3817222a6c67d7a231b19f6c5c7fc995208
+The Git tag commit for this RC is commons-numbers-1.5-RC1 which you can browse here:
+    https://gitbox.apache.org/repos/asf?p=commons-numbers.git;a=commit;h=commons-numbers-1.5-RC1
+
 You may checkout this tag using:
-    git clone https://gitbox.apache.org/repos/asf/commons-numbers.git --branch commons-numbers-1.0-rc1 commons-numbers-1.0-rc1
+    git clone https://gitbox.apache.org/repos/asf/commons-numbers.git --branch commons-numbers-1.0-RC1 commons-numbers-1.0-RC1
 
 Maven artifacts are here:
     https://repository.apache.org/content/repositories/orgapachecommons-1556/
@@ -532,9 +609,8 @@ commons-numbers-1.0-src.tar.gz=08656e681624e2bf2434714f6060e6b02de673089cc3711a0
 commons-numbers-1.0-src.zip=5e80cfe64207c5ce990e2bee3e6a7ab7d22260f9e8f28b936197276c02bcba0e771b23f3f06bdcb4984adee69b748c4ebd3cddea40530b9cf8def64b6d4c91f7
 
 (no need for .asc hashes!)
-I have tested this with:
 
-'mvn clean install site' using:
+I have tested this with 'mvn clean install site' using:
 
 ***
 <mvn -version>
@@ -547,11 +623,18 @@ Site:
     https://home.apache.org/~mattjuntunen/commons-numbers-1.0-RC1-site/
     (note some *relative* links are broken and the 1.0 directories are not yet created - these will be OK once the site is deployed.)
 
-CLIRR Report:
-    N/A
-
 JApiCmp Report:
-    N/A
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-angle/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-arrays/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-combinatorics/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-complex/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-core/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-field/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-fraction/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-gamma/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-primes/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-quaternion/japicmp.html
+    https://home.apache.org/~aherbert/commons-numbers-1.5-RC1-site/commons-numbers-rootfinder/japicmp.html
 
 RAT Report:
     https://home.apache.org/~mattjuntunen/commons-numbers-1.0-RC1-site/rat-report.html
@@ -604,19 +687,26 @@ area of the Apache dist server.
   (17b)
   Copy the files from the checkout of the repository that was voted on:
 
-    $ cd numbers
-    $ rsync -Cavz path-to-RC-dev/numbers/ .
+    $ svn co https://dist.apache.org/repos/dist/dev/commons/numbers numbers2
+    $ cd numbers2
+    $ rsync -Cav ../numbers/1.5-RC1/ .
 
   [Note: This might overwrite symbolic links; in this case, do a "svn
   revert" in order to restore the files that should not be updated.]
+
+    $ svn revert binaries/HEADER.html binaries/README.html \
+                 source/HEADER.html source/README.html
 
   (17c)
   Check files. The following is useful:
 
     $ svn diff --summarize
 
-  Perform a "svn add" for the new release artefacts.
-  Perform a "svn del" for the old release(s) artefacts.
+  Perform a "svn add" for the new release artifacts.
+  Perform a "svn del" for the old release(s) artifacts.
+
+    $ svn del binaries/*-1.0-beta1-* source/*-1.0-beta1-*
+    $ svn add binaries/*-1.0-* source/*-1.0-*
 
   (17d)
   Commit:
@@ -641,12 +731,17 @@ Publish the web site. This is done by first committing the web site to the
 staging area, and then by publishing the staging area (which is shared among
 all commons components).
 
-In order to commit the web site to the staging area, look at the subversion
-workspace that was automatically checked out during the 'mvn site' command in
-folder site-content. Note that svn commits in the site-content directory are
-immediately synced with the live site and so your changes should show up in a
-few minutes once you commit the new site. You can also check out the site
-directly by yourself elsewhere:
+To assist in committing the web site to the staging area, a profile can be used
+to checkout the current site to the folder 'site-content'. However this does not perform a
+complete checkout and the directory must be updated:
+
+ $ mvn -Psite-checkout -N pre-site
+ $ (cd site-content && svn up --set-depth infinity)
+
+Note that svn commits in the site-content directory are immediately synced with
+the live site and so your changes should show up in a few minutes once you
+commit the new site. You can also check out the site directly by yourself
+elsewhere:
 
   $ svn checkout https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-numbers site-content
 
@@ -660,31 +755,48 @@ Check for new or deleted files:
  $ svn status
 and "svn add" or "svn del" them if necessary.
 
-It is very useful to know changes to the project since the last release. The clirr and japicmp
-reports are helpful for the public API. Changes in commons-numbers-examples are not subject to these
-reports and require developer insight. If in doubt do not delete files.
+It is very useful to know changes to the project since the last release. The
+japicmp report is helpful for the public API. Changes in commons-numbers-examples
+are not subject to these reports and require developer insight. If in doubt do
+not delete files.
 
-The following commands are useful:
+Note the svn symbols (svn status --help):
 
-Reverting:
+M - Modified (will be committed)
+A - Marked for addition
+D - Marked for deletion
+? - Not under version control (must be marked as A to add)
+! - Missing (must be marked as D to remove)
 
-  $ svn status | grep ^M
+The following commands are useful.
+
+Note that the "awk '{if ... print $2}'" only works for files that have no
+spaces. Currently the only files known to have spaces are the SPDX files,
+e.g. 'Apache Commons Numbers-1.5.spdx.rdf.xml'; these must be committed manually.
+
+Reverting (may not be required):
+
+  $ svn status | grep ^M | less
   $ svn status | awk '{if ($1 == "M") print $2 }' | xargs svn revert
 
 Deleting (**do not** delete old javadocs):
 
-  $ svn status | grep -v javadocs | grep ^!
+  $ svn status | grep -v javadocs | grep ^! | less
   $ svn status | grep -v javadocs | awk '{if ($1 == "!") print $2 }' | xargs svn del
 
 Adding:
 
-  $ svn status | grep ^?
+  $ svn status | grep ^? | less
   $ svn status | awk '{if ($1 == "?") print $2 }' | xargs svn add
+
+Check the local website:
+
+  $ open index.html
 
 Commit the new contents of the web site:
   $ svn commit -m "Commons Numbers v1.0 was released (from RC1). Web site update"
 
-Note the SVN website revision for the next step.
+Note the SVN website revision for the next step (javadocs archiving).
 
 
 Edit the file component_releases.properties to hold the current version and release date for
@@ -694,7 +806,7 @@ your component:
 
   [edit file]
 
-  $ (cd conf && svn commit -m "Commons NUMBERS v1.0 was released (from RC1)")
+  $ (cd conf && svn commit -m "Commons Numbers v1.0 was released (from RC1)")
 
 
 (20)
@@ -707,30 +819,50 @@ The Javadoc must therefore be copied manually using server side copy from the
 to work. This is done using the "doc/release/copyLongTermJavadoc.sh" script
 (options are the svn revision and the component's new version).
 
+  $ doc/release/copyLongTermJavadoc.sh -r 1080991 -v 1.0
+
 Wait a few minutes for the live site to fully sync and then check
   https://commons.apache.org/proper/commons-numbers/
 to make sure that everything looks correct.
 
 
 (21)
-Put the official final tag to point at the same commit as the last release candidate tag:
+Edit "doap_numbers.rdf" to add the just released version date.
+It is located at
+  https://svn.apache.org/repos/asf/commons/cms-site/trunk/doap
+in the SVN repository.
 
-  $ git tag -u "__Your_key_id__" -s -m "RC1 becomes v1.0 official release." rel/commons-numbers-1.0 __commit_hash__
+  $ svn checkout https://svn.apache.org/repos/asf/commons/cms-site/trunk/doap
+
+  [edit file: doap/doap_numbers.rdf]
+
+  $ (cd doap && svn commit -m "Commons Numbers v1.0 was released (from RC1)")
+
+(22)
+In the git repository, put the official final tag to point at the same commit
+as the **last release candidate** tag:
+
+  $ git tag -v commons-numbers-1.0-RC1
+
+Check the commit hash then add the release tag.
+Note: The 'rel/' prefix adds the tag to the release section of the tags.
+This cannot be deleted once pushed to the main repository due to restrictions
+on this section of the tag namespace (preventing deletion of official release
+tags).
+
+  $ git checkout 1.0-release
+  $ git tag -u "__Your_key_id__" -s -m "RC1 becomes v1.0 official release." rel/commons-numbers-1.0 [commit hash]
+  $ git tag -v rel/commons-numbers-1.0
+  $ git log -1
   $ git push --tags
 
 
-(22)
+(23)
 Switch back to the "master" branch.
 We now prepare for the next round of development (here we assume that the
 next version will be 1.1).
 
-  (22a)
-  Edit "doap_numbers.rdf" to add the just released version date.
-  It is located at
-    https://svn.apache.org/repos/asf/commons/cms-site/trunk/doap
-  in the SVN repository.
-
-  (22b)
+  (23a)
   Retrieve changes made on the "1.0-release branch" (so that the web site will
   contain up-to-date information):
 
@@ -740,23 +872,28 @@ next version will be 1.1).
   setting the release date and description to "TBD".
   Then commit them.
 
-  (22c)
+  (23b)
   Edit every "pom.xml" file (i.e. for each module) to contain
 
     <version>1.1-SNAPSHOT</version>
 
   This can be done using maven:
 
-    $ mvn release:update-versions -DautoVersionSubmodules=true -Prelease
+    $ mvn release:update-versions -DautoVersionSubmodules=true -Prelease -Pcommons-numbers-examples
 
   You will only be prompted for the desired version number once.
-  This will miss the dist-archive/pom.xml for all the dependencies.
+  This may miss the dist-archive/pom.xml for all the dependencies.
   These should be updated manually.
   Double-check that the "pom.xml" files *really* have a "-SNAPSHOT" suffix
   in the "<version>" property.
+
+  $ git grep '1.0-SNAPSHOT'    [old version number]
+  $ git grep '1.1-SNAPSHOT'    [new version number]
+  $ git grep '<version>'
+
   Then commit them.
 
-  (22d)
+  (23c)
   Update the README.md files to refer the latest release. These files are
   auto-generated from the commons maven plugin using 'mvn common:readme-md'.
   The generated README.md files may have been edited for the multi-module
@@ -771,11 +908,17 @@ next version will be 1.1).
 
   Check the changes using 'git diff' and commit.
 
-  (22e)
-  Update the <commons.release.version> tag in the master pom for the latest release.
+  (23d)
+  Update the <commons.release.version> tag in the master pom for the next
+  planned release.
+
+  Update the <commons.bc.version> tag in the master pom for the recent release.
+
+  (23e)
+  Update any other files that use a hard-coded version number.
 
 
-(23)
+(24)
 Allow for the web site mirrors to be updated (possibly several hours); then
 send (from your apache account) a release announcement to the following ML:
   announce@apache.org
@@ -785,12 +928,15 @@ send (from your apache account) a release announcement to the following ML:
 If you don't have it setup already you can follow these instructions to send
 email from your apache account :
 
-https://reference.apache.org/committer/email#sendingemailfromyourapacheorgemailaddress
+https://infra.apache.org/committer-email.html
+
+The mail should be sent as text/plain. A text/html message will be refused by
+the Apache mailer daemon.
 
 You can use the following message as a template:
 
 Subject:
-[ANNOUNCEMENT] Apache Commons Numbers Version 1.0 Released
+[ANNOUNCE] Apache Commons Numbers Version 1.0 Released
 ----------
 The Apache Commons Team is pleased to announce the availability of
 version 1.0 of "Apache Commons Numbers".
@@ -804,7 +950,7 @@ Changes in this version include:
 Historical list of changes:
   https://commons.apache.org/proper/commons-numbers/changes-report.html
 
-For complete information on Apache Commons Number, including instructions on how
+For complete information on Apache Commons Numbers, including instructions on how
 to submit bug reports, patches, or suggestions for improvement, see the
 Apache Commons Numbers website:
   https://commons.apache.org/proper/commons-numbers/
@@ -812,19 +958,22 @@ Apache Commons Numbers website:
 Distribution packages can be downloaded from
   http://commons.apache.org/proper/commons-numbers/download_numbers.cgi
 
+When downloading, please verify signatures using the KEYS file
+available at
+  https://www.apache.org/dist/commons/KEYS
 
 The Apache Commons Team
 ----------
 
 
-(24)
+(25)
 Update JIRA to close all issues resolved in this release and prepare for the next version.
 
-  (24a)
+  (25a)
   Log in to JIRA:
   https://issues.apache.org/jira/projects/NUMBERS
 
-  (24b)
+  (25b)
   Batch close resolved issues without sending notification e-mails:
 
   - Click 'View all issues and filters'.
@@ -837,18 +986,32 @@ Update JIRA to close all issues resolved in this release and prepare for the nex
               Unselect 'Send mail for this update'.
       Confirm.
 
-  (24c)
+  (25c)
   Manage the JIRA version for the release.
 
-  Click 'Project settings > Versions'.
+  Go to: https://issues.apache.org/jira/projects/NUMBERS
+
+  Click 'Releases' on the left menu.
 
   Add a new version:
   - Enter the new version number in the field and click 'Add'.
+  - Versions can be ordered by drag-and-drop. Ensure the latest version is at the top of the list.
+    (This affects the ordering for the changes jira report.)
 
   Set the release date for the recently release version:
   - Click the released version.
   - Click 'Release' and enter the date.
 
 
-(25)
-Finally revise the release notes (this document) with any changes to improve the release process.
+(26)
+If you created a staged version of the website you may wish to delete this
+from apache personal area:
+
+  $ lftp sftp://__Your_apache_login__@home.apache.org
+     lftp you@home.apache.org:~> cd public_html
+     lftp you@home.apache.org:~/public_html> rm -rf commons-numbers-1.0-RC1-site
+     lftp you@home.apache.org:~/public_html> bye
+
+(27)
+Finally revise the release notes (this document) with any changes to improve
+the release process.
