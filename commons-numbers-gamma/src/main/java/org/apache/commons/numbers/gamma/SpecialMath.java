@@ -18,6 +18,8 @@ package org.apache.commons.numbers.gamma;
 
 /**
  * Special math functions.
+ *
+ * @since 1.1
  */
 public final class SpecialMath {
     /** Minimum x for log1pmx(x). */

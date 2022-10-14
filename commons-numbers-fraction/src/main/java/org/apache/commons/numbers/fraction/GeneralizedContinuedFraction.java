@@ -51,6 +51,7 @@ import java.util.function.Supplier;
  *
  * @see <a href="https://mathworld.wolfram.com/GeneralizedContinuedFraction.html">Wikipedia: Generalized continued fraction</a>
  * @see <a href="https://en.wikipedia.org/wiki/Generalized_continued_fraction">MathWorld: Generalized continued fraction</a>
+ * @since 1.1
  */
 public final class GeneralizedContinuedFraction {
     /**
@@ -92,6 +93,8 @@ public final class GeneralizedContinuedFraction {
     /**
      * Defines the <a href="https://mathworld.wolfram.com/GeneralizedContinuedFraction.html">
      * {@code n}-th "a" and "b" coefficients</a> of the continued fraction.
+     *
+     * @since 1.1
      */
     public static final class Coefficient {
         /** "a" coefficient. */

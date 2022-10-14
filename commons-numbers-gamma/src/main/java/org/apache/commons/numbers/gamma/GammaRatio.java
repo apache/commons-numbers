@@ -31,6 +31,7 @@ package org.apache.commons.numbers.gamma;
  * @see
  * <a href="https://www.boost.org/doc/libs/1_77_0/libs/math/doc/html/math_toolkit/sf_gamma/gamma_ratios.html">
  * Boost C++ Ratios of Gamma Functions</a>
+ * @since 1.1
  */
 public final class GammaRatio {
     /** Private constructor. */
