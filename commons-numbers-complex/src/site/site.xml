@@ -18,8 +18,9 @@
 <project name="Numbers">
   <bannerRight>
     <name>Apache Commons Numbers</name>
-    <src>/images/commons_numbers.small.png</src>
-    <href>/index.html</href>
+    <!-- Use a full URL allows a correct banner for the modules. -->
+    <src>https://commons.apache.org/proper/commons-numbers/images/commons_numbers.small.png</src>
+    <href>https://commons.apache.org/proper/commons-numbers/index.html</href>
   </bannerRight>
 
   <body>
