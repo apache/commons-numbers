@@ -20,7 +20,7 @@ limitations under the License.
   </properties>
   <body>
     <!-- ================================================== -->
-    <section name="Commons Numbers Release History">
+    <section name="Apache Commons Numbers Release History">
       <p><em>Note.</em> For older release javadocs see the individual artifact sub-sites.</p>
       <table>
         <tr><th>Version</th><th>Release date (YYYY-MM-DD)</th><th>Required Java Version</th><th>Release notes</th></tr>

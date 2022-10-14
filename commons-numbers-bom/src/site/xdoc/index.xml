@@ -27,7 +27,7 @@
 
     <section name="Apache Commons Numbers: Number types and utilities" href="summary">
       <p>
-        Commons Numbers provides implementations of number types and utilities.
+        Apache Commons Numbers provides implementations of number types and utilities.
         Features include
         <ul>
           <li>angles</li>

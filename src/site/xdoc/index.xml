@@ -20,14 +20,14 @@
 <document>
 
  <properties>
-  <title>Apache Commons Numbers</title>
+   <title>Apache Commons Numbers</title>
  </properties>
 
  <body>
 
-  <section name="Commons Numbers: Number types and utilities" href="summary">
-   <p>
-      Commons Numbers provides implementations of number types and utilities.
+  <section name="Apache Commons Numbers: Number types and utilities" href="summary">
+    <p>
+      Apache Commons Numbers provides implementations of number types and utilities.
       Features include
       <ul>
         <li>angles</li>
@@ -45,12 +45,12 @@
     </p>
   </section>
 
-  <section name="Download Commons Numbers">
+  <section name="Download Apache Commons Numbers">
     <subsection name="Releases">
       <p>
         Download the
         <a href="http://commons.apache.org/numbers/download_numbers.cgi">
-          Latest Release</a> of Commons Numbers.
+          Latest Release</a> of Apache Commons Numbers.
       </p>
     </subsection>
 
