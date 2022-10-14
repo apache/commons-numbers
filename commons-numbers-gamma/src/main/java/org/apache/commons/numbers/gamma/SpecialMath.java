@@ -21,7 +21,7 @@ package org.apache.commons.numbers.gamma;
  *
  * @since 1.1
  */
-public final class SpecialMath {
+final class SpecialMath {
     /** Minimum x for log1pmx(x). */
     private static final double X_MIN = -1;
     /** Low threshold to use log1p(x) - x. */
