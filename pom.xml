@@ -117,6 +117,7 @@
     <module>commons-numbers-arrays</module>
     <module>commons-numbers-field</module>
     <module>commons-numbers-rootfinder</module>
+    <module>commons-numbers-bom</module>
   </modules>
 
   <scm>
@@ -225,17 +226,6 @@
         <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptors>
-            <descriptor>src/assembly/src.xml</descriptor>
-            <descriptor>src/assembly/bin.xml</descriptor>
-          </descriptors>
-          <!-- There are a lot of long file names. Suppress the warnings. -->
-          <tarLongFileMode>gnu</tarLongFileMode>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-scm-publish-plugin</artifactId>
         <configuration>
@@ -342,6 +332,12 @@
           <failOnWarnings>true</failOnWarnings>
           <!-- Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <skipAssembly>true</skipAssembly>
         </configuration>
       </plugin>
       <plugin>

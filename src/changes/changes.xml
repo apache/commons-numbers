@@ -53,8 +53,13 @@ If the output is not quite correct, check for invisible trailing spaces!
   </properties>
   <body>
     <release version="1.1" date="TBD" description="
-New features, updates and bug fixes (requires Java 8).
+New features, updates and bug fixes. Adds a commons-numbers-bom module. Requires Java 8.
 ">
+      <action dev="aherbert" type="add" issue="NUMBERS-190">
+        Add a Bill of Materials (BOM) to aid in dependency management when referencing multiple
+        Apache Commons Numbers artifacts. The BOM should be used to ensure all imported artifacts are
+        compatible.
+      </action>
       <action dev="aherbert" type="fix" issue="NUMBERS-185">
         "Precision": Allow Precision.compareTo using a maxUlps to be used for sorting.
         This corrects handling of NaN comparisons.

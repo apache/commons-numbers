@@ -237,6 +237,10 @@ In particular:
     <!-- ... -->
   </properties>
 
+   Other known locations of the project version:
+
+   commons-numbers-bom/src/site/xdoc/index.xml
+
 
 (6)
 The "download" page template is located at "src/site/xdoc/download_numbers.xml".
@@ -282,7 +286,8 @@ Commit the updated files to git:
             src/site/xdoc/download_numbers.xml \
             RELEASE-NOTES.txt \
             src/site/resources/release-notes/RELEASE-NOTES-* \
-            src/site/xdoc/release-history.xml
+            src/site/xdoc/release-history.xml \
+            commons-numbers-bom/src/site/xdoc/index.xml
 
 Check you did not forget any files:
 
@@ -420,13 +425,22 @@ and their associated fingerprints
 and their signatures
   <file-name>.asc
 
-The commons-numbers-parent artifact should contain the pom
+The commons-numbers-parent and commons-numbers-bom artifact should contain the pom
 and the associated fingerprints and signatures. The commons-parent also
 contains a Software Package Data Exchange (SPDX) file.
 
 Nexus used to add "md5" and "sha1" checksums files to the "asc" files
 (cryptographic signature). If these fingerprints on signatures are
 present, they must be manually removed from Nexus staging area.
+
+***
+Note: The commons-numbers-bom artifact is deployed using the sign-and-deploy goal
+of the maven gpg plugin. This still adds md5 and sha1 files for the artifact asc
+files and these should be deleted.
+
+Select each .asc.md5 and .asc.sha1 file and delete the artifact. Then refresh
+the view and confirm the deletion.
+***
 
 The process used to transfer the complete source and binaries distributions files,
 (for each module):

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-numbers-parent</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>commons-numbers-bom</artifactId>
+  <version>1.1-SNAPSHOT</version>
+  <name>Apache Commons Numbers (Bill of Materials)</name>
+  <packaging>pom</packaging>
+
+  <description>Bill of Materials (BOM) to aid in dependency management when referencing multiple Apache Commons Numbers artifacts.</description>
+
+  <!--
+    Note: This project pom is not the deployed BOM artifact.
+
+    This module inherits from commons-numbers-parent to obtain the Commons build configuration.
+    However this pom is not actually installed or deployed. The project is configured to
+    deploy a single artifact that is a Bill of Materials (BOM) for Commons Numbers.
+
+    The BOM is a template in the project resources that is populated using the properties
+    from this project pom using resource filtering. The BOM dependencyManagement section is
+    manually added to the template and the version is collected from the current project version.
+
+    This has been done to ensure a simplified BOM is deployed. Any pom extending either
+    apache parent or commons-parent will include the dependencyManagement section from
+    those poms. Any pom not extending commons-parent would require a distributionManagement
+    section and profile to support the test-deploy functionality. This project pom is
+    constructed to work in the Commons release process to install/deploy the BOM artifact.
+  -->
+
+  <properties>
+    <!-- Workaround to avoid duplicating config files. -->
+    <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+
+    <!-- Skip the standard install and deploy to avoid processing this pom as the artifact. -->
+    <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
+
+    <!-- Disable unused plugins -->
+    <animal.sniffer.skip>true</animal.sniffer.skip>
+    <pmd.skip>true</pmd.skip>
+    <spotbugs.skip>true</spotbugs.skip>
+    <checkstyle.skip>true</checkstyle.skip>
+    <changes.jira.skip>true</changes.jira.skip>
+    <skipSurefireReport>true</skipSurefireReport>
+
+    <!-- Generated BOM. This is the artifact that is installed/deployed. -->
+    <numbers.bom.file>target/bom.xml</numbers.bom.file>
+    <!-- Repositories for the deploy:deploy-file goal.
+         These properties are duplicates of the parent distributionManagement.
+         The choice of which to use is based on the SNAPSHOT suffix. -->
+    <numbers.bom.snapshots.repositoryId>apache.snapshots.https</numbers.bom.snapshots.repositoryId>
+    <numbers.bom.snapshots.url>https://repository.apache.org/content/repositories/snapshots</numbers.bom.snapshots.url>
+    <numbers.bom.releases.repositoryId>apache.releases.https</numbers.bom.releases.repositoryId>
+    <numbers.bom.releases.url>https://repository.apache.org/service/local/staging/deploy/maven2</numbers.bom.releases.url>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- This plugin has no skip property - use an invalid phase -->
+        <groupId>org.spdx</groupId>
+        <artifactId>spdx-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-spdx</id>
+            <goals>
+              <goal>createSPDX</goal>
+            </goals>
+            <phase>None</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!-- Generate the BOM from the template resource. This uses filtering to
+          copy the correct properties from this project including version. -->
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-bom</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/main/resources-filtered</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!--
+          Configure the destination repository based on the SNAPSHOT prefix.
+          This first sets tmp properties conditionally to snapshot, and then
+          updates them in the next phase to release if they are not snapshot.
+          Note: The input property value is unchanged if the regex does not match.
+
+                                m/SNAPSHOT/           m/$version/
+          Case 1:  1.5-SNAPSHOT     ->      snapshots     ->     snapshots
+          Case 2:  1.5              ->      1.5           ->     releases
+        -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>detect-snapshot</id>
+            <goals>
+              <goal>regex-properties</goal>
+            </goals>
+            <phase>validate</phase>
+            <configuration>
+              <regexPropertySettings>
+                <regexPropertySetting>
+                  <name>bom.repositoryId.tmp</name>
+                  <value>${project.version}</value>
+                  <regex>.*-SNAPSHOT.*</regex>
+                  <replacement>${numbers.bom.snapshots.repositoryId}</replacement>
+                  <failIfNoMatch>false</failIfNoMatch>
+                </regexPropertySetting>
+                <regexPropertySetting>
+                  <name>bom.url.tmp</name>
+                  <value>${project.version}</value>
+                  <regex>.*-SNAPSHOT.*</regex>
+                  <replacement>${numbers.bom.snapshots.url}</replacement>
+                  <failIfNoMatch>false</failIfNoMatch>
+                </regexPropertySetting>
+              </regexPropertySettings>
+            </configuration>
+          </execution>
+          <execution>
+            <id>detect-release</id>
+            <goals>
+              <goal>regex-properties</goal>
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <regexPropertySettings>
+                <regexPropertySetting>
+                  <name>bom.repositoryId</name>
+                  <value>${bom.repositoryId.tmp}</value>
+                  <regex>${project.version}</regex>
+                  <replacement>${numbers.bom.releases.repositoryId}</replacement>
+                  <failIfNoMatch>false</failIfNoMatch>
+                </regexPropertySetting>
+                <regexPropertySetting>
+                  <name>bom.url</name>
+                  <value>${bom.url.tmp}</value>
+                  <regex>${project.version}</regex>
+                  <replacement>${numbers.bom.releases.url}</replacement>
+                  <failIfNoMatch>false</failIfNoMatch>
+                </regexPropertySetting>
+              </regexPropertySettings>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- The install and deploy plugin goals are skipped.
+           Here we install the generated BOM file as the project artifact.
+           The deploy is performed by different plugins configured in profiles
+           depending if GPG signing is required. -->
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install-bom</id>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <phase>install</phase>
+            <configuration>
+              <file>${numbers.bom.file}</file>
+              <!-- Collect group, artifact, version and packaging from the BOM -->
+              <pomFile>${numbers.bom.file}</pomFile>
+              <generatePom>false</generatePom>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <!-- Match the test-deploy profile in commons-parent and deploy locally -->
+      <id>test-deploy</id>
+      <properties>
+        <numbers.bom.snapshots.repositoryId>test-deploy</numbers.bom.snapshots.repositoryId>
+        <numbers.bom.releases.repositoryId>test-deploy</numbers.bom.releases.repositoryId>
+        <numbers.bom.snapshots.url>file:target/deploy</numbers.bom.snapshots.url>
+        <numbers.bom.releases.url>file:target/deploy</numbers.bom.releases.url>
+      </properties>
+    </profile>
+
+    <profile>
+      <!-- Changes to the commons-parent release profile -->
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <!-- Skip the signing of the project artifact performed by commons-parent
+                (i.e. the pom) to avoid generating additional .asc files in the target
+                directory. These are mistakenly deployed in addition to the desired asc
+                file from signing the genreated BOM. -->
+              <execution>
+                <id>sign-artifacts</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <skip>true</skip>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Activate the appropriate deploy goal.
+         If both profiles are activated (using the profile ids) then this will deploy the same
+         artifact twice with different build timestamps; only one is present in the metadata.
+         The GPG signature is valid for either as it has no build timestamp. -->
+    <profile>
+      <!-- deploy -->
+      <id>release-deploy</id>
+      <activation>
+        <property>
+          <name>gpg.skip</name>
+          <!-- This ignores the value for simplicity to allow -Dgpg.skip to activate.
+               The side-effect being that -Dgpg.skip=false will still activate the profile.
+               This is only relevant for the deploy phase and impacts the release process. -->
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-bom</id>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <!-- Dynamically configured destination based on SNAPSHOT or test-deploy profile -->
+                  <url>${bom.url}</url>
+                  <repositoryId>${bom.repositoryId}</repositoryId>
+                  <file>${numbers.bom.file}</file>
+                  <!-- Collect group, artifact, version and packaging from the BOM -->
+                  <pomFile>${numbers.bom.file}</pomFile>
+                  <generatePom>false</generatePom>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <!-- sign and deploy -->
+      <id>release-sign-and-deploy</id>
+      <activation>
+        <property>
+          <!-- Opposite of the deploy profile -->
+          <name>!gpg.skip</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-bom</id>
+                <goals>
+                  <goal>sign-and-deploy-file</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <!-- Dynamically configured destination based on SNAPSHOT or test-deploy profile -->
+                  <url>${bom.url}</url>
+                  <repositoryId>${bom.repositoryId}</repositoryId>
+                  <file>${numbers.bom.file}</file>
+                  <!-- Collect group, artifact, version and packaging from the BOM -->
+                  <pomFile>${numbers.bom.file}</pomFile>
+                  <generatePom>false</generatePom>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
+</project>

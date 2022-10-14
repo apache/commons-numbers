@@ -40,7 +40,8 @@
 
     <head>
       <![CDATA[<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-      </script>]]>
+      </script>
+      <link rel="stylesheet" href="$relativePath/style/module.css" type="text/css" />]]>
     </head>
 
   </body>
