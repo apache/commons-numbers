@@ -525,7 +525,7 @@ class GeneralizedContinuedFractionTest {
      *                  5 - ...
      * </pre>
      */
-    private static class Tan implements Supplier<Coefficient> {
+    static class Tan implements Supplier<Coefficient> {
         private double a;
         private double b = -1;
 
@@ -567,7 +567,7 @@ class GeneralizedContinuedFractionTest {
      * @param coefficients b coefficients
      * @return the generator
      */
-    private static Supplier<Coefficient> simpleContinuedFraction(double... coefficients) {
+    static Supplier<Coefficient> simpleContinuedFraction(double... coefficients) {
         return new Supplier<Coefficient>() {
             /* iteration. */
             private int n;

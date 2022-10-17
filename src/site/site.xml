@@ -23,6 +23,12 @@
   </bannerRight>
 
   <body>
+    <head>
+      <![CDATA[<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+      </script>
+      <link rel="stylesheet" href="$relativePath/style/module.css" type="text/css" />]]>
+    </head>
+
     <menu name="Numbers">
       <item name="Overview" href="/index.html"/>
       <item name="Downloads" href="http://commons.apache.org/numbers/download_numbers.cgi"/>
@@ -34,15 +40,22 @@
       <item name="Developers Guide" href="/developers.html"/>
     </menu>
 
-    <!-- <menu name="User Guide">
+    <menu name="User Guide">
       <item name="Contents" href="/userguide/index.html"/>
-    </menu> -->
-
-    <head>
-      <![CDATA[<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-      </script>
-      <link rel="stylesheet" href="$relativePath/style/module.css" type="text/css" />]]>
-    </head>
-
+    </menu>
   </body>
+
+  <custom>
+    <!-- Custom properties controlling the commons-skin template. -->
+    <commonsSkin>
+      <!-- 
+        Convert preformatted source section tags to prettyprint:
+          <div class="source"><pre> to <div class="source"><pre class="prettyprint">
+      -->
+      <prettyPrintSourcePreTags>true</prettyPrintSourcePreTags>
+
+      <!-- Add the "linenums" class to the prettyprint enabled source tags -->
+      <prettyPrintLineNumbersEnabled>false</prettyPrintLineNumbersEnabled>
+    </commonsSkin>
+  </custom>
 </project>

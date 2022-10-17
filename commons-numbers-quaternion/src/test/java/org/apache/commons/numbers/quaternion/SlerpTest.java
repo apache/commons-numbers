@@ -309,10 +309,10 @@ class SlerpTest {
 
     /**
      * Create a quaterion representing a rotation around the +z axis.
-     * @param theta
-     * @return
+     * @param theta Rotation angle
+     * @return the quaternion
      */
-    private static Quaternion createZRotation(final double theta) {
+    static Quaternion createZRotation(final double theta) {
         double halfAngle = theta * 0.5;
 
         return Quaternion.of(Math.cos(halfAngle), 0, 0, Math.sin(halfAngle));

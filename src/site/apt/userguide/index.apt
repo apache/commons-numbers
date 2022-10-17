@@ -1,0 +1,991 @@
+~~
+~~ Licensed to the Apache Software Foundation (ASF) under one or more
+~~ contributor license agreements.  See the NOTICE file distributed with
+~~ this work for additional information regarding copyright ownership.
+~~ The ASF licenses this file to You under the Apache License, Version 2.0
+~~ (the "License"); you may not use this file except in compliance with
+~~ the License.  You may obtain a copy of the License at
+~~
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~
+
+The Apache Commons Numbers User Guide
+
+* Table of contents
+
+  * {{{Overview}Overview}}
+
+    * {{{Examples_Modules}Examples Modules}}
+
+  * {{{Angle}Angle}}
+
+  * {{{Arrays}Arrays}}
+
+  * {{{Combinatorics}Combinatorics}}
+
+  * {{{Complex}Complex}}
+
+  * {{{Core}Core}}
+
+    * {{{Precision}Precision}}
+
+  * {{{Field}Field}}
+
+  * {{{Fraction}Fraction}}
+
+    * {{{Rational_Numbers}Rational Numbers}}
+
+    * {{{Continued_Fractions}Continued Fractions}}
+
+  * {{{Gamma}Gamma}}
+
+  * {{{Primes}Primes}}
+
+  * {{{Quaternion}Quaternion}}
+
+  * {{{Root_Finder}Root Finder}}
+
+  * {{{Dependencies}Dependencies}}
+
+Overview
+
+  <<<Apache Commons Numbers>>> provides number types and utilities.
+
+  The code originated in the {{{https://commons.apache.org/proper/commons-math/}commons-math}}
+  project but was pulled out into a separate project for better
+  maintainability and has since undergone numerous improvements.
+
+  The library is divided into modules:
+
+  * {{{../commons-numbers-angle/index.html}commons-numbers-angle}} - Utilities related to the concept of angle.
+
+  * {{{../commons-numbers-arrays/index.html}commons-numbers-arrays}} - Array utilities.
+
+  * {{{../commons-numbers-combinatorics/index.html}commons-numbers-combinatorics}} - Combinatorics utilities such as factorial and binomial coefficients.
+
+  * {{{../commons-numbers-complex/index.html}commons-numbers-complex}} - Utilities for working with complex numbers.
+
+  * {{{../commons-numbers-core/index.html}commons-numbers-core}} - Basic utilities.
+
+  * {{{../commons-numbers-field/index.html}commons-numbers-field}} - Utilities related to the concept of field.
+
+  * {{{../commons-numbers-fraction/index.html}commons-numbers-fraction}} - Utilities related to fractions such as rational numbers and continued fractions.
+
+  * {{{../commons-numbers-gamma/index.html}commons-numbers-gamma}} - Utilities related to the "Gamma" function.
+
+  * {{{../commons-numbers-primes/index.html}commons-numbers-primes}} - Utilities related to prime numbers.
+
+  * {{{../commons-numbers-quaternion/index.html}commons-numbers-quaternion}} - Utilities for working with quarternion numbers.
+
+  * {{{../commons-numbers-rootfinder/index.html}commons-numbers-rootfinder}} - Utilities for finding the zero of a function.
+
+  []
+
+  The {{{../commons-numbers-bom/index.html}commons-numbers-bom}} artifact provides a
+  Bill of Materials (BOM) to aid in dependency management of the modules.
+
+* Examples Modules
+
+  In addition to the modules above, the Commons Numbers
+  {{{https://commons.apache.org/numbers/download_numbers.cgi}source distribution}}
+  contains example code demonstrating library functionality and/or providing useful
+  development utilities. These modules are not part of the public API of the library and no
+  guarantees are made concerning backwards compatibility. The
+  {{{../commons-numbers-examples/modules.html}example module parent page}}
+  contains a listing of available modules.
+
+Angle
+
+  The {{{../commons-numbers-angle/index.html}commons-numbers-angle}} module
+  provides utilities related to the concept of angle
+  ({{{../commons-numbers-angle/apidocs/org/apache/commons/numbers/angle/package-summary.html}angle API}}).
+
+  The <<<Angle>>> class can be used to convert angles between common units. Sub-classes are used
+  to represent the angle units of degrees, radians and turn.
+
++------------------------------------------+
+Angle.Deg a = Angle.Turn.of(0.5).toDeg();
+Angle.Rad b = a.toRad();
+Angle.Turn c = b.toTurn();
+// c.getAsDouble() == 0.5
++------------------------------------------+
+
+  A normalizer can be used to map any value to the natural interval of the angle unit around a
+  provided lower bound, for example <<<[lo, lo + 360)>>> for degrees:
+
++------------------------------------------+
+// Range: [-180, 180)
+double angle = Angle.Deg.normalizer(-180).applyAsDouble(270);
+// angle == -90.0
++------------------------------------------+
+
+  The normalizer makes use of the <<<Reduce>>> class which can be applied to any interval:
+
++------------------------------------------+
+Reduce reduce = new Reduce(0, 24);
+double hours1 = reduce.applyAsDouble(173.5);
+double hours2 = reduce.applyAsDouble(23.5);
+double hours3 = reduce.applyAsDouble(-10);
+// hours1 == 5.5
+// hours2 == 23.5
+// hours3 == 14.0
++------------------------------------------+
+
+  The <<<Angle>>> class is used extensively in the
+  {{{https://commons.apache.org/proper/commons-geometry/}commons-geometry}} project.
+
+  The <<<CosAngle>>> class computes the cosine of the angle between two vectors using the
+  dot product of two vectors and their magnitudes:
+
+  \( \cos\theta = \frac\{\mathbf\{a\}\cdot\mathbf\{b\}\}\{ \|\mathbf\{a\}\|\ \|\mathbf\{b\}\| \} \)
+
+  The computation uses extended precision methods to increase the overall accuracy of the result
+  at the cost of a moderate increase in the number of computations.
+
++------------------------------------------+
+double[] v1 = {1, 0};
+double[] v2 = {0, 1};
+double[] v3 = {7, 7};
+double cosAngle1 = CosAngle.value(v1, v1);
+double cosAngle2 = CosAngle.value(v1, v2);
+double cosAngle3 = CosAngle.value(v1, v3);
+// cosAngle1 == 1
+// cosAngle2 == 0
+// cosAngle3 == 0.7071067811865476  (sqrt(2) / 2)
+// Math.toDegrees(Math.acos(cosAngle3)) == 45
++------------------------------------------+
+
+Arrays
+
+  The {{{../commons-numbers-arrays/index.html}commons-numbers-arrays}} module
+  provides array utilities
+  ({{{../commons-numbers-arrays/apidocs/org/apache/commons/numbers/arrays/package-summary.html}arrays API}}).
+
+  The <<<SortInPlace>>> class can sort a number of arrays using the order imposed by a specified
+  array:
+
++------------------------------------------+
+double[] x = {3, 1, 2};
+double[] y = {1, 2, 3};
+double[] z = {0, 5, 7};
+SortInPlace.ASCENDING.apply(x, y, z);
+// x == [1, 2, 3]
+// y == [2, 3, 1]
+// z == [5, 7, 0]
++------------------------------------------+
+
+  The <<<MultidimensionalCounter>>> provides a mapping between a unidimensional storage and a
+  multidimensional conceptual structure. Note that successive values for the unidimensional
+  index are used for successive values of the <last> index in the indices of the multidimensional
+  structure. When the dimension size is reached the values roll-over to the next dimension.
+  The class ensures a 1-to-1 mapping from any index within the size to a multidimensional position.
+
++------------------------------------------+
+MultidimensionalCounter c = MultidimensionalCounter.of(100, 50);
+int size = c.getSize();
+// size == 5000
+
+int index = 233;
+int[] indices1 = c.toMulti(index);
+int[] indices2 = c.toMulti(index + 1);
+// indices1 = [4, 33]  :  4 * 50 + 33 == 233
+// indices2 = [4, 34]  :  4 * 50 + 34 == 234
+
+int index1 = c.toUni(4, 33);      // varargs
+int index2 = c.toUni(indices1);
+// index == index1 == index2
+
+c.toMulti(49)     // [ 0, 49]
+c.toMulti(50)     // [ 1,  0]
+c.toMulti(4999)   // [99, 49]
++------------------------------------------+
+
+Combinatorics
+
+  The {{{../commons-numbers-combinatorics/index.html}commons-numbers-combinatorics}} module
+  provides combinatorics utilities such as factorial and binomial coefficients
+  ({{{../commons-numbers-combinatorics/apidocs/org/apache/commons/numbers/combinatorics/package-summary.html}combinatorics API}}).
+
+  The binomial coefficient \( \binom\{n\}\{k\} \) can be evaluated as a <<<long>>>, <<<double>>>
+  or using the natural logarithm.
+
++------------------------------------------+
+long   bc1 = BinomialCoefficient.value(63, 33);
+double bc2 = BinomialCoefficientDouble.value(1029, 514);
+double bc3 = LogBinomialCoefficient.value(152635712, 125636);
+// bc1 == 7219428434016265740
+// bc2 ~ 1.429820686498904e308
+// bc3 ~ 1017897.199659759
++------------------------------------------+
+
+  The factorial \( n! \) can be evaluated as a <<<long>>>, <<<double>>> or using the natural
+  logarithm.
+
++------------------------------------------+
+long   f1 = Factorial.value(15);
+double f2 = Factorial.doubleValue(170);
+double f3 = LogFactorial.create().value(Integer.MAX_VALUE);
+// f1 == 1307674368000
+// f2 == 7.257415615307999e306
+// f3 == 4.3996705655378525e10
++------------------------------------------+
+
+  Note that if the binomial coefficient or factorial cannot be represented the methods will
+  throw an <<<ArithmeticException>>> in-place of a <<<long>>> value or return infinity
+  in-place of a <<<double>>> value. The logarithm methods will always compute a valid result
+  given the bounds imposed by the <<<int>>> arguments.
+
+  The <<<LogFactorial>>> class can be created with a cache size. All values up to this size
+  are computed upon creation. This functionality can be used when a range of values may be
+  repeatedly required.
+
++------------------------------------------+
+LogFactorial lf = LogFactorial.create().withCache(50);
++------------------------------------------+
+
+  Values outside the cache are computed using <<<LogGamma.value(n + 1.0)>>> from the
+  {{{Gamma}Gamma}} module; this can be used to avoid the object creation of a single-use
+  instance of LogFactorial.
+
+  The combinations defined by the binomial coefficient \( \binom\{n\}\{k\} \) can be
+  iterated using the <<<Combinations>>> class:
+
++------------------------------------------+
+Combinations.of(4, 2).iterator().forEachRemaining(c -> System.out.println(Arrays.toString(c)));
++------------------------------------------+
+
+  Outputs:
+
++------------------------------------------+
+[0, 1]
+[0, 2]
+[1, 2]
+[0, 3]
+[1, 3]
+[2, 3]
++------------------------------------------+
+
+  The lexigraphical order is based on the values in the input array in reverse order. This ordering
+  can be imposed on arbitrary sets using the <<<Comparator\<int[]\>>>> provided by an appropriate
+  <<<Combination>>>:
+
++------------------------------------------+
+List<int[]> list = Arrays.asList(new int[][] {
+    {3, 4, 5},
+    {3, 1, 5},
+    {3, 2, 5},
+    {4, 2, 4},
+});
+list.sort(Combinations.of(6, 3).comparator());
+list.forEach(c -> System.out.println(Arrays.toString(c)));
++------------------------------------------+
+
+  Outputs:
+
++------------------------------------------+
+[4, 2, 4]
+[3, 1, 5]
+[3, 2, 5]
+[3, 4, 5]
++------------------------------------------+
+
+Complex
+
+  The {{{../commons-numbers-complex/index.html}commons-numbers-complex}} module
+  provides utilities for working with complex numbers
+  ({{{../commons-numbers-complex/apidocs/org/apache/commons/numbers/complex/package-summary.html}complex API}}).
+
+  The <<<Complex>>> class is a Cartesian representation of a complex number. The complex number is
+  expressed in the form \( a + ib \) where \( a \) and \( b \) are real numbers and \( i \)
+  is the imaginary unit which satisfies the equation \( i^2 = -1 \). For the
+  complex number \( a + ib \), \( a \) is called the <real part> and
+  \( b \) is called the <imaginary part>. Arithmetic in this class conforms to the C99
+  standard for complex numbers defined in
+  {{{https://www.open-std.org/JTC1/SC22/WG14/www/standards}ISO/IEC 9899}}, Annex G.
+
+  The <<<Complex>>> class is immutable. Instances are constructed with factory methods:
+
++------------------------------------------+
+double x = 3;
+double y = 4;
+Complex c1 = Complex.ofCartesian(x, y);
+// c1 == x + iy
+
+// Convert from polar coordinates
+double rho = 1.23;
+double theta = Math.PI / 2;
+Complex c2 = Complex.ofPolar(rho, theta);
++------------------------------------------+
+
+  Arithmetic operations, elementary functions and trigonometric functions are provided that return
+  new instances of <<<Complex>>> or primitive data types:
+
++------------------------------------------+
+Complex c1 = Complex.ofCartesian(3, 4);
+Complex c2 = Complex.ofCartesian(5, 6);
+Complex c3 = c1.multiply(c2).sqrt();
+
+double magnitude = c3.abs();
+double argument = c3.arg();
+
+boolean finite = c3.isFinite();
++------------------------------------------+
+
+Core
+
+  The {{{../commons-numbers-core/index.html}commons-numbers-core}} module
+  provides basic utilities
+  ({{{../commons-numbers-core/apidocs/org/apache/commons/numbers/core/package-summary.html}core API}}).
+  The classes within this module provide core functionality
+  reused within <<<Apache Commons Numbers>>> and also other projects such as
+  {{{https://commons.apache.org/proper/commons-geometry/}commons-geometry}} and
+  {{{https://commons.apache.org/proper/commons-math/}commons-math}}.
+
+  The interfaces <<<Addition>>> and <<<Multiplication>>> provide generic typed definitions of
+  the arithmetic <add> and <multiply> operations. These are extended by <<<NativeOperators>>>
+  that adds operators that can be implemented in a more performant way. These interfaces are used
+  by the {{{Field}Field}} module.
+
+  The <<<ArithmeticUtils>>> class provides arithmetic utilities such as integer power, unsigned
+  divide and remainder functions; greatest common divisor; and least common multiple. These
+  functions are used by the {{{Fraction}Fraction}} module.
+
+  The <<<Norm>>> class provides implementations of
+  {{{https://en.wikipedia.org/wiki/Norm_(mathematics)}norm}} functions. The implementations
+  may use extended precision methods to increase the overall accuracy of the result
+  at the cost of a moderate increase in the number of computations. The Euclidean implementation
+  handles possible under and overflow of intermediates using scaling.
+
++------------------------------------------+
+double x = Norm.EUCLIDEAN.of(3, -4);                              // 5
+double y = Norm.MANHATTAN.of(3, -4, 5);                           // 12
+double z = Norm.MAXIMUM.of(new double[]{3, -4, 5, -6, -7, -8});   // 8
+
+double big = Double.MAX_VALUE * 0.5;
+double length = Norm.EUCLIDEAN.of(big, big, big);
+// length == Math.sqrt(0.5 * 0.5 * 3) * Double.MAX_VALUE
++------------------------------------------+
+
+  The <<<Sum>>> class provides accurate floating-point sums and linear combinations.
+  The class uses techniques to mitigate round off errors resulting from
+  standard floating-point operations, increasing the overall accuracy of
+  results at the cost of a moderate increase in the number of computations.
+  The <<<Sum>>> can add numbers and products of numbers.
+  The result is returned as the high-precision value if it is finite, or the standard IEEE754
+  result otherwise.
+
++------------------------------------------+
+double sum1 = Sum.create().add(1)
+                          .addProduct(3, 4)
+                          .getAsDouble();
+double sum2 = Sum.of(1).addProduct(3, 4)
+                       .getAsDouble();
+double sum3 = Sum.ofProducts(new double[] {3, 4}, new double[] {5, 6})
+                 .getAsDouble();
+// sum1 == sum2 == 13.0
+// sum3 == 3 * 5 + 4 * 6
+
+Sum.of(1, 2, Double.NaN).getAsDouble()                 // NaN
+Sum.of(1, 2, Double.NEGATIVE_INFINITY).getAsDouble()   // -inf
++------------------------------------------+
+
+  The implementation provides an effective 106 bit floating point significand. However the
+  significand is split into two <<<double>>> values which may be separated by more than <<<2^53>>>
+  by using the exponent of the second <<<double>>>.
+  This provides protection against cancellation in situations that would not be handled by an
+  IEEE754 binary 128 format with a 113 bit significand:
+
++------------------------------------------+
+double x1 = 1e100 + 1 - 2 - 1e100;
+double x2 = Sum.of(1e100, 1, -2, -1e100).getAsDouble();
+// x1 == 0.0
+// x2 == -1.0
++------------------------------------------+
+
+  The class can be used to:
+
+  * Reduce cancellation effects that occur when large magnitude numbers
+    with opposite signs are summed together with relatively small values;
+
+  * Provide accurate summation of numbers with the same sign irrespective of input order.
+
+  []
+
+* Precision
+
+  The <<<Precision>>> class provides comparison of floating-point numbers using relative, absolute
+  and unit of least precision ({{{https://en.wikipedia.org/wiki/Unit_in_the_last_place}ULP}})
+  tolerances. Comparison using the relative tolerance \( \epsilon \) is symmetric as the relative
+  delta is computed using the largest magnitude of the input pair of numbers:
+
+  \( \frac\{|a - b|\}\{\operatorname\{max\}(|a|, |b|)\} \le \epsilon \)
+
+  Comparisons using the ULP argument specifies the allowed distance <between> two numbers.
+  Numbers are equal if they have <<<(ulp - 1)>>> representable numbers or fewer <between> <<<a>>>
+  and <<<b>>>. Use <<<ulp = 0>>> for binary equality.
+
+  Note: The default implementation for equality allows no numbers <between> <<<a>>> and <<<b>>>.
+  It is equivalent to <<<Precision.equals(a, b, 1)>>>. Thus using a floating-point delta of
+  <<<0.0>>> may indicate numbers are equal when they are not <binary> equal (see example below).
+
++------------------------------------------+
+// Default allows no numbers between
+Precision.equals(1000.0, 1000.0)                              // true
+Precision.equals(1000.0, 1000.0 + Math.ulp(1000.0))           // true
+Precision.equals(1000.0, 1000.0 + 2 * Math.ulp(1000.0))       // false
+
+// Absolute - tolerance is floating-point
+Precision.equals(1000.0, 1001.0)                              // false
+Precision.equals(1000.0, 1001.0, 1.0)                         // true
+Precision.equals(1000.0, 1000.0 + Math.ulp(1000.0), 0.0)      // true  (but not binary equal)
+
+// ULP - tolerance is integer
+Precision.equals(1000.0, 1001.0)                              // false
+Precision.equals(1000.0, 1001.0, 1)                           // false
+Precision.equals(1000.0, 1000.0 + 2 * Math.ulp(1000.0), 1)    // false
+Precision.equals(1000.0, 1000.0 + 2 * Math.ulp(1000.0), 2)    // true  (n - 1) numbers between
+Precision.equals(1000.0, 1000.0 + 3 * Math.ulp(1000.0), 2)    // false
+
+// Relative
+Precision.equalsWithRelativeTolerance(1000.0, 1001.0, 1e-6)   // false
+Precision.equalsWithRelativeTolerance(1000.0, 1001.0, 1e-3)   // true
++------------------------------------------+
+
+  Equality using <<<NaN>>> values will be <<<false>>>. To allow two <<<NaN>>> values to be
+  equal requires the use of the method <<<equalsIncludingNaN>>>. Special handling of <<<NaN>>>
+  values allows the default implementation to be optimized for the typical use case comparing
+  finite numbers. Note that infinity values are equal.
+
++------------------------------------------+
+Precision.equals(Double.NaN, 1000.0)                                   // false
+Precision.equals(Double.NaN, Double.NaN)                               // false
+Precision.equalsIncludingNaN(Double.NaN, Double.NaN)                   // true
+
+Precision.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)   // true
+Precision.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY)   // true
+Precision.equals(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY)   // false
++------------------------------------------+
+
+  <<<Precision>>> provides a <<<compareTo>>> method to provide ordering of numbers that are
+  not considered equal using the tolerance:
+
++------------------------------------------+
+Precision.compareTo(100, 100, 0.0)   // 0
+Precision.compareTo(100, 101, 1.0)   // 0
+Precision.compareTo(100, 102, 1.0)   // -1
+Precision.compareTo(102, 100, 1.0)   // 1
++------------------------------------------+
+
+  The comparison uses the natural ordering and is symmetric with regard to <<<NaN>>> values.
+  The comparison using <<<\<, ==, \>>>> is extended in the <<<DoubleEquivalence>>> interface
+  that supports <<<\<=, \>=>>> and signum.
+
++------------------------------------------+
+Precision.DoubleEquivalence eq = Precision.doubleEquivalenceOfEpsilon(1.0);
+eq.lt(100, 100)    // false
+eq.lte(100, 100)   // true
+eq.eq(100, 100)    // true
+eq.gte(100, 100)   // true
+eq.gt(100, 100)    // false
++------------------------------------------+
+
+  <<<Precision>>> also provides methods for other floating-point operations such as rounding and
+  computing a representable delta from a number and an ideal delta.
+
++------------------------------------------+
+// Round to a number of digits to the right of the decimal point
+Precision.round(678.125, 4)              // 678.125
+Precision.round(678.125, 3)              // 678.125
+Precision.round(678.125, 2)              // 678.13
+Precision.round(678.125, 1)              // 678.1
+Precision.round(678.125, 0)              // 678.0
+Precision.round(678.125, -1)             // 680.0
+Precision.round(678.125, -2)             // 700.0
+
+Precision.representableDelta(1.0, 0.1)   // 0.10000000000000009
++------------------------------------------+
+
+Field
+
+  The {{{../commons-numbers-field/index.html}commons-numbers-field}} module
+  provides utilities related to the concept of field
+  ({{{../commons-numbers-field/apidocs/org/apache/commons/numbers/field/package-summary.html}field API}}).
+
+  A field is any set of elements that satisfies the field axioms for both addition and
+  multiplication and is a commutative division algebra. The <<<Field>>> interface
+  defines the operations of a field. Implementations are provided for rational numbers
+  as <<<FractionField>>> and <<<BigFractionField>>>; and real numbers as <<<FP64Field>>>.
+
++------------------------------------------+
+Field<FP64> field = FP64Field.get();
+FP64 result = field.one().multiply(3).divide(field.one().multiply(4));
+double value = result.doubleValue();
+// value = 0.75
++------------------------------------------+
+
+  The field abstraction can be used to program computations independently of the underlying
+  representation as any <<<Field\<T\>>>> can be manipulated using the arithmetic operations of
+  add, subtract, multiply and divide.
+
+Fraction
+
+  The {{{../commons-numbers-fraction/index.html}commons-numbers-fraction}} module
+  provides fraction utilities
+  ({{{../commons-numbers-fraction/apidocs/org/apache/commons/numbers/fraction/package-summary.html}fraction API}}).
+  Classes are provided to represent rational numbers and to evaluate continued fractions.
+
+* Rational Numbers
+
+  The <<<Fraction>>> class is a representation of a rational number <<<p / q>>> using
+  <<<int>>> values for the numerator <<<p>>> and denominator <<<q>>>.
+
+  Instances are constructed with factory methods:
+
++------------------------------------------+
+int p = 3;
+int q = 4;
+Fraction f = Fraction.of(p, q);
+// f == 3 / 4
++------------------------------------------+
+
+  <<<Fraction>>> can be created using a <<<double>>>. The floating-point number may not be exactly
+  representable; a continued fraction is used to converge on a rational representation within a
+  specified absolute tolerance, or a maximum denominator. An <<<ArithmeticException>>> is thrown
+  if the algorithm fails to converge or the number is not representable.
+
++------------------------------------------+
+int maxIterations = 100;
+//                               tolerance
+Fraction a = Fraction.from(0.6152, 0.02,     maxIterations);
+Fraction b = Fraction.from(0.6152, 1.0e-7,   maxIterations);
+// a = 3 / 5      == 0.6
+// b = 769 / 1250 == 0.6152 (exact)
+
+//                               max denominator
+Fraction c = Fraction.from(0.6152, 9);
+Fraction d = Fraction.from(0.6152, 9999);
+// c = 3 / 5      == 0.6
+// d = 769 / 1250 == 0.6152 (exact)
+
+Fraction e = Fraction.from(Math.pow(2, 31));
+// e = Integer.MIN_VALUE / -1
+
+// *** Throws an ArithmeticException ***
+Fraction.from(Math.pow(2, 32));
++------------------------------------------+
+
+  The fraction is represented in reduced form using the greatest common divisor. For example
+  <<<240 / 256>>> is reduced to <<<15 / 16>>>. The sign can be either in the numerator or
+  the denominator; the sign of the fraction is accessed using the <<<signum()>>> method.
+  Fraction equality can be evaluated using <<<equals()>>>. The class implements <<<Comparable\<Fraction\>>>>
+  to allow sorting using the natural order imposed by the fraction's sign and magnitude.
+
++------------------------------------------+
+Fraction f1 = Fraction.of(-240, 256);
+Fraction f2 = Fraction.of(15, -16);
+
+f1.signum()                 == -1
+f1.equals(f2)               == true
+f1.compareTo(f2)            == 0
+f1.compareTo(Fraction.ZERO) == -1
+
+Fraction.of(Integer.MIN_VALUE, Integer.MIN_VALUE).compareTo(Fraction.ONE) == 0
++------------------------------------------+
+
+  Arithmetic operations are provided that return new instances of <<<Fraction>>>. Note that
+  fraction operations are <exact>.
+
++------------------------------------------+
+Fraction result = Fraction.of(1, 2).add(Fraction.of(1, 3))
+                                   .add(Fraction.of(1, 6));
+// result == 1 / 1
+// Note: 1.0 / 2 + 1.0 / 3 + 1.0 / 6 == 0.9999999999999999 (inexact)
++------------------------------------------+
+
+  <<<Fraction>>> extends <<<java.lang.Number>>> and can be converted to other primitive numbers
+  with possible loss of precision:
+
++------------------------------------------+
+double a = Fraction.of(1, 8).doubleValue();
+double b = Fraction.of(1, 3).doubleValue();
+int    c = Fraction.of(8, 3).intValue();
+// a == 0.125     (exact)
+// b == 1.0 / 3   (inexact)
+// c == 2         (inexact, whole number part of 2 2/3)
++------------------------------------------+
+
+  <<<Fraction>>> is limited to rational numbers representable using <<<int>>> values. Operations
+  that cannot be represented will raise an <<<ArithmeticException>>>. Intermediate
+  computations may use the <<<long>>> datatype and arithmetic is relatively fast.
+
+  The <<<BigFraction>>> class uses <<<BigInteger>>> for the numerator and denominator and can
+  provide exact arithmetic up to the limitations of <<<BigInteger>>>. This is documented as
+  at least <<<+/- 2^Integer.MAX_VALUE>>> (exclusive) and may support values outside of that range.
+
+  The <<<BigFraction>>> class provides all the arithmetic operations of <<<Fraction>>> and
+  can be used when <<<Fraction>>> cannot represent the rational numbers; there will be a performance
+  cost to using <<<BigFraction>>> due to the switch from primitive values to <<<BigInteger>>> for
+  computations.
+
+  <<<BigFraction>>> can be constructed from <<<int>>>, <<<long>>> or <<<BigInteger>>> numerator
+  and denominators.
+
++------------------------------------------+
+BigFraction a = BigFraction.of(1, 3);
+// a == 1 / 3
++------------------------------------------+
+
+  The <<<BigFraction>>> conversion of <<<double>>> values can be exact, or adjusted to be
+  within a provided tolerance. Note that exact conversion may create an unexpected rational
+  number as it is limited by the precision of the input <<<double>>> value which may be inexact:
+
++------------------------------------------+
+BigFraction a = BigFraction.from(1.0 / 3);
+// a == 6004799503160661 / 18014398509481984
+
+//                                        max denominator
+BigFraction b = BigFraction.from(1.0 / 3, 3);
+// b == 1 / 3
++------------------------------------------+
+
+* Continued Fractions
+
+  A generalized continued fraction is an expression of the form:
+
+  \( x = b_0 + \cfrac\{a_1\}\{b_1 + \cfrac\{a_2\}\{b_2 + \cfrac\{a_3\}\{b_3 + \cfrac\{a_4\}\{b_4 + \ddots\,\}\}\}\} \)
+
+  Classes are provided to evaluate the expression through iteration to a provided error tolerance.
+  The user must supply the coefficients \( a \) and \( b \).
+
+  The <<<ContinuedFraction>>> class requires a function to supply the <n>th coefficients; the
+  API allows the fraction function to be evaluated for different arguments. This is useful when
+  the coefficients can be computed using a formula based on the index and the argument.
+  The class is abstract and must be extended to provide the coefficients \( a \) and \( b \).
+  For example the following fraction:
+
+  \( \tan(z) = \cfrac\{z\}\{1 - \cfrac\{z^2\}\{3 - \cfrac\{z^2\}\{5 - \ddots\,\}\}\} \)
+
+  Can be computed using:
+
++------------------------------------------+
+ContinuedFraction cf = new ContinuedFraction() {
+    @Override
+    public double getA(int n, double x) {
+        return n < 2 ? x : -x * x;
+    }
+
+    @Override
+    public double getB(int n, double x) {
+        return n == 0 ? 0 : 2 * n - 1;
+    }
+};
+
+double eps = 1e-8;
+double z = 0.125;
+double result = cf.evaluate(z, eps);
+// result ~ Math.tan(z)
++------------------------------------------+
+
+  The <<<GeneralizedContinuedFraction>>> class requires a generator for the next pair of
+  coefficients. This is useful when the coefficients can be computed using the previous values.
+  The class evaluates the fraction using static methods and a supplied generator of coefficients.
+  This can be done with the generator supplying the initial term \( b_0 \) where \( a_0 \) is
+  ignored, or with the generator starting at \( (a_1, b_1) \) and the term \( b_0 \) provided
+  separately.
+
+  For example the golden ratio:
+
+  \( x = 1 + \cfrac\{1\}\{1 + \cfrac\{1\}\{1 + \cfrac\{1\}\{1 + \ddots\,\}\}\} \)
+
+  Can be computed as:
+
++------------------------------------------+
+double eps = 1e-10;
+double gr1 = GeneralizedContinuedFraction.value(() -> Coefficient.of(1, 1), eps);
+double gr2 = GeneralizedContinuedFraction.value(1, () -> Coefficient.of(1, 1), eps);
+// gr1 ~ gr2 ~ 1.6180339887498948...
++------------------------------------------+
+
+  Whether to separate the term \( b_0 \) depends on the fraction and the algorithm convergence.
+  See the
+  {{{../commons-numbers-fraction/apidocs/org/apache/commons/numbers/fraction/GeneralizedContinuedFraction.html}GeneralizedContinuedFraction}}
+  documentation for details. Note that it is also possible to evaluate part of the fraction using
+  only later terms and then computing the final result by including the early terms.
+
+  An example using a recursive generator for the evaluation of \( \tan(z) \) is computed using:
+
++------------------------------------------+
+static class Tan implements Supplier<Coefficient> {
+    private double a;
+    private double b = -1;
+
+    /**
+     * @param z Argument z
+     */
+    Tan(double z) {
+        a = z;
+    }
+
+    @Override
+    public Coefficient get() {
+        b += 2;
+        // Special first case
+        if (b == 1) {
+            double z = a;
+            // Update the term for the rest of the fraction.
+            // The continuant is subtracted from the b terms, thus all the
+            // remaining a terms are negative.
+            a *= -z;
+            return Coefficient.of(z, b);
+        }
+        return Coefficient.of(a, b);
+    }
+}
+
+double z = 0.125;
+double tan1 = GeneralizedContinuedFraction.value(0, new Tan(z));
+
+// Advance 1 term
+Tan t = new Tan(z);
+Coefficient c = t.get();
+double tan2 = c.getA() / GeneralizedContinuedFraction.value(c.getB(), t);
+
+// tan1 ~  Math.tan(z)
+// tan2 == Math.tan(z)  (more accurate)
++------------------------------------------+
+
+  A simple continued fraction will have an \( a \) coefficient of 1. For example the following
+  fraction:
+
+  \( \frac\{415\}\{93\} = 4 + \cfrac\{1\}\{2 + \cfrac\{1\}\{6 + \cfrac\{1\}\{7\}\}\} \)
+
+  can be evaluated as a simple continued fraction using:
+
++------------------------------------------+
+private static Supplier<Coefficient> simpleContinuedFraction(double... coefficients) {
+    return new Supplier<Coefficient>() {
+        /* iteration. */
+        private int n;
+        /* denominator terms. */
+        private double[] b = coefficients.clone();
+
+        @Override
+        public Coefficient get() {
+            if (n != b.length) {
+                // Return the next term
+                return Coefficient.of(1, b[n++]);
+            }
+            return Coefficient.of(0, 1);
+        }
+    };
+}
+
+double result1 = GeneralizedContinuedFraction.value(simpleContinuedFraction(4, 2, 6, 7));
+double result2 = GeneralizedContinuedFraction.value(4, simpleContinuedFraction(2, 6, 7));
+// result1 ~ result2 ~ 415.0 / 93.0
++------------------------------------------+
+
+Gamma
+
+  The {{{../commons-numbers-gamma/index.html}commons-numbers-gamma}} module
+  provides utilities related to the "Gamma" function
+  ({{{../commons-numbers-gamma/apidocs/org/apache/commons/numbers/gamma/package-summary.html}gamma API}}).
+
+*---+---+
+Gamma function | \\( \\Gamma(a) \\)
+*---+---+
+Incomplete gamma functions (lower and upper) | \\( \\Gamma(a) = \\gamma(a, x) + \\Gamma(a, x) \\)
+*---+---+
+Regularized gamma functions (lower and upper) | \\( 1 = P(a, x) + Q(a, x) \\)
+*---+---+
+Ratio of gamma functions | \\( \\frac\\{\\Gamma(a)\\}\\{\\Gamma(b)\\} \\)
+*---+---+
+Digamma function | \\( \\frac\\{d\\}\\{dx\\}(\\ln \\Gamma(x)) \\)
+*---+---+
+Trigamma function | \\( \\psi_1(x) = \\frac\\{d^2\\}\\{dx^2\\} (\\ln \\Gamma(x)) \\)
+*---+---+
+Logarithm of the absolute value of the gamma function | \\( \\ln\\, \\lvert \\Gamma(x) \\rvert \\)
+*---+---+
+Beta function | \\( B(a, b) = \\frac\\{\\Gamma(a)\\ \\Gamma(b)\\}\\{\\Gamma(a+b)\\} \\)
+*---+---+
+Incomplete beta function (and the complement) | \\( B_x(a, b) = \\int_0^x t^\\{a-1\\}\\,(1-t)^\\{b-1\\}\\,dt \\)
+*---+---+
+Logarithm of the beta function | \\( \\ln B(a, b) \\)
+*---+---+
+Error function | \\( \\operatorname\\{erf\\}(z) \\)
+*---+---+
+Complementary error function | \\( \\operatorname\\{erfc\\}(z) \\)
+*---+---+
+Scaled complementary error function | \\( \\operatorname\\{erfcx\\}(z) \\)
+*---+---+
+Difference between error function values | \\( \\operatorname\\{erf\\}(a) - \\operatorname\\{erf\\}(b) \\)
+*---+---+
+Inverse error functions |
+*---+---+
+
+  Functions are provided using static class methods. These may be optionally parameterized
+  if the method uses an iterative computation to control the function evaluation. For example:
+
++------------------------------------------+
+double result = Erfc.value(1.23);
+
+// Default function evaluation
+double a = 1.23;
+double x = 4.56;
+double result1 = IncompleteGamma.Lower.value(a, x);
+
+// Parameterize function evaluation
+double epsilon = 1e-10;
+int maxIterations = 1000;
+double result2 = IncompleteGamma.Lower.value(a, x, epsilon, maxIterations);
+// result1 ~ result2
++------------------------------------------+
+
+  The gamma functions are used to evaluate many of the probability distributions provided in the
+  {{{https://commons.apache.org/proper/commons-statistics/}commons-statistics}} project.
+
+Primes
+
+  The {{{../commons-numbers-primes/index.html}commons-numbers-primes}} module
+  provides utilities related to prime numbers
+  ({{{../commons-numbers-primes/apidocs/org/apache/commons/numbers/primes/package-summary.html}primes API}}).
+
+  The <<<Primes>>> class provides static methods for working with prime numbers in the range of
+  an <<<int>>>. Methods are provided to determine if a value is prime, compute the next prime
+  after a value and the prime factors of a number.
+
++------------------------------------------+
+int n = 51237173;
+boolean prime = Primes.isPrime(n);
+int     m     = Primes.nextPrime(n);
+// prime == false
+// m     == 51237233
+
+List<Integer> f1 = Primes.primeFactors(n);
+List<Integer> f2 = Primes.primeFactors(m);
+// f1 == [13, 863, 4567]
+// f2 == [51237233]
+// n  == 13 * 863 * 4567
++------------------------------------------+
+
+Quaternion
+
+  The {{{../commons-numbers-quaternion/index.html}commons-numbers-quaternion}} module
+  provides utilities for working with quarternion numbers
+  ({{{../commons-numbers-quaternion/apidocs/org/apache/commons/numbers/quaternion/package-summary.html}quaternion API}}).
+
+  The <<<Quaternion>>> class represents Hamilton's hypecomplex number in the form
+  \( H = w + x\,i + y\,j + z\,k \), where \( w \) is the scalar component and \( [x, y, z] \) is
+  the vector component.
+
+  The class is immutable and instances are constructed with factory methods. Getters are provided
+  for access to the components:
+
++------------------------------------------+
+double w = 2;
+double x = 3;
+double y = 4;
+double z = 5;
+Quaternion h1 = Quaternion.of(w, x, y, z);
+Quaternion h2 = Quaternion.of(w, new double[]{x, y, z});
+h1.getW();            // w
+h1.getScalarPart();   // w
+h1.getVectorPart();   // [x, y, z]
+// h1 == h2
++------------------------------------------+
+
+  Methods are provided for arithmetic (add, subtract, multiply) and other quaternion operations
+  such as scaling, dot product, negation, conjugation and normalization.
+
++------------------------------------------+
+Quaternion h = Quaternion.of(1, 2, 3, 4);
+Quaternion h1 = h.add(Quaternion.ONE);   // [2, 2, 3, 4]
+Quaternion hi = h.add(Quaternion.I);     // [1, 3, 3, 4]
+Quaternion hj = h.add(Quaternion.J);     // [1, 2, 4, 4]
+Quaternion hk = h.add(Quaternion.K);     // [1, 2, 3, 5]
++------------------------------------------+
+
+  The binary operations acting on two <<<Quaternion>>> instances are provided as instance
+  methods and static methods for convenience when using method references as lambda functions:
+
++------------------------------------------+
+Quaternion h1 = Quaternion.of(1, 2, 3, 4);
+Quaternion h2 = Quaternion.of(5, 6, 7, 8);
+Quaternion result1 = h1.multiply(h2);
+Quaternion result2 = Quaternion.multiply(h1, h2);
+// result1 == result2
++------------------------------------------+
+
+  The class evaluates binary equality using <<<equals(Object)>>> and provides a helper method
+  to evaluate equality within an absolute tolerance:
+
++------------------------------------------+
+Quaternion q1 = Quaternion.of(1, 2, 3, 4);
+Quaternion q2 = Quaternion.of(1, 2, 3, 4 + 1e-10);
+q1.equals(q2);         // false
+q1.equals(q2, 1e-9);   // true
++------------------------------------------+
+
+  Quaternions are used to apply rotations in 3-dimensional Euclidean space in the
+  {{{https://commons.apache.org/proper/commons-geometry/}commons-geometry}} project.
+
+  The <<<Slerp>>> class performs spherical linear interpolation
+  ({{{https://en.wikipedia.org/wiki/Slerp}Slerp}}). The algorithm is designed to interpolate
+  smoothly between two rotations/orientations, producing a constant-speed motion along an arc.
+
++------------------------------------------+
+static Quaternion createZRotation(final double theta) {
+    double halfAngle = theta * 0.5;
+    return Quaternion.of(Math.cos(halfAngle), 0, 0, Math.sin(halfAngle));
+}
+
+Quaternion q1 = createZRotation(0.75 * Math.PI);
+Quaternion q2 = createZRotation(0.76 * Math.PI);
+
+Slerp slerp = new Slerp(q1, q2);
+
+slerp.apply(0.0)    // ~ q1
+slerp.apply(0.25)   // ~ createZRotation(0.7525 * Math.PI)
+slerp.apply(0.5)    // ~ createZRotation(0.755  * Math.PI)
+slerp.apply(0.75)   // ~ createZRotation(0.7575 * Math.PI)
+slerp.apply(1.0)    // ~ q2
++------------------------------------------+
+
+Root Finder
+
+  The {{{../commons-numbers-rootfinder/index.html}commons-numbers-rootfinder}} module
+  provides utilities for finding the zero of a function
+  ({{{../commons-numbers-rootfinder/apidocs/org/apache/commons/numbers/rootfinder/package-summary.html}rootfinder API}}).
+
+  The <<<BrentSolver>>> class implements the Brent algorithm for finding the zeros of real
+  univariate functions. The solver requires an interval that brackets a root and will raise an
+  exception if there is no sign change between the bounds \( [a, b] \). The relative \( \epsilon \)
+  and absolute \( \delta \) accuracy specify the convergence tolerance for the function value
+  \( x \) to zero as: \( 2\,\epsilon\,|x| + \delta \).
+  The function accuracy is used to return the initial bracket bounds, or initial guess,
+  if the function value is within the specified accuracy of zero.
+
++------------------------------------------+
+double relAccuracy = 1e-6;
+double absAccuracy = 1e-14;
+double functionAccuracy = 1e-15;
+BrentSolver solver = new BrentSolver(relAccuracy,
+                                     absAccuracy,
+                                     functionAccuracy);
+double result1 = solver.findRoot(Math::sin, 3, 4);
+double result2 = solver.findRoot(Math::sin, 3, 3.14, 4);   // With initial guess
+// result1 ~ result2 ~ Math.PI
+
+// *** Throws an IllegalArgumentException ***
+solver.findRoot(Math::sin, 2, 3);
++------------------------------------------+
+
+Dependencies
+
+  Apache Commons Numbers requires JDK 1.8+ and has no runtime dependencies.
