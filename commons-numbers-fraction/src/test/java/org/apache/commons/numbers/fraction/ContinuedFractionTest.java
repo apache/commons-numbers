@@ -71,7 +71,7 @@ class ContinuedFractionTest {
     }
 
     @Test
-    void testGoldenRatio() throws Exception {
+    void testGoldenRatio() {
         final double eps = 1e-8;
         final double gr = GoldenRatio.getInstance().evaluate(0, eps);
         Assertions.assertEquals(GOLDEN_RATIO, gr, GOLDEN_RATIO * eps);
@@ -82,7 +82,7 @@ class ContinuedFractionTest {
      * Evaluates the reciprocal of the golden ratio.
      */
     @Test
-    void testGoldenRatioReciprocal() throws Exception {
+    void testGoldenRatioReciprocal() {
         final double eps = 1e-8;
         final ContinuedFraction cf = new ContinuedFraction() {
             @Override
@@ -118,7 +118,7 @@ class ContinuedFractionTest {
     }
 
     @Test
-    void test415Over93() throws Exception {
+    void test415Over93() {
         // https://en.wikipedia.org/wiki/Continued_fraction
         // 415             1
         // ---  = 4 + ---------
@@ -158,7 +158,7 @@ class ContinuedFractionTest {
     }
 
     @Test
-    void testMaxIterationsThrows() throws Exception {
+    void testMaxIterationsThrows() {
         final ContinuedFraction cf = GoldenRatio.getInstance();
 
         final double eps = 1e-8;
@@ -168,7 +168,7 @@ class ContinuedFractionTest {
     }
 
     @Test
-    void testNaNThrows() throws Exception {
+    void testNaNThrows() {
         // Create a NaN during the iteration
         final ContinuedFraction cf = new ContinuedFraction() {
             @Override
@@ -188,7 +188,7 @@ class ContinuedFractionTest {
     }
 
     @Test
-    void testInfThrows() throws Exception {
+    void testInfThrows() {
         // Create an infinity during the iteration:
         // a / cPrev => a_1 / b_0 => Double.MAX_VALUE / 0.5
         final ContinuedFraction cf = new ContinuedFraction() {

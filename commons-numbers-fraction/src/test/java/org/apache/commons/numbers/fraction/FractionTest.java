@@ -80,7 +80,7 @@ class FractionTest {
 
     // MATH-179
     @Test
-    void testDoubleConstructor() throws Exception  {
+    void testDoubleConstructor() {
         for (final CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
@@ -101,7 +101,7 @@ class FractionTest {
     // MATH-181
     // NUMBERS-147
     @Test
-    void testDoubleConstructorWithMaxDenominator() throws Exception  {
+    void testDoubleConstructorWithMaxDenominator() {
         for (final CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleMaxDenomConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
@@ -170,7 +170,7 @@ class FractionTest {
     }
 
     @Test
-    void testDoubleConstructorWithEpsilonLimit() throws Exception  {
+    void testDoubleConstructorWithEpsilonLimit() {
         assertFraction(2, 5, Fraction.from(0.4, 1.0e-5, 100));
 
         assertFraction(3, 5,      Fraction.from(0.6152, 0.02, 100));

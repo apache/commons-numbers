@@ -114,14 +114,14 @@ class PrimesTest {
     }
 
     @Test
-    void testIsPrime() throws Exception {
+    void testIsPrime() {
         for (int i : BELOW_2) {
             Assertions.assertFalse(Primes.isPrime(i));
         }
-        for (int i:NOT_PRIMES) {
+        for (int i : NOT_PRIMES) {
             Assertions.assertFalse(Primes.isPrime(i));
         }
-        for (int i:PRIMES) {
+        for (int i : PRIMES) {
             Assertions.assertTrue(Primes.isPrime(i));
         }
     }
@@ -151,7 +151,7 @@ class PrimesTest {
     }
 
     @Test
-    void testPrimeFactors() throws Exception {
+    void testPrimeFactors() {
         for (int i : BELOW_2) {
             assertPrimeFactorsException(i, MessageFormat.format(Primes.NUMBER_TOO_SMALL, i, 2));
         }
