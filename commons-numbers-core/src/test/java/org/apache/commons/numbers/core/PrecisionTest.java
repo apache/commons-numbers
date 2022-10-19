@@ -188,7 +188,7 @@ class PrecisionTest {
 
     @Test
     void testEqualsWithAllowedDelta() {
-        assertEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
+        assertEqualsWithAllowedDelta(Precision::equals, false);
     }
 
     @Test
@@ -306,7 +306,7 @@ class PrecisionTest {
 
     @Test
     void testFloatEqualsWithAllowedDelta() {
-        assertFloatEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
+        assertFloatEqualsWithAllowedDelta(Precision::equals, false);
     }
 
     @Test
