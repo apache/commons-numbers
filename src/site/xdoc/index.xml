@@ -28,21 +28,21 @@
   <section name="Apache Commons Numbers: Number types and utilities" href="summary">
     <p>
       Apache Commons Numbers provides implementations of number types and utilities.
-      Features include
-      <ul>
-        <li>angles</li>
-        <li>arrays</li>
-        <li>combinatorics</li>
-        <li>complex numbers</li>
-        <li>core arithmetic</li>
-        <li>fields</li>
-        <li>fractions</li>
-        <li>gamma functions</li>
-        <li>primes</li>
-        <li>quaternions</li>
-        <li>root finding</li>
-      </ul>
+      Features include:
     </p>
+    <ul>
+      <li>angles</li>
+      <li>arrays</li>
+      <li>combinatorics</li>
+      <li>complex numbers</li>
+      <li>core arithmetic</li>
+      <li>fields</li>
+      <li>fractions</li>
+      <li>gamma functions</li>
+      <li>primes</li>
+      <li>quaternions</li>
+      <li>root finding</li>
+    </ul>
   </section>
 
   <section name="Download Apache Commons Numbers">
