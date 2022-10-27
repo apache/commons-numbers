@@ -31,7 +31,7 @@
 
   <dependencyManagement>
     <dependencies>
-        <dependency>
+      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-numbers-angle</artifactId>
         <version>${version}</version>
