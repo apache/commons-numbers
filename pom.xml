@@ -118,6 +118,7 @@
     <module>commons-numbers-field</module>
     <module>commons-numbers-rootfinder</module>
     <module>commons-numbers-bom</module>
+    <module>commons-numbers-docs</module>
   </modules>
 
   <scm>
@@ -196,12 +197,7 @@
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
+      <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -38,6 +38,7 @@
       <!-- <item name="Wiki"   -->
       <!--       href="http://wiki.apache.org/commons/Numbers"/> -->
       <item name="Developers Guide" href="/developers.html"/>
+      <item name="Javadoc" href="/commons-numbers-docs/apidocs/index.html" />
     </menu>
 
     <menu name="User Guide">
