@@ -379,14 +379,6 @@
           <typeIds>Bug,New Feature,Task,Improvement,Wish,Test</typeIds>
           <component>${numbers.jira.component}</component>
         </configuration>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>changes-report</report>
-              <report>jira-report</report>
-            </reports>
-          </reportSet>
-        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
