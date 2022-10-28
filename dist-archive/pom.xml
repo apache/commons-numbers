@@ -157,25 +157,6 @@ under the License.
           <classifier>javadoc</classifier>
         </dependency>
 
-          <!-- Module: Examples JMH -->
-        <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-numbers-examples-jmh</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-numbers-examples-jmh</artifactId>
-          <version>${project.version}</version>
-          <classifier>sources</classifier>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-numbers-examples-jmh</artifactId>
-          <version>${project.version}</version>
-          <classifier>javadoc</classifier>
-        </dependency>
-
         <!-- Module: Field -->
         <dependency>
           <groupId>org.apache.commons</groupId>

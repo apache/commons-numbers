@@ -614,6 +614,7 @@ This is avoided by creating an empty directory when svn is not available.
 
     <!--
         Profiles for modules with special requirements.
+        These are combined with the existing <modules>.
     -->
     <profile>
       <id>commons-numbers-examples</id>
@@ -621,6 +622,16 @@ This is avoided by creating an empty directory when svn is not available.
         <module>commons-numbers-examples</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>release</id>
+      <modules>
+        <!-- Examples are not part of the binary release so do not include in the build.
+             Use the commons-numbers-examples profile to create the site. -->
+        <module>dist-archive</module>
+      </modules>
+    </profile>
+
   </profiles>
 
   <developers>
