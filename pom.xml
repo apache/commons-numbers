@@ -58,7 +58,9 @@
     <commons.encoding>UTF-8</commons.encoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
+    <!-- MathJax configuration also includes the prerequisite polyfill.min.js script.
+         See the maven-javadoc-plugin plugin. -->
+    <numbers.mathjax.url>https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js</numbers.mathjax.url>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
     <!-- Multi-module support fixed in commons-parent 55 -->
@@ -327,7 +329,7 @@
           </links>
           <failOnWarnings>true</failOnWarnings>
           <!-- Enable MathJax -->
-          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script src="https://polyfill.io/v3/polyfill.min.js?features=es6"&gt;&lt;/script&gt;&lt;script type="text/javascript" async src="${numbers.mathjax.url}"&gt;&lt;/script&gt;'</additionalOptions>
         </configuration>
       </plugin>
       <plugin>
@@ -439,7 +441,7 @@
           </links>
           <failOnWarnings>true</failOnWarnings>
           <!-- Enable MathJax -->
-          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
+          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script src="https://polyfill.io/v3/polyfill.min.js?features=es6"&gt;&lt;/script&gt;&lt;script type="text/javascript" async src="${numbers.mathjax.url}"&gt;&lt;/script&gt;'</additionalOptions>
         </configuration>
       </plugin>
     </plugins>
