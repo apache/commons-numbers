@@ -130,6 +130,14 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <skipIfEmpty>true</skipIfEmpty>
+        </configuration>
+      </plugin>
+
       <!-- Create aggregate javadoc jar using 'mvn javadoc:aggregate-jar' -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
