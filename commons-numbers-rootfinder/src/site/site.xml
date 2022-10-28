@@ -28,6 +28,8 @@
       <item name="Overview" href="index.html"/>
       <item name="Latest API docs (development)"
             href="apidocs/index.html"/>
+      <item name="Javadoc (1.1 release)"
+          href="http://commons.apache.org/numbers/commons-numbers-rootfinder/javadocs/api-1.1/index.html"/>
       <item name="Javadoc (1.0 release)"
           href="http://commons.apache.org/numbers/commons-numbers-rootfinder/javadocs/api-1.0/index.html"/>
       <item name="Javadoc (1.0-beta1 release)"

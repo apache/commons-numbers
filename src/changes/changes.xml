@@ -52,13 +52,13 @@ If the output is not quite correct, check for invisible trailing spaces!
     <title>Apache Commons Numbers Release Notes</title>
   </properties>
   <body>
-    <release version="1.1" date="TBD" description="
+    <release version="1.1" date="2022-11-04" description="
 New features, updates and bug fixes. Adds a commons-numbers-bom module. Requires Java 8.
 ">
       <action dev="aherbert" type="add" issue="NUMBERS-190">
-        Add a Bill of Materials (BOM) to aid in dependency management when referencing multiple
-        Apache Commons Numbers artifacts. The BOM should be used to ensure all imported artifacts are
-        compatible.
+        Add a Bill of Materials (BOM) to aid in dependency management when referencing
+        multiple Apache Commons Numbers artifacts. The BOM should be used to ensure all
+        imported artifacts are compatible.
       </action>
       <action dev="aherbert" type="fix" issue="NUMBERS-185">
         "Precision": Allow Precision.compareTo using a maxUlps to be used for sorting.
@@ -88,7 +88,8 @@ New features, updates and bug fixes. Adds a commons-numbers-bom module. Requires
         "BrentSolver": Avoid overflow creating the initial value between the lower and upper.
       </action>
       <action dev="aherbert" type="add" issue="NUMBERS-177">
-        "Erfcx": Compute a scaled complementary error function: erfcx(z) = erfc(z) * exp(z*z).
+        "Erfcx": Compute a scaled complementary error function:
+        erfcx(z) = erfc(z) * exp(z*z).
       </action>
       <action dev="aherbert" type="update" issue="NUMBERS-178">
         "Factorial/FactorialDouble": Tabulate all factorials with exact 64-bit double
@@ -96,7 +97,8 @@ New features, updates and bug fixes. Adds a commons-numbers-bom module. Requires
         class and removes obsolete caching functionality.
       </action>
       <action dev="aherbert" type="update" issue="NUMBERS-176">
-        "ContinuedFraction": Update to use a shared implementation with GeneralizedContinuedFraction.
+        "ContinuedFraction": Update to use a shared implementation with
+        GeneralizedContinuedFraction.
       </action>
       <action dev="aherbert" type="update" issue="NUMBERS-174">
         "Gamma/LogGamma/RegularizedGamma": Update the gamma function implementations to
@@ -104,9 +106,9 @@ New features, updates and bug fixes. Adds a commons-numbers-bom module. Requires
         Functionality is ported from the Boost C++ library.
       </action>
       <action dev="aherbert" type="add" issue="NUMBERS-175">
-        "GeneralizedContinuedFraction": A continued fraction class to compute using a generator.
-        Allows evaluation of continued fractions from a regular series where coefficients can
-        be computed iteratively from the previous coefficients.
+        "GeneralizedContinuedFraction": A continued fraction class to compute using a
+        generator. Allows evaluation of continued fractions from a regular series where
+        coefficients can be computed iteratively from the previous coefficients.
       </action>
       <action dev="aherbert" type="fix" issue="NUMBERS-173">
         "ContinuedFraction": Set a minimum bound on the relative error epsilon. Prevents
