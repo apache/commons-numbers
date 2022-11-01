@@ -46,7 +46,7 @@ Apache Commons Numbers Gamma
 [![Build Status](https://github.com/apache/commons-numbers/actions/workflows/maven.yml/badge.svg)](https://github.com/apache/commons-numbers/actions/workflows/maven.yml)
 [![Coverage Status](https://codecov.io/gh/apache/commons-numbers/branch/master/graph/badge.svg)](https://app.codecov.io/gh/apache/commons-numbers)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-gamma/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-gamma/)
-[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-gamma/1.0.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-gamma/1.0)
+[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-gamma/1.1.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-gamma/1.1)
 
 Gamma family of functions.
 
@@ -67,7 +67,7 @@ Alternatively you can pull it from the central Maven repositories:
 <dependency>
   <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-gamma</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
 </dependency>
 ```
 

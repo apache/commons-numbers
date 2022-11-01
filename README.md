@@ -81,17 +81,17 @@ Alternatively you can pull it from the central Maven repositories, for example:
 <dependency>
   <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-core</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
 </dependency>
 <dependency>
   <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-complex</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
 </dependency>
 <dependency>
   <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-quaternion</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
 </dependency>
 ```
 
