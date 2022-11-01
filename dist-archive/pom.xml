@@ -17,15 +17,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-numbers-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>commons-numbers</artifactId>
@@ -41,8 +39,8 @@ under the License.
     <commons.siteOutputDirectory>${basedir}/../target/site</commons.siteOutputDirectory>
     <commons.releaseNotesLocation>${basedir}/../RELEASE-NOTES.txt</commons.releaseNotesLocation>
     <commons.distSvnStagingUrl>scm:svn:https://dist.apache.org/repos/dist/dev/commons/${commons.componentid}</commons.distSvnStagingUrl>
-    <commons.releaseManagerName>Matt Juntunen</commons.releaseManagerName>
-    <commons.releaseManagerKey>7DD53AEFEDF1C3D392B51EBE346F4FCECFB70B1A</commons.releaseManagerKey>
+    <commons.releaseManagerName>Alex Herbert</commons.releaseManagerName>
+    <commons.releaseManagerKey>BC87A3FD0A54480F0BADBEBD21939FF0CA2A6567</commons.releaseManagerKey>
   </properties>
 
   <build>
