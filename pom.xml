@@ -330,6 +330,17 @@
           <failOnWarnings>true</failOnWarnings>
           <!-- Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script src="https://polyfill.io/v3/polyfill.min.js?features=es6"&gt;&lt;/script&gt;&lt;script type="text/javascript" async src="${numbers.mathjax.url}"&gt;&lt;/script&gt;'</additionalOptions>
+          <!-- Fix for javadoc search:
+               https://stackoverflow.com/questions/52326318/maven-javadoc-search-redirects-to-undefined-url -->
+          <bottom>
+          <![CDATA[
+              <script>
+              if (typeof useModuleDirectories !== 'undefined') {
+                  useModuleDirectories = false;
+              }
+              </script>
+          ]]>
+          </bottom>
         </configuration>
       </plugin>
       <plugin>
@@ -442,6 +453,17 @@
           <failOnWarnings>true</failOnWarnings>
           <!-- Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script src="https://polyfill.io/v3/polyfill.min.js?features=es6"&gt;&lt;/script&gt;&lt;script type="text/javascript" async src="${numbers.mathjax.url}"&gt;&lt;/script&gt;'</additionalOptions>
+          <!-- Fix for javadoc search:
+               https://stackoverflow.com/questions/52326318/maven-javadoc-search-redirects-to-undefined-url -->
+          <bottom>
+          <![CDATA[
+              <script>
+              if (typeof useModuleDirectories !== 'undefined') {
+                  useModuleDirectories = false;
+              }
+              </script>
+          ]]>
+          </bottom>
         </configuration>
       </plugin>
     </plugins>
