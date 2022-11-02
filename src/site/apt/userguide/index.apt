@@ -295,6 +295,19 @@ list.forEach(c -> System.out.println(Arrays.toString(c)));
 [3, 4, 5]
 +------------------------------------------+
 
+  The <<<Stirling>>> class can evaluate Stirling numbers of the second kind \( S(n, k) \). This is
+  the number of ways of partitioning a set of \( n \) elements into \( k \) non-empty subsets.
+  For example a set of 3 elements may be partitioned into:
+
++------------------------------------------+
+Stirling.stirlingS2(3, 1)    //  1 : {{1}, {2}, {3}}
+Stirling.stirlingS2(3, 2)    //  3 : {{1, 2}, {3}}, {{1, 3}, {2}} and {{1}, {2, 3}}
+Stirling.stirlingS2(3, 3)    //  1 : {{1, 2, 3}}
++------------------------------------------+
+
+  The evaluation is limited by the <<<long>>> datatype and the method will raise an
+  <<<ArithmeticException>>> if the result cannot be represented.
+
 Complex
 
   The {{{../commons-numbers-complex/index.html}commons-numbers-complex}} module
