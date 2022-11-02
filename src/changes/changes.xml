@@ -52,8 +52,18 @@ If the output is not quite correct, check for invisible trailing spaces!
     <title>Apache Commons Numbers Release Notes</title>
   </properties>
   <body>
+
+    <release version="1.2" date="TBD" description="
+New features, updates and bug fixes.
+">
+      <action dev="aherbert" type="add" issue="NUMBERS-29">
+        Add "Stirling" class to compute Stirling numbers of the second kind.
+      </action>
+
+    </release>
+
     <release version="1.1" date="2022-11-01" description="
-New features, updates and bug fixes. Adds a commons-numbers-bom module. Requires Java 8.
+New features, updates and bug fixes. Adds a commons-numbers-bom module.
 ">
       <action dev="aherbert" type="add" issue="NUMBERS-70">
         Add a user guide.
