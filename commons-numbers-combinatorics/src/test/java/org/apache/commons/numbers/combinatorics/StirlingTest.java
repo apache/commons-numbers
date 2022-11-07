@@ -16,23 +16,209 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
+import java.util.stream.Stream;
+import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test cases for the {@link Stirling} class.
  */
 class StirlingTest {
 
+    /**
+     * Arguments that are illegal for the Stirling number computations.
+     *
+     * @return the arguments
+     */
+    static Stream<Arguments> stirlingIllegalArguments() {
+        return Stream.of(
+            Arguments.of(1, -1),
+            Arguments.of(-1, -1),
+            Arguments.of(-1, 1),
+            Arguments.of(10, 15),
+            Arguments.of(Integer.MIN_VALUE, 1),
+            Arguments.of(1, Integer.MIN_VALUE),
+            Arguments.of(Integer.MIN_VALUE, Integer.MIN_VALUE),
+            Arguments.of(Integer.MAX_VALUE - 1, Integer.MAX_VALUE)
+        );
+    }
+
+    /**
+     * Arguments that should easily overflow the Stirling number computations.
+     * Used to verify the exception is correct
+     * (e.g. no StackOverflowError occurs due to recursion).
+     *
+     * @return the arguments
+     */
+    static Stream<Arguments> stirlingOverflowArguments() {
+        return Stream.of(
+            Arguments.of(123, 32),
+            Arguments.of(612534, 56123),
+            Arguments.of(261388631, 213),
+            Arguments.of(678688997, 213879),
+            Arguments.of(1000000002, 1000000000),
+            Arguments.of(1000000003, 1000000000),
+            Arguments.of(1000000004, 1000000000),
+            Arguments.of(1000000005, 1000000000),
+            Arguments.of(1000000010, 1000000000),
+            Arguments.of(1000000100, 1000000000)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"stirlingIllegalArguments"})
+    void testStirlingS1IllegalArgument(int n, int k) {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Stirling.stirlingS1(n, k));
+    }
+
+    @Test
+    void testStirlingS1StandardCases() {
+        Assertions.assertEquals(1, Stirling.stirlingS1(0, 0));
+
+        for (int n = 1; n < 64; ++n) {
+            Assertions.assertEquals(0, Stirling.stirlingS1(n, 0));
+            if (n < 21) {
+                Assertions.assertEquals(ArithmeticUtils.pow(-1, n - 1) * Factorial.value(n - 1),
+                                        Stirling.stirlingS1(n, 1));
+                if (n > 2) {
+                    Assertions.assertEquals(-BinomialCoefficient.value(n, 2),
+                                            Stirling.stirlingS1(n, n - 1));
+                }
+            }
+            Assertions.assertEquals(1, Stirling.stirlingS1(n, n));
+        }
+    }
+
     @ParameterizedTest
     @CsvSource({
-        "1, -1",
-        "-1, -1",
-        "-1, 1",
-        "10, 15",
+        // Data verified using Mathematica StirlingS1[n, k]
+        "5, 3, 35",
+        "6, 3, -225",
+        "6, 4, 85",
+        "7, 3, 1624",
+        "7, 4, -735",
+        "7, 5, 175",
+        "8, 3, -13132",
+        "8, 4, 6769",
+        "8, 5, -1960",
+        "8, 6, 322",
+        "9, 3, 118124",
+        "9, 4, -67284",
+        "9, 5, 22449",
+        "9, 6, -4536",
+        "9, 7, 546",
+        "10, 3, -1172700",
+        "10, 4, 723680",
+        "10, 5, -269325",
+        "10, 6, 63273",
+        "10, 7, -9450",
+        "10, 8, 870",
+        // n >= 21 is not cached
+        // ... k in [1, 7] require n <= 21
+        "21, 8, -311333643161390640",
+        "21, 9, 63030812099294896",
+        "22, 10, 276019109275035346",
+        "22, 11, -37600535086859745",
+        "23, 12, -129006659818331295",
+        "23, 13, 12363045847086207",
+        "24, 14, 34701806448704206",
+        "25, 15, 92446911376173550",
+        "25, 16, -5700586321864500",
+        "26, 17, -12972753318542875",
+        "27, 18, -28460103232088385",
+        "28, 19, -60383004803151030",
+        "29, 20, -124243455209483610",
+        // k in [n-8, n-2]
+        "33, 25, 42669229615802790",
+        "40, 33, -16386027912368400",
+        "66, 60, 98715435586436240",
+        "155, 150, -1849441185054164625",
+        "404, 400, 1793805203416799170",
+        "1003, 1000, -21063481189500750",
+        "10002, 10000, 1250583420837500",
+        // Limits for k in [n-1, n] use n = Integer.MAX_VALUE
+        "2147483647, 2147483646, -2305843005992468481",
+        "2147483647, 2147483647, 1",
+        // Data for s(n, n-2)
+        "21, 19, 20615",
+        "22, 20, 25025",
+        "23, 21, 30107",
+        "24, 22, 35926",
+        "25, 23, 42550",
+        "26, 24, 50050",
+        "27, 25, 58500",
+        "92679, 92677, 9221886003909976111",
+        "92680, 92678, 9222284027979459010",
+        "92681, 92679, 9222682064933083810",
+        // Data for s(n, n-3)
+        "21, 18, -1256850",
+        "22, 19, -1689765",
+        "23, 20, -2240315",
+        "24, 21, -2932776",
+        "25, 22, -3795000",
+        "26, 23, -4858750",
+        "27, 24, -6160050",
+        "2758, 2755, -9145798629595485585",
+        "2759, 2756, -9165721700732052911",
+        "2760, 2757, -9185680925511388200",
     })
+    void testStirlingS1(int n, int k, long expected) {
+        Assertions.assertEquals(expected, Stirling.stirlingS1(n, k));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        // Upper limits for n with k in [1, 20]
+        "21, 1, 2432902008176640000",
+        "21, 2, -8752948036761600000",
+        "20, 3, -668609730341153280",
+        "20, 4, 610116075740491776",
+        "21, 5, 8037811822645051776",
+        "21, 6, -3599979517947607200",
+        "21, 7, 1206647803780373360",
+        "22, 8, 7744654310169576800",
+        "22, 9, -1634980697246583456",
+        "23, 10, -7707401101297361068",
+        "23, 11, 1103230881185949736",
+        "24, 12, 4070384057007569521",
+        "24, 13, -413356714301314056",
+        "25, 14, -1246200069070215000",
+        "26, 15, -3557372853474553750",
+        "26, 16, 234961569422786050",
+        "27, 17, 572253155704900800",
+        "28, 18, 1340675942971287195",
+        "29, 19, 3031400077459516035",
+        "30, 20, 6634460278534540725",
+        // Upper limits for n with k in [n-9, n-2]
+        "35, 26, -5576855646887454930",
+        "44, 36, 6364808704290634598",
+        "61, 54, -8424028440309413250",
+        "95, 89, 8864929183170733205",
+        "181, 176, -8872439767850041020",
+        "495, 491, 9161199664152744351",
+        "2761, 2758, -9205676356399769400",
+        "92682, 92680, 9223080114771128550",
+    })
+    void testStirlingS1LimitsN(int n, int k, long expected) {
+        Assertions.assertEquals(expected, Stirling.stirlingS1(n, k));
+        Assertions.assertThrows(ArithmeticException.class, () -> Stirling.stirlingS1(n + 1, k));
+        Assertions.assertThrows(ArithmeticException.class, () -> Stirling.stirlingS1(n + 100, k));
+        Assertions.assertThrows(ArithmeticException.class, () -> Stirling.stirlingS1(n + 10000, k));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"stirlingOverflowArguments"})
+    void testStirlingS1Overflow(int n, int k) {
+        Assertions.assertThrows(ArithmeticException.class, () -> Stirling.stirlingS1(n, k));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"stirlingIllegalArguments"})
     void testStirlingS2IllegalArgument(int n, int k) {
         Assertions.assertThrows(IllegalArgumentException.class, () -> Stirling.stirlingS2(n, k));
     }
@@ -129,7 +315,7 @@ class StirlingTest {
         "30, 20, 581535955088511150",
         "31, 21, 1359760239259935240",
         "32, 22, 3069483578649883980",
-        // Upper limits for n with with k in [n-10, n-2]
+        // Upper limits for n with k in [n-10, n-2]
         "33, 23, 6708404338089491700",
         "38, 29, 6766081393022256030",
         "47, 39, 8248929419122431611",
@@ -148,20 +334,7 @@ class StirlingTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-        // Large numbers that should easily overflow. Verifies the exception is correct
-        // (e.g. no StackOverflowError occurs due to recursion)
-        "123, 32",
-        "612534, 56123",
-        "261388631, 213",
-        "678688997, 213879",
-        "1000000002, 1000000000",
-        "1000000003, 1000000000",
-        "1000000004, 1000000000",
-        "1000000005, 1000000000",
-        "1000000010, 1000000000",
-        "1000000100, 1000000000",
-    })
+    @MethodSource(value = {"stirlingOverflowArguments"})
     void testStirlingS2Overflow(int n, int k) {
         Assertions.assertThrows(ArithmeticException.class, () -> Stirling.stirlingS2(n, k));
     }
