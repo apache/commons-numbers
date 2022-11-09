@@ -91,4 +91,11 @@ class UserGuideTest {
                 "[3, 4, 5]"
             ), actual);
     }
+
+    @Test
+    void testStirlingS2() {
+        Assertions.assertEquals(1, Stirling.stirlingS2(3, 1));
+        Assertions.assertEquals(3, Stirling.stirlingS2(3, 2));
+        Assertions.assertEquals(1, Stirling.stirlingS2(3, 3));
+    }
 }
