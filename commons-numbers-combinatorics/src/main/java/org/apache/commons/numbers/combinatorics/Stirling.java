@@ -35,6 +35,8 @@ public final class Stirling {
     private static final int S1_OVERFLOW_K_EQUALS_NM3 = 2761;
     /** Overflow threshold for n when computing S(n, n-2). */
     private static final int S2_OVERFLOW_K_EQUALS_NM2 = 92683;
+    /** Overflow threshold for n when computing S(n, n-3). */
+    private static final int S2_OVERFLOW_K_EQUALS_NM3 = 2762;
 
     /**
      * Precomputed Stirling numbers of the first kind.
@@ -133,14 +135,7 @@ public final class Stirling {
         } else if (k == n - 2) {
             checkN(n, k, S1_OVERFLOW_K_EQUALS_NM2, S1_ERROR_FORMAT);
             // (3n-1) * binom(n, 3) / 4
-            final long a = 3L * n - 1;
-            final long b = BinomialCoefficient.value(n, 3);
-            // Compute (a*b/4) without intermediate overflow.
-            // The product (a*b) must be an exact multiple of 4.
-            // Conditional branch on b which is typically large and even (a is 50% even)
-            // If b is even: ((b/2) * a) / 2
-            // If b is odd then a must be even to make a*b even: ((a/2) * b) / 2
-            return (b & 1) == 0 ? ((b >>> 1) * a) >>> 1 : ((a >>> 1) * b) >>> 1;
+            return productOver4(3L * n - 1, BinomialCoefficient.value(n, 3));
         } else if (k == n - 3) {
             checkN(n, k, S1_OVERFLOW_K_EQUALS_NM3, S1_ERROR_FORMAT);
             return -BinomialCoefficient.value(n, 2) * BinomialCoefficient.value(n, 4);
@@ -203,28 +198,17 @@ public final class Stirling {
             return (1L << (n - 1)) - 1L;
         } else if (k == n - 1) {
             return BinomialCoefficient.value(n, 2);
-        }
-
-        // Compute using: S(n, k) = k * S(n - 1, k) + S(n - 1, k - 1)
-
-        if (k == n - 2) {
-            // Given:
-            //    k * S(n - 1, k) == (n-2) * S(n-1, n-2)) == (n-2) * binom(n-1, 2))
-            // the recursion reduces to a sum of binomial coefficients:
-            //   for i in [1, k]:
-            //     sum (i * binom(i+1, 2))
-            // Avoid overflow checks using the known limit for n when k=n-2
+        } else if (k == n - 2) {
             checkN(n, k, S2_OVERFLOW_K_EQUALS_NM2, S2_ERROR_FORMAT);
-            long binom = BinomialCoefficient.value(k + 1, 2);
-            long sum = 0;
-            for (int i = k; i > 0; i--) {
-                sum += i * binom;
-                // update binomial coefficient:
-                // binom(i, 2) = binom(i+1, 2) - i
-                binom -= i;
-            }
-            return sum;
+            // (3n-5) * binom(n, 3) / 4
+            return productOver4(3L * n - 5, BinomialCoefficient.value(n, 3));
+        } else if (k == n - 3) {
+            checkN(n, k, S2_OVERFLOW_K_EQUALS_NM3, S2_ERROR_FORMAT);
+            return BinomialCoefficient.value(n - 2, 2) * BinomialCoefficient.value(n, 4);
         }
+
+        // Compute using:
+        // S(n, k) = k * S(n - 1, k) + S(n - 1, k - 1)
 
         // n >= 26 (MAX_N)
         // 3 <= k <= n-3
@@ -281,5 +265,31 @@ public final class Stirling {
         if (n > threshold) {
             throw new ArithmeticException(String.format(msgFormat, n, k));
         }
+    }
+
+    /**
+     * Return {@code a*b/4} without intermediate overflow.
+     * It is assumed that:
+     * <ul>
+     * <li>The coefficients a and b are positive
+     * <li>The product (a*b) is an exact multiple of 4
+     * <li>The result (a*b/4) is an exact integer that does not overflow a {@code long}
+     * </ul>
+     *
+     * <p>A conditional branch is performed on the odd/even property of {@code b}.
+     * The branch is predictable if {@code b} is typically the same parity.
+     *
+     * @param a Coefficient a
+     * @param b Coefficient b
+     * @return {@code a*b/4}
+     */
+    private static long productOver4(long a, long b) {
+        // Compute (a*b/4) without intermediate overflow.
+        // The product (a*b) must be an exact multiple of 4.
+        // If b is even: ((b/2) * a) / 2
+        // If b is odd then a must be even to make a*b even: ((a/2) * b) / 2
+        return (b & 1) == 0 ?
+            ((b >>> 1) * a) >>> 1 :
+            ((a >>> 1) * b) >>> 1;
     }
 }
