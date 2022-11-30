@@ -25,7 +25,11 @@ limitations under the License.
     <fileSet>
       <directory>../</directory>
       <excludes>
+        <exclude>.asf.yaml</exclude>
         <exclude>**/.git/**</exclude>
+        <exclude>.gitattributes</exclude>
+        <exclude>.github/**</exclude>
+        <exclude>.gitignore</exclude>
         <exclude>**/site-content/**</exclude>
         <exclude>site-content.README</exclude>
         <exclude>**/target/**</exclude>
