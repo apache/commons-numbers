@@ -38,7 +38,7 @@
     <commons.osgi.symbolicName>org.apache.commons.numbers.examples</commons.osgi.symbolicName>
     <commons.osgi.export>org.apache.commons.numbers.examples</commons.osgi.export>
     <!-- Java 9+ -->
-    <commons.automatic.module.name>org.apache.commons.numbers.examples</commons.automatic.module.name>
+    <commons.module.name>org.apache.commons.numbers.examples</commons.module.name>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
     <numbers.jira.component>examples</numbers.jira.component>
