@@ -475,8 +475,6 @@ and add missing files. The following was performed for release 1.1:
   $ cd /tmp
   $ svn checkout https://dist.apache.org/repos/dist/dev/commons/numbers
   $ cd numbers/1.1-RC1
-  $ cp path-to-the-RC-workspace/CONTRIBUTING.md .
-  $ svn add CONTRIBUTING.md
   $ svn del site
   $ svn commit -m "Distribution files for Commons Numbers v1.1 (RC1)."
 ***
@@ -510,7 +508,6 @@ Create and upload the other distribution files to the Apache servers.
   Copy other files from the RC workspace:
 
     $ cp path-to-the-RC-workspace/RELEASE-NOTES.txt .
-    $ cp path-to-the-RC-workspace/CONTRIBUTING.md .
     $ cp path-to-the-RC-workspace/dist-archive/target/commons-release-plugin/scm/1.1-RC1/README.html .
     $ cp path-to-the-RC-workspace/dist-archive/target/*-bin.* binaries
     $ cp path-to-the-RC-workspace/dist-archive/target/*-src.* source
@@ -532,7 +529,6 @@ Create and upload the other distribution files to the Apache servers.
   Commit to SVN:
 
     $ svn add \
-      CONTRIBUTING.md \
       README.html \
       RELEASE-NOTES.txt \
       binaries/* \
