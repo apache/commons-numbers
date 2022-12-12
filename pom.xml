@@ -63,8 +63,6 @@
     <numbers.mathjax.url>https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js</numbers.mathjax.url>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
-    <!-- Multi-module support fixed in commons-parent 55 -->
-    <cyclonedx.skip>true</cyclonedx.skip>
 
     <!-- Fix to avoid JXR 3.0.0 forking the lifecycle phase 'compile' during site report
        jxr:aggregate. If compile is forked, the dist-archive build fails when attempting
@@ -308,8 +306,6 @@
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
             <exclude>**/site-content/**</exclude>
-            <!-- Moved to commons-parent 55 -->
-            <exclude>.gitattributes</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -387,8 +383,6 @@
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
             <exclude>**/site-content/**</exclude>
-            <!-- Moved to commons-parent 55 -->
-            <exclude>.gitattributes</exclude>
           </excludes>
         </configuration>
       </plugin>
