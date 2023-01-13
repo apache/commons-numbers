@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.examples.jmh.core;
 
 /**
- * Computes linear combinations as the the sum of the products of two sequences of numbers
+ * Computes linear combinations as the sum of the products of two sequences of numbers
  * <code>a<sub>i</sub> b<sub>i</sub></code>.
  *
  * @see <a href="https://en.wikipedia.org/wiki/Dot_product">Dot product</a>

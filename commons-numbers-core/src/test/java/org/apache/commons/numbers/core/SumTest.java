@@ -340,7 +340,7 @@ class SumTest {
      *
      * <p>Note: This test assumes that LinearCombination computes a split number
      * using Dekker's method. This can result in the high part of the number being
-     * greater in magnitude than the the original number due to round-off in the split.
+     * greater in magnitude than the original number due to round-off in the split.
      */
     @Test
     void testSumOfProducts_overflow() {

@@ -25,7 +25,7 @@ import org.apache.commons.numbers.examples.jmh.core.LinearCombination.ThreeD;
 import org.apache.commons.numbers.examples.jmh.core.LinearCombination.TwoD;
 
 /**
- * Provides implementations to computes linear combinations as the the sum of
+ * Provides implementations to computes linear combinations as the sum of
  * the products of two sequences of numbers
  * <code>a<sub>i</sub> b<sub>i</sub></code>.
  *

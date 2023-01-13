@@ -1747,7 +1747,7 @@ final class BoostGamma {
         // Update to the Boost code.
         // Use some of the logic from fullIgammaPrefix(a, z) to use the direct
         // computation if it is valid. Assuming pow and exp are accurate to 1 ULP it
-        // puts most of the the error in evaluation of tgamma(a). This is accurate
+        // puts most of the error in evaluation of tgamma(a). This is accurate
         // enough that this reduces max error on the current test data.
         //
         // Overflow cases fall-through to the Lanczos approximation that incorporates
