@@ -20,7 +20,7 @@
 # An additional 10 positive test points generated in the range
 # [26.3, 27.3] where erfc(x) transitions to sub-normal.
 # Reference values from customized Boost C++ 128-bit implementation
-# of erfc modifed to remove scaling by exp(-x^2). Values for large x
+# of erfc modified to remove scaling by exp(-x^2). Values for large x
 # generated using the upper_gamma_fraction(...) continued fraction
 # See: https://mathworld.wolfram.com/Erfc.html Eq.3
 
