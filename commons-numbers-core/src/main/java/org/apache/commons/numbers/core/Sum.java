@@ -69,7 +69,7 @@ import java.util.function.DoubleSupplier;
  *
  * <p><strong>Implementation Notes</strong>
  * <p>This class internally uses the <em>Sum2S</em> and <em>Dot2S</em> algorithms described in
- * <a href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
+ * <a href="https://doi.org/10.1137/030601818">
  * Accurate Sum and Dot Product</a> by Takeshi Ogita, Siegfried M. Rump,
  * and Shin'ichi Oishi (<em>SIAM J. Sci. Comput</em>, 2005). These are compensated
  * summation and multiplication algorithms chosen here for their good
