@@ -177,11 +177,31 @@ public final class Sum
      * @return this instance.
      */
     public Sum add(final Sum other) {
-        // Pull both values first to ensure there are
-        // no issues when adding a sum to itself.
-        final double s = other.sum;
-        final double c = other.comp;
+        return add(other.sum, other.comp);
+    }
 
+    /**
+     * Subtracts another sum from this sum.
+     *
+     * @param other Sum to subtract.
+     * @return this instance.
+     */
+    public Sum subtract(final Sum other) {
+        return add(-other.sum, -other.comp);
+    }
+
+    /**
+     * Adds the sum and compensation to this sum.
+     *
+     * <p>This is a utility method to extract both values from a sum
+     * before addition to ensure there are no issues when adding a sum
+     * to itself.
+     *
+     * @param s Sum.
+     * @param c Compensation.
+     * @return this instance.
+     */
+    private Sum add(double s, double c) {
         return add(s).add(c);
     }
 

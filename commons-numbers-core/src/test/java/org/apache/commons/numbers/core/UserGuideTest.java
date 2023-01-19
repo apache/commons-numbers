@@ -65,6 +65,17 @@ class UserGuideTest {
     }
 
     @Test
+    void testSum3() {
+        double x1 = 1e100 + 1 - 2 - 1e100;
+        Sum s1 = Sum.of(1e100, 1);
+        Sum s2 = Sum.of(2, 1e100);
+        double x2 = s1.subtract(s2).getAsDouble();
+        Assertions.assertEquals(0.0, x1);
+        Assertions.assertEquals(-1.0, x2);
+    }
+
+
+    @Test
     void testPrecision1() {
         // Default allows no numbers between
         Assertions.assertTrue(Precision.equals(1000.0, 1000.0));

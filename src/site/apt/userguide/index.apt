@@ -411,7 +411,7 @@ Sum.of(1, 2, Double.NaN).getAsDouble()                 // NaN
 Sum.of(1, 2, Double.NEGATIVE_INFINITY).getAsDouble()   // -inf
 +------------------------------------------+
 
-  The implementation provides an effective 106 bit floating point significand. However the
+  The implementation provides up to a 106 bit floating point significand. However the
   significand is split into two <<<double>>> values which may be separated by more than <<<2^53>>>
   by using the exponent of the second <<<double>>>.
   This provides protection against cancellation in situations that would not be handled by an
@@ -424,12 +424,33 @@ double x2 = Sum.of(1e100, 1, -2, -1e100).getAsDouble();
 // x2 == -1.0
 +------------------------------------------+
 
+  Note that the first part of the sum is maintained as the IEEE754 result. The <<<Sum>>>
+  is therefore not a full <<<double-double>>> implementation, which would maintain the sum
+  as the current total and a round-off term. This difference makes the <<<Sum>>> class faster
+  at the cost of some accuracy during addition of terms that cancel.
+  
+  If the terms to be subtracted are known then the summation can be split into the positive
+  and negative terms, summed in two parts and the result computed by a final subtraction of
+  the <<<Sum>>> of negative parts.
+
++------------------------------------------+
+double x1 = 1e100 + 1 - 2 - 1e100;
+Sum s1 = Sum.of(1e100, 1);
+Sum s2 = Sum.of(2, 1e100);
+double x2 = s1.subtract(s2).getAsDouble();
+// x1 == 0.0
+// x2 == -1.0
++------------------------------------------+
+
   The class can be used to:
+
+  * Provide accurate summation of numbers with the same sign irrespective of input order;
 
   * Reduce cancellation effects that occur when large magnitude numbers
     with opposite signs are summed together with relatively small values;
 
-  * Provide accurate summation of numbers with the same sign irrespective of input order.
+  * Compute using two sums the terms of the same sign and the final result by combining
+    the sums (using add or subtract).
 
   []
 

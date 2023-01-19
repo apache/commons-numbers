@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="add" issue="NUMBERS-192">
+        "Sum": Add subtract(Sum) method.
+      </action>
       <action dev="aherbert" type="add" issue="NUMBERS-191">
         "Stirling": Compute Stirling numbers of the first kind.
       </action>

@@ -103,6 +103,35 @@ class SumTest {
     }
 
     @Test
+    void testSubtract_sumInstance() {
+        // arrange
+        final double a = Math.PI;
+        final double b = Math.scalb(a, -53);
+        final double c = Math.scalb(a, -53);
+        final double d = Math.scalb(a, -27);
+        final double e = Math.scalb(a, -27);
+        final double f = Math.scalb(a, -50);
+
+        // act/assert
+        // add(-sum) == subtract(sum)
+        Assertions.assertEquals(
+                Sum.of(a, b, c, d).add(Sum.create()).getAsDouble(),
+                Sum.of(a, b, c, d).subtract(Sum.create()).getAsDouble());
+        Assertions.assertEquals(
+                Sum.of(a, b, c, d).add(Sum.of(-e, -f)).getAsDouble(),
+                Sum.of(a, b, c, d).subtract(Sum.of(e, f)).getAsDouble());
+        Assertions.assertEquals(
+                Sum.of(a, b).add(Sum.of(-a, -c).add(Sum.of(-d, -e, -f))).getAsDouble(),
+                Sum.of(a, b).subtract(Sum.of(a, c)).subtract(Sum.of(d, e, f)).getAsDouble());
+        Assertions.assertEquals(
+                Sum.of(a, b).add(Sum.of(-a, c).add(Sum.of(-d, e, -f))).getAsDouble(),
+                Sum.of(a, b).subtract(Sum.of(a, -c)).subtract(Sum.of(d, -e, f)).getAsDouble());
+
+        final Sum s = Sum.of(a, b);
+        Assertions.assertEquals(0, s.subtract(s).getAsDouble());
+    }
+
+    @Test
     void testSumOfProducts_dimensionMismatch() {
         // act/assert
         final Sum sum = Sum.create();
