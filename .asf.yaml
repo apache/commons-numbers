@@ -14,7 +14,7 @@
 # limitations under the License.
 
 github:
-  description: "Number types and utilities"
+  description: "Apache Commons Numbers"
   homepage: https://commons.apache.org/numbers
   labels:
     - java
@@ -30,4 +30,10 @@ github:
     - precision
 
 notifications:
-  jobs:   notifications@commons.apache.org
+    commits:      commits@commons.apache.org
+    issues:       issues@commons.apache.org
+    pullrequests: issues@commons.apache.org
+    jira_options: link label
+    jobs:         notifications@commons.apache.org
+    issues_bot_dependabot: notifications@commons.apache.org
+    pullrequests_bot_dependabot: notifications@commons.apache.org
