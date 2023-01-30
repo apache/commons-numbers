@@ -106,7 +106,7 @@ public abstract class Angle implements DoubleSupplier {
 
         /**
          * @param angle (in turns).
-         * @return a new intance.
+         * @return a new instance.
          */
         public static Turn of(final double angle) {
             return new Turn(angle);
@@ -166,7 +166,7 @@ public abstract class Angle implements DoubleSupplier {
 
         /**
          * @param angle (in radians).
-         * @return a new intance.
+         * @return a new instance.
          */
         public static Rad of(final double angle) {
             return new Rad(angle);
@@ -220,7 +220,7 @@ public abstract class Angle implements DoubleSupplier {
 
         /**
          * @param angle (in degrees).
-         * @return a new intance.
+         * @return a new instance.
          */
         public static Deg of(final double angle) {
             return new Deg(angle);
