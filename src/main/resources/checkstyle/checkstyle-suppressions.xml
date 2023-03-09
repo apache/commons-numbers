@@ -48,8 +48,8 @@
   <suppress checks="IllegalCatch" files=".*[/\\]test[/\\].*" />
   <suppress checks="MethodName" files=".*[/\\]test[/\\].*" />
   <suppress checks="ConstantName" files=".*[/\\]test[/\\].*" />
-  <suppress checks="MethodLength" files=".*/LinearCombination.*Test.java" />
+  <suppress checks="MethodLength" files=".*[/\\]LinearCombination.*Test.java" />
   <suppress checks="FileLengthCheck" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
-  <suppress checks="MethodLength" files=".*/BoostBetaTest.java" />
+  <suppress checks="MethodLength" files=".*[/\\]BoostBetaTest.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
 </suppressions>
