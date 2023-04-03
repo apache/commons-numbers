@@ -187,7 +187,7 @@ public final class Complex implements Serializable  {
     private static final double SAFE_EXP = 708;
     /**
      * The value of Math.exp(SAFE_EXP): e^708.
-     * To be used in overflow/underflow safe products of e^m to approximate e^x where x > m.
+     * To be used in overflow/underflow safe products of e^m to approximate e^x where {@code x > m}.
      */
     private static final double EXP_M = Math.exp(SAFE_EXP);
 

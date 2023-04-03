@@ -1516,7 +1516,7 @@ final class BoostGamma {
 
     /**
      * Upper gamma fraction for integer a.
-     * Called when a < 30 and -x > LOG_MIN_VALUE.
+     * Called when {@code a < 30} and {@code -x > LOG_MIN_VALUE}.
      *
      * @param a Argument a (assumed to be small)
      * @param x Argument x
@@ -1542,7 +1542,7 @@ final class BoostGamma {
 
     /**
      * Upper gamma fraction for half integer a.
-     * Called when a < 30 and -x > LOG_MIN_VALUE.
+     * Called when {@code a < 30} and {@code -x > LOG_MIN_VALUE}.
      *
      * @param a Argument a (assumed to be small)
      * @param x Argument x

@@ -41,7 +41,7 @@ public final class LogFactorial {
      *
      * @param numValues Number of values of the function to compute.
      * @param cache Cached values.
-     * @throw IllegalArgumentException if {@code n < 0}.
+     * @throws IllegalArgumentException if {@code n < 0}.
      */
     private LogFactorial(int numValues,
                          double[] cache) {

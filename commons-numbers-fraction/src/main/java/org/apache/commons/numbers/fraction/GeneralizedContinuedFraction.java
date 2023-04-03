@@ -451,7 +451,7 @@ public final class GeneralizedContinuedFraction {
     /**
      * Returns the value, or if close to zero returns a small epsilon of the same sign.
      *
-     * <p>This method is used in Thompson & Barnett to monitor both the numerator and denominator
+     * <p>This method is used in Thompson &amp; Barnett to monitor both the numerator and denominator
      * ratios for approaches to zero.
      *
      * @param value the value

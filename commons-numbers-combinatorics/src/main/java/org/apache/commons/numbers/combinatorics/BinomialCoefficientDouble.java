@@ -27,7 +27,7 @@ public final class BinomialCoefficientDouble {
     /** The maximum factorial that can be represented as a double. */
     private static final int MAX_FACTORIAL = 170;
     /** The maximum n that can be computed without overflow of a long for any m.
-     * C(66, 33) < 2^63. */
+     * {@code C(66, 33) < 2^63}. */
     private static final int LIMIT_N_LONG = 66;
     /** The maximum m that can be computed without overflow of a double.
      * C(1030, 515) ~ 2.85e308. */

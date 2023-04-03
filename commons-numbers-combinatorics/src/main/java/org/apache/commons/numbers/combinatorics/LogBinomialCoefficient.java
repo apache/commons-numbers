@@ -27,7 +27,7 @@ import org.apache.commons.numbers.gamma.LogBeta;
  */
 public final class LogBinomialCoefficient {
     /** The maximum n that can be computed without overflow of a long for any m.
-     * C(66, 33) < 2^63. */
+     * {@code C(66, 33) < 2^63}. */
     private static final int LIMIT_N_LONG = 66;
     /** The maximum n that can be computed without overflow of a double for an m.
      * C(1029, 514) ~ 1.43e308. */

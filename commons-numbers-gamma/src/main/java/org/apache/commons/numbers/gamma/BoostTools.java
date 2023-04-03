@@ -41,14 +41,14 @@ final class BoostTools {
      * <p>The summation will terminate when any additional terms are too small to
      * change the sum. Assuming additional terms are reducing in magnitude this
      * occurs when the term is 1 ULP from the sum:
-     * <pre>
+     * <pre>{@code
      * ulp(sum) >= term
-     * </pre>
+     * }</pre>
      *
      * <p>The epsilon is used to set a configurable threshold using:
-     * <pre>
+     * <pre>{@code
      * sum * eps >= term
-     * </pre>
+     * }</pre>
      * <p>The minimum epsilon is the smallest value that will create a value
      * {@code >= 1} ULP and {@code < 2} ULP of the sum. For any normal number the ULP
      * of all values with the same exponent b is scalb(1.0, b - 52). This can
@@ -225,7 +225,7 @@ final class BoostTools {
      * f(x) = c[3] * x^3 + c[2] * x^2 + c[1] * x + c[0]
      * </pre>
      *
-     * @param c Polynomial coefficients (must have length > 0)
+     * @param c Polynomial coefficients (must have {@code length > 0})
      * @param x Argument x
      * @return polynomial value
      */

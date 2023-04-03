@@ -27,13 +27,13 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  */
 public final class BinomialCoefficient {
     /** The maximum m that can be computed without overflow of a long.
-     * C(68, 34) > 2^63. */
+     * {@code C(68, 34) > 2^63}. */
     private static final int MAX_M = 33;
     /** The maximum n that can be computed without intermediate overflow for any m.
-     * C(61, 30) * 30 < 2^63. */
+     * {@code C(61, 30) * 30 < 2^63}. */
     private static final int SMALL_N = 61;
     /** The maximum n that can be computed without overflow of a long for any m.
-     * C(66, 33) < 2^63. */
+     * {@code C(66, 33) < 2^63}. */
     private static final int LIMIT_N = 66;
 
     /** Private constructor. */
