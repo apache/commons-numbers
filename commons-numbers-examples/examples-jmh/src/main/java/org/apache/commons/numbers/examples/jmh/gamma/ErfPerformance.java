@@ -146,6 +146,16 @@ public class ErfPerformance {
      * Contains an array of numbers and the method to compute the error function.
      */
     public abstract static class FunctionData extends NumberData {
+        /** The type of the data.
+         Should be num uniform
+         Declared in ErfPerformance class. **/
+        @Param({NUM_UNIFORM})
+        private String NUM_TYPE;
+        /** The type of the data.
+         Should be num uniform
+         declared in ErfPerformance class. **/
+        @Param({NUM_UNIFORM, NUM_INVERSE_UNIFORM})
+        private String NUM_AND_INVERSE_TYPE;
 
         /** The function. */
         private DoubleUnaryOperator function;
@@ -208,15 +218,11 @@ public class ErfPerformance {
      */
     @State(Scope.Benchmark)
     public static class ErfData extends FunctionData {
-        /** The type of the data. */
-        @Param({NUM_UNIFORM, NUM_INVERSE_UNIFORM})
-        private String type;
-
         /** {@inheritDoc} */
         @Override
         protected double[] createNumbers(SplittableRandom rng) {
             DoubleSupplier generator;
-            if (NUM_INVERSE_UNIFORM.equals(type)) {
+            if (NUM_INVERSE_UNIFORM.equals(FunctionData.NUM_AND_INVERSE_TYPE)) {
                 // p range: [-1, 1)
                 // The final value is generated using the inverse erf function.
                 generator = () -> InverseErf.value(makeSignedDouble(rng));
@@ -225,7 +231,7 @@ public class ErfPerformance {
                 // Note: Values are not distinguishable from +/-1 when |x| > 6
                 generator = () -> makeSignedDouble(rng) * 6;
             } else {
-                throw new IllegalStateException(UNKNOWN + type);
+                throw new IllegalStateException(UNKNOWN + FunctionData.NUM_AND_INVERSE_TYPE);
             }
             return DoubleStream.generate(generator).limit(getSize()).toArray();
         }
@@ -270,15 +276,11 @@ public class ErfPerformance {
      */
     @State(Scope.Benchmark)
     public static class ErfcData extends FunctionData {
-        /** The type of the data. */
-        @Param({NUM_UNIFORM, NUM_INVERSE_UNIFORM})
-        private String type;
-
         /** {@inheritDoc} */
         @Override
         protected double[] createNumbers(SplittableRandom rng) {
             DoubleSupplier generator;
-            if (NUM_INVERSE_UNIFORM.equals(type)) {
+            if (NUM_INVERSE_UNIFORM.equals(FunctionData.NUM_AND_INVERSE_TYPE)) {
                 // q range: [0, 2)
                 // The final value is generated using the inverse erfc function.
                 generator = () -> InverseErfc.value(rng.nextDouble() * 2);
@@ -288,7 +290,7 @@ public class ErfPerformance {
                 // Shift the range [-17, 17) to [-6, 28)
                 generator = () -> makeSignedDouble(rng) * 17 + 11;
             } else {
-                throw new IllegalStateException(UNKNOWN + type);
+                throw new IllegalStateException(UNKNOWN + FunctionData.NUM_AND_INVERSE_TYPE);
             }
             return DoubleStream.generate(generator).limit(getSize()).toArray();
         }
@@ -334,21 +336,15 @@ public class ErfPerformance {
      */
     @State(Scope.Benchmark)
     public static class InverseErfData extends FunctionData {
-        /**
-         * The type of the data.
-         */
-        @Param({NUM_UNIFORM})
-        private String type;
-
         /** {@inheritDoc} */
         @Override
         protected double[] createNumbers(SplittableRandom rng) {
             DoubleSupplier generator;
-            if (NUM_UNIFORM.equals(type)) {
+            if (NUM_UNIFORM.equals(FunctionData.NUM_TYPE)) {
                 // range [-1, 1)
                 generator = () -> makeSignedDouble(rng);
             } else {
-                throw new IllegalStateException(UNKNOWN + type);
+                throw new IllegalStateException(UNKNOWN + FunctionData.NUM_TYPE);
             }
             return DoubleStream.generate(generator).limit(getSize()).toArray();
         }
@@ -393,21 +389,15 @@ public class ErfPerformance {
      */
     @State(Scope.Benchmark)
     public static class InverseErfcData extends FunctionData {
-        /**
-         * The type of the data.
-         */
-        @Param({NUM_UNIFORM})
-        private String type;
-
         /** {@inheritDoc} */
         @Override
         protected double[] createNumbers(SplittableRandom rng) {
             DoubleSupplier generator;
-            if (NUM_UNIFORM.equals(type)) {
+            if (NUM_UNIFORM.equals(FunctionData.NUM_TYPE)) {
                 // range [0, 2)
                 generator = () -> rng.nextDouble() * 2;
             } else {
-                throw new IllegalStateException(UNKNOWN + type);
+                throw new IllegalStateException(UNKNOWN + FunctionData.NUM_TYPE);
             }
             return DoubleStream.generate(generator).limit(getSize()).toArray();
         }
