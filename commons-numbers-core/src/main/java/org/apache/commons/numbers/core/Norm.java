@@ -73,6 +73,13 @@ public enum Norm {
     private static final int EXP_DIFF_THRESHOLD_2D = 54;
 
     /** Function of 2 arguments. */
+    private final Two two;
+    /** Function of 3 arguments. */
+    private final Three three;
+    /** Function of array argument. */
+    private final Array array;
+
+    /** Function of 2 arguments. */
     @FunctionalInterface
     private interface Two {
         /**
@@ -102,13 +109,6 @@ public enum Norm {
          */
         double of(double[] v);
     }
-
-    /** Function of 2 arguments. */
-    private final Two two;
-    /** Function of 3 arguments. */
-    private final Three three;
-    /** Function of array argument. */
-    private final Array array;
 
     /**
      * @param two Function of 2 arguments.
