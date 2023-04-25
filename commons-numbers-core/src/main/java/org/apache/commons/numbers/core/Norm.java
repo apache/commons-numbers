@@ -238,8 +238,8 @@ public enum Norm {
     private static double manhattan(final double[] v) {
         final Sum sum = Sum.create();
 
-        for (int i = 0; i < v.length; ++i) {
-            sum.add(Math.abs(v[i]));
+        for (final double d : v) {
+            sum.add(Math.abs(d));
         }
 
         return sum.getAsDouble();
@@ -553,8 +553,8 @@ public enum Norm {
      */
     private static double maximum(final double[] v) {
         double max = 0d;
-        for (int i = 0; i < v.length; ++i) {
-            max = Math.max(max, Math.abs(v[i]));
+        for (final double d : v) {
+            max = Math.max(max, Math.abs(d));
         }
         return max;
     }
