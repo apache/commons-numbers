@@ -306,7 +306,7 @@ public enum Norm {
         double comp = 0d;
 
         // add scaled x
-        double sx = xabs * scale;
+        final double sx = xabs * scale;
         final double px = sx * sx;
         comp += ExtendedPrecision.squareLowUnscaled(sx, px);
         final double sumPx = sum + px;
@@ -314,7 +314,7 @@ public enum Norm {
         sum = sumPx;
 
         // add scaled y
-        double sy = yabs * scale;
+        final double sy = yabs * scale;
         final double py = sy * sy;
         comp += ExtendedPrecision.squareLowUnscaled(sy, py);
         final double sumPy = sum + py;
@@ -371,7 +371,7 @@ public enum Norm {
         double comp = 0d;
 
         // add scaled x
-        double sx = xabs * scale;
+        final double sx = xabs * scale;
         final double px = sx * sx;
         comp += ExtendedPrecision.squareLowUnscaled(sx, px);
         final double sumPx = sum + px;
@@ -379,7 +379,7 @@ public enum Norm {
         sum = sumPx;
 
         // add scaled y
-        double sy = yabs * scale;
+        final double sy = yabs * scale;
         final double py = sy * sy;
         comp += ExtendedPrecision.squareLowUnscaled(sy, py);
         final double sumPy = sum + py;

@@ -121,7 +121,7 @@ public final class Sum
      * @return this instance.
      */
     public Sum add(final double... terms) {
-        for (double t : terms) {
+        for (final double t : terms) {
             add(t);
         }
 
