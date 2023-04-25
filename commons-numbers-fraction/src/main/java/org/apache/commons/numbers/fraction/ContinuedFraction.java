@@ -114,6 +114,7 @@ public abstract class ContinuedFraction {
 
         // Generate coefficients from (a1,b1)
         final Supplier<Coefficient> gen = new Supplier<Coefficient>() {
+            /** Coefficient index. */
             private int n;
             @Override
             public Coefficient get() {
