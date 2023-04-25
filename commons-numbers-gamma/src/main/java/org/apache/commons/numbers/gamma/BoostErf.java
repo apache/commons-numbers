@@ -511,7 +511,7 @@ final class BoostErf {
      * @return the inverse
      */
     private static double erfInvImp(double p, double q) {
-        double result = 0;
+        double result;
 
         if (p <= 0.5) {
             //

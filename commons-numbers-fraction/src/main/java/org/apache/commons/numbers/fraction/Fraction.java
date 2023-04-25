@@ -198,8 +198,8 @@ public final class Fraction
         long p1 = a0;
         long q1 = 1;
 
-        long p2 = 0;
-        long q2 = 1;
+        long p2;
+        long q2;
 
         int n = 0;
         boolean stop = false;
