@@ -149,7 +149,7 @@
 
   <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
     <properties>
-      <property name="ignoreMagicNumbers" value="-1,0,1" />
+      <property name="ignoreMagicNumbers" value="-1,0,1,-1L,0L,1L,0.0" />
       <property name="violationSuppressXPath"
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='LogGamma'
                or @SimpleName='LogGammaSum'
