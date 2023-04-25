@@ -46,7 +46,6 @@
   <rule ref="category/java/design.xml">
     <exclude name="TooManyMethods" />
     <exclude name="LawOfDemeter" />
-    <exclude name="NcssCount" />
     <exclude name="LoosePackageCoupling" />
   </rule>
   <rule ref="category/java/documentation.xml">
@@ -138,16 +137,6 @@
                or @SimpleName='BigFraction']"/>
     </properties>
   </rule>
-  <rule ref="category/java/design.xml/ExcessiveClassLength">
-    <properties>
-      <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
-               or @SimpleName='Fraction'
-               or @SimpleName='BigFraction'
-               or @SimpleName='BoostGamma'
-               or @SimpleName='BoostBeta']"/>
-    </properties>
-  </rule>
   <rule ref="category/java/design.xml/GodClass">
     <properties>
       <property name="violationSuppressXPath"
@@ -185,16 +174,16 @@
   </rule>
 
   <!-- Long methods are based on reference implementations. -->
-  <rule ref="category/java/design.xml/ExcessiveMethodLength">
+  <rule ref="category/java/design.xml/NcssCount">
     <properties>
       <property name="violationSuppressXPath"
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
-               or @SimpleName='BigFraction'
                or @SimpleName='Fraction'
                or @SimpleName='BoostErf'
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
-               or @SimpleName='SpecialMath']"/>
+               or @SimpleName='InvGamma1pm1'
+               or @SimpleName='BrentSolver']"/>
     </properties>
   </rule>
 
