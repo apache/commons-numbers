@@ -75,7 +75,7 @@ Where can I get the latest release?
 -----------------------------------
 You can download source and binaries from our [download page](https://commons.apache.org/proper/commons-numbers/download_numbers.cgi).
 
-Alternatively you can pull it from the central Maven repositories, for example:
+Alternatively, you can pull it from the central Maven repositories, for example:
 
 ```xml
 <dependency>
