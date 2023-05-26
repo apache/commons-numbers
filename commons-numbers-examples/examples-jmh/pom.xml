@@ -88,6 +88,7 @@
     <!-- JDK 9+ required for BigDecimal.sqrt() method. -->
     <maven.compiler.source>9</maven.compiler.source>
     <maven.compiler.target>9</maven.compiler.target>
+    <commons.compiler.release>9</commons.compiler.release>
 
     <!-- OSGi -->
     <commons.osgi.symbolicName>org.apache.commons.numbers.examples.jmh</commons.osgi.symbolicName>
