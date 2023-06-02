@@ -43,6 +43,11 @@ jobs:
       if: matrix.java == 8
       run: mvn -V --no-transfer-progress
     - name: Build with Maven including examples
-      # Examples require Java 11+
+      # Examples require Java 11+.
+      # Building javadoc errors when run with the package phase with an error about
+      # the module path and the unamed module (despite using an automatic module name).
+      # Here we run the build and javadoc generation separately.
       if: matrix.java > 8
-      run: mvn -V --no-transfer-progress -P commons-numbers-examples
+      run: |
+        mvn -V --no-transfer-progress -P commons-numbers-examples -Dmaven.javadoc.skip
+        mvn -P commons-numbers-examples javadoc:javadoc
