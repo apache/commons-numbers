@@ -45,6 +45,13 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-core</artifactId>
     </dependency>
+    <!-- Required for DD performance benchmark -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-core</artifactId>
+      <type>test-jar</type>
+      <scope>compile</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -110,12 +117,25 @@
     <!-- Disable JDK compatibility check for benchmarking code. Also required since no signature
     projects exist for JDK 9+. -->
     <animal.sniffer.skip>true</animal.sniffer.skip>
+    <!-- Disable moditect as we import o.a.c.numbers.core twice due to the test-jar code. -->
+    <moditect.skip>true</moditect.skip>
+
+    <!-- 
+      NOTE:
+      This module imports a core test artifact and uses Java 9 despite importing
+      only Java 8 code. This can cause the javadoc plugin to fail on some build
+      platforms when run with the package phase so skip to make this module compatible
+      with the default goal. Run using e.g.:
+      mvn javadoc:javadoc -Dmaven.javadoc.skip=false
+    -->
+    <maven.javadoc.skip>true</maven.javadoc.skip>
   </properties>
 
   <build>
     <plugins>
       <plugin>
-        <!-- NOTE: javadoc config must also be set under <reporting> -->
+        <!-- NOTE: javadoc config must also be set under <reporting> 
+            This plugin is skipped by default and must be manually enabled. -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
@@ -138,7 +158,8 @@
   <reporting>
     <plugins>
       <plugin>
-        <!-- NOTE: javadoc config must also be set under <build> -->
+        <!-- NOTE: javadoc config must also be set under <build>
+            This plugin is skipped by default and must be manually enabled. -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>

@@ -46,8 +46,8 @@ jobs:
       # Examples require Java 11+.
       # Building javadoc errors when run with the package phase with an error about
       # the module path and the unamed module (despite using an automatic module name).
-      # Here we run the build and javadoc generation separately.
+      # Here we run the build and javadoc generation separately (which requires install of sources)
       if: matrix.java > 8
       run: |
-        mvn -V --no-transfer-progress -P commons-numbers-examples -Dmaven.javadoc.skip
-        mvn -P commons-numbers-examples javadoc:javadoc
+        mvn -V --no-transfer-progress -P commons-numbers-examples clean install -Dmaven.javadoc.skip
+        mvn -P commons-numbers-examples javadoc:javadoc -Dmaven.javadoc.skip=false

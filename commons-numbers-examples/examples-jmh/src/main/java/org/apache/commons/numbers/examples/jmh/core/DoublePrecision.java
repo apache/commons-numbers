@@ -204,7 +204,7 @@ final class DoublePrecision {
         // Compute scaling by multiplication so we can scale both together.
         // If a single multiplication to a normal number then handle here.
         if (scale <= 2046 && scale > 0) {
-            // Convert to a normalised power of 2
+            // Convert to a normalized power of 2
             final double d = Double.longBitsToDouble(((long) scale) << 52);
             z *= d;
             zz *= d;
@@ -253,7 +253,7 @@ final class DoublePrecision {
     }
 
     /**
-     * Gets the normalised fraction in the range [0.5, 1).
+     * Gets the normalized fraction in the range [0.5, 1).
      *
      * @param bits the bits
      * @return the exponent

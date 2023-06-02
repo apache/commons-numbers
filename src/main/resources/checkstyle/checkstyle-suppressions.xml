@@ -23,7 +23,10 @@
   <suppress checks="ParameterNumber" files=".*[/\\]core[/\\]LinearCombination[s]?\.java" />
   <suppress checks="FileLengthCheck" files=".*[/\\]Complex(Test)?\.java" />
   <suppress checks="FileLengthCheck" files=".*jmh[/\\]core[/\\]LinearCombinations.java" />
+  <suppress checks="FileLengthCheck" files=".*[/\\]DD(Test)?\.java" />
   <suppress checks="MethodLength" files=".*[/\\]Complex\.java" />
+  <suppress checks="MethodLength" files=".*[/\\]DDMath\.java" />
+  <suppress checks="MethodLength" files=".*[/\\]SDD\.java" />
   <!-- Naming and method logic preserved from the original Boost C++ code -->
   <suppress checks="MethodLength" files=".*[/\\]BoostErf\.java" />
   <suppress checks="MethodLength" files=".*[/\\]BoostGamma\.java" />
@@ -52,4 +55,5 @@
   <suppress checks="FileLengthCheck" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
   <suppress checks="MethodLength" files=".*[/\\]BoostBetaTest.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]DDTest\.java" />
 </suppressions>

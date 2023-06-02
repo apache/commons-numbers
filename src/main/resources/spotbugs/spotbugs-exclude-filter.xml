@@ -41,6 +41,11 @@
     <Method name="sqrt"/>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
+  <Match>
+    <Class name="org.apache.commons.numbers.ext.DD"/>
+    <Method name="longValue"/>
+    <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
+  </Match>
 
   <Match>
     <Or>

@@ -119,7 +119,8 @@
       <property name="methodReportLevel" value="20"/>
       <property name="violationSuppressXPath"
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
-               or @SimpleName='BoostBeta']"/>
+               or @SimpleName='BoostBeta'
+               or @SimpleName='DD']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/NPathComplexity">
@@ -143,7 +144,8 @@
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Fraction'
                or @SimpleName='BigFraction'
                or @SimpleName='BoostGamma'
-               or @SimpleName='BoostBeta']"/>
+               or @SimpleName='BoostBeta'
+               or @SimpleName='DD']"/>
     </properties>
   </rule>
 
@@ -160,7 +162,7 @@
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
                or @SimpleName='BoostTools'
-               or @SimpleName='BoostMath']"/>
+               or @SimpleName='BoostMath'] or ./ancestor-or-self::MethodDeclaration[@Name='ldexp']"/>
     </properties>
   </rule>
 
@@ -169,7 +171,15 @@
       <property name="violationSuppressXPath"
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
-               or @SimpleName='BigFraction']"/>
+               or @SimpleName='BigFraction'
+               or @SimpleName='DD']"/>
+    </properties>
+  </rule>
+
+  <rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='DD']"/>
     </properties>
   </rule>
 
@@ -183,7 +193,8 @@
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
                or @SimpleName='InvGamma1pm1'
-               or @SimpleName='BrentSolver']"/>
+               or @SimpleName='BrentSolver'
+               or @SimpleName='DDMath']"/>
     </properties>
   </rule>
 
