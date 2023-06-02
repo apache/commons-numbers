@@ -119,8 +119,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
-          <source>1.8</source>
           <sourceFileExcludes>
             <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
           </sourceFileExcludes>
@@ -144,8 +142,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <!-- Set source to JDK 8 to prevent issues with lack of module information. -->
-          <source>1.8</source>
           <sourceFileExcludes>
             <sourceFileExclude>**/jmh_generated/*.java</sourceFileExclude>
           </sourceFileExcludes>
