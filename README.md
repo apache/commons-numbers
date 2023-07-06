@@ -55,7 +55,7 @@ Documentation
 -------------
 
 More information can be found on the [Apache Commons Numbers homepage](https://commons.apache.org/proper/commons-numbers).
-The Javadoc for each of the modules can be browsed:
+The [Javadoc](https://commons.apache.org/proper/commons-numbers/commons-numbers-docs/apidocs) for each of the modules can be browsed:
 
 - [Commons Numbers Core](https://commons.apache.org/proper/commons-numbers/commons-numbers-core/apidocs/)
 - [Commons Numbers Complex](https://commons.apache.org/proper/commons-numbers/commons-numbers-complex/apidocs/)
