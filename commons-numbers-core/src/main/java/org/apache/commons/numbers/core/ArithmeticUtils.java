@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.MessageFormat;
 
@@ -583,6 +584,14 @@ public final class ArithmeticUtils {
             return q;
         }
         return dividend >= 0L || dividend < divisor ? 0L : 1L;
+    }
+
+
+    public static boolean isBetween(Number numberToCheck, Number minimum, Number maximum) {
+        BigDecimal xTemp = new BigDecimal(numberToCheck.toString());
+        BigDecimal minimumTemp = new BigDecimal(minimum.toString());
+        BigDecimal maximumTemp = new BigDecimal(maximum.toString());
+        return xTemp.compareTo(minimumTemp) >= 0 && xTemp.compareTo(maximumTemp) <= 0;
     }
 
     /**

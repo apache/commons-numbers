@@ -657,4 +657,20 @@ class ArithmeticUtilsTest {
             }
         }
     }
+
+    @Test
+    void testIsBetween() {
+        Assertions.assertTrue(ArithmeticUtils.isBetween(292805461453366231L, -2147479015L, 292805461453366231L));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(292805461453366231L, -2147479015L, 292805461453366232L));
+        Assertions.assertFalse(ArithmeticUtils.isBetween(292805461453366231L, -2147479015L, 292805461453366230L));
+        Assertions.assertFalse(ArithmeticUtils.isBetween(-292805461453366231L, -2147479015L, 292805461453366230L));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0, 1));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0d, 1));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0d, 1.0d));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0d, 1.0f));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0f, 1.0f));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0f, 1.0d));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0f, 1));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(0.0d, -0.0f, 1));
+    }
 }
