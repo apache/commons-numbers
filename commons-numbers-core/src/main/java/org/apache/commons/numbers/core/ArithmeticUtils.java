@@ -595,11 +595,34 @@ public final class ArithmeticUtils {
      * @param maximum the right-inclusive limit of the interval [minimum, maximum] to check.
      * @return true if numberToCheck is between minimum and maximum.
      */
-    public static boolean isBetween(Number numberToCheck, Number minimum, Number maximum) {
-        BigDecimal xTemp = new BigDecimal(numberToCheck.toString());
-        BigDecimal minimumTemp = new BigDecimal(minimum.toString());
-        BigDecimal maximumTemp = new BigDecimal(maximum.toString());
-        return xTemp.compareTo(minimumTemp) >= 0 && xTemp.compareTo(maximumTemp) <= 0;
+    public static boolean isBetween(int numberToCheck, int minimum, int maximum) {
+        return numberToCheck >= minimum && numberToCheck <= maximum;
+    }
+
+    /**
+     * Checks if the first argument is numerically between the other 2 arguments i.e.
+     * it checks if numberToCheck belongs to the interval [minimum, maximum].
+     * @param numberToCheck argument to check if it is numerically between the other 2 arguments.
+     * @param minimum the left-inclusive limit of the interval [minimum, maximum] to check.
+     * @param maximum the right-inclusive limit of the interval [minimum, maximum] to check.
+     * @return true if numberToCheck is between minimum and maximum.
+     */
+    public static boolean isBetween(long numberToCheck, long minimum, long maximum) {
+        return numberToCheck >= minimum && numberToCheck <= maximum;
+    }
+
+    /**
+     * Checks if the first argument is numerically between the other 2 arguments i.e.
+     * it checks if numberToCheck belongs to the interval [minimum, maximum].
+     * @param numberToCheck argument to check if it is numerically between the other 2 arguments.
+     * @param minimum the left-inclusive limit of the interval [minimum, maximum] to check.
+     * @param maximum the right-inclusive limit of the interval [minimum, maximum] to check.
+     * @return true if numberToCheck is between minimum and maximum.
+     */
+    public static boolean isBetween(double numberToCheck, double minimum, double maximum) {
+    boolean x = numberToCheck >= minimum;
+    boolean y = numberToCheck <= maximum;
+        return numberToCheck >= minimum && numberToCheck <= maximum;
     }
 
     /**
