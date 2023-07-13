@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.core;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.math.BigInteger;
 import java.util.Collections;
