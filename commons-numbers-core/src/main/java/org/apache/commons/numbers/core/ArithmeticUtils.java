@@ -58,9 +58,9 @@ public final class ArithmeticUtils {
      *   for the special cases above.</li>
      *  <li>The invocation {@code gcd(0, 0)} is the only one which returns
      *   {@code 0}.</li>
-     *   <li>gcd can be used to determine if two numbers are relatively prime.
-     *   For example {@code boolean areCoprime = gcd(4, 9) == 1}</li>
      * </ul>
+     *
+     * <p>Two numbers are relatively prime, or coprime, if their gcd is 1.
      *
      * @param p Number.
      * @param q Number.
