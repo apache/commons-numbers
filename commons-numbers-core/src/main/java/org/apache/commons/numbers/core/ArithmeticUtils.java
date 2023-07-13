@@ -585,6 +585,25 @@ public final class ArithmeticUtils {
         return dividend >= 0L || dividend < divisor ? 0L : 1L;
     }
 
+
+    /**
+     * It calculates the integer closest to the given value.
+     * For example for a value 3.6, the closest integer is 4.
+     * For the value 3.1, it is 3. For 3.5 it is 4.
+     * @param x the value for which to find the closest integer.
+     * @return the integer closest to the given value.
+     */
+    public static double getClosestInteger(double x) {
+        double floor = Math.floor(x);
+        double ceiling = floor + 1;
+
+        if (x - floor < ceiling - x) {
+            return floor;
+        } else {
+            return ceiling;
+        }
+    }
+
     /**
      * Exception.
      */

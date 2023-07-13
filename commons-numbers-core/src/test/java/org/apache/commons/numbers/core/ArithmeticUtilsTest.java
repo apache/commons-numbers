@@ -657,4 +657,20 @@ class ArithmeticUtilsTest {
             }
         }
     }
+
+    @Test
+    void testGetClosestInteger() {
+        Assertions.assertEquals(1.0, ArithmeticUtils.getClosestInteger(1.2));
+        Assertions.assertEquals(2.0, ArithmeticUtils.getClosestInteger(1.5));
+        Assertions.assertEquals(1.0, ArithmeticUtils.getClosestInteger(1.4));
+        Assertions.assertEquals(-1.0, ArithmeticUtils.getClosestInteger(-1.4));
+        Assertions.assertEquals(-1.0, ArithmeticUtils.getClosestInteger(-1.5));
+        Assertions.assertEquals(0.0, ArithmeticUtils.getClosestInteger(0.2));
+        Assertions.assertEquals(0.0, ArithmeticUtils.getClosestInteger(-0.2));
+        Assertions.assertEquals(3.0, ArithmeticUtils.getClosestInteger(3.0));
+        Assertions.assertEquals(-3.0, ArithmeticUtils.getClosestInteger(-3.0));
+        Assertions.assertEquals(1.0, ArithmeticUtils.getClosestInteger(0.6));
+        Assertions.assertEquals(-1.0, ArithmeticUtils.getClosestInteger(-0.6));
+        Assertions.assertEquals(64001.0, ArithmeticUtils.getClosestInteger(64000.5));
+    }
 }
