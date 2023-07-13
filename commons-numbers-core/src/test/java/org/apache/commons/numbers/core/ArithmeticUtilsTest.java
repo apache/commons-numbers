@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -660,6 +661,12 @@ class ArithmeticUtilsTest {
 
     @Test
     void testIsBetween() {
+        BigInteger minus1Int = BigInteger.valueOf(-1);
+        BigDecimal minus1Dec = BigDecimal.valueOf(-1);
+        BigInteger minus10000Int = BigInteger.valueOf(-10000);
+        BigInteger plus10000Int = BigInteger.valueOf(10000);
+        BigDecimal minus10000Dec = BigDecimal.valueOf(-10000);
+        BigDecimal plus10000Dec = BigDecimal.valueOf(10000);
         Assertions.assertTrue(ArithmeticUtils.isBetween(292805461453366231L, -2147479015L, 292805461453366231L));
         Assertions.assertTrue(ArithmeticUtils.isBetween(292805461453366231L, -2147479015L, 292805461453366232L));
         Assertions.assertFalse(ArithmeticUtils.isBetween(292805461453366231L, -2147479015L, 292805461453366230L));
@@ -672,5 +679,16 @@ class ArithmeticUtilsTest {
         Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0f, 1.0d));
         Assertions.assertTrue(ArithmeticUtils.isBetween(-0.0d, 0.0f, 1));
         Assertions.assertTrue(ArithmeticUtils.isBetween(0.0d, -0.0f, 1));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(BigInteger.ZERO, BigDecimal.ZERO, BigInteger.ONE));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(BigInteger.ZERO, BigDecimal.ZERO, BigInteger.ONE));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(BigInteger.ZERO, BigDecimal.ZERO, BigInteger.ONE));
+        Assertions.assertFalse(ArithmeticUtils.isBetween(minus1Int, BigInteger.ZERO, BigInteger.ONE));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(minus1Int, minus10000Int, plus10000Int));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(minus1Dec, minus10000Int, plus10000Int));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(minus1Dec, minus10000Dec, plus10000Int));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(minus1Dec, minus10000Dec, plus10000Dec));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(minus1Int, minus10000Dec, plus10000Int));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(minus1Int, minus10000Int, plus10000Dec));
+        Assertions.assertTrue(ArithmeticUtils.isBetween(minus1Int, minus10000Dec, plus10000Dec));
     }
 }

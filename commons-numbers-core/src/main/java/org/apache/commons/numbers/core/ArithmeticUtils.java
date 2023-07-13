@@ -587,6 +587,14 @@ public final class ArithmeticUtils {
     }
 
 
+    /**
+     * Checks if the first argument is numerically between the other 2 arguments i.e.
+     * it checks if numberToCheck belongs to the interval [minimum, maximum].
+     * @param numberToCheck argument to check if it is numerically between the other 2 arguments.
+     * @param minimum the left-inclusive limit of the interval [minimum, maximum] to check.
+     * @param maximum the right-inclusive limit of the interval [minimum, maximum] to check.
+     * @return true if numberToCheck is between minimum and maximum.
+     */
     public static boolean isBetween(Number numberToCheck, Number minimum, Number maximum) {
         BigDecimal xTemp = new BigDecimal(numberToCheck.toString());
         BigDecimal minimumTemp = new BigDecimal(minimum.toString());
