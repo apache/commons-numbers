@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
  * Utility methods to work on primes within the <code>int</code> range.
@@ -285,5 +286,45 @@ final class SmallPrimes {
             }
         }
         return true; // definitely prime
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    static boolean areRelativePrimes(final int x, final int y) {
+        return ArithmeticUtils.gcd(x, y) == 1;
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    static boolean areRelativePrimes(final int x, final long y) {
+        return ArithmeticUtils.gcd(x, y) == 1;
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    static boolean areRelativePrimes(final long x, final int y) {
+        return ArithmeticUtils.gcd(x, y) == 1;
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    static boolean areRelativePrimes(final long x, final long y) {
+        return ArithmeticUtils.gcd(x, y) == 1;
     }
 }

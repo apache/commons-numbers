@@ -143,4 +143,76 @@ class SmallPrimesTest {
             }
         }
     }
+
+    @Test
+    void areRelativePrimes_int_int() {
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(-10, -17));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(10, 17));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(10, 20));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(-10, -20));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0, -20));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0, 20));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(0, 1));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0, 100));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1, 1));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1, 2));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1, 26));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(2, 2));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(2, 3));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(2, 4));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(2, 17));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(200, 64000));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(200, 64001));
+    }
+
+    @Test
+    void areRelativePrimes_int_long() {
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(-10, -17L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(10, 17L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0, -20L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0, 20L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(0, 1L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1, 1L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1, 26L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(2, 3L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(2, 4L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(200, 64000L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(200, 64000000000L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(200, 64000000001L));
+    }
+
+    @Test
+    void areRelativePrimes_long_int() {
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(-10L, -17));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(10L, 17));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0L, -20));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0L, 20));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(0L, 1));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1L, 1));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1L, 26));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(2L, 3));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(2L, 4));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(200L, 64000));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(64000000000L, 200));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(64000000001L, 200));
+    }
+
+    @Test
+    void areRelativePrimes_long_long() {
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(-10L, -17L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(10L, 17L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0L, -20L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(0L, 20L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(0L, 1L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1L, 1L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(1L, 26L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(2L, 3L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(2L, 4L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(200L, 64000L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(64000000000L, 200L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(64000000001L, 200L));
+        Assertions.assertFalse(SmallPrimes.areRelativePrimes(64000000000L, 32000000000L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(64000000000L, 32000000001L));
+        Assertions.assertTrue(SmallPrimes.areRelativePrimes(64000000001L, 32000000000L));
+    }
 }

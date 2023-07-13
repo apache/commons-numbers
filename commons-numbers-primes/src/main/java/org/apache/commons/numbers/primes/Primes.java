@@ -18,6 +18,7 @@ package org.apache.commons.numbers.primes;
 
 import java.text.MessageFormat;
 import java.util.List;
+import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
  * Methods related to prime numbers in the range of <code>int</code>.
@@ -111,5 +112,45 @@ public final class Primes {
             throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 2));
         }
         return SmallPrimes.trialDivision(n);
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    public static boolean areRelativePrimes(final int x, final int y) {
+        return SmallPrimes.areRelativePrimes(x, y);
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    public static boolean areRelativePrimes(final int x, final long y) {
+        return SmallPrimes.areRelativePrimes(x, y);
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    public static boolean areRelativePrimes(final long x, final int y) {
+        return SmallPrimes.areRelativePrimes(x, y);
+    }
+
+    /**
+     * Checks if the absolute value of the 2 given integers are relative primes.
+     * @param x first integer to check.
+     * @param y second integer to check.
+     * @return true/false i.e. if the arguments are relative primes.
+     */
+    public static boolean areRelativePrimes(final long x, final long y) {
+        return SmallPrimes.areRelativePrimes(x, y);
     }
 }
