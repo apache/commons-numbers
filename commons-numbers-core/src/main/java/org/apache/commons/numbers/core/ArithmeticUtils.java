@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.MessageFormat;
 
@@ -583,6 +584,51 @@ public final class ArithmeticUtils {
             return q;
         }
         return dividend >= 0L || dividend < divisor ? 0L : 1L;
+    }
+
+    /**
+     * Checks if the first argument is numerically between the other 2 arguments i.e.
+     * it checks if numberToCheck belongs to the interval (minimum, maximum].
+     * @param numberToCheck argument to check if it is numerically between the other 2 arguments.
+     * @param minimum the left-exclusive limit of the interval (minimum, maximum] to check.
+     * @param maximum the right-inclusive limit of the interval (minimum, maximum] to check.
+     * @return true if numberToCheck is between minimum-exclusive and maximum.
+     */
+    public static boolean isBetweenLeftExclusive(Number numberToCheck, Number minimum, Number maximum) {
+        BigDecimal xTemp = new BigDecimal(numberToCheck.toString());
+        BigDecimal minimumTemp = new BigDecimal(minimum.toString());
+        BigDecimal maximumTemp = new BigDecimal(maximum.toString());
+        return xTemp.compareTo(minimumTemp) > 0 && xTemp.compareTo(maximumTemp) <= 0;
+    }
+
+    /**
+     * Checks if the first argument is numerically between the other 2 arguments i.e.
+     * it checks if numberToCheck belongs to the interval [minimum, maximum).
+     * @param numberToCheck argument to check if it is numerically between the other 2 arguments.
+     * @param minimum the left-inclusive limit of the interval [minimum, maximum) to check.
+     * @param maximum the right-exclusive limit of the interval [minimum, maximum) to check.
+     * @return true if numberToCheck is between minimum and maximum-exclusive.
+     */
+    public static boolean isBetweenRightExclusive(Number numberToCheck, Number minimum, Number maximum) {
+        BigDecimal xTemp = new BigDecimal(numberToCheck.toString());
+        BigDecimal minimumTemp = new BigDecimal(minimum.toString());
+        BigDecimal maximumTemp = new BigDecimal(maximum.toString());
+        return xTemp.compareTo(minimumTemp) >= 0 && xTemp.compareTo(maximumTemp) < 0;
+    }
+
+    /**
+     * Checks if the first argument is numerically between the other 2 arguments i.e.
+     * it checks if numberToCheck belongs to the interval (minimum, maximum).
+     * @param numberToCheck argument to check if it is numerically between the other 2 arguments.
+     * @param minimum the left-inclusive limit of the interval (minimum, maximum) to check.
+     * @param maximum the right-exclusive limit of the interval (minimum, maximum) to check.
+     * @return true if numberToCheck is between minimum-exclusive and maximum-exclusive.
+     */
+    public static boolean isBetweenExclusive(Number numberToCheck, Number minimum, Number maximum) {
+        BigDecimal xTemp = new BigDecimal(numberToCheck.toString());
+        BigDecimal minimumTemp = new BigDecimal(minimum.toString());
+        BigDecimal maximumTemp = new BigDecimal(maximum.toString());
+        return xTemp.compareTo(minimumTemp) > 0 && xTemp.compareTo(maximumTemp) < 0;
     }
 
     /**
