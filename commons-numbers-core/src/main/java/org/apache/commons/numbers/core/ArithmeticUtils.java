@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.core;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.MessageFormat;
 
