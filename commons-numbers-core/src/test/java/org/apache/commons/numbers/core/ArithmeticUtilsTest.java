@@ -657,4 +657,26 @@ class ArithmeticUtilsTest {
             }
         }
     }
+
+    @Test
+    void testReverseDigits_int() {
+        Assertions.assertEquals(321, ArithmeticUtils.reverseDigits(123));
+        Assertions.assertEquals(1, ArithmeticUtils.reverseDigits(1));
+        Assertions.assertEquals(876, ArithmeticUtils.reverseDigits(678));
+        Assertions.assertEquals(0, ArithmeticUtils.reverseDigits(0));
+        Assertions.assertEquals(4321, ArithmeticUtils.reverseDigits(1234));
+        Assertions.assertEquals(-4321, ArithmeticUtils.reverseDigits(-1234));
+    }
+
+    @Test
+    void testReverseDigits_long() {
+        Assertions.assertEquals(321, ArithmeticUtils.reverseDigits(123L));
+        Assertions.assertEquals(1, ArithmeticUtils.reverseDigits(1L));
+        Assertions.assertEquals(876, ArithmeticUtils.reverseDigits(678L));
+        Assertions.assertEquals(0, ArithmeticUtils.reverseDigits(0L));
+        Assertions.assertEquals(4321, ArithmeticUtils.reverseDigits(1234L));
+        Assertions.assertEquals(-4321, ArithmeticUtils.reverseDigits(-1234L));
+        Assertions.assertEquals(6458942300829052L, ArithmeticUtils.reverseDigits(2509280032498546L));
+        Assertions.assertEquals(-6458942300829052L, ArithmeticUtils.reverseDigits(-2509280032498546L));
+    }
 }

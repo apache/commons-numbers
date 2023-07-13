@@ -585,6 +585,30 @@ public final class ArithmeticUtils {
         return dividend >= 0L || dividend < divisor ? 0L : 1L;
     }
 
+
+    /**
+     * It returns an integer whose digits are the ones of the input, but in reverse order.
+     * @param x number to reverse.
+     * @return integer whose digits are the ones of the input, but in reverse order.
+     */
+    public static int reverseDigits(int x) {
+        return (int)reverseDigits((long)x);
+    }
+
+    /**
+     * It returns an integer whose digits are the ones of the input, but in reverse order.
+     * @param x number to reverse.
+     * @return integer whose digits are the ones of the input, but in reverse order.
+     */
+    public static long reverseDigits(long x) {
+        long reverse = 0;
+        while(x != 0) {
+            reverse = reverse * 10 + x % 10;
+            x = x / 10;
+        }
+        return reverse;
+    }
+
     /**
      * Exception.
      */
