@@ -39,34 +39,36 @@ public final class ArithmeticUtils {
         // intentionally empty.
     }
 
-    /**
-     * Computes the greatest common divisor of the absolute value of two
-     * numbers, using a modified version of the "binary gcd" method.
-     * See Knuth 4.5.2 algorithm B.
-     * The algorithm is due to Josef Stein (1961).
-     * <br>
-     * Special cases:
-     * <ul>
-     *  <li>The invocations
-     *   {@code gcd(Integer.MIN_VALUE, Integer.MIN_VALUE)},
-     *   {@code gcd(Integer.MIN_VALUE, 0)} and
-     *   {@code gcd(0, Integer.MIN_VALUE)} throw an
-     *   {@code ArithmeticException}, because the result would be 2^31, which
-     *   is too large for an int value.</li>
-     *  <li>The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
-     *   {@code gcd(x, 0)} is the absolute value of {@code x}, except
-     *   for the special cases above.</li>
-     *  <li>The invocation {@code gcd(0, 0)} is the only one which returns
-     *   {@code 0}.</li>
-     * </ul>
-     *
-     * @param p Number.
-     * @param q Number.
-     * @return the greatest common divisor (never negative).
-     * @throws ArithmeticException if the result cannot be represented as
-     * a non-negative {@code int} value.
-     */
-    public static int gcd(int p, int q) {
+  /**
+   * Computes the greatest common divisor of the absolute value of two
+   * numbers, using a modified version of the "binary gcd" method.
+   * See Knuth 4.5.2 algorithm B.
+   * The algorithm is due to Josef Stein (1961).
+   * <br>
+   * Special cases:
+   * <ul>
+   *  <li>The invocations
+   *   {@code gcd(Integer.MIN_VALUE, Integer.MIN_VALUE)},
+   *   {@code gcd(Integer.MIN_VALUE, 0)} and
+   *   {@code gcd(0, Integer.MIN_VALUE)} throw an
+   *   {@code ArithmeticException}, because the result would be 2^31, which
+   *   is too large for an int value.</li>
+   *  <li>The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
+   *   {@code gcd(x, 0)} is the absolute value of {@code x}, except
+   *   for the special cases above.</li>
+   *  <li>The invocation {@code gcd(0, 0)} is the only one which returns
+   *   {@code 0}.</li>
+   *   <li>gcd can be used to determine if two numbers are relatively prime.
+   *   For example {@code boolean areCoprime = gcd(4, 9) == 1}</li>
+   * </ul>
+   *
+   * @param p Number.
+   * @param q Number.
+   * @return the greatest common divisor (never negative).
+   * @throws ArithmeticException if the result cannot be represented as
+   * a non-negative {@code int} value.
+   */
+  public static int gcd(int p, int q) {
         // Perform the gcd algorithm on negative numbers, so that -2^31 does not
         // need to be handled separately
         int a = p > 0 ? -p : p;
@@ -110,35 +112,37 @@ public final class ArithmeticUtils {
         return -negatedGcd;
     }
 
-    /**
-     * <p>
-     * Gets the greatest common divisor of the absolute value of two numbers,
-     * using the "binary gcd" method which avoids division and modulo
-     * operations. See Knuth 4.5.2 algorithm B. This algorithm is due to Josef
-     * Stein (1961).
-     * </p>
-     * Special cases:
-     * <ul>
-     * <li>The invocations
-     * {@code gcd(Long.MIN_VALUE, Long.MIN_VALUE)},
-     * {@code gcd(Long.MIN_VALUE, 0L)} and
-     * {@code gcd(0L, Long.MIN_VALUE)} throw an
-     * {@code ArithmeticException}, because the result would be 2^63, which
-     * is too large for a long value.</li>
-     * <li>The result of {@code gcd(x, x)}, {@code gcd(0L, x)} and
-     * {@code gcd(x, 0L)} is the absolute value of {@code x}, except
-     * for the special cases above.
-     * <li>The invocation {@code gcd(0L, 0L)} is the only one which returns
-     * {@code 0L}.</li>
-     * </ul>
-     *
-     * @param p Number.
-     * @param q Number.
-     * @return the greatest common divisor, never negative.
-     * @throws ArithmeticException if the result cannot be represented as
-     * a non-negative {@code long} value.
-     */
-    public static long gcd(final long p, final long q) {
+  /**
+   * <p>
+   * Gets the greatest common divisor of the absolute value of two numbers,
+   * using the "binary gcd" method which avoids division and modulo
+   * operations. See Knuth 4.5.2 algorithm B. This algorithm is due to Josef
+   * Stein (1961).
+   * </p>
+   * Special cases:
+   * <ul>
+   * <li>The invocations
+   * {@code gcd(Long.MIN_VALUE, Long.MIN_VALUE)},
+   * {@code gcd(Long.MIN_VALUE, 0L)} and
+   * {@code gcd(0L, Long.MIN_VALUE)} throw an
+   * {@code ArithmeticException}, because the result would be 2^63, which
+   * is too large for a long value.</li>
+   * <li>The result of {@code gcd(x, x)}, {@code gcd(0L, x)} and
+   * {@code gcd(x, 0L)} is the absolute value of {@code x}, except
+   * for the special cases above.
+   * <li>The invocation {@code gcd(0L, 0L)} is the only one which returns
+   * {@code 0L}.</li>
+   * <li>gcd can be used to determine if two numbers are relatively prime.
+   * For example {@code boolean areCoprime = gcd(4, 9) == 1}</li>
+   * </ul>
+   *
+   * @param p Number.
+   * @param q Number.
+   * @return the greatest common divisor, never negative.
+   * @throws ArithmeticException if the result cannot be represented as
+   * a non-negative {@code long} value.
+   */
+  public static long gcd(final long p, final long q) {
         long u = p;
         long v = q;
         if (u == 0 || v == 0) {
