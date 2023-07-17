@@ -60,6 +60,8 @@ public final class ArithmeticUtils {
      *   {@code 0}.</li>
      * </ul>
      *
+     * <p>Two numbers are relatively prime, or coprime, if their gcd is 1.</p>
+     *
      * @param p Number.
      * @param q Number.
      * @return the greatest common divisor (never negative).
@@ -131,6 +133,8 @@ public final class ArithmeticUtils {
      * <li>The invocation {@code gcd(0L, 0L)} is the only one which returns
      * {@code 0L}.</li>
      * </ul>
+     *
+     * <p>Two numbers are relatively prime, or coprime, if their gcd is 1.</p>
      *
      * @param p Number.
      * @param q Number.
