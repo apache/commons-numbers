@@ -410,11 +410,16 @@ public final class Precision {
 
     /**
      * Rounds the given value to the specified number of decimal places.
-     * The value is rounded using the {@link RoundingMode#HALF_UP} method.
+     * The value is rounded using {@link RoundingMode#HALF_UP}.
+     *
+     * <p>Note: This method is intended to act on the String representation
+     * of the {@code double} argument. See {@link #round(double, int, RoundingMode)}
+     * for details.
      *
      * @param x Value to round.
      * @param scale Number of digits to the right of the decimal point.
      * @return the rounded value.
+     * @see #round(double, int, RoundingMode)
      */
     public static double round(double x, int scale) {
         return round(x, scale, RoundingMode.HALF_UP);
@@ -422,25 +427,59 @@ public final class Precision {
 
     /**
      * Rounds the given value to the specified number of decimal places.
-     * The value is rounded using the given method which is any method defined
-     * in {@link BigDecimal}.
-     * If {@code x} is infinite or {@code NaN}, then the value of {@code x} is
+     * The value is rounded using the given {@link RoundingMode rounding mode}.
+     *
+     * <p>If {@code x} is infinite or {@code NaN}, then the value of {@code x} is
      * returned unchanged, regardless of the other parameters.
+     *
+     * <p><b>Note</b>
+     *
+     * <p>Rounding of a 64-bit base-2 format {@code double} using a decimal representation
+     * may result in rounding during conversion to and/or from a base-10 representation.
+     *
+     * <p>This method is intended to act on the String representation of the {@code double}
+     * argument, i.e. the closest representable decimal value. The argument is converted to
+     * a String (with possible rounding), rounding is performed on the decimal representation,
+     * and the resulting String is returned as the closest representable {@code double}.
+     *
+     * <p>Conversion from base-2 to base-10 format uses the {@link BigDecimal#valueOf(double)}
+     * method. The alternative would be to use
+     * {@link BigDecimal#BigDecimal(double) new BigDecimal(x)} to construct an exact decimal
+     * representation of the value.
+     *
+     * <p>Conversion from base-10 to base-2 format uses the equivalent of
+     * {@link Double#parseDouble(String)} to create the closest representable {@code double}
+     * to the decimal value.
+     *
+     * <p>The following code demonstrates how to eliminate rounding during conversion to a
+     * decimal format. The return conversion to a {@code double} may be inexact:
+     * <pre>
+     * double rounded = new BigDecimal(x).setScale(scale, roundingMode).doubleValue();
+     * </pre>
+     *
+     * <p>Acting on the String representation of the {@code double} allows this method to
+     * return expected output when rounding {@code double} representations of decimal text.
+     * <pre>
+     * Precision.round(39.245, 2) == 39.25
+     * Precision.round(30.095, 2) == 30.1
+     * Precision.round(30.645, 2) == 30.65
+     * </pre>
      *
      * @param x Value to round.
      * @param scale Number of digits to the right of the decimal point.
-     * @param roundingMethod Rounding method as defined in {@link BigDecimal}.
+     * @param roundingMode Rounding mode as defined in {@link BigDecimal}.
      * @return the rounded value.
-     * @throws ArithmeticException if {@code roundingMethod} is
+     * @see BigDecimal#doubleValue()
+     * @throws ArithmeticException if {@code roundingMode} is
      * {@link RoundingMode#UNNECESSARY} and the specified scaling operation
      * would require rounding.
      */
     public static double round(double x,
                                int scale,
-                               RoundingMode roundingMethod) {
+                               RoundingMode roundingMode) {
         try {
             final double rounded = (new BigDecimal(Double.toString(x))
-                   .setScale(scale, roundingMethod))
+                   .setScale(scale, roundingMode))
                    .doubleValue();
             // MATH-1089: negative values rounded to zero should result in negative zero
             return rounded == POSITIVE_ZERO ? POSITIVE_ZERO * x : rounded;
