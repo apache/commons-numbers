@@ -202,7 +202,13 @@ public final class Sum
      * @return this instance.
      */
     private Sum add(double s, double c) {
-        return add(s).add(c);
+        add(s);
+        // compensation can be NaN from accumulating one or more same-signed infinite values.
+        // Do not pollute the regular IEEE754 sum with a spurious NaN.
+        if (!Double.isNaN(c)) {
+            add(c);
+        }
+        return this;
     }
 
     /**
