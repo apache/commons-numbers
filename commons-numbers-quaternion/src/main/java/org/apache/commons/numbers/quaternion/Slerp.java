@@ -43,6 +43,8 @@ public class Slerp implements DoubleFunction<Quaternion> {
     private final DoubleFunction<Quaternion> algo;
 
     /**
+     * Create an instance.
+     *
      * @param start Start of the interpolation.
      * @param end End of the interpolation.
      */
