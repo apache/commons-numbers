@@ -19,9 +19,13 @@ package org.apache.commons.numbers.core;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class SumTest {
 
@@ -47,6 +51,30 @@ class SumTest {
 
         assertSum(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1, 1);
         assertSum(Double.NEGATIVE_INFINITY, 1, Double.NEGATIVE_INFINITY, 1);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "testAddInstance")
+    void testAddInstance(double[][] values, double expected) {
+        Sum sum1 = Sum.create().add(values[0]);
+        Sum sum2 = Sum.create().add(values[1]);
+        sum1.add(sum2);
+        Assertions.assertEquals(expected, sum1.getAsDouble());
+    }
+
+    static Stream<Arguments> testAddInstance() {
+        return Stream.of(
+            Arguments.of(new double[][] {{Double.POSITIVE_INFINITY}, {Double.POSITIVE_INFINITY}},
+                Double.POSITIVE_INFINITY),
+                Arguments.of(new double[][] {{1, 2, -3}, {3, -1, -2}}, 0),
+                Arguments.of(new double[][] {{1, 2, 3}, {4, 5, -6}}, 9),
+                Arguments.of(new double[][] {{3.1415, 2.718}, {1000, 0.001}},
+                    1005.8605),
+                Arguments.of(new double[][] {{1729, 2520}, {Double.MAX_VALUE, Double.MAX_VALUE}},
+                    Double.POSITIVE_INFINITY),
+                Arguments.of(new double[][] {{Double.NEGATIVE_INFINITY, 85}, {-1, -7, -2, -9}},
+                    Double.NEGATIVE_INFINITY)
+        );
     }
 
     @Test
