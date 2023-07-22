@@ -56,6 +56,14 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" due-to="Anirudh Joshi" issue="NUMBERS-200">
+        "Sum": Avoid a NaN result when combining Sum instances with infinite sums
+        of the same sign.
+      </action>
+      <action dev="aherbert" type="update" issue="NUMBERS-199">
+        "Precision": Document inaccurate decimal value representation when converting
+        to and from a double in the round method.
+      </action>
       <action dev="aherbert" type="add" issue="NUMBERS-192">
         "Sum": Add subtract(Sum) method.
       </action>
@@ -65,10 +73,6 @@ New features, updates and bug fixes.
       <action dev="aherbert" type="add" issue="NUMBERS-29">
         Add "Stirling" class to compute Stirling numbers of the second kind.
       </action>
-      <action type="update" dev="ggregory">
-        Bump commons-parent from 57 to 58.
-      </action>
-
     </release>
 
     <release version="1.1" date="2022-11-01" description="
