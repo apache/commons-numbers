@@ -25,9 +25,9 @@ import org.junit.jupiter.params.provider.ValueSource;
  * Tests for {@link FP64}.
  */
 class FP64Test {
-    @Test
-    void testConsistencyWithDouble() {
-        final double v = -5.67e89;
+    @ParameterizedTest
+    @ValueSource(doubles = {-5.67e89, -0.0, Double.POSITIVE_INFINITY})
+    void testConsistencyWithDouble(double v) {
         final Double a = Double.valueOf(v);
         final FP64 b = FP64.of(v);
 
@@ -37,6 +37,7 @@ class FP64Test {
         Assertions.assertEquals(a.longValue(), b.longValue());
         Assertions.assertEquals(a.byteValue(), b.byteValue());
         Assertions.assertEquals(a.hashCode(), b.hashCode());
+        Assertions.assertEquals(a.toString(), b.toString());
     }
 
     @Test
