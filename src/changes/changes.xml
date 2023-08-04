@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" issue="NUMBERS-201">
+        "FP64": Make equals consistent with hashCode.
+      </action>
       <action dev="aherbert" type="fix" due-to="Anirudh Joshi" issue="NUMBERS-200">
         "Sum": Avoid a NaN result when combining Sum instances with infinite sums
         of the same sign.

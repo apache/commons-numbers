@@ -17,7 +17,6 @@
 package org.apache.commons.numbers.field;
 
 import org.apache.commons.numbers.core.NativeOperators;
-import org.apache.commons.numbers.core.Precision;
 
 /**
  * Wraps a {@code double} value in order to be used as a field
@@ -109,7 +108,7 @@ public final class FP64 extends Number
     public boolean equals(Object other) {
         if (other instanceof FP64) {
             final FP64 o = (FP64) other;
-            return Precision.equals(value, o.value, 1);
+            return Double.doubleToLongBits(value) == Double.doubleToLongBits(o.value);
         }
         return false;
     }

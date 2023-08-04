@@ -18,6 +18,8 @@ package org.apache.commons.numbers.field;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Tests for {@link FP64}.
@@ -51,6 +53,19 @@ class FP64Test {
         // Different object
         Assertions.assertNotEquals(a, new Object());
         Assertions.assertNotEquals(a, null);
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {1.23, 0.0, -0.0})
+    void testEqualsCloseValues(double value) {
+        // Use very close values
+        final FP64 a = FP64.of(value);
+        final FP64 b = FP64.of(Math.nextUp(value));
+
+        // Same value
+        Assertions.assertEquals(a, FP64.of(value));
+        // Different value
+        Assertions.assertNotEquals(a, b);
     }
 
     @Test
