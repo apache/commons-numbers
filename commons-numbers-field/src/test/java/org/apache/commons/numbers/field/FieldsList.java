@@ -17,10 +17,12 @@
 package org.apache.commons.numbers.field;
 
 import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import org.apache.commons.numbers.fraction.Fraction;
+import org.apache.commons.numbers.core.Precision;
 import org.apache.commons.numbers.fraction.BigFraction;
 
 /**
@@ -45,7 +47,9 @@ final class FieldsList {
             add(FP64Field.get(),
                 FP64.of(23.45678901),
                 FP64.of(-543.2109876),
-                FP64.of(-234.5678901));
+                FP64.of(-234.5678901),
+                // double operations are subject to rounding so allow a tolerance
+                (x, y) -> Precision.equals(x.doubleValue(), y.doubleValue(), 1));
 
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -59,6 +63,7 @@ final class FieldsList {
      * @param field Field.
      * @param a Field element.
      * @param b Field element.
+     * @param c Field element.
      */
     private static <T> void add(Field<T> field,
                                 T a,
@@ -68,12 +73,27 @@ final class FieldsList {
     }
 
     /**
+     * @param field Field.
+     * @param a Field element.
+     * @param b Field element.
+     * @param c Field element.
+     * @param equals Field equality predicate.
+     */
+    private static <T> void add(Field<T> field,
+                                T a,
+                                T b,
+                                T c,
+                                BiPredicate<T, T> equals) {
+        LIST.add(new FieldTestData<>(field, a, b, c, equals));
+    }
+
+    /**
      * Subclasses that are "parametric" tests can forward the call to
      * the "@Parameters"-annotated method to this method.
      *
-     * @return the list of all fields.
+     * @return the stream of all fields.
      */
-    static List<FieldTestData<?>> list() {
-        return Collections.unmodifiableList(LIST);
+    static Stream<FieldTestData<?>> stream() {
+        return LIST.stream();
     }
 }

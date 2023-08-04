@@ -19,7 +19,7 @@ package org.apache.commons.numbers.field;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
+import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
 import org.apache.commons.numbers.core.Addition;
@@ -31,7 +31,7 @@ import org.apache.commons.numbers.core.Multiplication;
 class FieldParametricTest {
 
     private static Stream<FieldTestData<?>> getList() {
-        return FieldsList.list().stream();
+        return FieldsList.stream();
     }
 
     @ParameterizedTest
@@ -43,7 +43,7 @@ class FieldParametricTest {
         T c = data.getC();
         final T r1 = field.add(field.add(a, b), c);
         final T r2 = field.add(a, field.add(b, c));
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -54,7 +54,7 @@ class FieldParametricTest {
         T b = data.getB();
         final T r1 = field.add(a, b);
         final T r2 = field.add(b, a);
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -64,7 +64,7 @@ class FieldParametricTest {
         T a = data.getA();
         final T r1 = field.add(a, field.zero());
         final T r2 = a;
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -74,7 +74,7 @@ class FieldParametricTest {
         T a = data.getA();
         final T r1 = field.add(a, field.negate(a));
         final T r2 = field.zero();
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -86,7 +86,7 @@ class FieldParametricTest {
         T c = data.getC();
         final T r1 = field.multiply(field.multiply(a, b), c);
         final T r2 = field.multiply(a, field.multiply(b, c));
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -97,7 +97,7 @@ class FieldParametricTest {
         T b = data.getB();
         final T r1 = field.multiply(a, b);
         final T r2 = field.multiply(b, a);
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -107,7 +107,7 @@ class FieldParametricTest {
         T a = data.getA();
         final T r1 = field.multiply(a, field.one());
         final T r2 = a;
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -117,7 +117,7 @@ class FieldParametricTest {
         T a = data.getA();
         final T r1 = field.multiply(a, field.reciprocal(a));
         final T r2 = field.one();
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -129,7 +129,7 @@ class FieldParametricTest {
         T c = data.getC();
         final T r1 = field.multiply(a, field.add(b, c));
         final T r2 = field.add(field.multiply(a, b), field.multiply(a, c));
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -141,7 +141,7 @@ class FieldParametricTest {
 
         final T r1 = field.add(a, b);
         final T r2 = a.add(b);
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -153,7 +153,7 @@ class FieldParametricTest {
 
         final T r1 = field.subtract(a, b);
         final T r2 = a.add(b.negate());
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -170,7 +170,7 @@ class FieldParametricTest {
             r2 = r2.add(a);
         }
 
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -181,7 +181,7 @@ class FieldParametricTest {
 
         final T r1 = field.zero();
         final T r2 = a.zero();
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -193,7 +193,7 @@ class FieldParametricTest {
 
         final T r1 = field.multiply(a, b);
         final T r2 = a.multiply(b);
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -205,7 +205,7 @@ class FieldParametricTest {
 
         final T r1 = field.divide(a, b);
         final T r2 = a.multiply(b.reciprocal());
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     @ParameterizedTest
@@ -216,15 +216,16 @@ class FieldParametricTest {
 
         final T r1 = field.one();
         final T r2 = a.one();
-        assertEquals(r1, r2);
+        assertEquals(r1, r2, data::equals);
     }
 
     /**
      * @param a Instance.
      * @param b Instance.
      */
-    private static void assertEquals(Object a,
-                                     Object b) {
-        Assertions.assertEquals(a, b, a + " != " + b);
+    private static <T> void assertEquals(T a,
+                                         T b,
+                                         BiPredicate<T, T> equals) {
+        Assertions.assertTrue(equals.test(a, b), () -> a + " != " + b);
     }
 }
