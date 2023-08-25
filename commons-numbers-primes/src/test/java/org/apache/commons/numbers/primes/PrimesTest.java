@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.primes;
 
-import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 
@@ -108,9 +107,9 @@ class PrimesTest {
         Assertions.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE - 1));
         Assertions.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE));
 
-        assertNextPrimeException(Integer.MIN_VALUE, MessageFormat.format(Primes.NUMBER_TOO_SMALL, Integer.MIN_VALUE, 0));
-        assertNextPrimeException(-1, MessageFormat.format(Primes.NUMBER_TOO_SMALL, -1, 0));
-        assertNextPrimeException(-13, MessageFormat.format(Primes.NUMBER_TOO_SMALL, -13, 0));
+        assertNextPrimeException(Integer.MIN_VALUE, String.format(Primes.NUMBER_TOO_SMALL, Integer.MIN_VALUE, 0));
+        assertNextPrimeException(-1, String.format(Primes.NUMBER_TOO_SMALL, -1, 0));
+        assertNextPrimeException(-13, String.format(Primes.NUMBER_TOO_SMALL, -13, 0));
     }
 
     @Test
@@ -153,7 +152,7 @@ class PrimesTest {
     @Test
     void testPrimeFactors() {
         for (int i : BELOW_2) {
-            assertPrimeFactorsException(i, MessageFormat.format(Primes.NUMBER_TOO_SMALL, i, 2));
+            assertPrimeFactorsException(i, String.format(Primes.NUMBER_TOO_SMALL, i, 2));
         }
         for (int i : NOT_PRIMES) {
             List<Integer> factors = Primes.primeFactors(i);

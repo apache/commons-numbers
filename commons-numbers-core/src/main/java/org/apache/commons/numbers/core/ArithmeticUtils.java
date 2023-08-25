@@ -17,7 +17,6 @@
 package org.apache.commons.numbers.core;
 
 import java.math.BigInteger;
-import java.text.MessageFormat;
 
 /**
  * Some useful, arithmetics related, additions to the built-in functions in
@@ -27,7 +26,7 @@ import java.text.MessageFormat;
 public final class ArithmeticUtils {
 
     /** Overflow gcd exception message for 2^63. */
-    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd({0}, {1}) is 2^63";
+    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd(%d, %d) is 2^63";
 
     /** Negative exponent exception message part 1. */
     private static final String NEGATIVE_EXPONENT_1 = "negative exponent ({";
@@ -106,8 +105,8 @@ public final class ArithmeticUtils {
             negatedGcd = a << shift;
         }
         if (negatedGcd == Integer.MIN_VALUE) {
-            throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
-                                              p, q);
+            throw new NumbersArithmeticException("overflow: gcd(%d, %d) is 2^31",
+                                                 p, q);
         }
         return -negatedGcd;
     }
@@ -148,7 +147,7 @@ public final class ArithmeticUtils {
         if (u == 0 || v == 0) {
             if (u == Long.MIN_VALUE || v == Long.MIN_VALUE) {
                 throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
-                                                  p, q);
+                                                     p, q);
             }
             return Math.abs(u) + Math.abs(v);
         }
@@ -173,7 +172,7 @@ public final class ArithmeticUtils {
         }
         if (k == 63) {
             throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
-                                              p, q);
+                                                 p, q);
         }
         // B2. Initialize: u and v have been divided by 2^k and at least
         // one is odd.
@@ -227,8 +226,8 @@ public final class ArithmeticUtils {
         }
         final int lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
         if (lcm == Integer.MIN_VALUE) {
-            throw new NumbersArithmeticException("overflow: lcm({0}, {1}) is 2^31",
-                                              a, b);
+            throw new NumbersArithmeticException("overflow: lcm(%d, %d) is 2^31",
+                                                 a, b);
         }
         return lcm;
     }
@@ -260,8 +259,8 @@ public final class ArithmeticUtils {
         }
         final long lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
         if (lcm == Long.MIN_VALUE) {
-            throw new NumbersArithmeticException("overflow: lcm({0}, {1}) is 2^63",
-                                              a, b);
+            throw new NumbersArithmeticException("overflow: lcm(%d, %d) is 2^63",
+                                                 a, b);
         }
         return lcm;
     }
@@ -597,14 +596,14 @@ public final class ArithmeticUtils {
         private static final long serialVersionUID = 20180130L;
 
         /**
-         * Constructor with a specific message.
+         * Create an exception where the message is constructed by applying
+         * {@link String#format(String, Object...)}.
          *
-         * @param message Message pattern providing the specific context of
-         * the error.
-         * @param args Arguments.
+         * @param message Exception message format string
+         * @param args Arguments for formatting the message
          */
         NumbersArithmeticException(String message, Object... args) {
-            super(MessageFormat.format(message, args));
+            super(String.format(message, args));
         }
     }
 }

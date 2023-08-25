@@ -329,10 +329,10 @@ public final class Combinations implements Iterable<int[]> {
         public int compare(int[] c1,
                            int[] c2) {
             if (c1.length != k) {
-                throw new CombinatoricsException(CombinatoricsException.MISMATCH, c1.length, k);
+                throw new CombinatoricsException(CombinatoricsException.MISMATCH, k, c1.length);
             }
             if (c2.length != k) {
-                throw new CombinatoricsException(CombinatoricsException.MISMATCH, c2.length, k);
+                throw new CombinatoricsException(CombinatoricsException.MISMATCH, k, c2.length);
             }
 
             // Method "lexNorm" works with ordered arrays.

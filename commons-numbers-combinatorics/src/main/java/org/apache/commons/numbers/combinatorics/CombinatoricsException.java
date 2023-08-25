@@ -16,31 +16,29 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
-import java.text.MessageFormat;
-
 /**
  * Package private exception class with constants for frequently used messages.
  */
 class CombinatoricsException extends IllegalArgumentException {
     /** Error message for "out of range" condition. */
-    static final String OUT_OF_RANGE = "Number {0} is out of range [{1}, {2}]";
+    static final String OUT_OF_RANGE = "Number %s is out of range [%s, %s]";
     /** Error message for "out of range" condition. */
-    static final String NEGATIVE = "Number {0} is negative";
+    static final String NEGATIVE = "Number %s is negative";
     /** Error message for "mismatch" condition. */
-    static final String MISMATCH = "Expected {1} but was {0}";
+    static final String MISMATCH = "Expected %s but was %s";
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170515L;
 
     /**
      * Create an exception where the message is constructed by applying
-     * the {@code format()} method from {@code java.text.MessageFormat}.
+     * {@link String#format(String, Object...)}.
      *
-     * @param message Exception message with replaceable parameters.
-     * @param formatArguments 1rguments for formatting the message.
+     * @param message Exception message format string
+     * @param formatArguments Arguments for formatting the message
      */
     CombinatoricsException(String message,
                            Object... formatArguments) {
-        super(MessageFormat.format(message, formatArguments));
+        super(String.format(message, formatArguments));
     }
 }

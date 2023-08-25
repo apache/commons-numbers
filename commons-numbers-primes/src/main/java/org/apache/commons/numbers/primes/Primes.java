@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.primes;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -29,7 +28,7 @@ import java.util.List;
  */
 public final class Primes {
     /** Exception message format when an argument is too small. */
-    static final String NUMBER_TOO_SMALL = "{0} is smaller than the minimum ({1})";
+    static final String NUMBER_TOO_SMALL = "%d is smaller than the minimum (%d)";
 
     /**
      * Utility class.
@@ -68,7 +67,7 @@ public final class Primes {
      */
     public static int nextPrime(int n) {
         if (n < 0) {
-            throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 0));
+            throw new IllegalArgumentException(String.format(NUMBER_TOO_SMALL, n, 0));
         }
         if (n <= 2) {
             return 2;
@@ -108,7 +107,7 @@ public final class Primes {
      */
     public static List<Integer> primeFactors(int n) {
         if (n < 2) {
-            throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 2));
+            throw new IllegalArgumentException(String.format(NUMBER_TOO_SMALL, n, 2));
         }
         return SmallPrimes.trialDivision(n);
     }
