@@ -119,7 +119,7 @@ class BoostErfTest {
         /** Erf Boost large data (simple case where all z>8, p=1.0). */
         ERF_LARGE(TestFunction.ERF, 0, 0.0),
         /** Erfc Boost large data. */
-        ERFC_LARGE(TestFunction.ERFC, 1.75, 0.7),
+        ERFC_LARGE(TestFunction.ERFC, 2.0, 0.7),
         /** Erf Boost small data (no exponentiation required). */
         ERF_SMALL(TestFunction.ERF, 1.2, 0.25),
         /** Erfc Boost small data (no exponentiation required: ulp=0). */

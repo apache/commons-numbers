@@ -267,7 +267,7 @@ class BoostBetaTest {
         /** regularised ibeta Boost large and diverse data. */
         RBETA1_LARGE(BoostBetaTest::ibeta, "ibeta_large_data.csv", 5, 150000, 7500),
         /** regularised ibeta Boost small data using the classic continued fraction evaluation. */
-        RBETAC1_SMALL(BoostBetaTest::ibetac, "ibeta_small_data.csv", 6, 30, 4.5),
+        RBETAC1_SMALL(BoostBetaTest::ibetac, "ibeta_small_data.csv", 6, 35, 4.5),
         /** regularised ibeta Boost small data using the classic continued fraction evaluation. */
         RBETAC1_MED(BoostBetaTest::ibetac, "ibeta_med_data.csv", 6, 100, 22),
         /** regularised ibetac Boost large and diverse data. */

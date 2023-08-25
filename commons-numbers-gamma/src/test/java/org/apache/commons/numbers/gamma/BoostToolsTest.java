@@ -49,10 +49,13 @@ class BoostToolsTest {
         final double expected = Math.log(a + x);
 
         final int maxTerms = 1000;
-        for (final double eps : new double[] {1e-6, 1e-10, Math.ulp(1.0)}) {
+        // Does not always pass at eps = ulp(1.0).
+        // The use of Math.log as a reference is platform dependent.
+        for (final double eps : new double[] {1e-6, 1e-10, Math.ulp(2.0)}) {
             final DoubleSupplier fun = new LogApXSeries(a, x);
             final double actual = BoostTools.sumSeries(fun, eps, maxTerms, Math.log(a));
-            Assertions.assertEquals(expected, actual, expected * eps, () -> "eps: " + eps);
+            Assertions.assertEquals(expected, actual, expected * eps,
+                () -> String.format("eps: %s, relative error: %s", eps, Math.abs(expected - actual) / expected));
         }
     }
 

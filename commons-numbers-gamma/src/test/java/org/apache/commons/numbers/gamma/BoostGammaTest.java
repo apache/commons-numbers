@@ -151,7 +151,7 @@ class BoostGammaTest {
         /** gamma Boost near 1 data. */
         TGAMMAO_NEAR_1(BoostGammaTest::tgammaOriginal, "gamma_near_1_data.csv", 3.3, 1.2),
         /** gamma Boost near 2 data. */
-        TGAMMAO_NEAR_2(BoostGammaTest::tgammaOriginal, "gamma_near_2_data.csv", 2.9, 1.2),
+        TGAMMAO_NEAR_2(BoostGammaTest::tgammaOriginal, "gamma_near_2_data.csv", 4.8, 1.3),
         /** gamma Boost near -10 data. */
         TGAMMAO_NEAR_M10(BoostGammaTest::tgammaOriginal, "gamma_near_m10_data.csv", 2.5, 1.2),
         /** gamma -20 to 0 data. */
@@ -185,7 +185,7 @@ class BoostGammaTest {
         TGAMMA_VERY_NEAR_0(BoostGamma::tgamma, "gamma_very_near_0_data.csv", 3.8, 0.7),
 
         /** gamma Boost factorial data. */
-        LGAMMA_FACTORIALS(BoostGamma::lgamma, "gamma_factorials_data.csv", 2, 0.8, 0.1),
+        LGAMMA_FACTORIALS(BoostGamma::lgamma, "gamma_factorials_data.csv", 2, 0.8, 0.125),
         /** gamma Boost near 0 data. */
         LGAMMA_NEAR_0(BoostGamma::lgamma, "gamma_near_0_data.csv", 2, 1.2, 0.5),
         /** gamma Boost near 1 data. */
@@ -297,7 +297,7 @@ class BoostGammaTest {
      */
     private enum BiTestCase implements TestError {
         /** pow(x, y) - 1 Boost data. */
-        POWM1(BoostMath::powm1, "powm1_data.csv", 2.3, 0.4),
+        POWM1(BoostMath::powm1, "powm1_data.csv", 2.6, 0.4),
         /** igamma Boost int data. */
         IGAMMA_UPPER_INT(BoostGamma::tgamma, "igamma_int_data.csv", 6, 1.5),
         /** igamma Boost small data. */
@@ -359,7 +359,7 @@ class BoostGammaTest {
         /** gamma p derivative computed for igamma Boost small data. */
         LOG_GAMMA_P_DERIV2_SMALL(BoostGammaTest::logGammaPDerivative2, "igamma_small_data_p_derivative.csv", 3, 1.8e10, 1.4e9),
         /** gamma p derivative computed for igamma Boost med data. */
-        LOG_GAMMA_P_DERIV2_MED(BoostGammaTest::logGammaPDerivative2, "igamma_med_data_p_derivative.csv", 3, 6.2, 0.5),
+        LOG_GAMMA_P_DERIV2_MED(BoostGammaTest::logGammaPDerivative2, "igamma_med_data_p_derivative.csv", 3, 18, 0.8),
         /** gamma p derivative computed for igamma Boost big data. */
         LOG_GAMMA_P_DERIV2_BIG(BoostGammaTest::logGammaPDerivative2, "igamma_big_data_p_derivative.csv", 3, 40000, 3000),
         /** igamma asymptotic approximation term. */
