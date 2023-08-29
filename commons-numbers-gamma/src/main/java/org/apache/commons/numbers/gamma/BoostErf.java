@@ -22,6 +22,8 @@
 
 package org.apache.commons.numbers.gamma;
 
+import org.apache.commons.numbers.core.DD;
+
 /**
  * Implementation of the <a href="http://mathworld.wolfram.com/Erf.html">error function</a> and
  * its inverse.
@@ -39,13 +41,6 @@ package org.apache.commons.numbers.gamma;
  * Boost C++ Error functions</a>
  */
 final class BoostErf {
-    /**
-     * The multiplier used to split the double value into high and low parts. From
-     * Dekker (1971): "The constant should be chosen equal to 2^(p - p/2) + 1,
-     * where p is the number of binary digits in the mantissa". Here p is 53
-     * and the multiplier is {@code 2^27 + 1}.
-     */
-    private static final double MULTIPLIER = 1.0 + 0x1.0p27;
     /** 1 / sqrt(pi). Used for the scaled complementary error function erfcx. */
     private static final double ONE_OVER_ROOT_PI = 0.5641895835477562869480794515607725858;
     /** Threshold for the scaled complementary error function erfcx
@@ -734,9 +729,8 @@ final class BoostErf {
         // round-off b is negative or zero:
         // exp(a) * exp1m(b) + exp(a)
         // inf * 0 + inf   or   inf * -b  + inf
-        final double a = x * x;
-        final double b = squareLowUnscaled(x, a);
-        return expxx(a, b);
+        final DD x2 = DD.ofSquare(x);
+        return expxx(x2.hi(), x2.lo());
     }
 
     /**
@@ -754,9 +748,8 @@ final class BoostErf {
      * @return exp(-x*x)
      */
     static double expmxx(double x) {
-        final double a = x * x;
-        final double b = squareLowUnscaled(x, a);
-        return expxx(-a, -b);
+        final DD x2 = DD.ofSquare(x);
+        return expxx(-x2.hi(), -x2.lo());
     }
 
     /**
@@ -792,87 +785,4 @@ final class BoostErf {
         // b ~ expm1(b)
         return ea * b + ea;
     }
-
-    // Extended precision multiplication specialised for the square adapted from:
-    // org.apache.commons.numbers.core.ExtendedPrecision
-
-    /**
-     * Compute the low part of the double length number {@code (z,zz)} for the exact
-     * square of {@code x} using Dekker's mult12 algorithm. The standard precision product
-     * {@code x*x} must be provided. The number {@code x} is split into high and low parts
-     * using Dekker's algorithm.
-     *
-     * <p>Warning: This method does not perform scaling in Dekker's split and large
-     * finite numbers can create NaN results.
-     *
-     * @param x Number to square
-     * @param xx Standard precision product {@code x*x}
-     * @return the low part of the square double length number
-     */
-    private static double squareLowUnscaled(double x, double xx) {
-        // Split the numbers using Dekker's algorithm without scaling
-        final double hx = highPartUnscaled(x);
-        final double lx = x - hx;
-
-        return squareLow(hx, lx, xx);
-    }
-
-    /**
-     * Implement Dekker's method to split a value into two parts. Multiplying by (2^s + 1) creates
-     * a big value from which to derive the two split parts.
-     * <pre>
-     * c = (2^s + 1) * a
-     * a_big = c - a
-     * a_hi = c - a_big
-     * a_lo = a - a_hi
-     * a = a_hi + a_lo
-     * </pre>
-     *
-     * <p>The multiplicand allows a p-bit value to be split into
-     * (p-s)-bit value {@code a_hi} and a non-overlapping (s-1)-bit value {@code a_lo}.
-     * Combined they have (p-1) bits of significand but the sign bit of {@code a_lo}
-     * contains a bit of information. The constant is chosen so that s is ceil(p/2) where
-     * the precision p for a double is 53-bits (1-bit of the mantissa is assumed to be
-     * 1 for a non sub-normal number) and s is 27.
-     *
-     * <p>This conversion does not use scaling and the result of overflow is NaN. Overflow
-     * may occur when the exponent of the input value is above 996.
-     *
-     * <p>Splitting a NaN or infinite value will return NaN.
-     *
-     * @param value Value.
-     * @return the high part of the value.
-     * @see Math#getExponent(double)
-     */
-    private static double highPartUnscaled(double value) {
-        final double c = MULTIPLIER * value;
-        return c - (c - value);
-    }
-
-    /**
-     * Compute the low part of the double length number {@code (z,zz)} for the exact
-     * square of {@code x} using Dekker's mult12 algorithm. The standard
-     * precision product {@code x*x} must be provided. The number {@code x}
-     * should already be split into low and high parts.
-     *
-     * <p>Note: This uses the high part of the result {@code (z,zz)} as {@code x * x} and not
-     * {@code hx * hx + hx * lx + lx * hx} as specified in Dekker's original paper.
-     * See Shewchuk (1997) for working examples.
-     *
-     * @param hx High part of factor.
-     * @param lx Low part of factor.
-     * @param xx Square of the factor.
-     * @return <code>lx * ly - (((xy - hx * hy) - lx * hy) - hx * ly)</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
-     * Shewchuk (1997) Theorum 18</a>
-     */
-    private static double squareLow(double hx, double lx, double xx) {
-        // Compute the multiply low part:
-        // err1 = xy - hx * hy
-        // err2 = err1 - lx * hy
-        // err3 = err2 - hx * ly
-        // low = lx * ly - err3
-        return lx * lx - ((xx - hx * hx) - 2 * lx * hx);
-    }
 }
-
