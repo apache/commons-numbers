@@ -779,7 +779,7 @@ final class BoostErf {
         // The round-off b is limited to ~ 0.5 * ulp(746) ~ 5.68e-14
         // and we can use an approximation for expm1 (x/1! + x^2/2! + ...)
         // The second term is required for the expm1 result but the
-        // bits are not significant to change the product with exp(a)
+        // bits are not significant to change the following sum with exp(a)
 
         final double ea = Math.exp(a);
         // b ~ expm1(b)
