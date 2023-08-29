@@ -313,7 +313,7 @@ class BoostErfTest {
 
     @ParameterizedTest
     @CsvSource({
-        // Reference data from GCC libquadmath expq(z)
+        // Reference data from GCC libquadmath expq(-z*z)
         // exp(z) is nearly sub-normal
         "26.589967471163597, 8.75686990774305433076998380040492953e-308",
         "26.592726991055095, 7.56157741629803260538530412232841961e-308",
