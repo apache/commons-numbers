@@ -108,7 +108,7 @@ public final class Sum
      */
     public Sum add(final double t) {
         final double newSum = sum + t;
-        comp += ExtendedPrecision.twoSumLow(sum, t, newSum);
+        comp += DD.twoSumLow(sum, t, newSum);
         sum = newSum;
 
         return this;
@@ -141,7 +141,7 @@ public final class Sum
         final double pLow = ExtendedPrecision.productLow(a, b, ab);
 
         final double newSum = sum + ab;
-        comp += ExtendedPrecision.twoSumLow(sum, ab, newSum) + pLow;
+        comp += DD.twoSumLow(sum, ab, newSum) + pLow;
         sum = newSum;
 
         return this;

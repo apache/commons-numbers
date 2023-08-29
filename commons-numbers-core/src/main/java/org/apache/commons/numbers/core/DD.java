@@ -930,7 +930,7 @@ public final class DD
      * @return the low part of the product double length number
      * @see #highPart(double)
      */
-    private static double twoProductLow(double x, double y, double xy) {
+    static double twoProductLow(double x, double y, double xy) {
         // Split the numbers using Dekker's algorithm without scaling
         final double hx = highPart(x);
         final double lx = x - hx;
@@ -996,7 +996,7 @@ public final class DD
      * @see #highPart(double)
      * @see #twoProductLow(double, double, double)
      */
-    private static double twoSquareLow(double x, double x2) {
+    static double twoSquareLow(double x, double x2) {
         // See productLowUnscaled
         final double hx = highPart(x);
         final double lx = x - hx;

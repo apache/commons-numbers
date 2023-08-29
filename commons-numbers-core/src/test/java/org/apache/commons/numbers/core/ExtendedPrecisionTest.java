@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.core;
 
-import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,12 +41,12 @@ class ExtendedPrecisionTest {
 
     @Test
     void testHighPartUnscaled() {
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.POSITIVE_INFINITY));
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.NEGATIVE_INFINITY));
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.NaN));
+        Assertions.assertEquals(Double.NaN, DD.highPart(Double.POSITIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, DD.highPart(Double.NEGATIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, DD.highPart(Double.NaN));
         // Large finite numbers will overflow during the split
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(Double.MAX_VALUE));
-        Assertions.assertEquals(Double.NaN, ExtendedPrecision.highPartUnscaled(-Double.MAX_VALUE));
+        Assertions.assertEquals(Double.NaN, DD.highPart(Double.MAX_VALUE));
+        Assertions.assertEquals(Double.NaN, DD.highPart(-Double.MAX_VALUE));
     }
 
     /**
@@ -70,19 +69,6 @@ class ExtendedPrecisionTest {
         Assertions.assertEquals(expected, ExtendedPrecision.productLow(x, y, x * y), 0.0);
     }
 
-    @Test
-    void testIsNotNormal() {
-        for (double a : new double[] {Double.MAX_VALUE, 1.0, Double.MIN_NORMAL}) {
-            Assertions.assertFalse(ExtendedPrecision.isNotNormal(a));
-            Assertions.assertFalse(ExtendedPrecision.isNotNormal(-a));
-        }
-        for (double a : new double[] {Double.POSITIVE_INFINITY, 0.0,
-                                      Math.nextDown(Double.MIN_NORMAL), Double.NaN}) {
-            Assertions.assertTrue(ExtendedPrecision.isNotNormal(a));
-            Assertions.assertTrue(ExtendedPrecision.isNotNormal(-a));
-        }
-    }
-
     /**
      * This demonstrates splitting a sub normal number with no information in the upper 26 bits
      * of the mantissa.
@@ -99,29 +85,11 @@ class ExtendedPrecisionTest {
         Assertions.assertFalse(Math.abs(hi1) > Math.abs(lo1));
 
         // Dekker's split
-        final double hi2 = ExtendedPrecision.highPartUnscaled(a);
+        final double hi2 = DD.highPart(a);
         final double lo2 = a - hi2;
         Assertions.assertEquals(a, hi2);
         Assertions.assertEquals(0, lo2);
 
         Assertions.assertTrue(Math.abs(hi2) > Math.abs(lo2));
-    }
-
-    @Test
-    void testSquareLowUnscaled() {
-        assertSquareLowUnscaled(0.0, 1.0);
-        assertSquareLowUnscaled(0.0, -1.0);
-        final double expected = new BigDecimal(Math.PI).pow(2)
-                .subtract(new BigDecimal(Math.PI * Math.PI)).doubleValue();
-        assertSquareLowUnscaled(expected, Math.PI);
-
-        assertSquareLowUnscaled(Double.NaN, Double.POSITIVE_INFINITY);
-        assertSquareLowUnscaled(Double.NaN, Double.NEGATIVE_INFINITY);
-        assertSquareLowUnscaled(Double.NaN, Double.NaN);
-        assertSquareLowUnscaled(Double.NaN, Double.MAX_VALUE);
-    }
-
-    private static void assertSquareLowUnscaled(final double expected, final double x) {
-        Assertions.assertEquals(expected, ExtendedPrecision.squareLowUnscaled(x, x * x));
     }
 }

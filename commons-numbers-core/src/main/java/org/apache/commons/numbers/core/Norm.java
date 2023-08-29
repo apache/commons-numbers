@@ -308,17 +308,17 @@ public enum Norm {
         // add scaled x
         final double sx = xabs * scale;
         final double px = sx * sx;
-        comp += ExtendedPrecision.squareLowUnscaled(sx, px);
+        comp += DD.twoSquareLow(sx, px);
         final double sumPx = sum + px;
-        comp += ExtendedPrecision.twoSumLow(sum, px, sumPx);
+        comp += DD.twoSumLow(sum, px, sumPx);
         sum = sumPx;
 
         // add scaled y
         final double sy = yabs * scale;
         final double py = sy * sy;
-        comp += ExtendedPrecision.squareLowUnscaled(sy, py);
+        comp += DD.twoSquareLow(sy, py);
         final double sumPy = sum + py;
-        comp += ExtendedPrecision.twoSumLow(sum, py, sumPy);
+        comp += DD.twoSumLow(sum, py, sumPy);
         sum = sumPy;
 
         return Math.sqrt(sum + comp) * rescale;
@@ -373,25 +373,25 @@ public enum Norm {
         // add scaled x
         final double sx = xabs * scale;
         final double px = sx * sx;
-        comp += ExtendedPrecision.squareLowUnscaled(sx, px);
+        comp += DD.twoSquareLow(sx, px);
         final double sumPx = sum + px;
-        comp += ExtendedPrecision.twoSumLow(sum, px, sumPx);
+        comp += DD.twoSumLow(sum, px, sumPx);
         sum = sumPx;
 
         // add scaled y
         final double sy = yabs * scale;
         final double py = sy * sy;
-        comp += ExtendedPrecision.squareLowUnscaled(sy, py);
+        comp += DD.twoSquareLow(sy, py);
         final double sumPy = sum + py;
-        comp += ExtendedPrecision.twoSumLow(sum, py, sumPy);
+        comp += DD.twoSumLow(sum, py, sumPy);
         sum = sumPy;
 
         // add scaled z
         final double sz = zabs * scale;
         final double pz = sz * sz;
-        comp += ExtendedPrecision.squareLowUnscaled(sz, pz);
+        comp += DD.twoSquareLow(sz, pz);
         final double sumPz = sum + pz;
-        comp += ExtendedPrecision.twoSumLow(sum, pz, sumPz);
+        comp += DD.twoSumLow(sum, pz, sumPz);
         sum = sumPz;
 
         return Math.sqrt(sum + comp) * rescale;
@@ -429,11 +429,11 @@ public enum Norm {
 
                 // compute the product and product compensation
                 final double p = sx * sx;
-                final double cp = ExtendedPrecision.squareLowUnscaled(sx, p);
+                final double cp = DD.twoSquareLow(sx, p);
 
                 // compute the running sum and sum compensation
                 final double s = s1 + p;
-                final double cs = ExtendedPrecision.twoSumLow(s1, p, s);
+                final double cs = DD.twoSumLow(s1, p, s);
 
                 // update running totals
                 c1 += cp + cs;
@@ -444,11 +444,11 @@ public enum Norm {
 
                 // compute the product and product compensation
                 final double p = sx * sx;
-                final double cp = ExtendedPrecision.squareLowUnscaled(sx, p);
+                final double cp = DD.twoSquareLow(sx, p);
 
                 // compute the running sum and sum compensation
                 final double s = s3 + p;
-                final double cs = ExtendedPrecision.twoSumLow(s3, p, s);
+                final double cs = DD.twoSumLow(s3, p, s);
 
                 // update running totals
                 c3 += cp + cs;
@@ -457,11 +457,11 @@ public enum Norm {
                 // no scaling
                 // compute the product and product compensation
                 final double p = x * x;
-                final double cp = ExtendedPrecision.squareLowUnscaled(x, p);
+                final double cp = DD.twoSquareLow(x, p);
 
                 // compute the running sum and sum compensation
                 final double s = s2 + p;
-                final double cs = ExtendedPrecision.twoSumLow(s2, p, s);
+                final double cs = DD.twoSumLow(s2, p, s);
 
                 // update running totals
                 c2 += cp + cs;
@@ -477,14 +477,14 @@ public enum Norm {
             // add s1, s2, c1, c2
             final double s2Adj = s2 * SCALE_DOWN * SCALE_DOWN;
             final double sum = s1 + s2Adj;
-            final double comp = ExtendedPrecision.twoSumLow(s1, s2Adj, sum) +
+            final double comp = DD.twoSumLow(s1, s2Adj, sum) +
                 c1 + (c2 * SCALE_DOWN * SCALE_DOWN);
             return Math.sqrt(sum + comp) * SCALE_UP;
         } else if (s2 != 0) {
             // add s2, s3, c2, c3
             final double s3Adj = s3 * SCALE_DOWN * SCALE_DOWN;
             final double sum = s2 + s3Adj;
-            final double comp = ExtendedPrecision.twoSumLow(s2, s3Adj, sum) +
+            final double comp = DD.twoSumLow(s2, s3Adj, sum) +
                 c2 + (c3 * SCALE_DOWN * SCALE_DOWN);
             return Math.sqrt(sum + comp);
         }

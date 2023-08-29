@@ -2677,6 +2677,19 @@ class DDTest {
         return builder.build();
     }
 
+    @Test
+    void testIsNotNormal() {
+        for (double a : new double[] {Double.MAX_VALUE, 1.0, Double.MIN_NORMAL}) {
+            Assertions.assertFalse(DD.isNotNormal(a));
+            Assertions.assertFalse(DD.isNotNormal(-a));
+        }
+        for (double a : new double[] {Double.POSITIVE_INFINITY, 0.0, Double.MIN_VALUE,
+                                      Math.nextDown(Double.MIN_NORMAL), Double.NaN}) {
+            Assertions.assertTrue(DD.isNotNormal(a));
+            Assertions.assertTrue(DD.isNotNormal(-a));
+        }
+    }
+
     /**
      * Creates a source of randomness.
      *
