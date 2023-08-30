@@ -357,7 +357,7 @@ public final class TestUtils {
      * @param msg Message supplier
      * @return the prefix
      */
-    private static String prefix(Supplier<String> msg) {
+    static String prefix(Supplier<String> msg) {
         return msg == null ? "" : msg.get() + ": ";
     }
 }

@@ -66,4 +66,17 @@ final class DoubleTestUtils {
         final long exp = rng.nextInt(expRange) + minExp + 1023;
         return Double.longBitsToDouble(bits | (exp << 52));
     }
+
+    /** Construct a random double with an exponent of 0.
+     * The magnitude will be in the range {@code [1, 2)} and the sign is random.
+     * @param rng random number generator
+     * @return random double in +/-[1, 2)
+     */
+    public static double randomDouble(final UniformRandomProvider rng) {
+        // Create random doubles using random bits in the sign bit and the mantissa.
+        final long mask = ((1L << 52) - 1) | 1L << 63;
+        final long bits = rng.nextLong() & mask;
+        // The exponent must be unsigned so + 1023 to the signed exponent
+        return Double.longBitsToDouble(bits | (1023L << 52));
+    }
 }

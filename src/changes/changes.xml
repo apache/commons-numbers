@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" issue="NUMBERS-204">
+        "Sum": Correct sub-normal round-off computation in sum of products.
+      </action>
       <action dev="aherbert" type="add" issue="NUMBERS-193">
         "DD": Add an extended precision floating-point number. A double-double (DD) number
         is an unevaluated sum of two IEEE double precision numbers capable of representing

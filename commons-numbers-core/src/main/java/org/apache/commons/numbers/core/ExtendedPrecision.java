@@ -30,14 +30,23 @@ final class ExtendedPrecision {
      * 996 is the value obtained from {@code Math.getExponent(Double.MAX_VALUE / MULTIPLIER)}.
      */
     private static final double SAFE_UPPER = 0x1.0p996;
+    /**
+     * The lower limit for a product {@code x * y} below which the round-off component may be
+     * sub-normal. This is set as 2^-1022 * 2^54.
+     */
+    private static final double SAFE_LOWER = 0x1.0p-968;
 
     /** The scale to use when down-scaling during a split into a high part.
      * This must be smaller than the inverse of the multiplier and a power of 2 for exact scaling. */
     private static final double DOWN_SCALE = 0x1.0p-30;
-
-    /** The scale to use when re-scaling during a split into a high part.
+    /** The scale to use when up-scaling during a split into a high part.
      * This is the inverse of {@link #DOWN_SCALE}. */
     private static final double UP_SCALE = 0x1.0p30;
+
+    /** The upscale factor squared. */
+    private static final double UP_SCALE2 = 0x1.0p60;
+    /** The downscale factor squared. */
+    private static final double DOWN_SCALE2 = 0x1.0p-60;
 
     /** Private constructor. */
     private ExtendedPrecision() {
@@ -103,12 +112,22 @@ final class ExtendedPrecision {
         // 3-fold higher than any component.
         final double a = Math.abs(x);
         final double b = Math.abs(y);
-        if (a + b + Math.abs(xy) >= SAFE_UPPER) {
+        final double ab = Math.abs(xy);
+        if (a + b + ab >= SAFE_UPPER) {
             // Only required to scale the largest number as x*y does not overflow.
             if (a > b) {
                 return DD.twoProductLow(x * DOWN_SCALE, y, xy * DOWN_SCALE) * UP_SCALE;
             }
             return DD.twoProductLow(x, y * DOWN_SCALE, xy * DOWN_SCALE) * UP_SCALE;
+        }
+
+        // The result is computed using a product of the low parts.
+        // To avoid underflow in the low parts we note that these are approximately a factor
+        // of 2^27 smaller than the original inputs so their product will be ~2^54 smaller
+        // than the product xy. Ensure the product is at least 2^54 above a sub-normal.
+        if (ab <= SAFE_LOWER) {
+            // Scaling up here is safe: the largest magnitude cannot be above SAFE_LOWER / MIN_VALUE.
+            return DD.twoProductLow(x * UP_SCALE, y * UP_SCALE, xy * UP_SCALE2) * DOWN_SCALE2;
         }
 
         // No scaling required

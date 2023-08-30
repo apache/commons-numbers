@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class SumTest {
@@ -257,6 +258,20 @@ class SumTest {
 
         final double naive = scaledA[0] * scaledB[0] + scaledA[1] * scaledB[1] + scaledA[2] * scaledB[2];
         Assertions.assertTrue(Math.abs(naive - sum) > 1.5);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        // See: NUMBERS-204
+        // Round-off == 0.0
+        "-2.73551683292218E-154, -1.0861547555023299E-154",
+        // Round-off = 4.9E-324
+        "1.4134286753429383E-154, -4.1395762189346144E-154",
+    })
+    void testSumOfProduct_tiny(double x, double y) {
+        final Sum s = Sum.create();
+        s.addProduct(x, y);
+        Assertions.assertEquals(x * y, s.getAsDouble());
     }
 
     @Test

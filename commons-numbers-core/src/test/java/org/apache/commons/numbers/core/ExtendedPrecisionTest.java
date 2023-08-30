@@ -16,8 +16,15 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test cases for the {@link ExtendedPrecision} class.
@@ -51,10 +58,14 @@ class ExtendedPrecisionTest {
 
     /**
      * Test {@link ExtendedPrecision#productLow(double, double, double)} computes the same
-     * result as JDK 9 Math.fma(x, y, -x * y) for edge cases.
+     * result as JDK 9 Math.fma(x, y, -x * y) for edge cases, e.g.
+     * <pre>
+     * jshell> static double f(double a, double b) { return Math.fma(x, y, -x * y); }
+     * jshell> f(5.6266120027810604E-148, 2.9150607442566245E-154);
+     * </pre>
      */
     @Test
-    void testProductLow() {
+    void testProductLowEdgeCases() {
         assertProductLow(0.0, 1.0, Math.nextDown(Double.MIN_NORMAL));
         assertProductLow(0.0, -1.0, Math.nextDown(Double.MIN_NORMAL));
         assertProductLow(Double.NaN, 1.0, Double.POSITIVE_INFINITY);
@@ -62,11 +73,10 @@ class ExtendedPrecisionTest {
         assertProductLow(Double.NaN, 1.0, Double.NaN);
         assertProductLow(0.0, 1.0, Double.MAX_VALUE);
         assertProductLow(Double.NaN, 2.0, Double.MAX_VALUE);
-    }
-
-    private static void assertProductLow(double expected, double x, double y) {
-        // Requires a delta of 0.0 to assert -0.0 == 0.0
-        Assertions.assertEquals(expected, ExtendedPrecision.productLow(x, y, x * y), 0.0);
+        // Product is normal, round-off is sub-normal
+        // Ignoring sub-normals during computation results in a rounding error
+        assertProductLow(-0.0, -2.73551683292218E-154, -1.0861547555023299E-154);
+        assertProductLow(9.023244E-318, 5.6266120027810604E-148, 2.9150607442566245E-154);
     }
 
     /**
@@ -91,5 +101,71 @@ class ExtendedPrecisionTest {
         Assertions.assertEquals(0, lo2);
 
         Assertions.assertTrue(Math.abs(hi2) > Math.abs(lo2));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testProductLow(double x, double y) {
+        // Assumes the arguments are in [1, 2) so scaling factors hit target cases
+        Assertions.assertTrue(Math.abs(x) >= 1 && Math.abs(x) < 2, () -> "Invalid x: " + x);
+        Assertions.assertTrue(Math.abs(y) >= 1 && Math.abs(y) < 2, () -> "Invalid y: " + y);
+
+        final double low = DD.ofProduct(x, y).lo();
+        assertProductLow(low, x, y);
+
+        // Product approaching and into sub-normal
+        final int[] scaleDown = {-490, -510, -511, -512, -513};
+        for (final int e1 : scaleDown) {
+            final double a = Math.scalb(x, e1);
+            for (final int e2 : scaleDown) {
+                final double b = Math.scalb(y, e2);
+                final double expected = Math.scalb(low, e1 + e2);
+                assertProductLow(expected, a, b, () -> "Product towards sub-normal");
+            }
+        }
+
+        // Product approaching overflow
+        final int[] scaleUp = {509, 510, 511, 512};
+        for (final int e1 : scaleUp) {
+            final double a = Math.scalb(x, e1);
+            for (final int e2 : scaleUp) {
+                final double b = Math.scalb(y, e2);
+                if (Double.isFinite(a * b)) {
+                    final double expected = Math.scalb(low, e1 + e2);
+                    assertProductLow(expected, a, b, () -> "Product towards overflow");
+                }
+            }
+        }
+
+        // Split of an argument approaching overflow
+        final int[] scaleUp2 = {990, 1000, 1010};
+        for (final int e : scaleUp2) {
+            final double a = Math.scalb(x, e);
+            final double expected = Math.scalb(low, e);
+            assertProductLow(expected, a, y, () -> "Argument x split towards overflow");
+            assertProductLow(expected, y, a, () -> "Argument y split towards overflow");
+        }
+    }
+
+    static Stream<Arguments> testProductLow() {
+        final Stream.Builder<Arguments> builder = Stream.builder();
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
+        final int n = 50;
+        // Generate arguments in [1, 2)
+        for (int i = 0; i < n; i++) {
+            builder.add(Arguments.of(DoubleTestUtils.randomDouble(rng),
+                                     DoubleTestUtils.randomDouble(rng)));
+        }
+        return builder.build();
+    }
+
+    private static void assertProductLow(double expected, double x, double y) {
+        assertProductLow(expected, x, y, null);
+    }
+
+    private static void assertProductLow(double expected, double x, double y, Supplier<String> msg) {
+        // Allowed ULP=0. This allows -0.0 and 0.0 to be equal.
+        TestUtils.assertEquals(expected, ExtendedPrecision.productLow(x, y, x * y), 0,
+            () -> TestUtils.prefix(msg) + "low(" + x + " * " + y  + ")");
     }
 }
