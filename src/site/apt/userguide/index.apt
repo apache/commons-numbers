@@ -35,6 +35,8 @@ The Apache Commons Numbers User Guide
 
     * {{{Precision}Precision}}
 
+    * {{{DD:_double-double}DD: double-double}}
+
   * {{{Field}Field}}
 
   * {{{Fraction}Fraction}}
@@ -428,7 +430,7 @@ double x2 = Sum.of(1e100, 1, -2, -1e100).getAsDouble();
   is therefore not a full <<<double-double>>> implementation, which would maintain the sum
   as the current total and a round-off term. This difference makes the <<<Sum>>> class faster
   at the cost of some accuracy during addition of terms that cancel.
-  
+
   If the terms to be subtracted are known then the summation can be split into the positive
   and negative terms, summed in two parts and the result computed by a final subtraction of
   the <<<Sum>>> of negative parts.
@@ -547,6 +549,264 @@ Precision.round(678.125, -2)             // 700.0
 
 Precision.representableDelta(1.0, 0.1)   // 0.10000000000000009
 +------------------------------------------+
+
+* DD: double-double
+
+  The <<<DD>>> class provides an extended precision floating-point number.
+  A double-double is an unevaluated sum of two IEEE <<<double>>> precision numbers capable of
+  representing at least 106 bits of significand. A normalized double-double number \( (x, xx) \)
+  satisfies the condition that the parts are non-overlapping in magnitude such that:
+
++------------------------------------------+
+|x| > |xx|
+x == x + xx
++------------------------------------------+
+
+  The implementation assumes a normalized representation during operations on a <<<DD>>>
+  number and computes results as a normalized representation. The number is limited to the
+  same exponent range as a <<<double>>>. Thus the number can be considered
+  as a standard IEEE <<<double>>> with additional information that would be lost to rounding.
+  This information can be used in arithmetic operations so that compound calculation can
+  reduce the error present in the final result returned as a <<<double>>>.
+
+  The number \( (x, xx) \) may also be referred to using the labels <high> and <low> to indicate
+  the magnitude of the parts as \( ( x_\{hi\}, x_\{lo\} ) \), or using a numerical suffix
+  for the parts as \( ( x_0, x_1 ) \). The numerical suffix is typically used when the
+  extended floating-point number has an arbitrary number of parts, for example a quad-double
+  is \( ( x_0, x_1, x_2, x_3 ) \). The parts of the <<<DD>>> can be accessed using the <<<hi()>>>
+  and <<<lo()>>> methods and the evaluated sum \( x + xx \) as <<<doubleValue()>>>.
+
+  The <<<DD>>> class is immutable. Instances are constructed with factory methods.
+  A <<<DD>>> can be constructed from a <<<double>>>, <<<int>>> or <<<long>>> primitive. In the
+  case of a <<<long>>> this maintains the full 64-bits of information; this is not possible
+  when using implicit type conversion to a <<<double>>>. These conversions can be reversed
+  as the <<<DD>>> provides type conversions using the <<<java.lang.Number>>> methods.
+
++------------------------------------------+
+double x = Math.PI;
+int    y = 42;
+long   z = -8564728970587006436L;
+DD.of(x).doubleValue()  // = x
+DD.of(y).intValue()     // = y
+DD.of(z).longValue()    // = z
+                        // (long) (double) z != z
++------------------------------------------+
+
+  The <<<DD>>> class can be created as the result of a <<<double>>> operation and the round-off
+  error. In the case of addition and multiplication the result is exact. For division the result
+  will have the closest 106-bit representation to the exact result.
+  Note that use of the factory constructors for <<<double>>> arithmetic is preferred over
+  constructing the arguments as a <<<DD>>> from a <<<double>>> and performing the equivalent
+  operation in <<<DD>>> arithmetic:
+
++------------------------------------------+
+double a = 1.2345678901234567;
+double b = 123.45678901234567;
+DD w = DD.ofProduct(a, b);     // (152.41578753238835,-1.0325951435749745E-14)
+DD x = DD.ofSum(a, b);         // (124.69135690246912,-1.1102230246251565E-15)
+DD y = DD.ofDifference(a, b);  // (-122.22222112222221,-1.1102230246251565E-15)
+DD z = DD.fromQuotient(1, 3);  // (0.3333333333333333,1.850371707708594E-17)
+// w.hi() = a * b
+// x.hi() = a + b
+// y.hi() = a - b
+// z.hi() = 1.0 / 3
+
+// Inefficient
+DD zz = DD.of(1).divide(DD.of(3));
+z.equals(zz)   // true
++------------------------------------------+
+
+  The <<<DD>>> can also be converted from and to a <<<BigDecimal>>>. The conversion <<from>> may
+  lose precision. The conversion <<to>> is exact but only supported for finite numbers as BigDecimal
+  does not support infinity and NaN. The method <<<isFinite()>>> can be used to verify that the
+  evaluated sum \( x + xx \) is finite; this is only true when both parts are finite and conversion
+  to <<<BigDecimal>>> is possible. Note that <<<BigDecimal>>> can be used for numerical equality
+  and ranking operations as the <<<DD>>> class does not support <<<java.lang.Comparable>>>, and
+  the <<<equals(Object)>>> method is true for <<binary>> equality of the parts, not <<numerical>>
+  equality of their evaluated sum.
+  The following demonstrates a round trip of \( \pi \) to 50 decimal places. The <<<DD>>> is
+  limited to approximately 34 decimal places and this is split into
+  the <<<double>>> value for \( \pi \) and a <<<double>>> representing the rounding error.
+
++------------------------------------------+
+BigDecimal pi = new BigDecimal("3.14159265358979323846264338327950288419716939937510");
+DD x = DD.from(pi);         // (3.141592653589793,1.2246467991473532E-16)
+pi.compareTo(x.bigDecimalValue())  // != 0
+// x.hi() = Math.PI
+// x.lo() = pi.subtract(new BigDecimal(Math.PI)).doubleValue()
+
+DD nan = DD.of(Double.NaN);
+nan.isFinite()          // false
+nan.bigDecimalValue()   // throws NumberFormatException
++------------------------------------------+
+
+  Note: It is not possible to directly specify the two parts of the <<<DD>>> number.
+  The two parts must be added using a sum to ensure the <<<DD>>> maintains a normalized
+  representation. If the two parts already represent a number
+  \( (x, xx) \) such that \( x == x + xx \) then the magnitudes of the parts will be
+  unchanged; any signed zeros may be subject to a sign change.
+
+  The <<<DD>>> class provides the arithmetic operations add, subtract, multiply, and divide for a
+  <<<double>>> or <<<DD>>> argument. <<<int>>> and <<<long>>> arguments can be used as a
+  <<<double>>> due to implicit type conversion. However if the <<<long>>> value has more than
+  53-bits of precision then it should first be converted to a <<<DD>>>.
+
++------------------------------------------+
+long x = -8564728970587006436L;
+DD.ONE.add(x).longValue()         // != x + 1
+DD.ONE.add(DD.of(x)).longValue()  // == x + 1
++------------------------------------------+
+
+  The arithmetic methods are not intended to provide an exactly rounded
+  result to 106-bit precision. A compromise has been made between accuracy and performance so
+  that the <<<DD>>> class is a viable alternative to using <<<BigDecimal>>> for high accuracy
+  arithmetic when the ultimate result is required as a <<<double>>>. The approximate error bounds
+  of operations are supplied in the class javadoc. Typical errors bounds are within a relative error
+  of 1-4 <eps> of the exact result where <eps> is \( 2^\{-106\} \).
+
+  The following demonstrates a simple sum where the <<<double>>> representation of a fraction is
+  inexact and results in a rounding error. This is removed by extending the fraction to a
+  double-double representation:
+
++------------------------------------------+
+1.0 / 2 + 1.0 / 3 + 1.0 / 6            // = 0.9999999999999999
+DD z = DD.fromQuotient(1, 2)
+         .add(DD.fromQuotient(1, 3))
+         .add(DD.fromQuotient(1, 6));  // (1.0,-4.622231866529366E-33)
+z.doubleValue()                        // = 1.0
++------------------------------------------+
+
+  Note that the error on the final result is influenced by the calculation.
+  For summation of terms of the same sign a very large number of operations would be required to
+  observe a 1 ULP error in the final <<<double>>> result. If terms of the opposite sign are
+  summed then smaller magnitude intermediate terms can be lost due to the limited 106-bit
+  precision. In this case almost total cancellation will product the incorrect result.
+
++------------------------------------------+
+double a = 1;
+double b = Math.pow(2, 53);
+double c = Math.pow(2, 106);
+DD.of(a).add(b).add(c).subtract(c).subtract(b)  // (0, 0)
+                                                // NOT (1, 0)
++------------------------------------------+
+
+  When using products the compound error will accumulate faster but is not influenced by the
+  sign of the operands. A power function <<<pow(int)>>> is provided for compound multiplication
+  of the same argument that is more efficient but does not reduce the error bound.
+
+  The <<<DDMath>>> class provides special support for operations using the <<<DD>>> class.
+  The purpose is to supplement the arithmetic operations in the <<<DD>>> class providing
+  greater accuracy at the cost of performance.
+  This includes a power function that returns the result in a fractional representation
+  to avoid over or underflow, with a lower error bound that the equivalent function in <<<DD>>>.
+
+** Overflow and underflow
+
+  A double-double number is limited to the same finite range as a <<<double>>>.
+  The class is intended for use when the ultimate result is finite and intermediate values
+  do not approach infinity or zero.
+
+  This implementation does not support IEEE standards for handling infinite and NaN when used
+  in arithmetic operations. Computations may split a 64-bit <<<double>>> into two parts and/or use
+  subtraction of intermediate terms to compute round-off parts. These operations may generate
+  infinite values due to overflow which then propagate through further operations to NaN,
+  for example computing the round-off using <<<Inf - Inf = NaN>>>.
+
+  Operations that involve splitting a double (multiply, divide) are safe
+  when the base 2 exponent is below 996. This puts an upper limit of approximately +/-6.7e299 on
+  any values to be split; in practice the arguments to multiply and divide operations are further
+  constrained by the expected finite value of the product or quotient.
+
+  Likewise the smallest value that can be represented is \( 2^\{-1074\} \). The full
+  106-bit accuracy will be lost when intermediates are within \( 2^\{53\} \) of the minimum
+  normalized <<<double>>> \( 2^\{-1022\} \).
+
+  The <<<DD>>> result can be verified by checking it is a finite evaluated sum using
+  <<<isFinite()>>>. Computations expecting to approach over or underflow must use scaling of
+  intermediate terms using <<<frexp(int[])>>> and <<<scalb(int)>>> and
+  appropriate management of the current base 2 scale. The <<<frexp(int[])>>> method creates
+  a number with a fractional part \( f \) in the range \( [0.5, 1) \) and an exponent part
+  \( 2^b \) such that \( x = f \times 2^b \). The following example demonstrates scaling and
+  rescaling:
+
++------------------------------------------+
+double a = 1.5 * Math.pow(2, 1023);
+double b = 4 * Math.pow(2, -1022);
+DD x = DD.of(a);
+DD y = DD.of(b);
+
+// Values too extreme for DD arithmetic!
+x.multiply(y).isFinite()  // false
+
+// Create fractional representation as [0.5, 1) * 2^b
+int[] xb = {0};
+int[] yb = {0};
+x = x.frexp(xb);       // (0.75, 0) * 2^1024
+y = y.frexp(yb);       // (0.5, 0)  * 2^-1019
+
+DD z = x.multiply(y);  // (0.375, 0)
+// Rescale by 2^5
+z.scalb(xb[0] + yb[0]).doubleValue()  // = a * b
++------------------------------------------+
+
+  This simple example shows the added complexity in avoiding under and overflow. Some
+  common operations have been implemented in the <<<Sum>>> and <<<Norm>>> classes with
+  extended precision floating-point arithmetic. These use appropriate scaling and
+  ensure the correct IEEE result is returned in the event of a non-finite result.
+  Algorithms include summation, sum-of-products and Euclidean norms.
+
+** Comparison to Math.fma
+
+  The fused multiply-add method <<<Math.fma(double, double, double)>>> added in Java 9 returns
+  the exact product of the first two arguments summed with the third argument and then rounded
+  once to the nearest <<<double>>>. This avoids the two rounding operations that would occur
+  using <<<a * b + c>>> as a regular floating-point expression. The result is returned
+  as a <<<double>>>.
+
+  The <<<DD>>> class can represent the exact 106-bit product <<<a * b>>> as \( (x, xx) \).
+  Unlike <<<Math.fma>>>, which uses effectively unlimited precision arithmetic, the addend
+  <<<c>>> can only be used if it overlaps either the upper part \( x \) or the lower part
+  \( xx \) of the number. If too small then it will not change \(x, xx \); if too large then
+  the final result will be \( (c, x) \).
+  However the result will be returned with information that can be used in further computation.
+  Also note that <<<Math.fma>>> will compute the correct IEEE result if the value is non-finite.
+  It will also be protected from over and underflow for the intermediate result, for example:
+
++------------------------------------------+
+Math.fma(Double.MAX_VALUE, 2.0, -Double.MAX_VALUE)  // = Double.MAX_VALUE
+Math.fma(Double.MIN_VALUE, 0.5,  Double.MIN_VALUE)  // = Double.MIN_VALUE * 1.5
++------------------------------------------+
+
+  The round-off from a standard floating-point expression <<<x * y>>> can be computed using
+  FMA:
+
++------------------------------------------+
+double x = ...
+double y = ...
+DD z = DD.ofProduct(x, y);
+z.hi()  // = x * y;
+z.lo()  // = Math.fma(x, y, -x * y)
++------------------------------------------+
+
+  This optimisation is not available on Java 8. The <<<DD>>> class uses standard <<<double>>>
+  arithmetic to split the arguments into parts \( x = x_h + x_l \) and \( y = y_h + y_l \),
+  each of which can be multiplied exactly by <<<double>>> arithmetic and used to compute
+  the round-off component. Splitting and computation of the round-off takes 16 FLOPS which is
+  far slower than a hardware supported FMA operation.
+
+** Application of DD
+
+  <<<DD>>> arithmetic is slower than <<<double>>> arithmetic and faster than <<<BigDecimal>>>.
+  The class has been implemented to avoid costly branch conditions in operations, such as those
+  required to support IEEE arithmetic for non-finite values, and avoid significant extra
+  computation for a gain of only 1 or 2 ULP accuracy in the lower part of the double-double number.
+  Users should assess the benefits of using standard <<<double>>> arithmetic, with or without
+  <<<Math.fma>>>, against <<<DD>>> or <<<BigDecimal>>> arithmetic with suitable accuracy and
+  performance benchmark data. For example the <<<DD>>> class is used in <<<Commons Numbers>>> and
+  {{{https://commons.apache.org/proper/commons-statistics/}commons-statistics}}
+  in targeted parts of function evaluations where accuracy is improved by 8-10 bits over standard
+  <<<double>>> arithmetic, or even to enable computations that have catastrophic error using
+  <<<double>>> arithmetic.
 
 Field
 

@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -73,7 +74,6 @@ class UserGuideTest {
         Assertions.assertEquals(0.0, x1);
         Assertions.assertEquals(-1.0, x2);
     }
-
 
     @Test
     void testPrecision1() {
@@ -139,5 +139,101 @@ class UserGuideTest {
         Assertions.assertEquals(700.0, Precision.round(678.125, -2));
 
         Assertions.assertEquals(0.10000000000000009, Precision.representableDelta(1.0, 0.1));
+    }
+
+    @Test
+    void testDD1() {
+        double x = Math.PI;
+        int    y = 42;
+        long   z = -8564728970587006436L;
+        Assertions.assertEquals(x, DD.of(x).doubleValue());
+        Assertions.assertEquals(y, DD.of(y).intValue());
+        Assertions.assertEquals(z, DD.of(z).longValue());
+        Assertions.assertNotEquals(z, (long) (double) z);
+    }
+
+    @Test
+    void testDD2() {
+        BigDecimal pi = new BigDecimal("3.14159265358979323846264338327950288419716939937510");
+        DD x = DD.from(pi);
+        Assertions.assertEquals("(3.141592653589793,1.2246467991473532E-16)", x.toString());
+        Assertions.assertNotEquals(0, pi.compareTo(x.bigDecimalValue()));
+        Assertions.assertEquals(Math.PI, x.hi());
+        Assertions.assertEquals(pi.subtract(new BigDecimal(Math.PI)).doubleValue(), x.lo());
+
+        DD nan = DD.of(Double.NaN);
+        Assertions.assertFalse(nan.isFinite());
+        Assertions.assertThrows(NumberFormatException.class, () -> nan.bigDecimalValue());
+    }
+
+    @Test
+    void testDD3() {
+        long   x = -8564728970587006436L;
+        Assertions.assertNotEquals(x + 1, DD.ONE.add(x).longValue());
+        Assertions.assertEquals(x + 1, DD.ONE.add(DD.of(x)).longValue());
+    }
+
+    @Test
+    void testDD4() {
+        double a = 1.2345678901234567;
+        double b = 123.45678901234567;
+        DD w = DD.ofProduct(a, b);
+        DD x = DD.ofSum(a, b);
+        DD y = DD.ofDifference(a, b);
+        DD z = DD.fromQuotient(1, 3);
+        Assertions.assertEquals("(152.41578753238835,-1.0325951435749745E-14)", w.toString());
+        Assertions.assertEquals("(124.69135690246912,-1.1102230246251565E-15)", x.toString());
+        Assertions.assertEquals("(-122.22222112222221,-1.1102230246251565E-15)", y.toString());
+        Assertions.assertEquals("(0.3333333333333333,1.850371707708594E-17)", z.toString());
+        Assertions.assertEquals(a * b, w.hi());
+        Assertions.assertEquals(a + b, x.hi());
+        Assertions.assertEquals(a - b, y.hi());
+        Assertions.assertEquals(1.0 / 3, z.hi());
+
+        DD zz = DD.of(1).divide(DD.of(3));
+        Assertions.assertEquals(z, zz);
+    }
+
+    @Test
+    void testDD5() {
+        Assertions.assertEquals(0.9999999999999999, 1.0 / 2 + 1.0 / 3 + 1.0 / 6);
+        DD z = DD.fromQuotient(1, 2)
+                 .add(DD.fromQuotient(1, 3))
+                 .add(DD.fromQuotient(1, 6));
+        Assertions.assertEquals("(1.0,-4.622231866529366E-33)", z.toString());
+        Assertions.assertEquals(1.0, z.doubleValue());
+    }
+
+    @Test
+    void testDD6() {
+        double a = 1;
+        double b = Math.pow(2, 53);
+        double c = Math.pow(2, 106);
+        DD z = DD.of(a).add(b).add(c).subtract(c).subtract(b);
+        Assertions.assertEquals(0.0, z.doubleValue());
+    }
+
+    @Test
+    void testDD7() {
+        double a = 1.5 * Math.pow(2, 1023);
+        double b = 4 * Math.pow(2, -1022);
+        DD x = DD.of(a);
+        DD y = DD.of(b);
+        Assertions.assertFalse(x.multiply(y).isFinite());
+
+        // Create fractional representation as [0.5, 1) * 2^b
+        int[] xb = {0};
+        int[] yb = {0};
+        x = x.frexp(xb);       // (0.75, 0) * 2^1024
+        y = y.frexp(yb);       // (0.5, 0)  * 2^-1019
+        Assertions.assertEquals(0.75, x.doubleValue());
+        Assertions.assertEquals(0.5, y.doubleValue());
+        Assertions.assertEquals(1024, xb[0]);
+        Assertions.assertEquals(-1019, yb[0]);
+
+        DD z = x.multiply(y);  // (0.375, 0)
+        Assertions.assertEquals(0.375, z.doubleValue());
+        // Rescale by 2^5
+        Assertions.assertEquals(a * b, z.scalb(xb[0] + yb[0]).doubleValue());
     }
 }

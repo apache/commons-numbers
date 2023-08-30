@@ -75,7 +75,7 @@ import java.util.function.DoubleUnaryOperator;
  *
  * <p>It is not possible to directly specify the two parts of the number.
  * The two parts must be added using {@link #ofSum(double, double) ofSum}.
- * If the two parts already represent a number such {@code (x, xx)} such that {@code x == x + xx}
+ * If the two parts already represent a number {@code (x, xx)} such that {@code x == x + xx}
  * then the magnitudes of the parts will be unchanged; any signed zeros may be subject to a sign
  * change.
  *
