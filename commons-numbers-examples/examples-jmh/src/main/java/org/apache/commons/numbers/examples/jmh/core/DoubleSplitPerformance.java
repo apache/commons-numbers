@@ -355,8 +355,9 @@ public class DoubleSplitPerformance {
          * The name of the method.
          */
         @Param({NONE, "multiply", "multiplyUnscaled",
-            "productLow", "productLow1", "productLow2", "productLow3", "productLowSplit",
-            "productLowUnscaled"})
+            "productLow", "productLowS",
+            "productLow0", "productLow1", "productLow2", "productLow3", "productLowSplit",
+            "productLowUnscaled", "fma"})
         private String name;
 
         /** The function. */
@@ -388,6 +389,10 @@ public class DoubleSplitPerformance {
                 };
             } else if ("productLow".equals(name)) {
                 fun = (x, y) -> DoublePrecision.productLow(x, y, x * y);
+            } else if ("productLowS".equals(name)) {
+                fun = (x, y) -> DoublePrecision.productLowS(x, y, x * y);
+            } else if ("productLow0".equals(name)) {
+                fun = (x, y) -> DoublePrecision.productLow0(x, y, x * y);
             } else if ("productLow1".equals(name)) {
                 fun = (x, y) -> DoublePrecision.productLow1(x, y, x * y);
             } else if ("productLow2".equals(name)) {
@@ -404,6 +409,8 @@ public class DoubleSplitPerformance {
                 };
             } else if ("productLowUnscaled".equals(name)) {
                 fun = (x, y) -> DoublePrecision.productLowUnscaled(x, y, x * y);
+            } else if ("fma".equals(name)) {
+                fun = (x, y) -> Math.fma(x, y, -x * y);
             } else {
                 throw new IllegalStateException("Unknown round-off method: " + name);
             }
