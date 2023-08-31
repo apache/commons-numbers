@@ -18,6 +18,7 @@ package org.apache.commons.numbers.core;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.BinaryOperator;
@@ -359,6 +360,111 @@ class DDTest {
             Assertions.assertEquals(x, dd.hi());
             Assertions.assertEquals(y, dd.lo());
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testFloorCeil"})
+    void testFloor(double x, double xx) {
+        assertFloorCeil(x, xx, true);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testFloorCeil"})
+    void testCeil(double x, double xx) {
+        assertFloorCeil(x, xx, false);
+    }
+
+    /**
+     * Assert the floor or ceil functions. These are tested together as they should match
+     * rounding performed by BigDecimal. BigDecimal cannot handle non-finite values; these
+     * are tested as mapping to the floor or ceil result with the low part as zero.
+     */
+    private static void assertFloorCeil(double x, double xx, boolean isFloor) {
+        DD dd = DD.of(x, xx);
+        dd = isFloor ? dd.floor() : dd.ceil();
+        double y = isFloor ? Math.floor(x) : Math.ceil(x);
+        double yy;
+        // General floor/ceil result changes x (so assume abs(xx) < 1),
+        // or special mappings of non-finite/zero.
+        // Here the low part is always +0.0.
+        // x != op(x) -> (op(x), 0)
+        // (+/0.0, xx) -> (x, 0)
+        // (NaN, xx) -> (NaN, 0)
+        // (+/-infinity, xx) -> (x, 0)
+        if (x == 0 || !Double.isFinite(x) || x != y) {
+            yy = +0.0;
+        } else {
+            assertNormalized(x, xx, "x");
+            // scale is the number of digits to the right of the decimal point
+            final BigDecimal value = bd(x).add(bd(xx)).setScale(0,
+                isFloor ? RoundingMode.FLOOR : RoundingMode.CEILING);
+            y = value.doubleValue();
+            yy = value.subtract(bd(y)).doubleValue();
+            // Note: If yy is zero then BigDecimal math will always create +0.0.
+            // The DD class is written to match this by never returning a -0.0
+            // for the low component of floor or ceiling.
+            if (yy == 0) {
+                Assertions.assertEquals(+0.0, yy, "BigDecimal should not generate -0.0 values");
+            }
+        }
+        Assertions.assertEquals(y, dd.hi(), "hi");
+        Assertions.assertEquals(yy, dd.lo(), "lo");
+    }
+
+    static Stream<Arguments> testFloorCeil() {
+        final Stream.Builder<Arguments> builder = Stream.builder();
+        final double inf = Double.POSITIVE_INFINITY;
+        final double nan = Double.NaN;
+        final double[] lo = {-0.0, 0.0, -1.0, 1.0, -inf, inf, nan};
+        for (final double xx : lo) {
+            builder.add(Arguments.of(0.0, xx));
+            builder.add(Arguments.of(-0.0, xx));
+            builder.add(Arguments.of(nan, xx));
+            builder.add(Arguments.of(inf, xx));
+            builder.add(Arguments.of(-inf, xx));
+        }
+        // Must be non-zero. Zero has a special mapping to (x, 0.0).
+        // Use both representable integers, and fractions for the high part.
+        // We require the low part to be zero, an integer or a fraction.
+        // When the values are large they are always representable integers
+        // and the low part contains the fraction.
+        final double[] hi = {1, 1.5, 1234, 1234.5,
+            // has a ulp of 2
+            1.2345 * 0x1.0p53,
+            // has a ulp of 4
+            1.2345 * 0x1.0p54,
+            // has a ulp of 2048
+            1.2345 * 0x1.0p63};
+        final double min = Double.MIN_VALUE;
+        for (final double x : hi) {
+            builder.add(Arguments.of(x, 0));
+            builder.add(Arguments.of(-x, 0));
+            builder.add(Arguments.of(x, -min));
+            builder.add(Arguments.of(x, min));
+            builder.add(Arguments.of(-x, min));
+            builder.add(Arguments.of(-x, -min));
+            // Avoid Math.ulp in case x is an exact power of 2.
+            double down = Math.nextDown(x) - x;
+            double up = Math.nextUp(x) - x;
+            // xx must be less than 0.5 ulp to be a normalised double-double.
+            // Create a non-power of 2 low part with a division by 3.
+            down /= 3;
+            up /= 3;
+            builder.add(Arguments.of(x, down));
+            builder.add(Arguments.of(x, up));
+            builder.add(Arguments.of(-x, -down));
+            builder.add(Arguments.of(-x, -up));
+            // Large numbers can use an integer low part
+            down = Math.ceil(down);
+            if (down <= -1) {
+                up = Math.floor(up);
+                builder.add(Arguments.of(x, down));
+                builder.add(Arguments.of(x, up));
+                builder.add(Arguments.of(-x, -down));
+                builder.add(Arguments.of(-x, -up));
+            }
+        }
+        return builder.build();
     }
 
     @ParameterizedTest

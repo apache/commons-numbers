@@ -18,6 +18,7 @@ package org.apache.commons.numbers.core;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Computes double-double floating-point operations.
@@ -1086,6 +1087,105 @@ public final class DD
         // NaN, positive or zero
         // return a canonical absolute of zero
         return x == 0 ? ZERO : this;
+    }
+
+    /**
+     * Returns the largest (closest to positive infinity) {@code DD} value that is less
+     * than or equal to {@code this} number {@code (x, xx)} and is equal to a mathematical integer.
+     *
+     * <p>This method may change the representation of zero and non-finite values; the
+     * result is equivalent to {@code Math.floor(x)} and the {@code xx} part is ignored.
+     *
+     * <p>Cases:
+     * <ul>
+     *  <li>If {@code x} is NaN, then the result is {@code (NaN, 0)}.
+     *  <li>If {@code x} is infinite, then the result is {@code (x, 0)}.
+     *  <li>If {@code x} is +/-0.0, then the result is {@code (x, 0)}.
+     *  <li>If {@code x != Math.floor(x)}, then the result is {@code (Math.floor(x), 0)}.
+     *  <li>Otherwise the result is the {@code DD} value equal to the sum
+     *      {@code Math.floor(x) + Math.floor(xx)}.
+     * </ul>
+     *
+     * <p>The result may generate a high part smaller (closer to negative infinity) than
+     * {@code Math.floor(x)} if {@code x} is a representable integer and the {@code xx} value
+     * is negative.
+     *
+     * @return the largest (closest to positive infinity) value that is less than or equal
+     * to {@code this} and is equal to a mathematical integer
+     * @see Math#floor(double)
+     * @see #isFinite()
+     */
+    public DD floor() {
+        return floorOrCeil(x, xx, Math::floor);
+    }
+
+    /**
+     * Returns the smallest (closest to negative infinity) {@code DD} value that is greater
+     * than or equal to {@code this} number {@code (x, xx)} and is equal to a mathematical integer.
+     *
+     * <p>This method may change the representation of zero and non-finite values; the
+     * result is equivalent to {@code Math.ceil(x)} and the {@code xx} part is ignored.
+     *
+     * <p>Cases:
+     * <ul>
+     *  <li>If {@code x} is NaN, then the result is {@code (NaN, 0)}.
+     *  <li>If {@code x} is infinite, then the result is {@code (x, 0)}.
+     *  <li>If {@code x} is +/-0.0, then the result is {@code (x, 0)}.
+     *  <li>If {@code x != Math.ceil(x)}, then the result is {@code (Math.ceil(x), 0)}.
+     *  <li>Otherwise the result is the {@code DD} value equal to the sum
+     *      {@code Math.ceil(x) + Math.ceil(xx)}.
+     * </ul>
+     *
+     * <p>The result may generate a high part larger (closer to positive infinity) than
+     * {@code Math.ceil(x)} if {@code x} is a representable integer and the {@code xx} value
+     * is positive.
+     *
+     * @return the smallest (closest to negative infinity) value that is greater than or equal
+     * to {@code this} and is equal to a mathematical integer
+     * @see Math#ceil(double)
+     * @see #isFinite()
+     */
+    public DD ceil() {
+        return floorOrCeil(x, xx, Math::ceil);
+    }
+
+    /**
+     * Implementation of the floor and ceiling functions.
+     *
+     * <p>Cases:
+     * <ul>
+     *  <li>If {@code x} is non-finite or zero, then the result is {@code (x, 0)}.
+     *  <li>If {@code x} is rounded by the operator to a new value {@code y}, then the
+     *      result is {@code (y, 0)}.
+     *  <li>Otherwise the result is the {@code DD} value equal to the sum {@code op(x) + op(xx)}.
+     * </ul>
+     *
+     * @param x High part of x.
+     * @param xx Low part of x.
+     * @param op Floor or ceiling operator.
+     * @return the result
+     */
+    private static DD floorOrCeil(double x, double xx, DoubleUnaryOperator op) {
+        // Assume |hi| > |lo|, i.e. the low part is the round-off
+        final double y = op.applyAsDouble(x);
+        // Note: The floating-point comparison is intentional
+        if (y == x) {
+            // Handle non-finite and zero by ignoring the low part
+            if (isNotNormal(y)) {
+                return new DD(y, 0);
+            }
+            // High part is an integer, use the low part.
+            // Any rounding must propagate to the high part.
+            // Note: add 0.0 to convert -0.0 to 0.0. This is required to ensure
+            // the round-off component of the fastTwoSum result is always 0.0
+            // when yy == 0. This only applies in the ceiling operator when
+            // xx is in (-1, 0] and will be converted to -0.0.
+            final double yy = op.applyAsDouble(xx) + 0;
+            return fastTwoSum(y, yy);
+        }
+        // NaN or already rounded.
+        // xx has no effect on the rounding.
+        return new DD(y, 0);
     }
 
     /**

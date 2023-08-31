@@ -43,7 +43,10 @@
   </Match>
   <Match>
     <Class name="org.apache.commons.numbers.ext.DD"/>
-    <Method name="longValue"/>
+    <Or>
+      <Method name="longValue"/>
+      <Method name="floorOrCeil"/>
+    </Or>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
 
