@@ -302,16 +302,10 @@ public enum Norm {
             rescale = 1d;
         }
 
-        double sum = 0d;
-        double comp = 0d;
-
-        // add scaled x
+        // initialise sum and compensation using scaled x
         final double sx = xabs * scale;
-        final double px = sx * sx;
-        comp += DD.twoSquareLow(sx, px);
-        final double sumPx = sum + px;
-        comp += DD.twoSumLow(sum, px, sumPx);
-        sum = sumPx;
+        double sum = sx * sx;
+        double comp = DD.twoSquareLow(sx, sum);
 
         // add scaled y
         final double sy = yabs * scale;
@@ -367,16 +361,11 @@ public enum Norm {
             rescale = 1d;
         }
 
-        double sum = 0d;
-        double comp = 0d;
 
-        // add scaled x
+        // initialise sum and compensation using scaled x
         final double sx = xabs * scale;
-        final double px = sx * sx;
-        comp += DD.twoSquareLow(sx, px);
-        final double sumPx = sum + px;
-        comp += DD.twoSumLow(sum, px, sumPx);
-        sum = sumPx;
+        double sum = sx * sx;
+        double comp = DD.twoSquareLow(sx, sum);
 
         // add scaled y
         final double sy = yabs * scale;
