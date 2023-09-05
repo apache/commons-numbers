@@ -794,6 +794,18 @@ z.lo()  // = Math.fma(x, y, -x * y)
   the round-off component. Splitting and computation of the round-off takes 16 FLOPS which is
   far slower than a hardware supported FMA operation.
 
+** Comparison to IEEE 754 quadruple
+
+  A <<<DD>>> class has a 106-bit significand, 11-bit exponent and a sign bit. It is not an
+  equivalent of the
+  {{{https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format}IEEE 754 quadruple-precision floating-point format}}.
+  This has a 113-bit significand, 15-bit exponent and a sign bit. This has both a larger
+  significand and exponent range, and supports arithmetic to the correctly rounded result.
+  The <<<DD>>> class is a software implementation of an extended precision floating-point number
+  with performance compromises made on the supported finite range and precision of operations.
+  The <<<DD>>> is therefore simpler to consider as a IEEE 754 <<<double>>> with an
+  additional +/- 0.5 ULP used to improve accuracy during compound operations.
+
 ** Application of DD
 
   <<<DD>>> arithmetic is slower than <<<double>>> arithmetic and faster than <<<BigDecimal>>>.
