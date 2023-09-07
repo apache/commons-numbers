@@ -22,8 +22,11 @@ import java.util.stream.Stream;
 import java.util.ArrayList;
 
 import org.apache.commons.numbers.fraction.Fraction;
+import org.apache.commons.numbers.core.DD;
 import org.apache.commons.numbers.core.Precision;
 import org.apache.commons.numbers.fraction.BigFraction;
+
+import org.junit.jupiter.api.Assertions;
 
 /**
  * List of fields.
@@ -50,6 +53,12 @@ final class FieldsList {
                 FP64.of(-234.5678901),
                 // double operations are subject to rounding so allow a tolerance
                 (x, y) -> Precision.equals(x.doubleValue(), y.doubleValue(), 1));
+            add(DDField.get(),
+                createDD(23.45678901, 4.5671892973),
+                createDD(-543.2109876, 5.237848286),
+                createDD(-234.5678901, -4.561268179),
+                // double-double operations are subject to rounding so allow a tolerance.
+                FieldsList::areEqual);
 
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -85,6 +94,54 @@ final class FieldsList {
                                 T c,
                                 BiPredicate<T, T> equals) {
         LIST.add(new FieldTestData<>(field, a, b, c, equals));
+    }
+
+    /**
+     * Creates the double-double number from two random values.
+     * The second value is scaled so that it does not overlap the first.
+     *
+     * @param a Value.
+     * @param b Value.
+     * @return the number
+     */
+    private static DD createDD(double a, double b) {
+        final int ea = Math.getExponent(a);
+        final int eb = Math.getExponent(b);
+        // Scale to have a non-overlapping 53-bit mantissa
+        double bb = Math.scalb(b, ea - eb - 53);
+        // If b has a larger mantissa than a (ignoring the exponent) then an overlap may occur
+        if (a != a + bb) {
+            bb *= 0.5;
+        }
+        Assertions.assertEquals(a, a + bb);
+        return DD.ofSum(a, bb);
+    }
+
+    /**
+     * Test if the two numbers are equal.
+     *
+     * @param x Value.
+     * @param y Value.
+     * @return true if equal
+     */
+    private static boolean areEqual(DD x, DD y) {
+        // A simple binary equality is fine for most cases.
+        if (x.equals(y)) {
+            return true;
+        }
+        // If the high part is the same we can test a ULP tolerance on the low part.
+        if (x.hi() == y.hi()) {
+            return Precision.equals(x.lo(), y.lo(), 1);
+        }
+        // Note that the high part could be different by 1 ulp and then the low part
+        // can be significantly different (opposite signed values) to create numbers that
+        // are almost the same: x+xx ~ y-yy.
+        // Here we obtain the difference and use a relative error of 2^-105:
+        //  | x - y |
+        // ------------   <  relative error
+        // max(|x|, |y|)
+        return Math.abs(x.subtract(y).doubleValue()) /
+            Math.max(Math.abs(x.doubleValue()), Math.abs(y.doubleValue())) < Math.pow(2, -105);
     }
 
     /**

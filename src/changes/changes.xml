@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="add" issue="NUMBERS-203">
+        "DDField": Add a field for the DD number.
+      </action>
       <action dev="aherbert" type="fix" issue="NUMBERS-204">
         "Sum": Correct sub-normal round-off computation in sum of products.
       </action>

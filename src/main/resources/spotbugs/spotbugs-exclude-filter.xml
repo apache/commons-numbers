@@ -64,6 +64,7 @@
   <Match>
     <Or>
       <!-- False positive exposure of immutable field. -->
+      <Class name="org.apache.commons.numbers.field.DDField"/>
       <Class name="org.apache.commons.numbers.field.FP64Field"/>
       <Class name="org.apache.commons.numbers.field.FractionField"/>
       <Class name="org.apache.commons.numbers.field.BigFractionField"/>
