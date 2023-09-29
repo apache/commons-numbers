@@ -230,6 +230,22 @@ class BigFractionTest {
     }
 
     @Test
+    void testIsOne() {
+        Assertions.assertTrue(BigFraction.of(1).isOne());
+        Assertions.assertTrue(BigFraction.of(1, 2).multiply(BigFraction.of(2)).isOne());
+        BigFraction value = BigFraction.of(17, 33);
+        Assertions.assertTrue(value.multiply(value.reciprocal()).isOne());
+    }
+
+    @Test
+    void testIsZero() {
+        Assertions.assertTrue(BigFraction.of(0, 4712).isZero());
+        Assertions.assertTrue(BigFraction.of(3).subtract(BigFraction.of(3)).isZero());
+        BigFraction wide = BigFraction.of(11, 1111111111);
+        Assertions.assertTrue(wide.multiply(wide.zero()).isZero());
+    }
+
+    @Test
     void testCompareTo() {
         final BigFraction a = BigFraction.of(1, 2);
         final BigFraction b = BigFraction.of(1, 3);

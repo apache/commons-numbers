@@ -803,6 +803,18 @@ public final class Fraction
                             ArithmeticUtils.pow(numerator, -exponent));
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean isZero() {
+        return numerator == 0;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return numerator == denominator;
+    }
+
     /**
      * Returns the {@code String} representing this fraction.
      * Uses:
@@ -897,14 +909,5 @@ public final class Fraction
         final int numS = Integer.signum(numerator);
         final int denS = Integer.signum(denominator);
         return (31 * (31 + numerator * numS) + denominator * denS) * numS * denS;
-    }
-
-    /**
-     * Returns true if this fraction is zero.
-     *
-     * @return true if zero
-     */
-    private boolean isZero() {
-        return numerator == 0;
     }
 }

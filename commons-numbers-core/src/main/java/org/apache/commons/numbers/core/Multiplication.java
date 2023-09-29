@@ -44,4 +44,12 @@ public interface Multiplication<T> {
      * @return <code>this<sup>-1</sup></code>.
      */
     T reciprocal();
+
+    /**
+     * Is this the neutral element of multiplication? Implementations may want to
+     * employ more efficient means than calling equals on the one element.
+     *
+     * @return {@code true} if {@code this} equals the result of {@link #one}.
+     */
+    boolean isOne();
 }

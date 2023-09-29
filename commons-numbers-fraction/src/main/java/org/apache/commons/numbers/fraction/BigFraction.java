@@ -999,6 +999,21 @@ public final class BigFraction
     }
 
     /**
+     * Returns true if this fraction is zero.
+     *
+     * @return true if zero
+     */
+    @Override
+    public boolean isZero() {
+        return numerator.signum() == 0;
+    }
+
+    @Override
+    public boolean isOne() {
+        return numerator.equals(denominator);
+    }
+
+    /**
      * Returns the {@code String} representing this fraction.
      * Uses:
      * <ul>
@@ -1279,14 +1294,5 @@ public final class BigFraction
         }
 
         return result;
-    }
-
-    /**
-     * Returns true if this fraction is zero.
-     *
-     * @return true if zero
-     */
-    private boolean isZero() {
-        return numerator.signum() == 0;
     }
 }

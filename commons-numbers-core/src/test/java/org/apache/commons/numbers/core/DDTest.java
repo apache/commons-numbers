@@ -78,6 +78,22 @@ class DDTest {
         Assertions.assertSame(DD.ZERO, DD.of(1.23).zero());
     }
 
+    @Test
+    void testIsOne() {
+        Assertions.assertTrue(DD.ONE.isOne());
+        Assertions.assertTrue(DD.of(0.5, 0).add(DD.of(0.5, 0)).isOne());
+        DD wide = DD.ofSum(1e300, 1e-300);
+        Assertions.assertTrue(wide.divide(wide).isOne());
+    }
+
+    @Test
+    void testIsZero() {
+        Assertions.assertTrue(DD.ZERO.isZero());
+        Assertions.assertTrue(DD.of(0.5, 0).subtract(DD.of(0.5, 0)).isZero());
+        DD wide = DD.ofSum(1e300, 1e-300);
+        Assertions.assertTrue(wide.multiply(DD.of(0.0)).isZero());
+    }
+
     @ParameterizedTest
     @ValueSource(doubles = {0, 1, Math.PI, Double.MIN_VALUE, Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN})
     void testOfDouble(double x) {

@@ -44,4 +44,12 @@ public interface Addition<T> {
      * @return {@code -this}.
      */
     T negate();
+
+    /**
+     * Is this the zero element? Implementations may want to employ more efficient
+     * means than calling equals on the zero element.
+     *
+     * @return {@code true} if {@code this} equals the result of {@link #zero}.
+     */
+    boolean isZero();
 }

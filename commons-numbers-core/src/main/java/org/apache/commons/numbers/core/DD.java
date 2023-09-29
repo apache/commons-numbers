@@ -1924,6 +1924,18 @@ public final class DD
         return computePow(x, xx, n);
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean isZero() {
+        return equals(0.0, x) && equals(0.0, xx);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return equals(1.0, x) && equals(0.0, xx);
+    }
+
     /**
      * Compute the number {@code x} (non-zero finite) raised to the power {@code n}.
      *

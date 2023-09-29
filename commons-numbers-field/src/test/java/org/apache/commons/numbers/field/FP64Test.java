@@ -102,6 +102,28 @@ class FP64Test {
     }
 
     @Test
+    void testIsOne() {
+        Assertions.assertTrue(FP64.of(1.0).isOne());
+        Assertions.assertTrue(FP64.of(0.5).add(FP64.of(0.5)).isOne());
+        FP64 wide = FP64.of(1e300);
+        Assertions.assertTrue(wide.divide(wide).isOne());
+        // avoid weirdness
+        Assertions.assertFalse(FP64.of(3).isOne());
+        Assertions.assertFalse(FP64.of(0.0).isOne());
+    }
+
+    @Test
+    void testIsZero() {
+        Assertions.assertTrue(FP64.of(0.0).isZero());
+        Assertions.assertTrue(FP64.of(0.5).subtract(FP64.of(0.5)).isZero());
+        FP64 wide = FP64.of(1e300);
+        Assertions.assertTrue(wide.multiply(wide.zero()).isZero());
+        // avoid weirdness
+        Assertions.assertFalse(FP64.of(3).isZero());
+        Assertions.assertFalse(FP64.of(1.0).isZero());
+    }
+
+    @Test
     void testSubtract() {
         final double a = 123.4;
         final double b = 5678.9;
