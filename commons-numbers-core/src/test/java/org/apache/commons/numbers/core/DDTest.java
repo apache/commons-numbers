@@ -2612,8 +2612,7 @@ class DDTest {
     @Test
     void testEqualsWithDifferentNaNs() {
         // Test some NaN combinations
-        final double[] values = {Double.NaN, 0, 1};
-        final ArrayList<DD> list = createCombinations(values);
+        final ArrayList<DD> list = createCombinations(Double.NaN, 0, 1);
 
         // Is the all-vs-all comparison only the exact same values should be equal, e.g.
         // (nan,0) not equals (nan,nan)
@@ -2707,8 +2706,7 @@ class DDTest {
      */
     @Test
     void testHashCodeWithDifferentZeros() {
-        final double[] values = {-0.0, 0.0};
-        final ArrayList<DD> list = createCombinations(values);
+        final ArrayList<DD> list = createCombinations(-0.0, 0.0);
 
         // Explicit test for issue MATH-1118
         // "equals" and "hashCode" must be compatible
@@ -2730,7 +2728,7 @@ class DDTest {
      * @param values the values
      * @return the list
      */
-    private static ArrayList<DD> createCombinations(final double[] values) {
+    private static ArrayList<DD> createCombinations(double... values) {
         final ArrayList<DD> list = new ArrayList<>(values.length * values.length);
         for (final double x : values) {
             for (final double xx : values) {
