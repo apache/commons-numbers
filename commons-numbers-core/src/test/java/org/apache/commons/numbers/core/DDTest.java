@@ -2639,8 +2639,8 @@ class DDTest {
      * @param msg the message to append to an assertion error
      */
     private static void assertEqualsIsConsistentWithArraysEquals(DD c1, DD c2, String msg) {
-        final boolean expected = Arrays.equals(new double[] {c1.hi(), c1.lo()},
-            new double[] {c2.hi(), c2.lo()});
+        final boolean expected = Arrays.equals(new double[] {c1.hi() + 0.0, c1.lo() + 0.0},
+                                               new double[] {c2.hi() + 0.0, c2.lo() + 0.0});
         final boolean actual = c1.equals(c2);
         Assertions.assertEquals(expected, actual,
             () -> String.format("equals(Object) is not consistent with Arrays.equals: %s. %s vs %s", msg, c1, c2));
@@ -2664,7 +2664,7 @@ class DDTest {
         for (final DD c : list) {
             final double hi = c.hi();
             final double lo = c.lo();
-            final int expected = Arrays.hashCode(new double[] {hi, lo});
+            final int expected = Arrays.hashCode(new double[] {hi + 0.0, lo + 0.0});
             final int hash = c.hashCode();
             Assertions.assertEquals(expected, hash, "hashCode does not match Arrays.hashCode({re, im})");
 
@@ -2714,11 +2714,11 @@ class DDTest {
         // "equals" and "hashCode" must be compatible
         for (int i = 0; i < list.size(); i++) {
             final DD c1 = list.get(i);
-            for (int j = i + 1; j < list.size(); j++) {
+            for (int j = i; j < list.size(); j++) {
                 final DD c2 = list.get(j);
-                if (c1.hashCode() != c2.hashCode()) {
-                    Assertions.assertNotEquals(c1, c2, "'equals' not compatible with 'hashCode'");
-                }
+                Assertions.assertEquals(c1.hashCode(), c2.hashCode());
+                Assertions.assertEquals(c1, c2);
+                Assertions.assertEquals(c2, c1);
             }
         }
     }

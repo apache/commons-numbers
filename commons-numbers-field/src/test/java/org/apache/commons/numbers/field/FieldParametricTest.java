@@ -19,6 +19,7 @@ package org.apache.commons.numbers.field;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import java.util.Arrays;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
@@ -182,6 +183,12 @@ class FieldParametricTest {
         final T r1 = field.zero();
         final T r2 = a.zero();
         assertEquals(r1, r2, data::equals);
+
+        // Test the definition:
+        // zero().add(a).equals(a)
+        // Here we ignore the equality predicate so there is no tolerance
+        Arrays.asList(a, data.getB(), data.getC())
+              .forEach(t -> Assertions.assertEquals(t, r2.add(t), () -> "zero add " + t));
     }
 
     @ParameterizedTest
@@ -217,6 +224,12 @@ class FieldParametricTest {
         final T r1 = field.one();
         final T r2 = a.one();
         assertEquals(r1, r2, data::equals);
+
+        // Test the definition:
+        // one().multiply(a).equals(a)
+        // Here we ignore the equality predicate so there is no tolerance
+        Arrays.asList(a, data.getB(), data.getC())
+              .forEach(t -> Assertions.assertEquals(t, r2.multiply(t), () -> "one multiply " + t));
     }
 
     /**

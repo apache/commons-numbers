@@ -2167,17 +2167,20 @@ public final class DD
      * comparison is made of the parts; otherwise {@code false} is returned.
      *
      * <p>If both parts of two double-double numbers
-     * are exactly the same the two {@code DD} objects are considered to be equal.
+     * are numerically equivalent the two {@code DD} objects are considered to be equal.
      * For this purpose, two {@code double} values are considered to be
-     * the same if and only if the method {@link Double #doubleToLongBits(double)}
-     * returns the identical {@code long} value when applied to each.
+     * the same if and only if the method call
+     * {@link Double#doubleToLongBits(double) Double.doubleToLongBits(value + 0.0)}
+     * returns the identical {@code long} when applied to each value. This provides
+     * numeric equality of different representations of zero as per {@code -0.0 == 0.0},
+     * and equality of {@code NaN} values.
      *
      * <p>Note that in most cases, for two instances of class
      * {@code DD}, {@code x} and {@code y}, the
      * value of {@code x.equals(y)} is {@code true} if and only if
      *
      * <pre>
-     *  {@code x.hi()() == y.hi() && x.lo() == y.lo()}</pre>
+     *  {@code x.hi() == y.hi() && x.lo() == y.lo()}</pre>
      *
      * <p>also has the value {@code true}. However, there are exceptions:
      *
@@ -2187,17 +2190,17 @@ public final class DD
      *      has the value {@code false}.
      *  <li>Instances that share a {@code NaN} value in one part
      *      but have different values in the other part are <em>not</em> considered equal.
-     *  <li>Instances that contain different representations of zero in the same part
-     *      are <em>not</em> considered to be equal for that part, even though {@code -0.0 == 0.0}
-     *      has the value {@code true}.
      * </ul>
      *
      * <p>The behavior is the same as if the components of the two double-double numbers were passed
      * to {@link java.util.Arrays#equals(double[], double[]) Arrays.equals(double[], double[])}:
      *
      * <pre>
-     *  Arrays.equals(new double[]{x.hi(), x.lo()},
-     *                new double[]{y.hi(), y.lo()}); </pre>
+     *  Arrays.equals(new double[]{x.hi() + 0.0, x.lo() + 0.0},
+     *                new double[]{y.hi() + 0.0, y.lo() + 0.0}); </pre>
+     *
+     * <p>Note: Addition of {@code 0.0} converts signed representations of zero values
+     * {@code -0.0} and {@code 0.0} to a canonical {@code 0.0}.
      *
      * @param other Object to test for equality with this instance.
      * @return {@code true} if the objects are equal, {@code false} if object
@@ -2225,14 +2228,17 @@ public final class DD
      * to {@link java.util.Arrays#hashCode(double[]) Arrays.hashCode(double[])}:
      *
      * <pre>
-     *  {@code Arrays.hashCode(new double[] {hi(), lo()})}</pre>
+     *  {@code Arrays.hashCode(new double[] {hi() + 0.0, lo() + 0.0})}</pre>
+     *
+     * <p>Note: Addition of {@code 0.0} provides the same hash code for different
+     * signed representations of zero values {@code -0.0} and {@code 0.0}.
      *
      * @return A hash code value for this object.
      * @see java.util.Arrays#hashCode(double[]) Arrays.hashCode(double[])
      */
     @Override
     public int hashCode() {
-        return 31 * (31 + Double.hashCode(x)) + Double.hashCode(xx);
+        return 31 * (31 + Double.hashCode(x + 0.0)) + Double.hashCode(xx + 0.0);
     }
 
     /**
@@ -2244,7 +2250,7 @@ public final class DD
      * @return {@code Double.valueof(x).equals(Double.valueOf(y))}.
      */
     private static boolean equals(double x, double y) {
-        return Double.doubleToLongBits(x) == Double.doubleToLongBits(y);
+        return Double.doubleToLongBits(x + 0.0) == Double.doubleToLongBits(y + 0.0);
     }
 
     /**

@@ -59,6 +59,13 @@ final class FieldsList {
                 createDD(-234.5678901, -4.561268179),
                 // double-double operations are subject to rounding so allow a tolerance.
                 FieldsList::areEqual);
+            // Pass through a second DD that uses a signed negative zero
+            add(DDField.get(),
+                createDD(2.45678901, 45.671892973),
+                createDD(-54.32109876, 52.37848286),
+                createDD(-0.0, -0.0),
+                // double-double operations are subject to rounding so allow a tolerance.
+                FieldsList::areEqual);
 
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -130,18 +137,18 @@ final class FieldsList {
             return true;
         }
         // If the high part is the same we can test a ULP tolerance on the low part.
-        if (x.hi() == y.hi()) {
-            return Precision.equals(x.lo(), y.lo(), 1);
+        if (x.hi() == y.hi() && Precision.equals(x.lo(), y.lo(), 1)) {
+            return true;
         }
         // Note that the high part could be different by 1 ulp and then the low part
         // can be significantly different (opposite signed values) to create numbers that
         // are almost the same: x+xx ~ y-yy.
         // Here we obtain the difference and use a relative error of 2^-105:
         //  | x - y |
-        // ------------   <  relative error
+        // ------------   <=  relative error
         // max(|x|, |y|)
         return Math.abs(x.subtract(y).doubleValue()) /
-            Math.max(Math.abs(x.doubleValue()), Math.abs(y.doubleValue())) < Math.pow(2, -105);
+            Math.max(Math.abs(x.doubleValue()), Math.abs(y.doubleValue())) <= Math.pow(2, -105);
     }
 
     /**
