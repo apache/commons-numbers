@@ -622,8 +622,8 @@ z.equals(zz)   // true
   evaluated sum \( x + xx \) is finite; this is only true when both parts are finite and conversion
   to <<<BigDecimal>>> is possible. Note that <<<BigDecimal>>> can be used for numerical equality
   and ranking operations as the <<<DD>>> class does not support <<<java.lang.Comparable>>>, and
-  the <<<equals(Object)>>> method is true for <<binary>> equality of the parts, not <<numerical>>
-  equality of their evaluated sum.
+  the <<<equals(Object)>>> method is true for numerical equality of the <parts>, not numerical
+  equality of their <evaluated sum>.
   The following demonstrates a round trip of \( \pi \) to 50 decimal places. The <<<DD>>> is
   limited to approximately 34 decimal places and this is split into
   the <<<double>>> value for \( \pi \) and a <<<double>>> representing the rounding error.
