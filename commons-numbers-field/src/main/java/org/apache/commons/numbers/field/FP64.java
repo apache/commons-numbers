@@ -108,7 +108,8 @@ public final class FP64 extends Number
     public boolean equals(Object other) {
         if (other instanceof FP64) {
             final FP64 o = (FP64) other;
-            return Double.doubleToLongBits(value) == Double.doubleToLongBits(o.value);
+            // Allow -0.0 to equal 0.0
+            return Double.doubleToLongBits(value + 0.0) == Double.doubleToLongBits(o.value + 0.0);
         }
         return false;
     }
@@ -116,7 +117,8 @@ public final class FP64 extends Number
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Double.hashCode(value);
+        // Same hash code for -0.0 and 0.0
+        return Double.hashCode(value + 0.0);
     }
 
     /** {@inheritDoc} */

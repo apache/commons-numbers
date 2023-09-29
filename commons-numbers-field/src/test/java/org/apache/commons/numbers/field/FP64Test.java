@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  */
 class FP64Test {
     @ParameterizedTest
-    @ValueSource(doubles = {-5.67e89, -0.0, Double.POSITIVE_INFINITY})
+    @ValueSource(doubles = {-5.67e89, -0.0, 0.0, Double.POSITIVE_INFINITY})
     void testConsistencyWithDouble(double v) {
         final Double a = Double.valueOf(v);
         final FP64 b = FP64.of(v);
@@ -36,8 +36,13 @@ class FP64Test {
         Assertions.assertEquals(a.intValue(), b.intValue());
         Assertions.assertEquals(a.longValue(), b.longValue());
         Assertions.assertEquals(a.byteValue(), b.byteValue());
-        Assertions.assertEquals(a.hashCode(), b.hashCode());
         Assertions.assertEquals(a.toString(), b.toString());
+        // Hash code for -0.0 and 0.0 are the same
+        if (v == 0) {
+            Assertions.assertEquals(Double.valueOf(0.0).hashCode(), b.hashCode());
+        } else {
+            Assertions.assertEquals(a.hashCode(), b.hashCode());
+        }
     }
 
     @Test
@@ -70,12 +75,30 @@ class FP64Test {
     }
 
     @Test
-    void testOne() {
-        Assertions.assertEquals(1d, FP64.of(-3.4).one().doubleValue());
+    void testEqualsZero() {
+        final FP64 a = FP64.of(-0.0);
+        final FP64 b = FP64.of(0.0);
+        Assertions.assertEquals(a, b);
+        Assertions.assertEquals(b, a);
+        Assertions.assertEquals(a.hashCode(), b.hashCode());
     }
-    @Test
-    void testZero() {
-        Assertions.assertEquals(0d, FP64.of(-3.4).zero().doubleValue());
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-3.4, -0.0, 0.0, Double.POSITIVE_INFINITY})
+    void testOne(double value) {
+        final FP64 a = FP64.of(value);
+        Assertions.assertEquals(1d, a.one().doubleValue());
+        // Test definition
+        Assertions.assertEquals(a, a.one().multiply(a));
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-3.4, -0.0, 0.0, Double.POSITIVE_INFINITY})
+    void testZero(double value) {
+        final FP64 a = FP64.of(value);
+        Assertions.assertEquals(0d, a.zero().doubleValue());
+        // Test definition
+        Assertions.assertEquals(a, a.zero().add(a));
     }
 
     @Test
