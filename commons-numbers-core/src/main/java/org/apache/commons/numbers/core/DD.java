@@ -1927,13 +1927,15 @@ public final class DD
     /** {@inheritDoc} */
     @Override
     public boolean isZero() {
-        return equals(0.0, x) && equals(0.0, xx);
+        // we have guaranteed |x| > |xx|
+        // and Java provides 0.0 == -0.0
+        return x == 0.0;
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean isOne() {
-        return equals(1.0, x) && equals(0.0, xx);
+        return x == 1.0 && xx == 0.0;
     }
 
     /**

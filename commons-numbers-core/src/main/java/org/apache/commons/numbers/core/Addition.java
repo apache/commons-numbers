@@ -51,5 +51,7 @@ public interface Addition<T> {
      *
      * @return {@code true} if {@code this} equals the result of {@link #zero}.
      */
-    boolean isZero();
+    default boolean isZero() {
+        return this.equals(zero());
+    }
 }

@@ -51,5 +51,7 @@ public interface Multiplication<T> {
      *
      * @return {@code true} if {@code this} equals the result of {@link #one}.
      */
-    boolean isOne();
+    default boolean isOne() {
+        return this.equals(one());
+    };
 }
