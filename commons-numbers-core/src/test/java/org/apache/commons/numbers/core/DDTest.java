@@ -84,14 +84,22 @@ class DDTest {
         Assertions.assertTrue(DD.of(0.5, 0).add(DD.of(0.5, 0)).isOne());
         DD wide = DD.ofSum(1e300, 1e-300);
         Assertions.assertTrue(wide.divide(wide).isOne());
+
+        Assertions.assertFalse(DD.ZERO.isOne());
+        Assertions.assertFalse(DD.of(0.5).isOne());
     }
 
     @Test
     void testIsZero() {
         Assertions.assertTrue(DD.ZERO.isZero());
+        Assertions.assertTrue(DD.of(-0.0).isZero());
         Assertions.assertTrue(DD.of(0.5, 0).subtract(DD.of(0.5, 0)).isZero());
         DD wide = DD.ofSum(1e300, 1e-300);
         Assertions.assertTrue(wide.multiply(DD.of(0.0)).isZero());
+
+        Assertions.assertFalse(DD.ONE.isZero());
+        Assertions.assertFalse(DD.of(3.1415926).isZero());
+
     }
 
     @ParameterizedTest

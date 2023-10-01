@@ -183,18 +183,26 @@ class FractionTest {
 
     @Test
     void testIsOne() {
+        Assertions.assertTrue(Fraction.of(1, 2).one().isOne());
         Assertions.assertTrue(Fraction.of(1).isOne());
         Assertions.assertTrue(Fraction.of(1, 2).multiply(Fraction.of(2)).isOne());
         Fraction value = Fraction.of(17, 33);
         Assertions.assertTrue(value.multiply(value.reciprocal()).isOne());
+
+        Assertions.assertFalse(Fraction.of(3, 4).zero().isOne());
+        Assertions.assertFalse(Fraction.of(11, 12).isOne());
     }
 
     @Test
     void testIsZero() {
+        Assertions.assertTrue(Fraction.of(1, 1).zero().isZero());
         Assertions.assertTrue(Fraction.of(0, 4712).isZero());
         Assertions.assertTrue(Fraction.of(3).subtract(Fraction.of(3)).isZero());
         Fraction wide = Fraction.of(11, 1111111111);
         Assertions.assertTrue(wide.multiply(wide.zero()).isZero());
+
+        Assertions.assertFalse(Fraction.of(11, 12).one().isZero());
+        Assertions.assertFalse(Fraction.of(-3, 14).isZero());
     }
 
     @Test
