@@ -2242,12 +2242,17 @@ public final class DD
     }
 
     /**
-     * Returns {@code true} if the values are equal according to semantics of
-     * {@link Double#equals(Object)}.
+     * Returns {@code true} if the values are numerically equal.
      *
-     * @param x Value
-     * @param y Value
-     * @return {@code Double.valueof(x).equals(Double.valueOf(y))}.
+     * <p>Two {@code double} values are considered to be
+     * the same if and only if the method call
+     * {@link Double#doubleToLongBits(double) Double.doubleToLongBits(value + 0.0)}
+     * returns the identical {@code long} when applied to each value. This provides
+     * numeric equality of different representations of zero as per {@code -0.0 == 0.0},
+     * and equality of {@code NaN} values.
+     *
+     * @param x Value.
+     * @param y Value.
      */
     private static boolean equals(double x, double y) {
         return Double.doubleToLongBits(x + 0.0) == Double.doubleToLongBits(y + 0.0);
