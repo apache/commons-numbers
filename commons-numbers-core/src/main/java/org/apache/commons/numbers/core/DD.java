@@ -2251,8 +2251,9 @@ public final class DD
      * numeric equality of different representations of zero as per {@code -0.0 == 0.0},
      * and equality of {@code NaN} values.
      *
-     * @param x Value.
-     * @param y Value.
+     * @param x Value
+     * @param y Value
+     * @return {@code true} if the values are numerically equal
      */
     private static boolean equals(double x, double y) {
         return Double.doubleToLongBits(x + 0.0) == Double.doubleToLongBits(y + 0.0);
