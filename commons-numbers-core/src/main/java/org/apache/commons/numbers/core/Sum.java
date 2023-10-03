@@ -196,16 +196,27 @@ public final class Sum
      * before addition to ensure there are no issues when adding a sum
      * to itself.
      *
+     * <p>This method sums the values in double-double precision.
+     * This enforces symmetry when combining sums and maximises the available precision.
+     *
      * @param s Sum.
      * @param c Compensation.
      * @return this instance.
      */
     private Sum add(double s, double c) {
-        add(s);
-        // compensation can be NaN from accumulating one or more same-signed infinite values.
-        // Do not pollute the regular IEEE754 sum with a spurious NaN.
-        if (!Double.isNaN(c)) {
-            add(c);
+        // Re-normalise the sums and combine in double-double precision.
+        // Note: The conversion to a DD is lossless.
+        final DD result = DD.ofSum(sum, comp).add(DD.ofSum(s, c));
+        if (result.isFinite()) {
+            sum = result.hi();
+            comp = result.lo();
+        } else {
+            // compensation can be NaN from accumulating one or more same-signed infinite values.
+            // Do not pollute the regular IEEE754 sum with a spurious NaN.
+            add(s);
+            if (!Double.isNaN(c)) {
+                add(c);
+            }
         }
         return this;
     }
