@@ -97,7 +97,6 @@ public final class Sum
      */
     private Sum(final double initialValue) {
         sum = initialValue;
-        comp = 0d;
     }
 
     /**
