@@ -503,9 +503,21 @@ public final class BigFraction
         return ZERO;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean isZero() {
+        return numerator.signum() == 0;
+    }
+
     @Override
     public BigFraction one() {
         return ONE;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return numerator.equals(denominator);
     }
 
     /**
@@ -996,21 +1008,6 @@ public final class BigFraction
         // exponents (long, BigInteger) are currently not supported.
         return new BigFraction(denominator.pow(-exponent),
                                numerator.pow(-exponent));
-    }
-
-    /**
-     * Returns true if this fraction is zero.
-     *
-     * @return true if zero
-     */
-    @Override
-    public boolean isZero() {
-        return numerator.signum() == 0;
-    }
-
-    @Override
-    public boolean isOne() {
-        return numerator.equals(denominator);
     }
 
     /**

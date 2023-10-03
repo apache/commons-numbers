@@ -105,18 +105,6 @@ public final class FP64 extends Number
 
     /** {@inheritDoc} */
     @Override
-    public boolean isZero() {
-        return value == 0.0;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean isOne() {
-        return value == 1.0;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public boolean equals(Object other) {
         if (other instanceof FP64) {
             final FP64 o = (FP64) other;
@@ -179,7 +167,19 @@ public final class FP64 extends Number
 
     /** {@inheritDoc} */
     @Override
+    public boolean isZero() {
+        return value == 0.0;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public FP64 one() {
         return ONE;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return value == 1.0;
     }
 }

@@ -105,8 +105,8 @@ class FP64Test {
     void testIsOne() {
         Assertions.assertTrue(FP64.of(1.0).isOne());
         Assertions.assertTrue(FP64.of(0.5).add(FP64.of(0.5)).isOne());
-        FP64 wide = FP64.of(1e300);
-        Assertions.assertTrue(wide.divide(wide).isOne());
+        FP64 value = FP64.of(1e300);
+        Assertions.assertTrue(value.divide(value).isOne());
         // avoid weirdness
         Assertions.assertFalse(FP64.of(3).isOne());
         Assertions.assertFalse(FP64.of(0.0).isOne());
@@ -116,8 +116,8 @@ class FP64Test {
     void testIsZero() {
         Assertions.assertTrue(FP64.of(0.0).isZero());
         Assertions.assertTrue(FP64.of(0.5).subtract(FP64.of(0.5)).isZero());
-        FP64 wide = FP64.of(1e300);
-        Assertions.assertTrue(wide.multiply(wide.zero()).isZero());
+        FP64 value = FP64.of(1e300);
+        Assertions.assertTrue(value.multiply(value.zero()).isZero());
         // avoid weirdness
         Assertions.assertFalse(FP64.of(3).isZero());
         Assertions.assertFalse(FP64.of(1.0).isZero());

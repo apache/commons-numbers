@@ -46,10 +46,13 @@ public interface Multiplication<T> {
     T reciprocal();
 
     /**
-     * Is this the neutral element of multiplication? Implementations may want to
-     * employ more efficient means than calling equals on the one element.
+     * Is this a neutral element of multiplication, i.e. {@code this.multiply(a)} typically
+     * returns {@code a} or an element representing the same value as {@code a}? Implementations may
+     * want to employ more efficient means than calling {@code equals()} on the one element. This
+     * may even be required if an implementation has more than one binary representation of one and
+     * its {@code equals()} method does make a difference between them.
      *
-     * @return {@code true} if {@code this} equals the result of {@link #one}.
+     * @return {@code true} if {@code this} a neutral element of multiplication
      */
     default boolean isOne() {
         return this.equals(one());

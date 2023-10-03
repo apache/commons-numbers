@@ -1924,20 +1924,6 @@ public final class DD
         return computePow(x, xx, n);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean isZero() {
-        // we have guaranteed |x| > |xx|
-        // and Java provides 0.0 == -0.0
-        return x == 0.0;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean isOne() {
-        return x == 1.0 && xx == 0.0;
-    }
-
     /**
      * Compute the number {@code x} (non-zero finite) raised to the power {@code n}.
      *
@@ -2311,6 +2297,13 @@ public final class DD
         return ZERO;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean isZero() {
+        // we keep |x| > |xx| and Java provides 0.0 == -0.0
+        return x == 0.0;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -2321,6 +2314,12 @@ public final class DD
     @Override
     public DD one() {
         return ONE;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return x == 1.0 && xx == 0.0;
     }
 
     /**

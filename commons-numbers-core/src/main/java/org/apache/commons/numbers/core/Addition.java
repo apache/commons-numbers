@@ -46,10 +46,13 @@ public interface Addition<T> {
     T negate();
 
     /**
-     * Is this the zero element? Implementations may want to employ more efficient
-     * means than calling equals on the zero element.
+     * Is this a neutral element of addition, i.e. {@code this.add(a)} typically returns {@code a}
+     * or an element representing the same value as {@code a}? Implementations may want to
+     * employ more efficient means than calling {@code equals()} on the zero element. This may even
+     * be required if an implementation has more than one binary representation of zero and its
+     * {@code equals()} method does make a difference between them.
      *
-     * @return {@code true} if {@code this} equals the result of {@link #zero}.
+     * @return {@code true} if {@code this} is a neutral element of addition.
      */
     default boolean isZero() {
         return this.equals(zero());

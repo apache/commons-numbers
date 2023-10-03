@@ -241,8 +241,8 @@ class BigFractionTest {
     void testIsZero() {
         Assertions.assertTrue(BigFraction.of(0, 4712).isZero());
         Assertions.assertTrue(BigFraction.of(3).subtract(BigFraction.of(3)).isZero());
-        BigFraction wide = BigFraction.of(11, 1111111111);
-        Assertions.assertTrue(wide.multiply(wide.zero()).isZero());
+        BigFraction value = BigFraction.of(11, 1111111111);
+        Assertions.assertTrue(value.multiply(value.zero()).isZero());
     }
 
     @Test
