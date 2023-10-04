@@ -423,9 +423,21 @@ public final class Fraction
         return ZERO;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean isZero() {
+        return numerator == 0;
+    }
+
     @Override
     public Fraction one() {
         return ONE;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return numerator == denominator;
     }
 
     /**
@@ -897,14 +909,5 @@ public final class Fraction
         final int numS = Integer.signum(numerator);
         final int denS = Integer.signum(denominator);
         return (31 * (31 + numerator * numS) + denominator * denS) * numS * denS;
-    }
-
-    /**
-     * Returns true if this fraction is zero.
-     *
-     * @return true if zero
-     */
-    private boolean isZero() {
-        return numerator == 0;
     }
 }

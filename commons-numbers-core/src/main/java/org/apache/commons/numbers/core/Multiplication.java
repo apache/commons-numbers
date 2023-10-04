@@ -44,4 +44,20 @@ public interface Multiplication<T> {
      * @return <code>this<sup>-1</sup></code>.
      */
     T reciprocal();
+
+    /**
+     * Check if this is a neutral element of multiplication, i.e. {@code this.multiply(a)} returns
+     * {@code a} or an element representing the same value as {@code a}.
+     *
+     * <p>The default implementation calls {@link #equals(Object) equals(one())}.
+     * Implementations may want to employ more a efficient method. This may even
+     * be required if an implementation has multiple representations of {@code one} and its
+     * {@code equals} method differentiates between them.
+     *
+     * @return {@code true} if {@code this} is a neutral element of multiplication.
+     * @see #one()
+     */
+    default boolean isOne() {
+        return this.equals(one());
+    };
 }

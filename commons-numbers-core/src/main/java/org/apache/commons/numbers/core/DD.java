@@ -2297,6 +2297,13 @@ public final class DD
         return ZERO;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean isZero() {
+        // we keep |x| > |xx| and Java provides 0.0 == -0.0
+        return x == 0.0;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -2307,6 +2314,12 @@ public final class DD
     @Override
     public DD one() {
         return ONE;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return x == 1.0 && xx == 0.0;
     }
 
     /**

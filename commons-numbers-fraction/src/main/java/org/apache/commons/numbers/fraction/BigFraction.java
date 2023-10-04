@@ -503,9 +503,21 @@ public final class BigFraction
         return ZERO;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean isZero() {
+        return numerator.signum() == 0;
+    }
+
     @Override
     public BigFraction one() {
         return ONE;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isOne() {
+        return numerator.equals(denominator);
     }
 
     /**
@@ -1279,14 +1291,5 @@ public final class BigFraction
         }
 
         return result;
-    }
-
-    /**
-     * Returns true if this fraction is zero.
-     *
-     * @return true if zero
-     */
-    private boolean isZero() {
-        return numerator.signum() == 0;
     }
 }

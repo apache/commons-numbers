@@ -44,4 +44,20 @@ public interface Addition<T> {
      * @return {@code -this}.
      */
     T negate();
+
+    /**
+     * Check if this is a neutral element of addition, i.e. {@code this.add(a)} returns
+     * {@code a} or an element representing the same value as {@code a}.
+     *
+     * <p>The default implementation calls {@link #equals(Object) equals(zero())}.
+     * Implementations may want to employ more a efficient method. This may even
+     * be required if an implementation has multiple representations of {@code zero} and its
+     * {@code equals} method differentiates between them.
+     *
+     * @return {@code true} if {@code this} is a neutral element of addition.
+     * @see #zero()
+     */
+    default boolean isZero() {
+        return this.equals(zero());
+    }
 }
