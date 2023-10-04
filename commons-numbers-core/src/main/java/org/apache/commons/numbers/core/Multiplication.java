@@ -56,8 +56,9 @@ public interface Multiplication<T> {
      *
      * @return {@code true} if {@code this} is a neutral element of multiplication.
      * @see #one()
+     * @since 1.2
      */
     default boolean isOne() {
         return this.equals(one());
-    };
+    }
 }

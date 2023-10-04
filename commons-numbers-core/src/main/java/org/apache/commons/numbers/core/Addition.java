@@ -56,6 +56,7 @@ public interface Addition<T> {
      *
      * @return {@code true} if {@code this} is a neutral element of addition.
      * @see #zero()
+     * @since 1.2
      */
     default boolean isZero() {
         return this.equals(zero());
