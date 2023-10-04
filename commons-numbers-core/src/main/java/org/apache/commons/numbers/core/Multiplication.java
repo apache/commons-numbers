@@ -49,7 +49,7 @@ public interface Multiplication<T> {
      * Check if this is a neutral element of multiplication, i.e. {@code this.multiply(a)} returns
      * {@code a} or an element representing the same value as {@code a}.
      *
-     * <p>The default implementation calls {@link #equals(Object) equals(one())}.
+     * <p>The default implementation calls {@link Object#equals(Object) equals(one())}.
      * Implementations may want to employ more a efficient method. This may even
      * be required if an implementation has multiple representations of {@code one} and its
      * {@code equals} method differentiates between them.

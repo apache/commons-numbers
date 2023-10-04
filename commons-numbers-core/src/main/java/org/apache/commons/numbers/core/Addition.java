@@ -49,7 +49,7 @@ public interface Addition<T> {
      * Check if this is a neutral element of addition, i.e. {@code this.add(a)} returns
      * {@code a} or an element representing the same value as {@code a}.
      *
-     * <p>The default implementation calls {@link #equals(Object) equals(zero())}.
+     * <p>The default implementation calls {@link Object#equals(Object) equals(zero())}.
      * Implementations may want to employ more a efficient method. This may even
      * be required if an implementation has multiple representations of {@code zero} and its
      * {@code equals} method differentiates between them.
