@@ -41,7 +41,7 @@ jobs:
     - name: Build with Maven
       # Use the default goal
       if: matrix.java == 8
-      run: mvn -V --no-transfer-progress
+      run: mvn --show-version --batch-mode --no-transfer-progress
     - name: Build with Maven including examples
       # Examples require Java 11+.
       # Building javadoc errors when run with the package phase with an error about
@@ -49,5 +49,5 @@ jobs:
       # Here we run the build and javadoc generation separately (which requires install of sources)
       if: matrix.java > 8
       run: |
-        mvn -V --no-transfer-progress -P commons-numbers-examples clean install -Dmaven.javadoc.skip
-        mvn -P commons-numbers-examples javadoc:javadoc -Dmaven.javadoc.skip=false
+        mvn --show-version --batch-mode --no-transfer-progress -P commons-numbers-examples clean install -Dmaven.javadoc.skip
+        mvn --show-version --batch-mode --no-transfer-progress -P commons-numbers-examples javadoc:javadoc -Dmaven.javadoc.skip=false
