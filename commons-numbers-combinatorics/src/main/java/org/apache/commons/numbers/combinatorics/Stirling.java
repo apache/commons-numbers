@@ -42,7 +42,7 @@ public final class Stirling {
      * Precomputed Stirling numbers of the first kind.
      * Provides a thread-safe lazy initialization of the cache.
      */
-    private static class StirlingS1Cache {
+    private static final class StirlingS1Cache {
         /** Maximum n to compute (exclusive).
          * As s(21,3) = 13803759753640704000 is larger than Long.MAX_VALUE
          * we must stop computation at row 21. */
@@ -70,7 +70,7 @@ public final class Stirling {
      * Precomputed Stirling numbers of the second kind.
      * Provides a thread-safe lazy initialization of the cache.
      */
-    private static class StirlingS2Cache {
+    private static final class StirlingS2Cache {
         /** Maximum n to compute (exclusive).
          * As S(26,9) = 11201516780955125625 is larger than Long.MAX_VALUE
          * we must stop computation at row 26. */

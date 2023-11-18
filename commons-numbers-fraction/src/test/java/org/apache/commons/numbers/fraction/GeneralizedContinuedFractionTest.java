@@ -474,7 +474,7 @@ class GeneralizedContinuedFractionTest {
      *                  1 + ...
      * </pre>
      */
-    private static class GoldenRatio implements Supplier<Coefficient> {
+    private static final class GoldenRatio implements Supplier<Coefficient> {
         private static final GoldenRatio INSTANCE = new GoldenRatio();
         private static final Coefficient RESULT = Coefficient.of(1, 1);
 
@@ -499,7 +499,7 @@ class GeneralizedContinuedFractionTest {
      * </pre>
      * <p>The term 2 must be added to the generated series.
      */
-    private static class E implements Supplier<Coefficient> {
+    private static final class E implements Supplier<Coefficient> {
         private int n;
 
         @Override
@@ -525,7 +525,7 @@ class GeneralizedContinuedFractionTest {
      *                  5 - ...
      * </pre>
      */
-    static class Tan implements Supplier<Coefficient> {
+    static final class Tan implements Supplier<Coefficient> {
         private double a;
         private double b = -1;
 

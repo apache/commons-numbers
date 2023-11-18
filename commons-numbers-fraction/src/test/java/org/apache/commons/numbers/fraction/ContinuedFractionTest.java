@@ -47,7 +47,7 @@ class ContinuedFractionTest {
      * @see <a href="https://mathworld.wolfram.com/GoldenRatio.html">MathWorld Golden
      * Ratio equation 17</a>
      */
-    private static class GoldenRatio extends ContinuedFraction {
+    private static final class GoldenRatio extends ContinuedFraction {
         private static final GoldenRatio INSTANCE = new GoldenRatio();
 
         /**

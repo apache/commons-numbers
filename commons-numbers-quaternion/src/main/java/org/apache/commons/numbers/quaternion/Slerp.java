@@ -99,7 +99,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
     /**
      * Linear interpolation, used when the quaternions are too closely aligned.
      */
-    private class Linear implements DoubleFunction<Quaternion> {
+    private final class Linear implements DoubleFunction<Quaternion> {
         /** {@inheritDoc} */
         @Override
         public Quaternion apply(double t) {
@@ -116,7 +116,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
      * When we may end up dividing by zero (cf. 1/sin(theta) term below).
      * {@link Linear} interpolation must be used.
      */
-    private class Spherical implements DoubleFunction<Quaternion> {
+    private final class Spherical implements DoubleFunction<Quaternion> {
         /** Angle of rotation. */
         private final double theta;
         /** Sine of {@link #theta}. */
