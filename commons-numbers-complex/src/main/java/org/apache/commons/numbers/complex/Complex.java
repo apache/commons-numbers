@@ -2653,7 +2653,7 @@ public final class Complex implements Serializable  {
         }
         return acos(real, imaginary, (re, im) ->
             // Set the sign appropriately for real >= 0
-            (negative(im)) ?
+            negative(im) ?
                 // Multiply by I
                 new Complex(-im, re) :
                 // Multiply by -I
