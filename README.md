@@ -69,7 +69,7 @@ The [Javadoc](https://commons.apache.org/proper/commons-numbers/commons-numbers-
 - [Commons Numbers Field](https://commons.apache.org/proper/commons-numbers/commons-numbers-field/apidocs/)
 - [Commons Numbers RootFinder](https://commons.apache.org/proper/commons-numbers/commons-numbers-rootfinder/apidocs/)
 
-Questions related to the usage of Apache Commons Numbers should be posted to the [user mailing list][ml].
+Questions related to the usage of Apache Commons Numbers should be posted to the [user mailing list](https://commons.apache.org/mail-lists.html).
 
 Where can I get the latest release?
 -----------------------------------
