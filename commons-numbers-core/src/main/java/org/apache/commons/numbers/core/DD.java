@@ -1204,7 +1204,7 @@ public final class DD
         // (s0, s1) = x + y
         final double s0 = x + y;
         final double s1 = twoSumLow(x, y, s0);
-        // Note: if x + y cancel to a non-zero result then s.x is >= 1 ulp of x.
+        // Note: if x + y cancel to a non-zero result then s0 is >= 1 ulp of x.
         // This is larger than xx so fast-two-sum can be used.
         return fastTwoSum(s0, s1 + xx);
     }
