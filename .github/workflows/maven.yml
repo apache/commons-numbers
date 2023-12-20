@@ -48,8 +48,14 @@ jobs:
       env:
         NEXUS_USER: ${{ secrets.NEXUS_USER }}
         NEXUS_PW: ${{ secrets.NEXUS_PW }}
-      run: mvn --show-version --batch-mode --no-transfer-progress clean javadoc:javadoc deploy -Dgpg.skip
-      # N.B. the default goal is 'clean verify javadoc:javadoc'; verify is included in deploy
+      run: mvn --show-version --batch-mode --no-transfer-progress
+    - name: Deploy SNAPSHOT
+      # must run directly after 'Build with Maven'
+      if: matrix.java == 8 && github.repository == 'apache/commons-numbers' && github.ref_name == 'master'
+      env:
+        NEXUS_USER: ${{ secrets.NEXUS_USER }}
+        NEXUS_PW: ${{ secrets.NEXUS_PW }}
+      run: mvn --show-version --batch-mode --no-transfer-progress deploy -Dgpg.skip
     - name: Build with Maven including examples
       # Examples require Java 11+.
       # Building javadoc errors when run with the package phase with an error about
