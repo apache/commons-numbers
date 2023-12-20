@@ -55,7 +55,9 @@ jobs:
       env:
         NEXUS_USER: ${{ secrets.NEXUS_USER }}
         NEXUS_PW: ${{ secrets.NEXUS_PW }}
-      run: mvn --show-version --batch-mode --no-transfer-progress deploy -Dgpg.skip
+      run: >
+        mvn --show-version --batch-mode --no-transfer-progress deploy -Dgpg.skip 
+        -DskipTests -Drat.skip -Djacoco.skip -Dcyclonedx.skip -Dspotbugs.skip -Dspdx.skip -Dpmd.skip
     - name: Build with Maven including examples
       # Examples require Java 11+.
       # Building javadoc errors when run with the package phase with an error about
