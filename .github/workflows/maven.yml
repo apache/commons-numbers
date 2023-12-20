@@ -48,7 +48,7 @@ jobs:
       env:
         NEXUS_USER: ${{ secrets.NEXUS_USER }}
         NEXUS_PW: ${{ secrets.NEXUS_PW }}
-      run: mvn --show-version --batch-mode --no-transfer-progress clean javadoc:javadoc deploy
+      run: mvn --show-version --batch-mode --no-transfer-progress clean javadoc:javadoc deploy -Dgpg.skip
       # N.B. the default goal is 'clean verify javadoc:javadoc'; verify is included in deploy
     - name: Build with Maven including examples
       # Examples require Java 11+.
