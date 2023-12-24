@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
  *
  */
 class ArithmeticUtilsTest {
+    /** 2^63. */
+    private static final BigInteger TWO_POW_63 = BigInteger.ONE.shiftLeft(63);
 
     @Test
     void testGcd() {
@@ -538,7 +540,7 @@ class ArithmeticUtilsTest {
     }
 
     private static long toUnsignedLong(int number) {
-        return number < 0 ? 0x100000000L + (long)number : (long)number;
+        return Integer.toUnsignedLong(number);
     }
 
     private static int remainderUnsignedExpected(int dividend, int divisor) {
@@ -550,7 +552,9 @@ class ArithmeticUtilsTest {
     }
 
     private static BigInteger toUnsignedBigInteger(long number) {
-        return number < 0L ? BigInteger.ONE.shiftLeft(64).add(BigInteger.valueOf(number)) : BigInteger.valueOf(number);
+        return number < 0 ?
+            TWO_POW_63.or(BigInteger.valueOf(number & Long.MAX_VALUE)) :
+            BigInteger.valueOf(number);
     }
 
     private static long remainderUnsignedExpected(long dividend, long divisor) {
