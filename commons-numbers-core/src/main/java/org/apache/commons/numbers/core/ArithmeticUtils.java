@@ -470,7 +470,7 @@ public final class ArithmeticUtils {
      * Returns the unsigned remainder from dividing the first argument
      * by the second where each argument and the result is interpreted
      * as an unsigned value.
-     * <p>This method does not use the {@code long} datatype.</p>
+     * <p>This method uses the Java 1.8+ method {@link Integer#remainderUnsigned(int, int)}.</p>
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
@@ -478,27 +478,14 @@ public final class ArithmeticUtils {
      * the second argument.
      */
     public static int remainderUnsigned(int dividend, int divisor) {
-        if (divisor >= 0) {
-            if (dividend >= 0) {
-                return dividend % divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            final int q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0 || dividend >= divisor) {
-                dividend -= divisor;
-            }
-            return dividend;
-        }
-        return dividend >= 0 || dividend < divisor ? dividend : dividend - divisor;
+        return Integer.remainderUnsigned(dividend, divisor);
     }
 
     /**
      * Returns the unsigned remainder from dividing the first argument
      * by the second where each argument and the result is interpreted
      * as an unsigned value.
-     * <p>This method does not use the {@code BigInteger} datatype.</p>
+     * <p>This method uses the Java 1.8+ method {@link Long#remainderUnsigned(int, int)}.</p>
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
@@ -506,20 +493,7 @@ public final class ArithmeticUtils {
      * the second argument.
      */
     public static long remainderUnsigned(long dividend, long divisor) {
-        if (divisor >= 0L) {
-            if (dividend >= 0L) {
-                return dividend % divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            final long q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0L || dividend >= divisor) {
-                dividend -= divisor;
-            }
-            return dividend;
-        }
-        return dividend >= 0L || dividend < divisor ? dividend : dividend - divisor;
+        return Long.remainderUnsigned(dividend, divisor);
     }
 
     /**
@@ -531,7 +505,7 @@ public final class ArithmeticUtils {
      * bit-wise identical if the two operands are regarded as both
      * being signed or both being unsigned. Therefore separate {@code
      * addUnsigned}, etc. methods are not provided.</p>
-     * <p>This method does not use the {@code long} datatype.</p>
+     * <p>This method uses the Java 1.8+ method {@link Integer#divideUnsigned(int, int)}.</p>
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
@@ -539,20 +513,7 @@ public final class ArithmeticUtils {
      * the second argument
      */
     public static int divideUnsigned(int dividend, int divisor) {
-        if (divisor >= 0) {
-            if (dividend >= 0) {
-                return dividend / divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            int q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0L || dividend >= divisor) {
-                q++;
-            }
-            return q;
-        }
-        return dividend >= 0 || dividend < divisor ? 0 : 1;
+        return Integer.divideUnsigned(dividend, divisor);
     }
 
     /**
@@ -564,7 +525,7 @@ public final class ArithmeticUtils {
      * bit-wise identical if the two operands are regarded as both
      * being signed or both being unsigned. Therefore separate {@code
      * addUnsigned}, etc. methods are not provided.</p>
-     * <p>This method does not use the {@code BigInteger} datatype.</p>
+     * <p>This method uses the Java 1.8+ method {@link Long#divideUnsigned(int, int)}.</p>
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
@@ -572,20 +533,7 @@ public final class ArithmeticUtils {
      * the second argument.
      */
     public static long divideUnsigned(long dividend, long divisor) {
-        if (divisor >= 0L) {
-            if (dividend >= 0L) {
-                return dividend / divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            long q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0L || dividend >= divisor) {
-                q++;
-            }
-            return q;
-        }
-        return dividend >= 0L || dividend < divisor ? 0L : 1L;
+        return Long.divideUnsigned(dividend, divisor);
     }
 
     /**

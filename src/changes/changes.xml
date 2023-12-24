@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="sebb" type="update">
+        Use Java 1.8 methods to simplify the ArithmeticUtils methods remainderUnsigned and divideUnsigned (both int and long)
+      </action>
       <action dev="aherbert" type="add"  due-to="Harald Kirsch" issue="NUMBERS-205">
         "Addition/Multiplication": Introduces isZero to Addition and isOne to Multiplication
         interfaces. Override the default implementation in implementing classes to avoid
