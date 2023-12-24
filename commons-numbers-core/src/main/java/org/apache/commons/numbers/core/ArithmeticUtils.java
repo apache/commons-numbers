@@ -485,7 +485,7 @@ public final class ArithmeticUtils {
      * Returns the unsigned remainder from dividing the first argument
      * by the second where each argument and the result is interpreted
      * as an unsigned value.
-     * <p>This method uses the Java 1.8+ method {@link Long#remainderUnsigned(int, int)}.</p>
+     * <p>This method uses the Java 1.8+ method {@link Long#remainderUnsigned(long, long)}.</p>
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
@@ -525,7 +525,7 @@ public final class ArithmeticUtils {
      * bit-wise identical if the two operands are regarded as both
      * being signed or both being unsigned. Therefore separate {@code
      * addUnsigned}, etc. methods are not provided.</p>
-     * <p>This method uses the Java 1.8+ method {@link Long#divideUnsigned(int, int)}.</p>
+     * <p>This method uses the Java 1.8+ method {@link Long#divideUnsigned(long, long)}.</p>
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
