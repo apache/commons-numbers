@@ -23,8 +23,6 @@ import java.util.function.DoubleUnaryOperator;
  * Represents the <a href="https://en.wikipedia.org/wiki/Angle">angle</a> concept.
  */
 public abstract class Angle implements DoubleSupplier {
-    /** 2&pi;. */
-    public static final double TWO_PI = 2 * Math.PI;
     /** &pi;/2. */
     public static final double PI_OVER_TWO = 0.5 * Math.PI;
     /** Turns to degrees conversion factor. */
@@ -92,6 +90,8 @@ public abstract class Angle implements DoubleSupplier {
      * Unit: <a href="https://en.wikipedia.org/wiki/Turn_%28geometry%29">turns</a>.
      */
     public static final class Turn extends Angle {
+        /** 2&pi;. */
+        public static final double TWO_PI = 2 * Math.PI;
         /** Zero. */
         public static final Turn ZERO = Turn.of(0d);
         /** Normalizing operator (result will be within the {@code [0, 1[} interval). */
@@ -146,12 +146,15 @@ public abstract class Angle implements DoubleSupplier {
      * Unit: <a href="https://en.wikipedia.org/wiki/Radian">radians</a>.
      */
     public static final class Rad extends Angle {
+        /** 2&pi;. */
+        public static final double ANGLE_TWO_PI = 2 * Math.PI;
+
         /** Zero. */
         public static final Rad ZERO = Rad.of(0d);
         /** &pi;. */
         public static final Rad PI = Rad.of(Math.PI);
         /** 2&pi;. */
-        public static final Rad TWO_PI = Rad.of(Angle.TWO_PI);
+        public static final Rad TWO_PI = Rad.of(ANGLE_TWO_PI);
         /** Normalizing operator (result will be within the <code>[0, 2&pi;[</code> interval). */
         public static final DoubleUnaryOperator WITHIN_0_AND_2PI = normalizer(0d);
         /** Normalizing operator (result will be within the <code>[-&pi;, &pi;[</code> interval). */
@@ -175,7 +178,7 @@ public abstract class Angle implements DoubleSupplier {
         /** {@inheritDoc} */
         @Override
         public Turn toTurn() {
-            return Turn.of(getAsDouble() / Angle.TWO_PI);
+            return Turn.of(getAsDouble() / ANGLE_TWO_PI);
         }
 
         /** {@inheritDoc} */
@@ -198,7 +201,7 @@ public abstract class Angle implements DoubleSupplier {
          * @return the normalization operator.
          */
         public static DoubleUnaryOperator normalizer(final double lo) {
-            return new Normalizer(lo, Angle.TWO_PI);
+            return new Normalizer(lo, ANGLE_TWO_PI);
         }
     }
 
