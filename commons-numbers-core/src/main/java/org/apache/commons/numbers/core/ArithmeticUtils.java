@@ -144,7 +144,7 @@ public final class ArithmeticUtils {
      * a non-negative {@code long} value.
      */
     public static long gcd(long p, long q) {
-        // Perform the gcd algorithm on negative numbers, so that -2^31 does not
+        // Perform the gcd algorithm on negative numbers, so that -2^63 does not
         // need to be handled separately
         long a = p > 0 ? -p : p;
         long b = q > 0 ? -q : q;
