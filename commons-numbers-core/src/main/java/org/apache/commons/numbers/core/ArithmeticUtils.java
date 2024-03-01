@@ -24,11 +24,6 @@ import java.math.BigInteger;
  *
  */
 public final class ArithmeticUtils {
-    /** Overflow gcd exception message for 2^31. */
-    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_31 = "overflow: gcd(%d, %d) is 2^31";
-
-    /** Overflow gcd exception message for 2^63. */
-    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd(%d, %d) is 2^63";
 
     /** Negative exponent exception message part 1. */
     private static final String NEGATIVE_EXPONENT_1 = "negative exponent ({";
@@ -70,21 +65,52 @@ public final class ArithmeticUtils {
      * a non-negative {@code int} value.
      */
     public static int gcd(int p, int q) {
-        if (p == Integer.MIN_VALUE) {
-            if (q == 0 || q == Integer.MIN_VALUE) {
-                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31, p, q);
-            }
+        // Perform the gcd algorithm on negative numbers, so that -2^31 does not
+        // need to be handled separately
+        int a = p > 0 ? -p : p;
+        int b = q > 0 ? -q : q;
 
-            return gcdSteinPositive(Math.abs(Integer.MIN_VALUE + Math.abs(q)), Math.abs(q));
-        } else if (q == Integer.MIN_VALUE) {
-            if (p == 0) {
-                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31, p, q);
-            }
-
-            return gcdSteinPositive(Math.abs(p), Math.abs(Math.abs(p) + Integer.MIN_VALUE));
+        int negatedGcd;
+        if (a == 0) {
+            negatedGcd = b;
+        } else if (b == 0) {
+            negatedGcd = a;
         } else {
-            return gcdSteinPositive(Math.abs(p), Math.abs(q));
+            // Make "a" and "b" odd, keeping track of common power of 2.
+            final int aTwos = Integer.numberOfTrailingZeros(a);
+            final int bTwos = Integer.numberOfTrailingZeros(b);
+            a >>= aTwos;
+            b >>= bTwos;
+            final int shift = Math.min(aTwos, bTwos);
+
+            // "a" and "b" are negative and odd.
+            // If a < b then "gdc(a, b)" is equal to "gcd(a - b, b)".
+            // If a > b then "gcd(a, b)" is equal to "gcd(b - a, a)".
+            // Hence, in the successive iterations:
+            //  "a" becomes the negative absolute difference of the current values,
+            //  "b" becomes that value of the two that is closer to zero.
+            while (true) {
+                final int delta = a - b;
+
+                if (delta == 0) {
+                    break;
+                }
+
+                b = Math.max(a, b);
+                a = delta > 0 ? -delta : delta;
+
+                // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
+                a >>= Integer.numberOfTrailingZeros(a);
+            }
+
+            // Recover the common power of 2.
+            negatedGcd = a << shift;
         }
+        if (negatedGcd == Integer.MIN_VALUE) {
+            throw new NumbersArithmeticException("overflow: gcd(%d, %d) is 2^31",
+                                                 p, q);
+        }
+        return -negatedGcd;
     }
 
     /**
@@ -117,94 +143,53 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code long} value.
      */
-    public static long gcd(final long p, final long q) {
-        if (p == Long.MIN_VALUE) {
-            if (q == 0 || q == Long.MIN_VALUE) {
-                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63, p, q);
-            }
+    public static long gcd(long p, long q) {
+        // Perform the gcd algorithm on negative numbers, so that -2^31 does not
+        // need to be handled separately
+        long a = p > 0 ? -p : p;
+        long b = q > 0 ? -q : q;
 
-            return gcdSteinPositive(Math.abs(Long.MIN_VALUE + Math.abs(q)), Math.abs(q));
-        } else if (q == Long.MIN_VALUE) {
-            if (p == 0) {
-                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63, p, q);
-            }
-
-            return gcdSteinPositive(Math.abs(p), Math.abs(Math.abs(p) + Long.MIN_VALUE));
+        long negatedGcd;
+        if (a == 0) {
+            negatedGcd = b;
+        } else if (b == 0) {
+            negatedGcd = a;
         } else {
-            return gcdSteinPositive(Math.abs(p), Math.abs(q));
-        }
-    }
+            // Make "a" and "b" odd, keeping track of common power of 2.
+            final int aTwos = Long.numberOfTrailingZeros(a);
+            final int bTwos = Long.numberOfTrailingZeros(b);
+            a >>= aTwos;
+            b >>= bTwos;
+            final int shift = Math.min(aTwos, bTwos);
 
-    /**
-     * @implNote See <a href="https://medium.com/@m.langer798/stein-vs-stein-on-the-jvm-c911809bfce1">this blog post</a>
-     * for a detailed discussion about the implementation.
-     *
-     * @param a Positive number.
-     * @param b Positive number.
-     * @return the greatest common divisor of a and b
-     */
-    private static long gcdSteinPositive(long a, long b) {
-        if (a == 0 || a == b) {
-            return b;
-        } else if (b == 0) {
-            return a;
-        }
+            // "a" and "b" are negative and odd.
+            // If a < b then "gdc(a, b)" is equal to "gcd(a - b, b)".
+            // If a > b then "gcd(a, b)" is equal to "gcd(b - a, a)".
+            // Hence, in the successive iterations:
+            //  "a" becomes the negative absolute difference of the current values,
+            //  "b" becomes that value of the two that is closer to zero.
+            while (true) {
+                final long delta = a - b;
 
-        int zerosA = Long.numberOfTrailingZeros(a);
-        int zerosB = Long.numberOfTrailingZeros(b);
-        a >>= zerosA;
-        b >>= zerosB;
+                if (delta == 0) {
+                    break;
+                }
 
-        while (true) {
-            if (a > b) {
-                long tmp = a;
-                a = b;
-                b = tmp;
+                b = Math.max(a, b);
+                a = delta > 0 ? -delta : delta;
+
+                // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
+                a >>= Long.numberOfTrailingZeros(a);
             }
 
-            long d = b - a;
-            if (d == 0) {
-                return a << Math.min(zerosA, zerosB);
-            }
-
-            d >>= Long.numberOfTrailingZeros(d);
-            b = d;
+            // Recover the common power of 2.
+            negatedGcd = a << shift;
         }
-    }
-
-    /**
-     * See {@link #gcdSteinPositive(long, long)}.
-     * @param a Positive number.
-     * @param b Positive number.
-     * @return the greatest common divisor of a and b
-     */
-    private static int gcdSteinPositive(int a, int b) {
-        if (a == 0 || a == b) {
-            return b;
-        } else if (b == 0) {
-            return a;
+        if (negatedGcd == Long.MIN_VALUE) {
+            throw new NumbersArithmeticException("overflow: gcd(%d, %d) is 2^63",
+                    p, q);
         }
-
-        int zerosA = Integer.numberOfTrailingZeros(a);
-        int zerosB = Integer.numberOfTrailingZeros(b);
-        a >>= zerosA;
-        b >>= zerosB;
-
-        while (true) {
-            if (a > b) {
-                int tmp = a;
-                a = b;
-                b = tmp;
-            }
-
-            int d = b - a;
-            if (d == 0) {
-                return a << Math.min(zerosA, zerosB);
-            }
-
-            d >>= Integer.numberOfTrailingZeros(d);
-            b = d;
-        }
+        return -negatedGcd;
     }
 
     /**

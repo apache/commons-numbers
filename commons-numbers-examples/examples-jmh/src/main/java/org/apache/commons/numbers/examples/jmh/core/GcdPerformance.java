@@ -17,8 +17,8 @@ import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.Throughput)
-@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 500, timeUnit = TimeUnit.MILLISECONDS)
+@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-server", "-Xms512M", "-Xmx512M"})
 public class GcdPerformance {
@@ -135,51 +135,7 @@ public class GcdPerformance {
         return -negatedGcd;
     }
 
-    private static int oldGcdInt(int p, int q) {
-        // Perform the gcd algorithm on negative numbers, so that -2^31 does not
-        // need to be handled separately
-        int a = p > 0 ? -p : p;
-        int b = q > 0 ? -q : q;
-
-        int negatedGcd;
-        if (a == 0) {
-            negatedGcd = b;
-        } else if (b == 0) {
-            negatedGcd = a;
-        } else {
-            // Make "a" and "b" odd, keeping track of common power of 2.
-            final int aTwos = Integer.numberOfTrailingZeros(a);
-            final int bTwos = Integer.numberOfTrailingZeros(b);
-            a >>= aTwos;
-            b >>= bTwos;
-            final int shift = Math.min(aTwos, bTwos);
-
-            // "a" and "b" are negative and odd.
-            // If a < b then "gdc(a, b)" is equal to "gcd(a - b, b)".
-            // If a > b then "gcd(a, b)" is equal to "gcd(b - a, a)".
-            // Hence, in the successive iterations:
-            //  "a" becomes the negative absolute difference of the current values,
-            //  "b" becomes that value of the two that is closer to zero.
-            while (a != b) {
-                final int delta = a - b;
-                b = Math.max(a, b);
-                a = delta > 0 ? -delta : delta;
-
-                // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
-                a >>= Integer.numberOfTrailingZeros(a);
-            }
-
-            // Recover the common power of 2.
-            negatedGcd = a << shift;
-        }
-        if (negatedGcd == Integer.MIN_VALUE) {
-            throw new ArithmeticException();
-        }
-
-        return -negatedGcd;
-    }
-
-    private static long oldGcdLong(final long p, final long q) {
+    public static long oldGcdLong(final long p, final long q) {
         long u = p;
         long v = q;
         if (u == 0 || v == 0) {
@@ -233,5 +189,48 @@ public class GcdPerformance {
             // |v| larger: t negative (replace v)
         } while (t != 0);
         return -u * (1L << k); // gcd is u*2^k
+    }
+
+    public static int oldGcdInt(int p, int q) {
+        // Perform the gcd algorithm on negative numbers, so that -2^31 does not
+        // need to be handled separately
+        int a = p > 0 ? -p : p;
+        int b = q > 0 ? -q : q;
+
+        int negatedGcd;
+        if (a == 0) {
+            negatedGcd = b;
+        } else if (b == 0) {
+            negatedGcd = a;
+        } else {
+            // Make "a" and "b" odd, keeping track of common power of 2.
+            final int aTwos = Integer.numberOfTrailingZeros(a);
+            final int bTwos = Integer.numberOfTrailingZeros(b);
+            a >>= aTwos;
+            b >>= bTwos;
+            final int shift = Math.min(aTwos, bTwos);
+
+            // "a" and "b" are negative and odd.
+            // If a < b then "gdc(a, b)" is equal to "gcd(a - b, b)".
+            // If a > b then "gcd(a, b)" is equal to "gcd(b - a, a)".
+            // Hence, in the successive iterations:
+            //  "a" becomes the negative absolute difference of the current values,
+            //  "b" becomes that value of the two that is closer to zero.
+            while (a != b) {
+                final int delta = a - b;
+                b = Math.max(a, b);
+                a = delta > 0 ? -delta : delta;
+
+                // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
+                a >>= Integer.numberOfTrailingZeros(a);
+            }
+
+            // Recover the common power of 2.
+            negatedGcd = a << shift;
+        }
+        if (negatedGcd == Integer.MIN_VALUE) {
+            throw new ArithmeticException();
+        }
+        return -negatedGcd;
     }
 }
