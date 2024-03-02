@@ -33,6 +33,8 @@ import org.openjdk.jmh.infra.Blackhole;
 
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
+import java.util.function.IntBinaryOperator;
+import java.util.function.LongBinaryOperator;
 
 /**
  * A benchmark that compares the performance of different GCD implementations.
@@ -128,9 +130,7 @@ public class GcdPerformance {
      */
     @Benchmark
     public void gcdInt(Ints ints, Blackhole blackhole) {
-        for (int i = 0; i < ints.values.length; i += 2) {
-            blackhole.consume(ArithmeticUtils.gcd(ints.values[i], ints.values[i + 1]));
-        }
+        calcAndConsumeGcds(ints, blackhole, ArithmeticUtils::gcd);
     }
 
     /**
@@ -141,9 +141,7 @@ public class GcdPerformance {
      */
     @Benchmark
     public void oldGcdInt(Ints ints, Blackhole blackhole) {
-        for (int i = 0; i < ints.values.length; i += 2) {
-            blackhole.consume(oldGcdInt(ints.values[i], ints.values[i + 1]));
-        }
+        calcAndConsumeGcds(ints, blackhole, GcdPerformance::oldGcdInt);
     }
 
     /**
@@ -154,9 +152,7 @@ public class GcdPerformance {
      */
     @Benchmark
     public void gcdLong(Longs longs, Blackhole blackhole) {
-        for (int i = 0; i < longs.values.length; i += 2) {
-            blackhole.consume(ArithmeticUtils.gcd(longs.values[i], longs.values[i + 1]));
-        }
+        calcAndConsumeGcds(longs, blackhole, ArithmeticUtils::gcd);
     }
 
     /**
@@ -167,9 +163,7 @@ public class GcdPerformance {
      */
     @Benchmark
     public void oldGcdLong(Longs longs, Blackhole blackhole) {
-        for (int i = 0; i < longs.values.length; i += 2) {
-            blackhole.consume(oldGcdLong(longs.values[i], longs.values[i + 1]));
-        }
+        calcAndConsumeGcds(longs, blackhole, GcdPerformance::oldGcdLong);
     }
 
     /**
@@ -180,9 +174,7 @@ public class GcdPerformance {
      */
     @Benchmark
     public void oldGcdIntAdaptedForLong(Longs longs, Blackhole blackhole) {
-        for (int i = 0; i < longs.values.length; i += 2) {
-            blackhole.consume(oldGcdIntAdaptedForLong(longs.values[i], longs.values[i + 1]));
-        }
+        calcAndConsumeGcds(longs, blackhole, GcdPerformance::oldGcdIntAdaptedForLong);
     }
 
     /**
@@ -193,10 +185,46 @@ public class GcdPerformance {
      */
     @Benchmark
     public void gcdBigInteger(Longs longs, Blackhole blackhole) {
-        for (int i = 0; i < longs.values.length; i += 2) {
-            blackhole.consume(
-                    BigInteger.valueOf(longs.values[i]).gcd(BigInteger.valueOf(longs.values[i + 1])).longValue());
+        calcAndConsumeGcds(longs, blackhole, GcdPerformance::gcdBigInteger);
+    }
+
+    /**
+     * Calculates and consumes GCDs using the given implementation for benchmarking.
+     *
+     * @param longs the values to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     * @param gcdImpl the GCD implementation to benchmark.
+     */
+    private void calcAndConsumeGcds(Longs longs, Blackhole blackhole, LongBinaryOperator gcdImpl) {
+        long[] values = longs.values;
+        for (int i = 0; i < values.length; i += 2) {
+            blackhole.consume(gcdImpl.applyAsLong(values[i], values[i + 1]));
         }
+    }
+
+    /**
+     * Calculates and consumes GCDs using the given implementation for benchmarking.
+     *
+     * @param ints the values to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     * @param gcdImpl the GCD implementation to benchmark.
+     */
+    private void calcAndConsumeGcds(Ints ints, Blackhole blackhole, IntBinaryOperator gcdImpl) {
+        int[] values = ints.values;
+        for (int i = 0; i < values.length; i += 2) {
+            blackhole.consume(gcdImpl.applyAsInt(values[i], values[i + 1]));
+        }
+    }
+
+    /**
+     * Calculates the GCD by converting to {@link BigInteger}.
+     *
+     * @param p a long.
+     * @param q a long.
+     * @return the GCD of p and q.
+     */
+    private static long gcdBigInteger(long p, long q) {
+        return BigInteger.valueOf(p).gcd(BigInteger.valueOf(q)).longValue();
     }
 
     /**
