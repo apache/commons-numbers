@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.commons.numbers.examples.jmh.core;
 
 import org.apache.commons.numbers.core.ArithmeticUtils;
@@ -8,7 +24,9 @@ import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -16,39 +34,98 @@ import org.openjdk.jmh.infra.Blackhole;
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A benchmark that compares the performance of different GCD implementations.
+ */
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5, time = 500, timeUnit = TimeUnit.MILLISECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-server", "-Xms512M", "-Xmx512M"})
 public class GcdPerformance {
-    private static final int NUM_PAIRS = 1000;
-    private static final long SEED = 42;
-
+    /**
+     * Provides random ints for benchmarking.
+     */
     @State(Scope.Benchmark)
     public static class Ints {
-        final int[] values;
+        /**
+         * The random seed to use for number generation.
+         */
+        @Param("42")
+        private long seed;
+        /**
+         * The number of number pairs to generate.
+         */
+        @Param("1000")
+        private int numPairs;
 
+        /**
+         * Generated values to be consumed by the benchmark.
+         */
+        private int[] values;
 
-        public Ints() {
-            values = getRandomProvider().ints().filter(i -> i != Integer.MIN_VALUE).limit(NUM_PAIRS * 2).toArray();
+        /**
+         * JMH setup method to generate the data.
+         */
+        @Setup
+        public void setup() {
+            values = getRandomProvider(seed).ints()
+                    .filter(i -> i != Integer.MIN_VALUE).
+                    limit(numPairs * 2)
+                    .toArray();
         }
     }
 
+    /**
+     * Provides random longs for benchmarking.
+     */
     @State(Scope.Benchmark)
     public static class Longs {
-        final long[] values;
+        /**
+         * The random seed to use for number generation.
+         */
+        @Param("42")
+        private long seed;
 
+        /**
+         * The number of number pairs to generate.
+         */
+        @Param("1000")
+        private int numPairs;
 
-        public Longs() {
-            values = getRandomProvider().longs().filter(i -> i != Long.MIN_VALUE).limit(NUM_PAIRS * 2).toArray();
+        /**
+         * Generated values to be consumed by the benchmark.
+         */
+        private long[] values;
+
+        /**
+         * JMH setup method to generate the data.
+         */
+        @Setup
+        public void setup() {
+            values = getRandomProvider(seed).longs()
+                    .filter(i -> i != Long.MIN_VALUE)
+                    .limit(numPairs * 2)
+                    .toArray();
         }
     }
 
-    private static RestorableUniformRandomProvider getRandomProvider() {
-        return RandomSource.XO_RO_SHI_RO_128_PP.create(SEED);
+    /**
+     * Returns the random provider used to generate data for the benchmarks.
+     *
+     * @param seed the seed for the random source.
+     * @return a random provider.
+     */
+    private static RestorableUniformRandomProvider getRandomProvider(long seed) {
+        return RandomSource.XO_RO_SHI_RO_128_PP.create(seed);
     }
 
+    /**
+     * Benchmarks the current GCD implementation for ints.
+     *
+     * @param ints data to consume.
+     * @param blackhole a data sink to avoid JIT interfering with our benchmark.
+     */
     @Benchmark
     public void gcdInt(Ints ints, Blackhole blackhole) {
         for (int i = 0; i < ints.values.length; i += 2) {
@@ -56,6 +133,12 @@ public class GcdPerformance {
         }
     }
 
+    /**
+     * Benchmarks the old GCD implementation for ints that has been copied into this class.
+     *
+     * @param ints data to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     */
     @Benchmark
     public void oldGcdInt(Ints ints, Blackhole blackhole) {
         for (int i = 0; i < ints.values.length; i += 2) {
@@ -63,6 +146,12 @@ public class GcdPerformance {
         }
     }
 
+    /**
+     * Benchmarks the current GCD implementation for longs.
+     *
+     * @param longs data to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     */
     @Benchmark
     public void gcdLong(Longs longs, Blackhole blackhole) {
         for (int i = 0; i < longs.values.length; i += 2) {
@@ -70,6 +159,12 @@ public class GcdPerformance {
         }
     }
 
+    /**
+     * Benchmarks the old GCD implementation for longs that has been copied into this class.
+     *
+     * @param longs data to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     */
     @Benchmark
     public void oldGcdLong(Longs longs, Blackhole blackhole) {
         for (int i = 0; i < longs.values.length; i += 2) {
@@ -77,6 +172,12 @@ public class GcdPerformance {
         }
     }
 
+    /**
+     * Benchmarks the old GCD implementation for ints, but adapted for longs, that has been copied into this class.
+     *
+     * @param longs data to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     */
     @Benchmark
     public void oldGcdIntAdaptedForLong(Longs longs, Blackhole blackhole) {
         for (int i = 0; i < longs.values.length; i += 2) {
@@ -84,13 +185,28 @@ public class GcdPerformance {
         }
     }
 
+    /**
+     * Benchmarks the old GCD implementation of {@link BigInteger} to have a baseline.
+     *
+     * @param longs data to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     */
     @Benchmark
     public void gcdBigInteger(Longs longs, Blackhole blackhole) {
         for (int i = 0; i < longs.values.length; i += 2) {
-            blackhole.consume(BigInteger.valueOf(longs.values[i]).gcd(BigInteger.valueOf(longs.values[i + 1])).longValue());
+            blackhole.consume(
+                    BigInteger.valueOf(longs.values[i]).gcd(BigInteger.valueOf(longs.values[i + 1])).longValue());
         }
     }
 
+    /**
+     * This is a copy of the original GCD method for ints in {@code o.a.c.numbers.core.ArithmeticUtils} v1.0,
+     * but adapted for longs.
+     *
+     * @param p a long.
+     * @param q a long.
+     * @return the GCD of p and q.
+     */
     private static long oldGcdIntAdaptedForLong(long p, long q) {
         // Perform the gcd algorithm on negative numbers, so that -2^31 does not
         // need to be handled separately
@@ -135,7 +251,14 @@ public class GcdPerformance {
         return -negatedGcd;
     }
 
-    public static long oldGcdLong(final long p, final long q) {
+    /**
+     * This is a copy of the original method in {@code o.a.c.numbers.core.ArithmeticUtils} v1.0.
+     *
+     * @param p a long.
+     * @param q a long.
+     * @return the GCD of p and q.
+     */
+    private static long oldGcdLong(final long p, final long q) {
         long u = p;
         long v = q;
         if (u == 0 || v == 0) {
@@ -191,7 +314,14 @@ public class GcdPerformance {
         return -u * (1L << k); // gcd is u*2^k
     }
 
-    public static int oldGcdInt(int p, int q) {
+    /**
+     * This is a copy of the original method in {@code o.a.c.numbers.core.ArithmeticUtils} v1.0.
+     *
+     * @param p a long.
+     * @param q a long.
+     * @return the GCD of p and q.
+     */
+    private static int oldGcdInt(int p, int q) {
         // Perform the gcd algorithm on negative numbers, so that -2^31 does not
         // need to be handled separately
         int a = p > 0 ? -p : p;
