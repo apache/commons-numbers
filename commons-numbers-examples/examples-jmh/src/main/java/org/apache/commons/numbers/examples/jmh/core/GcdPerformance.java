@@ -22,6 +22,7 @@ import org.apache.commons.rng.simple.RandomSource;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Param;
@@ -58,7 +59,7 @@ public class GcdPerformance {
         /**
          * The number of number pairs to generate.
          */
-        @Param("1000")
+        @Param("100000")
         private int numPairs;
 
         /**
@@ -69,12 +70,14 @@ public class GcdPerformance {
         /**
          * JMH setup method to generate the data.
          */
-        @Setup
+        @Setup(Level.Iteration)
         public void setup() {
             values = getRandomProvider(seed).ints()
                     .filter(i -> i != Integer.MIN_VALUE).
                     limit(numPairs * 2)
                     .toArray();
+
+            seed = (((long) values[0]) << Integer.SIZE) | values[1];
         }
     }
 
@@ -92,7 +95,7 @@ public class GcdPerformance {
         /**
          * The number of number pairs to generate.
          */
-        @Param("1000")
+        @Param("100000")
         private int numPairs;
 
         /**
@@ -103,12 +106,14 @@ public class GcdPerformance {
         /**
          * JMH setup method to generate the data.
          */
-        @Setup
+        @Setup(Level.Iteration)
         public void setup() {
             values = getRandomProvider(seed).longs()
                     .filter(i -> i != Long.MIN_VALUE)
                     .limit(numPairs * 2)
                     .toArray();
+
+            seed = values[0];
         }
     }
 
