@@ -470,56 +470,70 @@ public final class ArithmeticUtils {
      * Returns the unsigned remainder from dividing the first argument
      * by the second where each argument and the result is interpreted
      * as an unsigned value.
-     * <p>This method does not use the {@code long} datatype.</p>
+     *
+     * <p>Implementation note
+     *
+     * <p>In v1.0 this method did not use the {@code long} datatype.
+     * Modern 64-bit processors make use of the {@code long} datatype
+     * faster than an algorithm using the {@code int} datatype. This method
+     * now delegates to {@link Integer#remainderUnsigned(int, int)}
+     * which uses {@code long} arithmetic; or from JDK 19 an intrinsic method.
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
      * @return the unsigned remainder of the first argument divided by
      * the second argument.
+     * @see Integer#remainderUnsigned(int, int)
      */
     public static int remainderUnsigned(int dividend, int divisor) {
-        if (divisor >= 0) {
-            if (dividend >= 0) {
-                return dividend % divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            final int q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0 || dividend >= divisor) {
-                dividend -= divisor;
-            }
-            return dividend;
-        }
-        return dividend >= 0 || dividend < divisor ? dividend : dividend - divisor;
+        return Integer.remainderUnsigned(dividend, divisor);
     }
 
     /**
      * Returns the unsigned remainder from dividing the first argument
      * by the second where each argument and the result is interpreted
      * as an unsigned value.
-     * <p>This method does not use the {@code BigInteger} datatype.</p>
+     *
+     * <p>Implementation note
+     *
+     * <p>This method does not use the {@code BigInteger} datatype.
+     * The JDK implementation of {@link Long#remainderUnsigned(long, long)}
+     * uses {@code BigInteger} prior to JDK 17 and this method is 15-25x faster.
+     * From JDK 17 onwards the JDK implementation is as fast; or from JDK 19
+     * even faster due to use of an intrinsic method.
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
      * @return the unsigned remainder of the first argument divided by
      * the second argument.
+     * @see Long#remainderUnsigned(long, long)
      */
     public static long remainderUnsigned(long dividend, long divisor) {
-        if (divisor >= 0L) {
-            if (dividend >= 0L) {
-                return dividend % divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            final long q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0L || dividend >= divisor) {
-                dividend -= divisor;
-            }
-            return dividend;
+        // Adapts the divideUnsigned method to compute the remainder.
+        if (divisor < 0) {
+            // Using unsigned compare:
+            // if dividend < divisor: return dividend
+            // else: return dividend - divisor
+
+            // Subtracting divisor using masking is more complex in this case
+            // and we use a condition
+            return dividend >= 0 || dividend < divisor ? dividend : dividend - divisor;
+
         }
-        return dividend >= 0L || dividend < divisor ? dividend : dividend - divisor;
+        // From Hacker's Delight 2.0, section 9.3
+        final long q = ((dividend >>> 1) / divisor) << 1;
+        final long r = dividend - q * divisor;
+        // unsigned r: 0 <= r < 2 * divisor
+        // if (r < divisor): r
+        // else: r - divisor
+
+        // The compare of unsigned r can be done using:
+        // return (r + Long.MIN_VALUE) < (divisor | Long.MIN_VALUE) ? r : r - divisor
+
+        // Here we subtract divisor if (r - divisor) is positive, else the result is r.
+        // This can be done by flipping the sign bit and
+        // creating a mask as -1 or 0 by signed shift.
+        return r - (divisor & (~(r - divisor) >> 63));
     }
 
     /**
@@ -531,28 +545,23 @@ public final class ArithmeticUtils {
      * bit-wise identical if the two operands are regarded as both
      * being signed or both being unsigned. Therefore separate {@code
      * addUnsigned}, etc. methods are not provided.</p>
-     * <p>This method does not use the {@code long} datatype.</p>
+     *
+     * <p>Implementation note
+     *
+     * <p>In v1.0 this method did not use the {@code long} datatype.
+     * Modern 64-bit processors make use of the {@code long} datatype
+     * faster than an algorithm using the {@code int} datatype. This method
+     * now delegates to {@link Integer#divideUnsigned(int, int)}
+     * which uses {@code long} arithmetic; or from JDK 19 an intrinsic method.
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
      * @return the unsigned quotient of the first argument divided by
      * the second argument
+     * @see Integer#divideUnsigned(int, int)
      */
     public static int divideUnsigned(int dividend, int divisor) {
-        if (divisor >= 0) {
-            if (dividend >= 0) {
-                return dividend / divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            int q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0L || dividend >= divisor) {
-                q++;
-            }
-            return q;
-        }
-        return dividend >= 0 || dividend < divisor ? 0 : 1;
+        return Integer.divideUnsigned(dividend, divisor);
     }
 
     /**
@@ -564,28 +573,36 @@ public final class ArithmeticUtils {
      * bit-wise identical if the two operands are regarded as both
      * being signed or both being unsigned. Therefore separate {@code
      * addUnsigned}, etc. methods are not provided.</p>
-     * <p>This method does not use the {@code BigInteger} datatype.</p>
+     *
+     * <p>Implementation note
+     *
+     * <p>This method does not use the {@code BigInteger} datatype.
+     * The JDK implementation of {@link Long#divideUnsigned(long, long)}
+     * uses {@code BigInteger} prior to JDK 17 and this method is 15-25x faster.
+     * From JDK 17 onwards the JDK implementation is as fast; or from JDK 19
+     * even faster due to use of an intrinsic method.
      *
      * @param dividend the value to be divided
      * @param divisor the value doing the dividing
      * @return the unsigned quotient of the first argument divided by
      * the second argument.
+     * @see Long#divideUnsigned(long, long)
      */
     public static long divideUnsigned(long dividend, long divisor) {
-        if (divisor >= 0L) {
-            if (dividend >= 0L) {
-                return dividend / divisor;
-            }
-            // The implementation is a Java port of algorithm described in the book
-            // "Hacker's Delight" (section "Unsigned short division from signed division").
-            long q = ((dividend >>> 1) / divisor) << 1;
-            dividend -= q * divisor;
-            if (dividend < 0L || dividend >= divisor) {
-                q++;
-            }
-            return q;
+        // The implementation is a Java port of algorithm described in the book
+        // "Hacker's Delight 2.0" (section 9.3 "Unsigned short division from signed division").
+        // Adapts 6-line predicate expressions program with (u >=) an unsigned compare
+        // using the provided branchless variants.
+        if (divisor < 0) {
+            // line 1 branchless:
+            // q <- (dividend (u >=) divisor)
+            return (dividend & ~(dividend - divisor)) >>> 63;
         }
-        return dividend >= 0L || dividend < divisor ? 0L : 1L;
+        final long q = ((dividend >>> 1) / divisor) << 1;
+        final long r = dividend - q * divisor;
+        // line 5 branchless:
+        // q <- q + (r (u >=) divisor)
+        return q + ((r | ~(r - divisor)) >>> 63);
     }
 
     /**

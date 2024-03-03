@@ -56,7 +56,10 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
-      <action dev="aherbert" type="add"  due-to="Harald Kirsch" issue="NUMBERS-205">
+      <action dev="aherbert" type="update" due-to="Sebb, Alex Herbert">
+        "ArithmeticUtils": Improve performance of remainderUnsigned and divideUnsigned.
+      </action>
+      <action dev="aherbert" type="add" due-to="Harald Kirsch" issue="NUMBERS-205">
         "Addition/Multiplication": Introduces isZero to Addition and isOne to Multiplication
         interfaces. Override the default implementation in implementing classes to avoid
         expensive equals(Object) operations.

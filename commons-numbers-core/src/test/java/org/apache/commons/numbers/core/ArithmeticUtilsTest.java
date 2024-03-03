@@ -19,7 +19,7 @@ package org.apache.commons.numbers.core;
 import java.util.Arrays;
 import java.math.BigInteger;
 import java.util.Collections;
-
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -492,12 +492,11 @@ class ArithmeticUtilsTest {
         for (int j = 0; j < 20; j++) {
             ints[i++] = j;
         }
-        for (int j = i - 1; j >= 0; j--) {
+        for (int j = i; --j >= 0;) {
             ints[i++] = ints[j] > 0 ? -ints[j] : Integer.MIN_VALUE;
         }
-        java.util.Random r = new java.util.Random(System.nanoTime());
         for (; i < ints.length;) {
-            ints[i++] = r.nextInt();
+            ints[i++] = ThreadLocalRandom.current().nextInt();
         }
         return ints;
     }
@@ -529,12 +528,11 @@ class ArithmeticUtilsTest {
         for (int j = 0; j < 20; j++) {
             longs[i++] = j;
         }
-        for (int j = i - 1; j >= 0; j--) {
+        for (int j = i; --j >= 0;) {
             longs[i++] = longs[j] > 0L ? -longs[j] : Long.MIN_VALUE;
         }
-        java.util.Random r = new java.util.Random(System.nanoTime());
         for (; i < longs.length;) {
-            longs[i++] = r.nextLong();
+            longs[i++] = ThreadLocalRandom.current().nextLong();
         }
         return longs;
     }
@@ -581,7 +579,8 @@ class ArithmeticUtilsTest {
                         () -> ArithmeticUtils.remainderUnsigned(dividend, divisor)
                     );
                 } else {
-                    Assertions.assertEquals(remainderUnsignedExpected(dividend, divisor), ArithmeticUtils.remainderUnsigned(dividend, divisor));
+                    Assertions.assertEquals(remainderUnsignedExpected(dividend, divisor), ArithmeticUtils.remainderUnsigned(dividend, divisor),
+                        () -> dividend + " % " + divisor);
                 }
             }
         }
@@ -605,7 +604,8 @@ class ArithmeticUtilsTest {
                         // Success.
                     }
                 } else {
-                    Assertions.assertEquals(remainderUnsignedExpected(dividend, divisor), ArithmeticUtils.remainderUnsigned(dividend, divisor));
+                    Assertions.assertEquals(remainderUnsignedExpected(dividend, divisor), ArithmeticUtils.remainderUnsigned(dividend, divisor),
+                        () -> dividend + " % " + divisor);
                 }
             }
         }
