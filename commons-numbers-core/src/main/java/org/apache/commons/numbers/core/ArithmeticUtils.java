@@ -89,13 +89,8 @@ public final class ArithmeticUtils {
             // Hence, in the successive iterations:
             //  "a" becomes the negative absolute difference of the current values,
             //  "b" becomes that value of the two that is closer to zero.
-            while (true) {
+            while (a != b) {
                 final int delta = a - b;
-
-                if (delta == 0) {
-                    break;
-                }
-
                 b = Math.max(a, b);
                 a = delta > 0 ? -delta : delta;
 
@@ -172,6 +167,10 @@ public final class ArithmeticUtils {
                 final long delta = a - b;
 
                 if (delta == 0) {
+                    // This way of terminating the loop is intentionally different from the int gcd implementation.
+                    // Benchmarking shows that testing for long inequality (a != b) is slow compared to
+                    // testing the delta against zero. The same change on the int gcd reduces performance there,
+                    // hence we have two variants of this loop.
                     break;
                 }
 

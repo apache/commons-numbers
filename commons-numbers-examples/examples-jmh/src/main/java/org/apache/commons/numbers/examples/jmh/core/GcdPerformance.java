@@ -145,8 +145,8 @@ public class GcdPerformance {
      * @param blackhole a data sink to avoid JIT interfering with the benchmark.
      */
     @Benchmark
-    public void oldGcdInt(Ints ints, Blackhole blackhole) {
-        calcAndConsumeGcds(ints, blackhole, GcdPerformance::oldGcdInt);
+    public void gcdLongAdaptedForInt(Ints ints, Blackhole blackhole) {
+        calcAndConsumeGcds(ints, blackhole, GcdPerformance::gcdLongAdaptedForInt);
     }
 
     /**
@@ -158,6 +158,17 @@ public class GcdPerformance {
     @Benchmark
     public void gcdLong(Longs longs, Blackhole blackhole) {
         calcAndConsumeGcds(longs, blackhole, ArithmeticUtils::gcd);
+    }
+
+    /**
+     * Benchmarks the current GCD implementation for longs with ints.
+     *
+     * @param ints data to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     */
+    @Benchmark
+    public void gcdLongWithInts(Ints ints, Blackhole blackhole) {
+        calcAndConsumeIntGcdsWithLongImpl(ints, blackhole, ArithmeticUtils::gcd);
     }
 
     /**
@@ -178,8 +189,8 @@ public class GcdPerformance {
      * @param blackhole a data sink to avoid JIT interfering with the benchmark.
      */
     @Benchmark
-    public void oldGcdIntAdaptedForLong(Longs longs, Blackhole blackhole) {
-        calcAndConsumeGcds(longs, blackhole, GcdPerformance::oldGcdIntAdaptedForLong);
+    public void gcdIntAdaptedForLong(Longs longs, Blackhole blackhole) {
+        calcAndConsumeGcds(longs, blackhole, GcdPerformance::gcdIntAdaptedForLong);
     }
 
     /**
@@ -202,6 +213,20 @@ public class GcdPerformance {
      */
     private void calcAndConsumeGcds(Longs longs, Blackhole blackhole, LongBinaryOperator gcdImpl) {
         long[] values = longs.values;
+        for (int i = 0; i < values.length; i += 2) {
+            blackhole.consume(gcdImpl.applyAsLong(values[i], values[i + 1]));
+        }
+    }
+
+    /**
+     * Calculates and consumes GCDs for ints, but by passing them to an implementation for longs.
+     *
+     * @param ints the values to consume.
+     * @param blackhole a data sink to avoid JIT interfering with the benchmark.
+     * @param gcdImpl the GCD implementation to benchmark.
+     */
+    private void calcAndConsumeIntGcdsWithLongImpl(Ints ints, Blackhole blackhole, LongBinaryOperator gcdImpl) {
+        int[] values = ints.values;
         for (int i = 0; i < values.length; i += 2) {
             blackhole.consume(gcdImpl.applyAsLong(values[i], values[i + 1]));
         }
@@ -233,14 +258,13 @@ public class GcdPerformance {
     }
 
     /**
-     * This is a copy of the original GCD method for ints in {@code o.a.c.numbers.core.ArithmeticUtils} v1.0,
-     * but adapted for longs.
+     * This is a copy of the GCD method for ints but adapted for longs.
      *
      * @param p a long.
      * @param q a long.
      * @return the GCD of p and q.
      */
-    private static long oldGcdIntAdaptedForLong(long p, long q) {
+    private static long gcdIntAdaptedForLong(long p, long q) {
         // Perform the gcd algorithm on negative numbers, so that -2^31 does not
         // need to be handled separately
         long a = p > 0 ? -p : p;
@@ -348,13 +372,13 @@ public class GcdPerformance {
     }
 
     /**
-     * This is a copy of the original method in {@code o.a.c.numbers.core.ArithmeticUtils} v1.0.
+     * This is a copy of the GCD method for longs, but adapted for ints.
      *
-     * @param p a long.
-     * @param q a long.
+     * @param p an int.
+     * @param q an int.
      * @return the GCD of p and q.
      */
-    private static int oldGcdInt(int p, int q) {
+    private static int gcdLongAdaptedForInt(int p, int q) {
         // Perform the gcd algorithm on negative numbers, so that -2^31 does not
         // need to be handled separately
         int a = p > 0 ? -p : p;
@@ -379,8 +403,13 @@ public class GcdPerformance {
             // Hence, in the successive iterations:
             //  "a" becomes the negative absolute difference of the current values,
             //  "b" becomes that value of the two that is closer to zero.
-            while (a != b) {
+            while (true) {
                 final int delta = a - b;
+
+                if (delta == 0) {
+                    break;
+                }
+
                 b = Math.max(a, b);
                 a = delta > 0 ? -delta : delta;
 
