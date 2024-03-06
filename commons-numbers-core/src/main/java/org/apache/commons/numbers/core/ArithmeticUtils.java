@@ -25,9 +25,6 @@ import java.math.BigInteger;
  */
 public final class ArithmeticUtils {
 
-    /** Overflow gcd exception message for 2^63. */
-    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd(%d, %d) is 2^63";
-
     /** Negative exponent exception message part 1. */
     private static final String NEGATIVE_EXPONENT_1 = "negative exponent ({";
     /** Negative exponent exception message part 2. */
@@ -141,62 +138,57 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code long} value.
      */
-    public static long gcd(final long p, final long q) {
-        long u = p;
-        long v = q;
-        if (u == 0 || v == 0) {
-            if (u == Long.MIN_VALUE || v == Long.MIN_VALUE) {
-                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
-                                                     p, q);
+    public static long gcd(long p, long q) {
+        // Perform the gcd algorithm on negative numbers, so that -2^63 does not
+        // need to be handled separately
+        long a = p > 0 ? -p : p;
+        long b = q > 0 ? -q : q;
+
+        long negatedGcd;
+        if (a == 0) {
+            negatedGcd = b;
+        } else if (b == 0) {
+            negatedGcd = a;
+        } else {
+            // Make "a" and "b" odd, keeping track of common power of 2.
+            final int aTwos = Long.numberOfTrailingZeros(a);
+            final int bTwos = Long.numberOfTrailingZeros(b);
+            a >>= aTwos;
+            b >>= bTwos;
+            final int shift = Math.min(aTwos, bTwos);
+
+            // "a" and "b" are negative and odd.
+            // If a < b then "gdc(a, b)" is equal to "gcd(a - b, b)".
+            // If a > b then "gcd(a, b)" is equal to "gcd(b - a, a)".
+            // Hence, in the successive iterations:
+            //  "a" becomes the negative absolute difference of the current values,
+            //  "b" becomes that value of the two that is closer to zero.
+            while (true) {
+                final long delta = a - b;
+
+                if (delta == 0) {
+                    // This way of terminating the loop is intentionally different from the int gcd implementation.
+                    // Benchmarking shows that testing for long inequality (a != b) is slow compared to
+                    // testing the delta against zero. The same change on the int gcd reduces performance there,
+                    // hence we have two variants of this loop.
+                    break;
+                }
+
+                b = Math.max(a, b);
+                a = delta > 0 ? -delta : delta;
+
+                // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
+                a >>= Long.numberOfTrailingZeros(a);
             }
-            return Math.abs(u) + Math.abs(v);
+
+            // Recover the common power of 2.
+            negatedGcd = a << shift;
         }
-        // keep u and v negative, as negative integers range down to
-        // -2^63, while positive numbers can only be as large as 2^63-1
-        // (i.e. we can't necessarily negate a negative number without
-        // overflow)
-        /* assert u!=0 && v!=0; */
-        if (u > 0) {
-            u = -u;
-        } // make u negative
-        if (v > 0) {
-            v = -v;
-        } // make v negative
-        // B1. [Find power of 2]
-        int k = 0;
-        while ((u & 1) == 0 && (v & 1) == 0 && k < 63) { // while u and v are
-                                                            // both even...
-            u /= 2;
-            v /= 2;
-            k++; // cast out twos.
+        if (negatedGcd == Long.MIN_VALUE) {
+            throw new NumbersArithmeticException("overflow: gcd(%d, %d) is 2^63",
+                    p, q);
         }
-        if (k == 63) {
-            throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
-                                                 p, q);
-        }
-        // B2. Initialize: u and v have been divided by 2^k and at least
-        // one is odd.
-        long t = ((u & 1) == 1) ? v : -(u / 2)/* B3 */;
-        // t negative: u was odd, v may be even (t replaces v)
-        // t positive: u was even, v is odd (t replaces u)
-        do {
-            /* assert u<0 && v<0; */
-            // B4/B3: cast out twos from t.
-            while ((t & 1) == 0) { // while t is even..
-                t /= 2; // cast out twos
-            }
-            // B5 [reset max(u,v)]
-            if (t > 0) {
-                u = -t;
-            } else {
-                v = t;
-            }
-            // B6/B3. at this point both u and v should be odd.
-            t = (v - u) / 2;
-            // |u| larger: t positive (replace u)
-            // |v| larger: t negative (replace v)
-        } while (t != 0);
-        return -u * (1L << k); // gcd is u*2^k
+        return -negatedGcd;
     }
 
     /**
