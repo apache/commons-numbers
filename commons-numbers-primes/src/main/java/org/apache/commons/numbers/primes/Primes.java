@@ -57,20 +57,35 @@ public final class Primes {
         }
         return SmallPrimes.millerRabinPrimeTest(n);
     }
-
+    /**
+     * Return the number which is not a multiple of 3.
+     *
+     * @param n Positive number.
+     * @return number which is not a multiple of 3.
+     * @throws IllegalArgumentException if n &lt; 0.
+     */
+    public static int nonMultipleOf3(int n) {
+        final int remainder = n % 3;
+        if (0 == remainder) { // if n % 3 == 0
+            n += 2; // n % 3 == 2
+        } else if (1 == remainder) { // if n % 3 == 1
+            n += 4; // n % 3 == 2
+        }
+        return n;
+    }
     /**
      * Return the smallest prime greater than or equal to n.
      *
      * @param n Positive number.
      * @return the smallest prime greater than or equal to {@code n}.
-     * @throws IllegalArgumentException if n &lt; 0.
      */
     public static int nextPrime(int n) {
         if (n < 0) {
             throw new IllegalArgumentException(String.format(NUMBER_TOO_SMALL, n, 0));
         }
         if (n <= 2) {
-            return 2;
+            int firstPrime = 2;
+            return firstPrime; // 2 is first possible smallest prime greater than or equal to n, n here can be 0, 1 or 2
         }
         n |= 1; // make sure n is odd
 
@@ -80,12 +95,7 @@ public final class Primes {
 
         // prepare entry in the +2, +4 loop:
         // n should not be a multiple of 3
-        final int rem = n % 3;
-        if (0 == rem) { // if n % 3 == 0
-            n += 2; // n % 3 == 2
-        } else if (1 == rem) { // if n % 3 == 1
-            n += 4; // n % 3 == 2
-        }
+        n = nonMultipleOf3(n);
         while (true) { // this loop skips all multiple of 3
             if (isPrime(n)) {
                 return n;

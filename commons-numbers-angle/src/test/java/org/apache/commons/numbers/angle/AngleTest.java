@@ -32,7 +32,7 @@ class AngleTest {
         Assertions.assertEquals(0d, Angle.Deg.ZERO.getAsDouble());
         Assertions.assertEquals(Math.PI, Angle.Rad.PI.getAsDouble());
         Assertions.assertEquals(2 * Math.PI, Angle.Rad.TWO_PI.getAsDouble());
-        Assertions.assertEquals(2 * Math.PI, Angle.TWO_PI);
+        Assertions.assertEquals(2 * Math.PI, Angle.Turn.TWO_PI);
         Assertions.assertEquals(Math.PI / 2, Angle.PI_OVER_TWO);
     }
 
@@ -133,11 +133,11 @@ class AngleTest {
 
         // arrange
         final double pi = Math.PI;
-        double small = Math.ulp(Angle.TWO_PI);
+        double small = Math.ulp(Angle.Turn.TWO_PI);
         double tiny = 5e-17; // pi + tiny = pi (the value is too small to add to pi)
 
         // act/assert
-        Assertions.assertEquals(Angle.TWO_PI - small, nPi.applyAsDouble(-small));
+        Assertions.assertEquals(Angle.Turn.TWO_PI - small, nPi.applyAsDouble(-small));
         Assertions.assertEquals(small, nPi.applyAsDouble(small));
 
         Assertions.assertEquals(pi - small, nZero.applyAsDouble(-pi - small));
