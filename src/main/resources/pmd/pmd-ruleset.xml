@@ -120,14 +120,27 @@
       <property name="violationSuppressXPath"
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
-               or @SimpleName='DD']"/>
+               or @SimpleName='DD'
+               or @SimpleName='QuickSelect']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/design.xml/CognitiveComplexity">
+    <properties>
+      <!-- Increase from default of 15 -->
+      <property name="reportLevel" value="20"/>
+      <property name="violationSuppressXPath"
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='QuickSelect'
+               or @SimpleName='Selection']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/NPathComplexity">
     <properties>
       <property name="violationSuppressXPath"
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
-               or @SimpleName='BoostBeta']"/>
+               or @SimpleName='BoostBeta'
+               or @SimpleName='Sorting'
+               or @SimpleName='Selection'
+               or @SimpleName='QuickSelect']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/ExcessivePublicCount">
@@ -146,6 +159,37 @@
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
                or @SimpleName='DD']"/>
+    </properties>
+  </rule>
+
+  <!-- Long methods are based on reference implementations. -->
+  <rule ref="category/java/design.xml/NcssCount">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
+               or @SimpleName='Fraction'
+               or @SimpleName='BoostErf'
+               or @SimpleName='BoostGamma'
+               or @SimpleName='BoostBeta'
+               or @SimpleName='InvGamma1pm1'
+               or @SimpleName='BrentSolver'
+               or @SimpleName='DDMath'
+               or @SimpleName='QuickSelect']"/>
+    </properties>
+  </rule>
+
+  <!-- Complex parse deliberately catches and re-throws a new NumberFormatException
+       to include the full input string in the exception message. -->
+  <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/bestpractices.xml/PreserveStackTrace">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
     </properties>
   </rule>
 
@@ -172,7 +216,10 @@
         value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BigFraction'
-               or @SimpleName='DD']"/>
+               or @SimpleName='DD'
+               or @SimpleName='BitIndexUpdatingInterval'
+               or @SimpleName='HashIndexSet'
+               or @SimpleName='PairDoubleInteger']"/>
     </properties>
   </rule>
 
@@ -183,33 +230,22 @@
     </properties>
   </rule>
 
-  <!-- Long methods are based on reference implementations. -->
-  <rule ref="category/java/design.xml/NcssCount">
+  <rule ref="category/java/errorprone.xml/AssignmentInOperand">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
-               or @SimpleName='Fraction'
-               or @SimpleName='BoostErf'
-               or @SimpleName='BoostGamma'
-               or @SimpleName='BoostBeta'
-               or @SimpleName='InvGamma1pm1'
-               or @SimpleName='BrentSolver'
-               or @SimpleName='DDMath']"/>
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Sorting'
+               or @SimpleName='HashIndexSet'
+               or @SimpleName='Selection'
+               or @SimpleName='IndexSupport'
+               or @SimpleName='QuickSelect']"/>
     </properties>
   </rule>
 
-  <!-- Complex parse deliberately catches and re-throws a new NumberFormatException
-       to include the full input string in the exception message. -->
-  <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException">
+  <rule ref="category/java/performance.xml/AvoidArrayLoops">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
-    </properties>
-  </rule>
-  <rule ref="category/java/bestpractices.xml/PreserveStackTrace">
-    <properties>
-      <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
+        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Sorting'
+               or @SimpleName='QuickSelect']"/>
     </properties>
   </rule>
 

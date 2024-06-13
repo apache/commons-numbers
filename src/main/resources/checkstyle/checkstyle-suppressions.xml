@@ -43,6 +43,21 @@
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostBeta.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGamma.java" />
 
+  <!-- Selection -->
+  <suppress checks="ParameterNumber" files=".*[/\\]arrays[/\\]QuickSelect.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]jmh[/\\]arrays[/\\]Partition.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]jmh[/\\]arrays[/\\]Sorting.java" />
+  <suppress checks="FileLength" files=".*[/\\]arrays[/\\]QuickSelect.java" />
+  <suppress checks="FileLength" files=".*[/\\]jmh[/\\]arrays[/\\]KthSelector.java" />
+  <suppress checks="FileLength" files=".*[/\\]jmh[/\\]arrays[/\\]Partition.java" />
+  <suppress checks="FileLength" files=".*[/\\]jmh[/\\]arrays[/\\]SelectionPerformance.java" />
+  <suppress checks="FileLength" files=".*[/\\]jmh[/\\]arrays[/\\]Sorting.java" />
+  <suppress checks="MethodLength" files=".*[/\\]arrays[/\\]QuickSelect.java" />
+  <suppress checks="MethodLength" files=".*[/\\]jmh[/\\]arrays[/\\]KthSelector.java" />
+  <suppress checks="MethodLength" files=".*[/\\]jmh[/\\]arrays[/\\]Partition.java" />
+  <suppress checks="MethodLength" files=".*[/\\]jmh[/\\]arrays[/\\]SelectionPerformance.java" />
+  <suppress checks="MethodLength" files=".*[/\\]jmh[/\\]arrays[/\\]Sorting.java" />
+
   <!-- Be more lenient on tests. -->
   <suppress checks="Javadoc" files=".*[/\\]test[/\\].*" />
   <suppress checks="MultipleStringLiterals" files=".*[/\\]test[/\\].*" />
@@ -56,4 +71,8 @@
   <suppress checks="MethodLength" files=".*[/\\]BoostBetaTest.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
   <suppress checks="ParameterNumber" files=".*[/\\]DDTest\.java" />
+  <suppress checks="UnnecessaryParentheses" files=".*[/\\]arrays[/\\]SelectionTest.java" />
+  <suppress checks="FileLength" files=".*[/\\]jmh[/\\]arrays[/\\]PartitionTest.java" />
+  <suppress checks="UnnecessaryParentheses" files=".*[/\\]jmh[/\\]arrays[/\\]PartitionTest.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]jmh[/\\]arrays[/\\]PartitionTest.java" />
 </suppressions>
