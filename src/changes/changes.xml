@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.2" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="add" issue="NUMBERS-206">
+        "Selection": Add selection of the k-th ordered element from an array.
+      </action>
       <action dev="aherbert" type="update" due-to="Matthias Langer">
         "ArithmeticUtils": Improve performance of GCD for longs.
       </action>
