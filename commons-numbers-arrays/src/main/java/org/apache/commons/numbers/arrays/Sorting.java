@@ -265,6 +265,234 @@ final class Sorting {
     }
 
     /**
+     * Sorts an array using an insertion sort.
+     *
+     * @param x Data array.
+     * @param left Lower bound (inclusive).
+     * @param right Upper bound (inclusive).
+     */
+    static void sort(int[] x, int left, int right) {
+        for (int i = left; ++i <= right;) {
+            final int v = x[i];
+            // Move preceding higher elements above (if required)
+            if (v < x[i - 1]) {
+                int j = i;
+                while (--j >= left && v < x[j]) {
+                    x[j + 1] = x[j];
+                }
+                x[j + 1] = v;
+            }
+        }
+    }
+
+    /**
+     * Sorts the elements at the given distinct indices in an array.
+     *
+     * @param x Data array.
+     * @param a Index.
+     * @param b Index.
+     * @param c Index.
+     */
+    static void sort3(int[] x, int a, int b, int c) {
+        // Decision tree avoiding swaps:
+        // Order [(0,2)]
+        // Move point 1 above point 2 or below point 0
+        final int u = x[a];
+        final int v = x[b];
+        final int w = x[c];
+        if (w < u) {
+            if (v < w) {
+                x[a] = v;
+                x[b] = w;
+                x[c] = u;
+                return;
+            }
+            if (u < v) {
+                x[a] = w;
+                x[b] = u;
+                x[c] = v;
+                return;
+            }
+            // w < v < u
+            x[a] = w;
+            x[c] = u;
+            return;
+        }
+        if (v < u) {
+            // v < u < w
+            x[a] = v;
+            x[b] = u;
+            return;
+        }
+        if (w < v) {
+            // u < w < v
+            x[b] = w;
+            x[c] = v;
+        }
+        // u < v < w
+    }
+
+    /**
+     * Sorts the elements at the given distinct indices in an array.
+     *
+     * @param x Data array.
+     * @param a Index.
+     * @param b Index.
+     * @param c Index.
+     * @param d Index.
+     * @param e Index.
+     */
+    static void sort5(int[] x, int a, int b, int c, int d, int e) {
+        // Uses an optimal sorting network from Knuth's Art of Computer Programming.
+        // 9 comparisons.
+        // Order pairs:
+        // [(0,3),(1,4)]
+        // [(0,2),(1,3)]
+        // [(0,1),(2,4)]
+        // [(1,2),(3,4)]
+        // [(2,3)]
+        if (x[e] < x[b]) {
+            final int u = x[e];
+            x[e] = x[b];
+            x[b] = u;
+        }
+        if (x[d] < x[a]) {
+            final int v = x[d];
+            x[d] = x[a];
+            x[a] = v;
+        }
+
+        if (x[d] < x[b]) {
+            final int u = x[d];
+            x[d] = x[b];
+            x[b] = u;
+        }
+        if (x[c] < x[a]) {
+            final int v = x[c];
+            x[c] = x[a];
+            x[a] = v;
+        }
+
+        if (x[e] < x[c]) {
+            final int u = x[e];
+            x[e] = x[c];
+            x[c] = u;
+        }
+        if (x[b] < x[a]) {
+            final int v = x[b];
+            x[b] = x[a];
+            x[a] = v;
+        }
+
+        if (x[e] < x[d]) {
+            final int u = x[e];
+            x[e] = x[d];
+            x[d] = u;
+        }
+        if (x[c] < x[b]) {
+            final int v = x[c];
+            x[c] = x[b];
+            x[b] = v;
+        }
+
+        if (x[d] < x[c]) {
+            final int u = x[d];
+            x[d] = x[c];
+            x[c] = u;
+        }
+    }
+
+    /**
+     * Place the lower median of 4 elements in {@code b}; the smaller element in
+     * {@code a}; and the larger two elements in {@code c, d}.
+     *
+     * @param x Values
+     * @param a Index.
+     * @param b Index.
+     * @param c Index.
+     * @param d Index.
+     */
+    static void lowerMedian4(int[] x, int a, int b, int c, int d) {
+        // 3 to 5 comparisons
+        if (x[d] < x[b]) {
+            final int u = x[d];
+            x[d] = x[b];
+            x[b] = u;
+        }
+        if (x[c] < x[a]) {
+            final int v = x[c];
+            x[c] = x[a];
+            x[a] = v;
+        }
+        // a--c
+        // b--d
+        if (x[c] < x[b]) {
+            final int u = x[c];
+            x[c] = x[b];
+            x[b] = u;
+        } else if (x[b] < x[a]) {
+            //    a--c
+            // b--d
+            final int xb = x[a];
+            x[a] = x[b];
+            x[b] = xb;
+            //    b--c
+            // a--d
+            if (x[d] < xb) {
+                x[b] = x[d];
+                // Move a pair to maintain the sorted order
+                x[d] = x[c];
+                x[c] = xb;
+            }
+        }
+    }
+
+    /**
+     * Place the upper median of 4 elements in {@code c}; the smaller two elements in
+     * {@code a,b}; and the larger element in {@code d}.
+     *
+     * @param x Values
+     * @param a Index.
+     * @param b Index.
+     * @param c Index.
+     * @param d Index.
+     */
+    static void upperMedian4(int[] x, int a, int b, int c, int d) {
+        // 3 to 5 comparisons
+        if (x[d] < x[b]) {
+            final int u = x[d];
+            x[d] = x[b];
+            x[b] = u;
+        }
+        if (x[c] < x[a]) {
+            final int v = x[c];
+            x[c] = x[a];
+            x[a] = v;
+        }
+        // a--c
+        // b--d
+        if (x[b] > x[c]) {
+            final int u = x[c];
+            x[c] = x[b];
+            x[b] = u;
+        } else if (x[c] > x[d]) {
+            //    a--c
+            // b--d
+            final int xc = x[d];
+            x[d] = x[c];
+            x[c] = xc;
+            //    a--d
+            // b--c
+            if (x[a] > xc) {
+                x[c] = x[a];
+                // Move a pair to maintain the sorted order
+                x[a] = x[b];
+                x[b] = xc;
+            }
+        }
+    }
+
+    /**
      * Sort the unique indices in-place to the start of the array. The number of
      * unique indices is returned.
      *

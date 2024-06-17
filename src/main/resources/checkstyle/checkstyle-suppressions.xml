@@ -71,6 +71,7 @@
   <suppress checks="MethodLength" files=".*[/\\]BoostBetaTest.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGammaTest.java" />
   <suppress checks="ParameterNumber" files=".*[/\\]DDTest\.java" />
+  <suppress checks="FileLength" files=".*[/\\]arrays[/\\]SelectionTest.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]arrays[/\\]SelectionTest.java" />
   <suppress checks="FileLength" files=".*[/\\]jmh[/\\]arrays[/\\]PartitionTest.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]jmh[/\\]arrays[/\\]PartitionTest.java" />

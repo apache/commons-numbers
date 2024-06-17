@@ -331,4 +331,80 @@ public final class Selection {
             }
         }
     }
+
+    /**
+     * Partition the array such that index {@code k} corresponds to its correctly
+     * sorted value in the equivalent fully sorted array.
+     *
+     * @param a Values.
+     * @param k Index.
+     * @throws IndexOutOfBoundsException if index {@code k} is not within the
+     * sub-range {@code [0, a.length)}
+     */
+    public static void select(int[] a, int k) {
+        IndexSupport.checkIndex(0, a.length, k);
+        if (a.length <= 1) {
+            return;
+        }
+        QuickSelect.select(a, 0, a.length - 1, k);
+    }
+
+    /**
+     * Partition the array such that indices {@code k} correspond to their correctly
+     * sorted value in the equivalent fully sorted array.
+     *
+     * @param a Values.
+     * @param k Indices (may be destructively modified).
+     * @throws IndexOutOfBoundsException if any index {@code k} is not within the
+     * sub-range {@code [0, a.length)}
+     */
+    public static void select(int[] a, int[] k) {
+        IndexSupport.checkIndices(0, a.length, k);
+        if (k.length == 0 || a.length <= 1) {
+            return;
+        }
+        QuickSelect.select(a, 0, a.length - 1, k, k.length);
+    }
+
+    /**
+     * Partition the array such that index {@code k} corresponds to its correctly
+     * sorted value in the equivalent fully sorted array.
+     *
+     * @param a Values.
+     * @param fromIndex Index of the first element (inclusive).
+     * @param toIndex Index of the last element (exclusive).
+     * @param k Index.
+     * @throws IndexOutOfBoundsException if the sub-range {@code [fromIndex, toIndex)} is out of
+     * bounds of range {@code [0, a.length)}; or if index {@code k} is not within the
+     * sub-range {@code [fromIndex, toIndex)}
+     */
+    public static void select(int[] a, int fromIndex, int toIndex, int k) {
+        IndexSupport.checkFromToIndex(fromIndex, toIndex, a.length);
+        IndexSupport.checkIndex(fromIndex, toIndex, k);
+        if (toIndex - fromIndex <= 1) {
+            return;
+        }
+        QuickSelect.select(a, fromIndex, toIndex - 1, k);
+    }
+
+    /**
+     * Partition the array such that indices {@code k} correspond to their correctly
+     * sorted value in the equivalent fully sorted array.
+     *
+     * @param a Values.
+     * @param fromIndex Index of the first element (inclusive).
+     * @param toIndex Index of the last element (exclusive).
+     * @param k Indices (may be destructively modified).
+     * @throws IndexOutOfBoundsException if the sub-range {@code [fromIndex, toIndex)} is out of
+     * bounds of range {@code [0, a.length)}; or if any index {@code k} is not within the
+     * sub-range {@code [fromIndex, toIndex)}
+     */
+    public static void select(int[] a, int fromIndex, int toIndex, int[] k) {
+        IndexSupport.checkFromToIndex(fromIndex, toIndex, a.length);
+        IndexSupport.checkIndices(fromIndex, toIndex, k);
+        if (k.length == 0 || toIndex - fromIndex <= 1) {
+            return;
+        }
+        QuickSelect.select(a, fromIndex, toIndex - 1, k, k.length);
+    }
 }

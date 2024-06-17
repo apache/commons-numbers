@@ -52,7 +52,7 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 
 /**
- * Executes a benchmark of the selection of indices from {@code double} array data.
+ * Executes a benchmark of the selection of indices from array data.
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -459,12 +459,40 @@ public class SelectionPerformance {
         /**
          * Gets the sample for the given {@code index}.
          *
+         * <p>This is returned in a randomized order per iteration.
+         *
+         * @param index Index.
+         * @return the data sample
+         */
+        public int[] getIntData(int index) {
+            return getIntDataSample(order[index]);
+        }
+
+        /**
+         * Gets the sample for the given {@code index}.
+         *
          * @param index Index.
          * @return the data sample
          */
         protected double[] getDataSample(int index) {
             final int[] a = data[index];
             final double[] x = new double[a.length];
+            for (int i = -1; ++i < a.length;) {
+                x[i] = a[i];
+            }
+            return x;
+        }
+
+        /**
+         * Gets the sample for the given {@code index}.
+         *
+         * @param index Index.
+         * @return the data sample
+         */
+        protected int[] getIntDataSample(int index) {
+            // For parity with other methods do not use data.clone()
+            final int[] a = data[index];
+            final int[] x = new int[a.length];
             for (int i = -1; ++i < a.length;) {
                 x[i] = a[i];
             }
@@ -1245,6 +1273,12 @@ public class SelectionPerformance {
             // order = (data index) * repeats + repeat
             // data index = order / repeats
             return super.getDataSample(order[index] / repeats);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public int[] getIntData(int index) {
+            return super.getIntDataSample(order[index] / repeats);
         }
 
         /**
@@ -2251,10 +2285,10 @@ public class SelectionPerformance {
     }
 
     /**
-     * Source of a k-th selector function.
+     * Source of a k-th selector function for {@code double} data.
      */
     @State(Scope.Benchmark)
-    public static class KFunctionSource {
+    public static class DoubleKFunctionSource {
         /** Name of the source. */
         @Param({SORT + JDK, SPH,
             SP, BM, SBM,
@@ -2462,6 +2496,66 @@ public class SelectionPerformance {
          */
         private static double[] extractIndices(double[] data, int[] indices) {
             final double[] x = new double[indices.length];
+            for (int i = 0; i < indices.length; i++) {
+                x[i] = data[indices[i]];
+            }
+            return x;
+        }
+    }
+
+    /**
+     * Source of a k-th selector function for {@code int} data.
+     */
+    @State(Scope.Benchmark)
+    public static class IntKFunctionSource {
+        /** Name of the source. */
+        @Param({SORT + JDK, SELECT})
+        private String name;
+
+        /** The action. */
+        private BiFunction<int[], int[], int[]> function;
+
+        /**
+         * @return the function
+         */
+        public BiFunction<int[], int[], int[]> getFunction() {
+            return function;
+        }
+
+        /**
+         * Create the function.
+         */
+        @Setup
+        public void setup() {
+            Objects.requireNonNull(name);
+            // Note: Always clone the indices
+            if (name.equals(BASELINE)) {
+                function = (data, indices) -> extractIndices(data, indices.clone());
+            } else  if (name.startsWith(SORT)) {
+                function = (data, indices) -> {
+                    Arrays.sort(data);
+                    return extractIndices(data, indices.clone());
+                };
+            } else if (name.startsWith(SELECT)) {
+                function = (data, indices) -> {
+                    Selection.select(data, indices.clone());
+                    return extractIndices(data, indices);
+                };
+            }
+            if (function == null) {
+                throw new IllegalStateException("Unknown int selector function: " + name);
+            }
+        }
+
+        /**
+         * Extract the data at the specified indices.
+         *
+         * @param data Data.
+         * @param indices Indices.
+         * @return the data
+         */
+        private static int[] extractIndices(int[] data, int[] indices) {
+            final int[] x = new int[indices.length];
             for (int i = 0; i < indices.length; i++) {
                 x[i] = data[indices[i]];
             }
@@ -2978,13 +3072,31 @@ public class SelectionPerformance {
      * @param bh Data sink.
      */
     @Benchmark
-    public void partition(KFunctionSource function, KSource source, Blackhole bh) {
+    public void doublePartition(DoubleKFunctionSource function, KSource source, Blackhole bh) {
         final int size = source.size();
         final BiFunction<double[], int[], double[]> fun = function.getFunction();
         for (int j = -1; ++j < size;) {
             // Note: This uses the indices without cloning. This is because some
             // functions do not destructively modify the data.
             bh.consume(fun.apply(source.getData(j), source.getIndices(j)));
+        }
+    }
+
+    /**
+     * Benchmark partitioning using k partition indices on {@code int} data.
+     *
+     * @param function Source of the function.
+     * @param source Source of the data.
+     * @param bh Data sink.
+     */
+    @Benchmark
+    public void intPartition(IntKFunctionSource function, KSource source, Blackhole bh) {
+        final int size = source.size();
+        final BiFunction<int[], int[], int[]> fun = function.getFunction();
+        for (int j = -1; ++j < size;) {
+            // Note: This uses the indices without cloning. This is because some
+            // functions do not destructively modify the data.
+            bh.consume(fun.apply(source.getIntData(j), source.getIndices(j)));
         }
     }
 

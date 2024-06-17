@@ -155,7 +155,7 @@ class SortingTest {
             }
             builder.add(a);
             for (int i = 0; i < 5; i++) {
-                builder.add(rng.doubles(size).toArray().clone());
+                builder.add(rng.doubles(size).toArray());
             }
         }
         return builder.build();
@@ -365,6 +365,334 @@ class SortingTest {
         return builder.build();
     }
 
+    private static double[] extractIndices(double[] values, int[] indices) {
+        final double[] data = new double[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            data[i] = values[indices[i]];
+        }
+        return data;
+    }
+
+    // int[]
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort"})
+    void testIntInsertionSort(int[] values) {
+        assertSort(values, x -> Sorting.sort(x, 0, x.length - 1));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort", "testIntSort3"})
+    void testIntSort3(int[] values) {
+        final int[] data = Arrays.copyOf(values, 3);
+        assertSort(data, x -> Sorting.sort3(x, 0, 1, 2));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort", "testIntSort5"})
+    void testIntSort5(int[] values) {
+        final int[] data = Arrays.copyOf(values, 5);
+        assertSort(data, x -> Sorting.sort5(x, 0, 1, 2, 3, 4));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort3Internal"})
+    void testIntSort3Internal(int[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        assertSortInternal(values, x -> Sorting.sort3(x, a, b, c), indices);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort5Internal"})
+    void testIntSort5Internal(int[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        final int d = indices[3];
+        final int e = indices[4];
+        assertSortInternal(values, x -> Sorting.sort5(x, a, b, c, d, e), indices);
+    }
+
+    /**
+     * Assert that the sort {@code function} computes the same result as
+     * {@link Arrays#sort(int[])}.
+     *
+     * @param values Data.
+     * @param function Sort function.
+     */
+    private static void assertSort(int[] values, Consumer<int[]> function) {
+        final int[] expected = values.clone();
+        Arrays.sort(expected);
+        final int[] actual = values.clone();
+        function.accept(actual);
+        Assertions.assertArrayEquals(expected, actual, "Invalid sort");
+    }
+
+    /**
+     * Assert that the sort {@code function} computes the same result as
+     * {@link Arrays#sort(int[])} run on the provided {@code indices}.
+     *
+     * @param values Data.
+     * @param function Sort function.
+     * @param indices Indices.
+     */
+    private static void assertSortInternal(int[] values, Consumer<int[]> function, int... indices) {
+        Assertions.assertFalse(containsDuplicates(indices), () -> "Duplicate indices: " + Arrays.toString(indices));
+        // Pick out the data to sort
+        final int[] expected = extractIndices(values, indices);
+        Arrays.sort(expected);
+        final int[] data = values.clone();
+        function.accept(data);
+        // Pick out the data that was sorted
+        final int[] actual = extractIndices(data, indices);
+        Assertions.assertArrayEquals(expected, actual, "Invalid sort");
+        // Check outside the sorted indices
+        OUTSIDE: for (int i = 0; i < values.length; i++) {
+            for (final int ignore : indices) {
+                if (i == ignore) {
+                    continue OUTSIDE;
+                }
+            }
+            Assertions.assertEquals(values[i], data[i]);
+        }
+    }
+
+    static Stream<int[]> testIntSort() {
+        final Stream.Builder<int[]> builder = Stream.builder();
+        final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
+        for (final int size : new int[] {10, 15}) {
+            int[] a = new int[size];
+            Arrays.fill(a, 123);
+            builder.add(a.clone());
+            for (int ii = 0; ii < size; ii++) {
+                a[ii] = ii;
+            }
+            builder.add(a.clone());
+            for (int ii = 0; ii < size; ii++) {
+                a[ii] = size - ii;
+            }
+            builder.add(a);
+            for (int i = 0; i < 5; i++) {
+                builder.add(rng.ints(size).toArray());
+            }
+        }
+        return builder.build();
+    }
+
+    static Stream<int[]> testIntSort3() {
+        // Permutations is 3! = 6
+        final int x = 335;
+        final int y = 123;
+        final int z = -999;
+        final int[][] a = {
+            {x, y, z},
+            {x, z, y},
+            {z, x, y},
+            {y, x, z},
+            {y, z, x},
+            {z, y, x},
+        };
+        return Arrays.stream(a);
+    }
+
+    static Stream<int[]> testIntSort5() {
+        final Stream.Builder<int[]> builder = Stream.builder();
+        final int[] a = new int[5];
+        // Permutations is 5! = 120
+        final int shift = 42;
+        for (int i = 0; i < 5; i++) {
+            a[0] = i + shift;
+            for (int j = 0; j < 5; j++) {
+                if (j == i) {
+                    continue;
+                }
+                a[1] = j + shift;
+                for (int k = 0; k < 5; k++) {
+                    if (k == j || k == i) {
+                        continue;
+                    }
+                    a[2] = k + shift;
+                    for (int l = 0; l < 5; l++) {
+                        if (l == k || l == j || l == i) {
+                            continue;
+                        }
+                        a[3] = l + shift;
+                        for (int m = 0; m < 5; m++) {
+                            if (m == l || m == k || m == j || m == i) {
+                                continue;
+                            }
+                            a[3] = m + shift;
+                            builder.add(a.clone());
+                        }
+                    }
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    static Stream<Arguments> testIntSort3Internal() {
+        return testIntSortInternal(3);
+    }
+
+    static Stream<Arguments> testIntSort5Internal() {
+        return testIntSortInternal(5);
+    }
+
+    static Stream<Arguments> testIntSortInternal(int k) {
+        final Stream.Builder<Arguments> builder = Stream.builder();
+        final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
+        for (final int size : new int[] {k, 2 * k, 4 * k}) {
+            final PermutationSampler s = new PermutationSampler(rng, size, k);
+            for (int i = k * k; i-- >= 0;) {
+                final int[] a = rng.ints(size).toArray();
+                final int[] indices = s.sample();
+                builder.add(Arguments.of(a, indices));
+            }
+        }
+        return builder.build();
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort4Internal"})
+    void testIntLowerMedian4Internal(int[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        final int d = indices[3];
+        assertMedian(values, x -> {
+            Sorting.lowerMedian4(x, a, b, c, d);
+            return b;
+        }, true, false, indices);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort4Internal"})
+    void testIntUpperMedian4Internal(int[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        final int d = indices[3];
+        assertMedian(values, x -> {
+            Sorting.upperMedian4(x, a, b, c, d);
+            return c;
+        }, false, false, indices);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort4"})
+    void testIntLowerMedian4(int[] a) {
+        // This method computes in place
+        assertMedian(a, x -> {
+            Sorting.lowerMedian4(x, 0, 1, 2, 3);
+            return 1;
+        }, true, true, 0, 1, 2, 3);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testIntSort4"})
+    void testIntUpperMedian4(int[] a) {
+        // This method computes in place
+        assertMedian(a, x -> {
+            Sorting.upperMedian4(x, 0, 1, 2, 3);
+            return 2;
+        }, false, true, 0, 1, 2, 3);
+    }
+
+    /**
+     * Assert that the median {@code function} computes the same result as
+     * {@link Arrays#sort(int[])} run on the provided {@code indices}.
+     *
+     * @param values Data.
+     * @param function Sort function.
+     * @param lower For even lengths use the lower median; else the upper median.
+     * @param stable If true then no swaps should be made on the second pass.
+     * @param indices Indices.
+     */
+    private static void assertMedian(int[] values, ToIntFunction<int[]> function,
+        boolean lower, boolean stable, int... indices) {
+        Assertions.assertFalse(containsDuplicates(indices), () -> "Duplicate indices: " + Arrays.toString(indices));
+        // Pick out the data to sort
+        final int[] expected = extractIndices(values, indices);
+        Arrays.sort(expected);
+        final int[] data = values.clone();
+        final int m = function.applyAsInt(data);
+        Assertions.assertEquals(expected[(lower ? -1 : 0) + (expected.length >>> 1)], data[m]);
+        // Check outside the sorted indices
+        OUTSIDE: for (int i = 0; i < values.length; i++) {
+            for (final int ignore : indices) {
+                if (i == ignore) {
+                    continue OUTSIDE;
+                }
+            }
+            Assertions.assertEquals(values[i], data[i]);
+        }
+        // This is not a strict requirement but check that no swaps occur on a second pass
+        if (stable) {
+            final int[] x = data.clone();
+            final int m2 = function.applyAsInt(data);
+            Assertions.assertEquals(m, m2);
+            Assertions.assertArrayEquals(x, data);
+        }
+    }
+
+
+    static Stream<int[]> testIntSort4() {
+        final Stream.Builder<int[]> builder = Stream.builder();
+        final int[] a = new int[4];
+        // Permutations is 4! = 24
+        final int shift = 42;
+        for (int i = 0; i < 4; i++) {
+            a[0] = i + shift;
+            for (int j = 0; j < 4; j++) {
+                if (j == i) {
+                    continue;
+                }
+                a[1] = j + shift;
+                for (int k = 0; k < 4; k++) {
+                    if (k == j || k == i) {
+                        continue;
+                    }
+                    a[2] = k + shift;
+                    for (int l = 0; l < 4; l++) {
+                        if (l == k || l == j || l == i) {
+                            continue;
+                        }
+                        a[3] = l + shift;
+                        builder.add(a.clone());
+                    }
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    static Stream<Arguments> testIntSort4Internal() {
+        final int k = 4;
+        final Stream.Builder<Arguments> builder = Stream.builder();
+        final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
+        for (final int size : new int[] {k, 2 * k, 4 * k}) {
+            int[] a = rng.ints(size).toArray();
+            final PermutationSampler s = new PermutationSampler(rng, size, k);
+            for (int i = k * k; i-- >= 0;) {
+                a = rng.ints(size).toArray();
+                final int[] indices = s.sample();
+                builder.add(Arguments.of(a, indices));
+            }
+        }
+        return builder.build();
+    }
+
+    private static int[] extractIndices(int[] values, int[] indices) {
+        final int[] data = new int[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            data[i] = values[indices[i]];
+        }
+        return data;
+    }
+
     // Sorting unique indices
 
     @ParameterizedTest
@@ -449,16 +777,6 @@ class SortingTest {
         builder.add(Arguments.of(IntStream.range(99, 134).map(x -> x * 2).toArray(), -1));
         builder.add(Arguments.of(IntStream.range(99, 134).map(x -> x * 3).toArray(), -1));
         return builder.build();
-    }
-
-    // Helper methods
-
-    private static double[] extractIndices(double[] values, int[] indices) {
-        final double[] data = new double[indices.length];
-        for (int i = 0; i < indices.length; i++) {
-            data[i] = values[indices[i]];
-        }
-        return data;
     }
 
     private static boolean containsDuplicates(int[] indices) {
