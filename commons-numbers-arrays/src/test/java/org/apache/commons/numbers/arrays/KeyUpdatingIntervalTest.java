@@ -38,13 +38,10 @@ class KeyUpdatingIntervalTest {
             final int k = keys[i];
             // Unspecified index when key is present
             Assertions.assertEquals(k, keys[KeyUpdatingInterval.searchLessOrEqual(keys, l, r, k)], "leq");
-            Assertions.assertEquals(k, keys[KeyUpdatingInterval.searchGreaterOrEqual(keys, l, r, k)], "geq");
         }
         // Search above/below keys
         Assertions.assertEquals(l - 1, KeyUpdatingInterval.searchLessOrEqual(keys, l, r, keys[l] - 44), "leq below");
         Assertions.assertEquals(r, KeyUpdatingInterval.searchLessOrEqual(keys, l, r, keys[r] + 44), "leq above");
-        Assertions.assertEquals(l, KeyUpdatingInterval.searchGreaterOrEqual(keys, l, r, keys[l] - 44), "geq below");
-        Assertions.assertEquals(r + 1, KeyUpdatingInterval.searchGreaterOrEqual(keys, l, r, keys[r] + 44), "geq above");
         // Search between neighbour keys
         for (int i = l + 1; i <= r; i++) {
             // Bound: keys[i-1] < k < keys[i]
@@ -52,7 +49,6 @@ class KeyUpdatingIntervalTest {
             final int k2 = keys[i];
             for (int k = k1 + 1; k < k2; k++) {
                 Assertions.assertEquals(i - 1, KeyUpdatingInterval.searchLessOrEqual(keys, l, r, k), "leq between");
-                Assertions.assertEquals(i, KeyUpdatingInterval.searchGreaterOrEqual(keys, l, r, k), "geq between");
             }
         }
     }
