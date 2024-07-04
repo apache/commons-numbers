@@ -229,9 +229,9 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <includeTestSourceDirectory>true</includeTestSourceDirectory>
-          <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
-          <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
-          <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          <configLocation>${numbers.parent.dir}/src/conf/checkstyle/checkstyle.xml</configLocation>
+          <headerLocation>${numbers.parent.dir}/src/conf/checkstyle/license-header.txt</headerLocation>
+          <suppressionsLocation>${numbers.parent.dir}/src/conf/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
           <enableRulesSummary>false</enableRulesSummary>
           <!-- Output issues to console. -->
           <consoleOutput>false</consoleOutput>
@@ -255,7 +255,7 @@
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
-          <excludeFilterFile>${numbers.parent.dir}/src/main/resources/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
+          <excludeFilterFile>${numbers.parent.dir}/src/conf/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
         <executions>
           <execution>
@@ -276,7 +276,7 @@
           <skipEmptyReport>false</skipEmptyReport>
           <analysisCache>true</analysisCache>
           <rulesets>
-            <ruleset>${numbers.parent.dir}/src/main/resources/pmd/pmd-ruleset.xml</ruleset>
+            <ruleset>${numbers.parent.dir}/src/conf/pmd/pmd-ruleset.xml</ruleset>
           </rulesets>
           <excludeRoots>
             <excludeRoot>target/generated-sources</excludeRoot>
@@ -401,9 +401,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
-          <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
-          <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          <configLocation>${numbers.parent.dir}/src/conf/checkstyle/checkstyle.xml</configLocation>
+          <headerLocation>${numbers.parent.dir}/src/conf/checkstyle/license-header.txt</headerLocation>
+          <suppressionsLocation>${numbers.parent.dir}/src/conf/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
           <enableRulesSummary>false</enableRulesSummary>
           <includeResources>false</includeResources>
         </configuration>
@@ -421,7 +421,7 @@
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
-          <excludeFilterFile>${numbers.parent.dir}/src/main/resources/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
+          <excludeFilterFile>${numbers.parent.dir}/src/conf/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
       </plugin>
       <plugin>
@@ -433,7 +433,7 @@
           <skipEmptyReport>false</skipEmptyReport>
           <analysisCache>true</analysisCache>
           <rulesets>
-            <ruleset>${numbers.parent.dir}/src/main/resources/pmd/pmd-ruleset.xml</ruleset>
+            <ruleset>${numbers.parent.dir}/src/conf/pmd/pmd-ruleset.xml</ruleset>
           </rulesets>
         </configuration>
         <reportSets>
