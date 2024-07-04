@@ -1248,7 +1248,7 @@ public final class Complex implements Serializable  {
     public Complex exp() {
         if (Double.isInfinite(real)) {
             // Set the scale factor applied to cis(y)
-            double zeroOrInf;
+            final double zeroOrInf;
             if (real < 0) {
                 if (!Double.isFinite(imaginary)) {
                     // (−∞ + i∞) or (−∞ + iNaN) returns (±0 ± i0) (where the signs of the
@@ -1615,7 +1615,7 @@ public final class Complex implements Serializable  {
         final double y = Math.abs(imaginary);
 
         // Compute
-        double t;
+        final double t;
 
         // This alters the implementation of Hull et al (1994) which used a standard
         // precision representation of |z|: sqrt(x*x + y*y).
@@ -1662,9 +1662,9 @@ public final class Complex implements Serializable  {
                 // a = sqrt(b)
                 // a = sqrt(b/4) * sqrt(4)
 
-                double rescale;
-                double sx;
-                double sy;
+                final double rescale;
+                final double sx;
+                final double sy;
                 if (Math.max(x, y) > SQRT_SAFE_UPPER) {
                     // Overflow. Scale down by 16 and rescale by sqrt(16).
                     sx = x / 16;
@@ -1837,8 +1837,8 @@ public final class Complex implements Serializable  {
         final double x = Math.abs(real);
         final double y = Math.abs(imaginary);
         // The result (without sign correction)
-        double re;
-        double im;
+        final double re;
+        final double im;
 
         // Handle C99 special cases
         if (Double.isNaN(x)) {
@@ -1894,7 +1894,7 @@ public final class Complex implements Serializable  {
                 }
 
                 if (a <= A_CROSSOVER) {
-                    double am1;
+                    final double am1;
                     if (x < 1) {
                         am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
                     } else {
@@ -2032,8 +2032,8 @@ public final class Complex implements Serializable  {
         final double x = Math.abs(real);
         final double y = Math.abs(imaginary);
         // The result (without sign correction)
-        double re;
-        double im;
+        final double re;
+        final double im;
 
         // Handle C99 special cases
         if (isPosInfinite(x)) {
@@ -2086,7 +2086,7 @@ public final class Complex implements Serializable  {
                 }
 
                 if (a <= A_CROSSOVER) {
-                    double am1;
+                    final double am1;
                     if (x < 1) {
                         am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
                     } else {
@@ -2380,7 +2380,7 @@ public final class Complex implements Serializable  {
             // Initial part of (e^x / 2) using (e^m / 2)
             re *= EXP_M / 2;
             im *= EXP_M / 2;
-            double xm;
+            final double xm;
             if (x > SAFE_EXP * 2) {
                 // e^x = e^m * e^m * e^(x-2m)
                 re *= EXP_M;
@@ -2785,7 +2785,7 @@ public final class Complex implements Serializable  {
                 // The denominator for atan2 is 1 - x^2 - y^2.
                 // This can be made more precise if |x| > |y|.
                 final double numerator = 2 * y;
-                double denominator;
+                final double denominator;
                 if (x < y) {
                     final double tmp = x;
                     x = y;
@@ -3573,8 +3573,8 @@ public final class Complex implements Serializable  {
         double a;
         double b;
         /* High word of x & y */
-        int ha;
-        int hb;
+        final int ha;
+        final int hb;
         if (ybits > xbits) {
             a = y;
             b = x;
