@@ -40,6 +40,9 @@ public final class DDMath {
         private double x;
         /** The low part of the double-double number. */
         private double xx;
+
+        /** Package-private constructor. */
+        MDD() {}
     }
 
     /** No instances. */
