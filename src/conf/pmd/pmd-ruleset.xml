@@ -33,9 +33,7 @@
     <exclude name="ShortVariable" />
     <exclude name="LongVariable" />
     <exclude name="CommentDefaultAccessModifier" />
-    <exclude name="DefaultPackage" />
     <exclude name="CallSuperInConstructor" />
-    <exclude name="AbstractNaming" />
     <exclude name="UselessParentheses" />
     <exclude name="AtLeastOneConstructor" />
     <exclude name="GenericsNaming" />
@@ -52,9 +50,7 @@
     <exclude name="CommentSize" />
   </rule>
   <rule ref="category/java/errorprone.xml">
-    <!-- This rule is known to be poor with Java 5 and later:
-      https://github.com/pmd/pmd/issues/873 -->
-    <exclude name="DataflowAnomalyAnalysis" />
+    <!-- <exclude name="..." /> -->
   </rule>
   <rule ref="category/java/multithreading.xml">
     <!-- <exclude name="..." /> -->
@@ -70,7 +66,7 @@
       <!-- The ported method follows the original C++ usage of the 'invert' flag.
            Inversion of complementary functions may swap the arguments. -->
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostErf'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='BoostErf'
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta']"/>
     </properties>
@@ -79,7 +75,7 @@
   <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
       <!-- TODO: Current regex effectively disables this rule. -->
-      <property name="violationSuppressXPath" value="./ancestor-or-self::ClassOrInterfaceDeclaration[matches(@SimpleName, '^.*$')]"/>
+      <property name="violationSuppressXPath" value="./ancestor-or-self::ClassDeclaration[matches(@SimpleName, '^.*$')]"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ClassNamingConventions">
@@ -96,20 +92,20 @@
     <properties>
       <!-- Naming conventions preserved from the original Boost C++ code -->
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostErf' or @SimpleName='BoostGamma']"/>
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='BoostErf' or @SimpleName='BoostGamma']"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ConfusingTernary">
     <properties>
       <!-- Use the original C++ code logic for identifying the erf domain. -->
-      <property name="violationSuppressXPath" value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostErf']"/>
+      <property name="violationSuppressXPath" value="./ancestor-or-self::ClassDeclaration[@SimpleName='BoostErf']"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/PrematureDeclaration">
     <properties>
       <!-- False positive declaring the numerator a0. -->
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostTools']"/>
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='BoostTools']"/>
     </properties>
   </rule>
 
@@ -118,7 +114,7 @@
       <!-- Increase from default of 10 -->
       <property name="methodReportLevel" value="20"/>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
                or @SimpleName='DD'
                or @SimpleName='QuickSelect']"/>
@@ -129,14 +125,14 @@
       <!-- Increase from default of 15 -->
       <property name="reportLevel" value="20"/>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='QuickSelect'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='QuickSelect'
                or @SimpleName='Selection']"/>
     </properties>
   </rule>
   <rule ref="category/java/design.xml/NPathComplexity">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='BoostGamma'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
                or @SimpleName='Sorting'
                or @SimpleName='Selection'
@@ -146,7 +142,7 @@
   <rule ref="category/java/design.xml/ExcessivePublicCount">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BigFraction']"/>
     </properties>
@@ -154,7 +150,7 @@
   <rule ref="category/java/design.xml/GodClass">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Fraction'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Fraction'
                or @SimpleName='BigFraction'
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
@@ -166,7 +162,7 @@
   <rule ref="category/java/design.xml/NcssCount">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BoostErf'
                or @SimpleName='BoostGamma'
@@ -183,13 +179,13 @@
   <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Complex']"/>
     </properties>
   </rule>
   <rule ref="category/java/bestpractices.xml/PreserveStackTrace">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex']"/>
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Complex']"/>
     </properties>
   </rule>
 
@@ -197,7 +193,7 @@
     <properties>
       <property name="ignoreMagicNumbers" value="-1,0,1,-1L,0L,1L,0.0" />
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='LogGamma'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='LogGamma'
                or @SimpleName='LogGammaSum'
                or @SimpleName='InverseErf'
                or @SimpleName='InvGamma1pm1'
@@ -206,14 +202,14 @@
                or @SimpleName='BoostGamma'
                or @SimpleName='BoostBeta'
                or @SimpleName='BoostTools'
-               or @SimpleName='BoostMath'] or ./ancestor-or-self::MethodDeclaration[@Name='ldexp']"/>
+               or @SimpleName='BoostMath'] | ./ancestor-or-self::MethodDeclaration[@Image='ldexp']"/>
     </properties>
   </rule>
 
   <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Complex'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Complex'
                or @SimpleName='Fraction'
                or @SimpleName='BigFraction'
                or @SimpleName='DD'
@@ -226,14 +222,14 @@
   <rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='DD']"/>
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='DD']"/>
     </properties>
   </rule>
 
   <rule ref="category/java/errorprone.xml/AssignmentInOperand">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Sorting'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Sorting'
                or @SimpleName='HashIndexSet'
                or @SimpleName='Selection'
                or @SimpleName='IndexSupport'
@@ -244,7 +240,7 @@
   <rule ref="category/java/performance.xml/AvoidArrayLoops">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor-or-self::ClassOrInterfaceDeclaration[@SimpleName='Sorting'
+        value="./ancestor-or-self::ClassDeclaration[@SimpleName='Sorting'
                or @SimpleName='QuickSelect']"/>
     </properties>
   </rule>
