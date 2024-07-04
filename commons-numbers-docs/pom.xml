@@ -51,6 +51,7 @@
     <checkstyle.skip>true</checkstyle.skip>
     <changes.jira.skip>true</changes.jira.skip>
     <skipSurefireReport>true</skipSurefireReport>
+    <spdx.skip>true</spdx.skip>
   </properties>
 
   <!-- Depend on all other modules -->
@@ -117,12 +118,12 @@
 
     <plugins>
       <plugin>
-        <!-- This plugin has no skip property - use an invalid phase -->
+        <!-- This plugin has no skip property before 0.7.1 - use an invalid phase for Java 8 build -->
         <groupId>org.spdx</groupId>
         <artifactId>spdx-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>build-spdx</id>
+            <id>build-sbom-spdx</id>
             <goals>
               <goal>createSPDX</goal>
             </goals>
