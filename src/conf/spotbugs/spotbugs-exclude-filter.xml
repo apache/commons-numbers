@@ -42,11 +42,17 @@
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
   <Match>
-    <Class name="org.apache.commons.numbers.ext.DD"/>
+    <Class name="org.apache.commons.numbers.core.DD"/>
     <Or>
-      <Method name="longValue"/>
       <Method name="floorOrCeil"/>
+      <Method name="frexp"/>
+      <Method name="pow"/>
     </Or>
+    <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
+  </Match>
+  <Match>
+    <Class name="org.apache.commons.numbers.core.DDMath"/>
+    <Method name="pow"/>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
 
