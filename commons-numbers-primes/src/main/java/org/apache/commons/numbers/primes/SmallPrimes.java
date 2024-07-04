@@ -266,7 +266,7 @@ final class SmallPrimes {
         final BigInteger bn = BigInteger.valueOf(n);
 
         for (int i = 0; i < t; i++) {
-            final BigInteger a = BigInteger.valueOf(SmallPrimes.PRIMES[i]);
+            final BigInteger a = BigInteger.valueOf(PRIMES[i]);
             final BigInteger bPow = a.modPow(br, bn);
             int y = bPow.intValue();
             if (1 != y && y != nMinus1) {
