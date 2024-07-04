@@ -261,6 +261,12 @@ class PrecisionTest {
         Assertions.assertFalse(fun.equals(Double.NaN, Double.POSITIVE_INFINITY, 0));
         Assertions.assertFalse(fun.equals(Double.NaN, Double.NEGATIVE_INFINITY, 0));
 
+        // Create a NaN representation 1 ulp above infinity.
+        // This hits not equal coverage for binary representations within the ulp but using NaN.
+        final double nan = Double.longBitsToDouble(Double.doubleToRawLongBits(Double.POSITIVE_INFINITY) + 1);
+        Assertions.assertFalse(fun.equals(nan, Double.POSITIVE_INFINITY, 1));
+        Assertions.assertFalse(fun.equals(Double.POSITIVE_INFINITY, nan, 1));
+
         if (!fixed1Ulp) {
             Assertions.assertFalse(fun.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Integer.MAX_VALUE));
             Assertions.assertFalse(fun.equals(0, Double.MAX_VALUE, Integer.MAX_VALUE));
