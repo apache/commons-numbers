@@ -83,13 +83,8 @@ public final class LogBeta {
      */
     private static double deltaMinusDeltaSum(final double a,
                                              final double b) {
-        if (a < 0 ||
-            a > b) {
-            throw new GammaException(GammaException.OUT_OF_RANGE, a, 0, b);
-        }
-        if (b < TEN) {
-            throw new GammaException(GammaException.OUT_OF_RANGE, b, TEN, Double.POSITIVE_INFINITY);
-        }
+        // Assumptions:
+        // Never called with a < 0; a > b; or b < 10
 
         final double h = a / b;
         final double p = h / (1 + h);
@@ -193,7 +188,7 @@ public final class LogBeta {
             }
             double prod1 = 1;
             double ared = a;
-            while (ared > 2) {
+            while (ared > TWO) {
                 ared -= 1;
                 final double h = ared / b;
                 prod1 *= h / (1 + h);
@@ -201,7 +196,7 @@ public final class LogBeta {
             if (b < TEN) {
                 double prod2 = 1;
                 double bred = b;
-                while (bred > 2) {
+                while (bred > TWO) {
                     bred -= 1;
                     prod2 *= bred / (ared + bred);
                 }
@@ -219,7 +214,7 @@ public final class LogBeta {
                 if (b < TEN) {
                     double prod = 1;
                     double bred = b;
-                    while (bred > 2) {
+                    while (bred > TWO) {
                         bred -= 1;
                         prod *= bred / (a + bred);
                     }
@@ -257,6 +252,8 @@ public final class LogBeta {
      * Based on the <em>NSWC Library of Mathematics Subroutines</em> implementation,
      * {@code DLGDIV}.
      *
+     * <p>This method assumes \( a \leq b \).
+     *
      * @param a First argument.
      * @param b Second argument.
      * @return the value of \( \log(\Gamma(b) / \Gamma(a + b) \).
@@ -274,15 +271,9 @@ public final class LogBeta {
         /*
          * d = a + b - 0.5
          */
-        final double d;
-        final double w;
-        if (a <= b) {
-            d = b + (a - 0.5);
-            w = deltaMinusDeltaSum(a, b);
-        } else {
-            d = a + (b - 0.5);
-            w = deltaMinusDeltaSum(b, a);
-        }
+        // Assumption: always called with a <= b.
+        final double d = b + (a - 0.5);
+        final double w = deltaMinusDeltaSum(a, b);
 
         final double u = d * Math.log1p(a / b);
         final double v = a * (Math.log(b) - 1);
