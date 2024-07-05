@@ -655,7 +655,7 @@ final class BoostBeta {
                         }
                     } else {
                         // Sidestep on a, and then use the series representation:
-                        double prefix;
+                        final double prefix;
                         if (normalised) {
                             prefix = 1;
                         } else {
@@ -710,7 +710,7 @@ final class BoostBeta {
                         }
                     } else {
                         // Sidestep to improve errors:
-                        double prefix;
+                        final double prefix;
                         if (normalised) {
                             prefix = 1;
                         } else {
@@ -732,7 +732,7 @@ final class BoostBeta {
             // Note:
             // median ~ (a - 1/3) / (a + b - 2/3) ~ a / (a + b)
             // if x > a / (a + b) => a - (a + b) * x < 0
-            double lambda;
+            final double lambda;
             if (a < b) {
                 lambda = a - (a + b) * x;
             } else {
@@ -777,7 +777,7 @@ final class BoostBeta {
                         --n;
                     }
                     final double bbar = b - n;
-                    double prefix;
+                    final double prefix;
                     if (normalised) {
                         prefix = 1;
                     } else {
@@ -1146,14 +1146,13 @@ final class BoostBeta {
         //
         final double bm1 = b - 1;
         final double t = a + bm1 / 2;
-        double lx;
-        double u;
+        final double lx;
         if (y < 0.35) {
             lx = Math.log1p(-y);
         } else {
             lx = Math.log(x);
         }
-        u = -t * lx;
+        final double u = -t * lx;
         // and from from 9.2:
         final double h = BoostGamma.regularisedGammaPrefix(b, u);
         if (h <= Double.MIN_NORMAL) {
@@ -1329,7 +1328,7 @@ final class BoostBeta {
 
                 final int m = n;
                 final int k = m / 2;
-                double aN;
+                final double aN;
                 if ((m & 0x1) == 0) {
                     // even
                     // m = 2k

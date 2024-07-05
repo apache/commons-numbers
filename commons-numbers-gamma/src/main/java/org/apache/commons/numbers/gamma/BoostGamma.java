@@ -755,7 +755,7 @@ final class BoostGamma {
      * @return log gamma value
      */
     static double lgamma(double z, int[] sign) {
-        double result = 0;
+        double result;
         int sresult = 1;
         if (z <= -ROOT_EPSILON) {
             // reflection formula:
@@ -1010,7 +1010,7 @@ final class BoostGamma {
         // This helper calculates tgamma(1+dz)-1 without cancellation errors,
         // used by the upper incomplete gamma with z < 1:
         //
-        double result;
+        final double result;
         if (dz < 0) {
             if (dz < -0.5) {
                 // Best method is simply to subtract 1 from tgamma:
@@ -1234,8 +1234,8 @@ final class BoostGamma {
             return Math.exp(result);
         }
 
-        boolean isInt;
-        boolean isHalfInt;
+        final boolean isInt;
+        final boolean isHalfInt;
         // Update. x must be safe for exp(-x). Change to -x > LOG_MIN_VALUE.
         final boolean isSmallA = (a < 30) && (a <= x + 1) && (-x > LOG_MIN_VALUE);
         if (isSmallA) {
@@ -1246,7 +1246,7 @@ final class BoostGamma {
             isInt = isHalfInt = false;
         }
 
-        int evalMethod;
+        final int evalMethod;
 
         if (isInt && (x > 0.6)) {
             // calculate Q via finite sum:
@@ -1678,7 +1678,7 @@ final class BoostGamma {
             return 0;
         }
         final double alz = a * Math.log(z);
-        double prefix;
+        final double prefix;
 
         if (z >= 1) {
             if ((alz < LOG_MAX_VALUE) && (-z > LOG_MIN_VALUE)) {

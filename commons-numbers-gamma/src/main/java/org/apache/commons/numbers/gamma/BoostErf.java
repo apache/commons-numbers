@@ -430,9 +430,9 @@ final class BoostErf {
         // negate the result if z is outside that range. This is a simple
         // application of the erfc reflection formula: erfc(-z) = 2 - erfc(z)
         //
-        double p;
-        double q;
-        double s;
+        final double p;
+        final double q;
+        final double s;
         if (z > 1) {
             q = 2 - z;
             p = 1 - q;
@@ -480,9 +480,9 @@ final class BoostErf {
         // negate the result if z is outside that range. This is a simple
         // application of the erf reflection formula: erf(-z) = -erf(z)
         //
-        double p;
-        double q;
-        double s;
+        final double p;
+        final double q;
+        final double s;
         if (z < 0) {
             p = -z;
             q = 1 - p;
@@ -506,7 +506,7 @@ final class BoostErf {
      * @return the inverse
      */
     private static double erfInvImp(double p, double q) {
-        double result;
+        final double result;
 
         if (p <= 0.5) {
             //
