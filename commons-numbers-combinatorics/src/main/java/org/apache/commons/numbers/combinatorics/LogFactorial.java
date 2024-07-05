@@ -52,7 +52,7 @@ public final class LogFactorial {
         logFactorials = new double[numValues];
 
         final int beginCopy = 2;
-        int endCopy;
+        final int endCopy;
         if (cache == null || cache.length <= beginCopy) {
             endCopy = beginCopy;
         } else {
