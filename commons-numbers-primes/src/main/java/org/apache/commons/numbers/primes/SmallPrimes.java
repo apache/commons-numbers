@@ -107,11 +107,11 @@ final class SmallPrimes {
         of all integers.
          */
         final Set<Integer> primeNumbers = new HashSet<>();
-        primeNumbers.add(Integer.valueOf(2));
-        primeNumbers.add(Integer.valueOf(3));
-        primeNumbers.add(Integer.valueOf(5));
-        primeNumbers.add(Integer.valueOf(7));
-        primeNumbers.add(Integer.valueOf(11));
+        primeNumbers.add(2);
+        primeNumbers.add(3);
+        primeNumbers.add(5);
+        primeNumbers.add(7);
+        primeNumbers.add(11);
 
         final int product = primeNumbers.stream().reduce(1, (a, b) -> a * b);
         final int[] equivalenceClasses = new int[primeNumbers.stream().mapToInt(a -> a - 1).reduce(1, (a, b) -> a * b)];
