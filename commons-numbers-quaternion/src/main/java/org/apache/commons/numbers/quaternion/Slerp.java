@@ -100,6 +100,9 @@ public class Slerp implements DoubleFunction<Quaternion> {
      * Linear interpolation, used when the quaternions are too closely aligned.
      */
     private final class Linear implements DoubleFunction<Quaternion> {
+        /** Package-private constructor. */
+        Linear() {}
+
         /** {@inheritDoc} */
         @Override
         public Quaternion apply(double t) {
