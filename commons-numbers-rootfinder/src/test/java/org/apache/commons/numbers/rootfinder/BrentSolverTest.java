@@ -187,27 +187,21 @@ class BrentSolverTest {
         final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY,
                                                    DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
-        try {  // Bad interval.
-            solver.findRoot(f, 1, -1);
-            Assertions.fail("Expecting bad interval condition");
-        } catch (SolverException ex) {
-            // Ensure expected error condition.
-            Assertions.assertNotEquals(-1, ex.getMessage().indexOf(" > "));
-        }
-        try {  // No bracketing.
-            solver.findRoot(f, 1, 1.5);
-            Assertions.fail("Expecting non-bracketing condition");
-        } catch (SolverException ex) {
-            // Ensure expected error condition.
-            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
-        }
-        try {  // No bracketing.
-            solver.findRoot(f, 1, 1.2, 1.5);
-            Assertions.fail("Expecting non-bracketing condition");
-        } catch (SolverException ex) {
-            // Ensure expected error condition.
-            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
-        }
+        SolverException ex;
+
+        // Bad interval
+        ex = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(f, 1, -1));
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf(" > "));
+
+        // No bracketing
+        ex = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(f, 1, 1.5));
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
+
+        ex = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(f, 1, 1.2, 1.5));
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
     }
 
     @Test
@@ -217,22 +211,16 @@ class BrentSolverTest {
                                                    DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
-        try {
-            // Invalid guess (it *is* a root, but outside of the range).
-            double result = solver.findRoot(func, 0.0, 7.0, 0.6);
-            Assertions.fail("an out of range condition was expected");
-        } catch (SolverException ex) {
-            // Ensure expected error condition.
-            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
-        }
+        SolverException ex;
 
-        try {
-            double result = solver.findRoot(func, 0.0, -7.0, 0.6);
-            Assertions.fail("an out of range condition was expected");
-        } catch (SolverException ex) {
-            // Ensure expected error condition.
-            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
-        }
+        // Invalid guess (it *is* a root, but outside of the range).
+        ex = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(func, 0.0, 7.0, 0.6));
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
+
+        ex = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(func, 0.0, -7.0, 0.6));
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
     }
 
     @Test
