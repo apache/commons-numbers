@@ -93,7 +93,7 @@ public abstract class Angle implements DoubleSupplier {
      */
     public static final class Turn extends Angle {
         /** Zero. */
-        public static final Turn ZERO = Turn.of(0d);
+        public static final Turn ZERO = of(0d);
         /** Normalizing operator (result will be within the {@code [0, 1[} interval). */
         public static final DoubleUnaryOperator WITHIN_0_AND_1 = normalizer(0d);
 
@@ -147,11 +147,11 @@ public abstract class Angle implements DoubleSupplier {
      */
     public static final class Rad extends Angle {
         /** Zero. */
-        public static final Rad ZERO = Rad.of(0d);
+        public static final Rad ZERO = of(0d);
         /** &pi;. */
-        public static final Rad PI = Rad.of(Math.PI);
+        public static final Rad PI = of(Math.PI);
         /** 2&pi;. */
-        public static final Rad TWO_PI = Rad.of(Angle.TWO_PI);
+        public static final Rad TWO_PI = of(Angle.TWO_PI);
         /** Normalizing operator (result will be within the <code>[0, 2&pi;[</code> interval). */
         public static final DoubleUnaryOperator WITHIN_0_AND_2PI = normalizer(0d);
         /** Normalizing operator (result will be within the <code>[-&pi;, &pi;[</code> interval). */
@@ -207,7 +207,7 @@ public abstract class Angle implements DoubleSupplier {
      */
     public static final class Deg extends Angle {
         /** Zero. */
-        public static final Deg ZERO = Deg.of(0d);
+        public static final Deg ZERO = of(0d);
         /** Normalizing operator (result will be within the {@code [0, 360[} interval). */
         public static final DoubleUnaryOperator WITHIN_0_AND_360 = normalizer(0d);
 
