@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.ArraySampler;
 import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -138,7 +139,7 @@ class KthSelectorTest {
         final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
         final int[] indices = IntStream.range(0, sorted.length).toArray();
         for (int n = 0; n < 3; n++) {
-            TestUtils.shuffle(rng, indices);
+            ArraySampler.shuffle(rng, indices);
             final double[] x = values.clone();
             final int[] pivotsHeap = KthSelector.createPivotsHeap(sorted.length);
             for (int i = 0; i < sorted.length; i++) {
@@ -166,11 +167,11 @@ class KthSelectorTest {
             Arrays.fill(zeros, size >>> 2, size >>> 1, 0.0);
             Arrays.fill(nans, 0, 2, Double.NaN);
             for (int i = 0; i < 25; i++) {
-                builder.add(TestUtils.shuffle(rng, values.clone()));
-                builder.add(TestUtils.shuffle(rng, zeros.clone()));
+                builder.add(ArraySampler.shuffle(rng, values.clone()));
+                builder.add(ArraySampler.shuffle(rng, zeros.clone()));
             }
             for (int i = 0; i < 5; i++) {
-                builder.add(TestUtils.shuffle(rng, nans.clone()));
+                builder.add(ArraySampler.shuffle(rng, nans.clone()));
             }
         }
         return builder.build();
@@ -261,10 +262,10 @@ class KthSelectorTest {
                     // Note: Duplicate indices do not matter
                     final int[] indices = rng.ints(k, 0, size).toArray();
                     builder.add(Arguments.of(
-                        TestUtils.shuffle(rng, values.clone()),
+                        ArraySampler.shuffle(rng, values.clone()),
                         indices));
                     builder.add(Arguments.of(
-                        TestUtils.shuffle(rng, zeros.clone()),
+                        ArraySampler.shuffle(rng, zeros.clone()),
                         indices));
                 }
             }

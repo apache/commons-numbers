@@ -20,6 +20,7 @@ package org.apache.commons.numbers.examples.jmh.arrays;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.ArraySampler;
 import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -163,7 +164,7 @@ class PivotingStrategyTest {
         // Big enough to use median of 9
         final double[] a = rng.doubles(50).toArray();
         for (int i = 0; i < 10; i++) {
-            TestUtils.shuffle(rng, a);
+            ArraySampler.shuffle(rng, a);
             builder.add(a.clone());
         }
         return builder.build();

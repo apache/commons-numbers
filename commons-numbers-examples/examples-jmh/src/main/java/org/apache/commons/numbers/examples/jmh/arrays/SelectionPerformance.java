@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.commons.numbers.arrays.Selection;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.ArraySampler;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.apache.commons.rng.sampling.distribution.DiscreteUniformSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
@@ -679,7 +680,7 @@ public class SelectionPerformance {
                 // First call, create objects
                 order = PermutationSampler.natural(size());
             }
-            PermutationSampler.shuffle(rng, order);
+            ArraySampler.shuffle(rng, order);
         }
 
         /**
@@ -948,8 +949,8 @@ public class SelectionPerformance {
                 medianOf3Killer(x);
                 final int j = 4 * (31 - Integer.numberOfLeadingZeros(n));
                 final int n2 = n >>> 1;
-                shuffle(rng, x, j, n2);
-                shuffle(rng, x, n2 + j, n);
+                ArraySampler.shuffle(rng, x, j, n2);
+                ArraySampler.shuffle(rng, x, n2 + j, n);
             }
             if (dist.contains(Distribution.ORGANPIPE)) {
                 x = createSample(distData, info, si.with(Distribution.ORGANPIPE));
@@ -1038,34 +1039,6 @@ public class SelectionPerformance {
                 a[i] += i % 5;
             }
             return a;
-        }
-
-        /**
-         * Shuffles the entries of the given array.
-         *
-         * @param rng Source of randomness.
-         * @param array Array whose entries will be shuffled (in-place).
-         * @param from Lower-bound (inclusive) of the sub-range.
-         * @param to Upper-bound (exclusive) of the sub-range.
-         */
-        private static void shuffle(UniformRandomProvider rng, int[] array, int from, int to) {
-            final int length = to - from;
-            for (int i = length; i > 1; i--) {
-                swap(array, from + i - 1, from + rng.nextInt(i));
-            }
-        }
-
-        /**
-         * Swaps the two specified elements in the array.
-         *
-         * @param array Array.
-         * @param i First index.
-         * @param j Second index.
-         */
-        private static void swap(int[] array, int i, int j) {
-            final int tmp = array[i];
-            array[i] = array[j];
-            array[j] = tmp;
         }
 
         /**
@@ -1386,7 +1359,7 @@ public class SelectionPerformance {
                     for (int j = 0; j < repeats; j++) {
                         final int ii = j % k;
                         if (ii == 0) {
-                            PermutationSampler.shuffle(rng, samples);
+                            ArraySampler.shuffle(rng, samples);
                         }
                         indices[index++] = new int[] {samples[ii]};
                     }
@@ -1620,7 +1593,7 @@ public class SelectionPerformance {
                         }
                     }
                     p = Arrays.copyOf(p, c);
-                    PermutationSampler.shuffle(rng, p);
+                    ArraySampler.shuffle(rng, p);
                     points[i] = p;
                 } else {
                     // binary division
@@ -1638,7 +1611,7 @@ public class SelectionPerformance {
                     samples[--size] = l | p;
                 }
             }
-            shuffle(rng, samples);
+            ArraySampler.shuffle(rng, samples);
         }
 
         /**
@@ -1670,31 +1643,6 @@ public class SelectionPerformance {
                 c = divide(indices, m1, hi, p, c, s);
             }
             return c;
-        }
-
-        /**
-         * Shuffles the entries of the given array.
-         *
-         * @param rng Source of randomness.
-         * @param array Array whose entries will be shuffled (in-place).
-         */
-        private static void shuffle(UniformRandomProvider rng, long[] array) {
-            for (int i = array.length; i > 1; i--) {
-                swap(array, i - 1, rng.nextInt(i));
-            }
-        }
-
-        /**
-         * Swaps the two specified elements in the array.
-         *
-         * @param array Array.
-         * @param i First index.
-         * @param j Second index.
-         */
-        private static void swap(long[] array, int i, int j) {
-            final long tmp = array[i];
-            array[i] = array[j];
-            array[j] = tmp;
         }
     }
 

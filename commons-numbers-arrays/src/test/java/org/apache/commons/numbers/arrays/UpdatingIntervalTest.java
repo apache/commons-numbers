@@ -23,7 +23,7 @@ import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.PermutationSampler;
+import org.apache.commons.rng.sampling.ArraySampler;
 import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -284,8 +284,8 @@ class UpdatingIntervalTest {
             Arrays.sort(b);
             out.accept(Arguments.of(b.clone(), c.clone()));
             // Unsorted
-            PermutationSampler.shuffle(rng, a);
-            PermutationSampler.shuffle(rng, b);
+            ArraySampler.shuffle(rng, a);
+            ArraySampler.shuffle(rng, b);
             out.accept(Arguments.of(a, c.clone()));
             out.accept(Arguments.of(b, c.clone()));
         });

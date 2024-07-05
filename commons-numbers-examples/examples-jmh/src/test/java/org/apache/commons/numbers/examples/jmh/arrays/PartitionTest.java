@@ -44,6 +44,7 @@ import org.apache.commons.numbers.examples.jmh.arrays.SelectionPerformance.Abstr
 import org.apache.commons.numbers.examples.jmh.arrays.SelectionPerformance.AbstractDataSource.Distribution;
 import org.apache.commons.numbers.examples.jmh.arrays.SelectionPerformance.AbstractDataSource.Modification;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.ArraySampler;
 import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -169,7 +170,7 @@ class PartitionTest {
                 final double[] x = values.clone();
                 Arrays.fill(x, 0, n, nan);
                 for (int i = 0; i < 5; i++) {
-                    builder.add(TestUtils.shuffle(rng, x).clone());
+                    builder.add(ArraySampler.shuffle(rng, x).clone());
                 }
             }
         }
@@ -1267,7 +1268,7 @@ class PartitionTest {
             unique[n++] = k;
         }
         final int[] k = Arrays.copyOf(unique, n);
-        TestUtils.shuffle(RandomSource.XO_RO_SHI_RO_128_PP.create(0xdeadbeef), k);
+        ArraySampler.shuffle(RandomSource.XO_RO_SHI_RO_128_PP.create(0xdeadbeef), k);
         assertPartition(values, indices, (a, ignoredIndices, ignoredN) -> function.partition(a, k));
     }
 
@@ -1326,10 +1327,10 @@ class PartitionTest {
                     // Note: Duplicate indices do not matter
                     final int[] indices = rng.ints(k, 0, size).toArray();
                     builder.add(Arguments.of(
-                        TestUtils.shuffle(rng, values.clone()),
+                        ArraySampler.shuffle(rng, values.clone()),
                         indices));
                     builder.add(Arguments.of(
-                        TestUtils.shuffle(rng, zeros.clone()),
+                        ArraySampler.shuffle(rng, zeros.clone()),
                         indices));
                 }
             }
@@ -1344,7 +1345,7 @@ class PartitionTest {
                     // This sets a low index
                     indices[rng.nextInt(indices.length)] = rng.nextInt(0, limit >>> 1);
                     builder.add(Arguments.of(
-                        TestUtils.shuffle(rng, values.clone()),
+                        ArraySampler.shuffle(rng, values.clone()),
                         indices));
                 }
             }
@@ -1386,7 +1387,7 @@ class PartitionTest {
         // Use a fix seed to ensure we hit coverage with only 5 loops.
         rng = RandomSource.XO_SHI_RO_128_PP.create(-8111061151820577011L);
         for (int i = 0; i < 5; i++) {
-            builder.add(Arguments.of(TestUtils.shuffle(rng, x.clone()), new int[] {50}));
+            builder.add(Arguments.of(ArraySampler.shuffle(rng, x.clone()), new int[] {50}));
         }
         // A single value smaller/greater than the pivot at the left/right/both ends
         Arrays.fill(x, 1);
@@ -1410,7 +1411,7 @@ class PartitionTest {
             final double[] b = rng.ints(size, 0, size >> 3).asDoubleStream().toArray();
             for (int i = 0; i < 15; i++) {
                 builder.add(Arguments.of(
-                    TestUtils.shuffle(rng, a.clone()),
+                    ArraySampler.shuffle(rng, a.clone()),
                     new int[] {rng.nextInt(size)}));
                 builder.add(Arguments.of(b.clone(),
                     new int[] {rng.nextInt(size)}));

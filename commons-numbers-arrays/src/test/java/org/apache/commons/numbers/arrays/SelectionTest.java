@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.ArraySampler;
 import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -217,34 +218,6 @@ class SelectionTest {
                 a[i] = -0.0;
             }
         }
-    }
-
-    /**
-     * Shuffles the entries of the given array.
-     *
-     * @param rng Source of randomness.
-     * @param array Array whose entries will be shuffled (in-place).
-     * @return Shuffled input array.
-     */
-    // TODO - replace with Commons RNG 1.6: o.a.c.rng.sampling.ArraySampler
-    private static double[] shuffle(UniformRandomProvider rng, double[] array) {
-        for (int i = array.length; i > 1; i--) {
-            swap(array, i - 1, rng.nextInt(i));
-        }
-        return array;
-    }
-
-    /**
-     * Swaps the two specified elements in the array.
-     *
-     * @param array Array.
-     * @param i First index.
-     * @param j Second index.
-     */
-    private static void swap(double[] array, int i, int j) {
-        final double tmp = array[i];
-        array[i] = array[j];
-        array[j] = tmp;
     }
 
     @ParameterizedTest
@@ -648,10 +621,10 @@ class SelectionTest {
                     // Note: Duplicate indices do not matter
                     final int[] indices = rng.ints(k, 0, size).toArray();
                     builder.add(Arguments.of(
-                        shuffle(rng, values.clone()),
+                        ArraySampler.shuffle(rng, values.clone()),
                         indices.clone()));
                     builder.add(Arguments.of(
-                        shuffle(rng, zeros.clone()),
+                        ArraySampler.shuffle(rng, zeros.clone()),
                         indices.clone()));
                 }
             }
@@ -666,7 +639,7 @@ class SelectionTest {
                     // This sets a low index
                     indices[rng.nextInt(indices.length)] = rng.nextInt(0, limit >>> 1);
                     builder.add(Arguments.of(
-                        shuffle(rng, values.clone()),
+                        ArraySampler.shuffle(rng, values.clone()),
                         indices.clone()));
                 }
             }
@@ -704,14 +677,14 @@ class SelectionTest {
         Arrays.fill(x, n - i6, n - i2, p2);
         // Equal value in between the pivots
         Arrays.fill(x, i6, n - i6, (p1 + p2) / 2);
-        // Shuffle this and partition in the middle.
+        // ArraySampler.shuffle this and partition in the middle.
         // Also partition with the pivots in P1 and P2 using thirds.
         final int third = (int) (n / 3.0);
         // Use a fix seed to ensure we hit coverage with only 5 loops.
         rng = RandomSource.XO_SHI_RO_128_PP.create(-8111061151820577011L);
         for (int i = 0; i < 5; i++) {
-            builder.add(Arguments.of(shuffle(rng, x.clone()), new int[] {n >> 1}));
-            builder.add(Arguments.of(shuffle(rng, x.clone()),
+            builder.add(Arguments.of(ArraySampler.shuffle(rng, x.clone()), new int[] {n >> 1}));
+            builder.add(Arguments.of(ArraySampler.shuffle(rng, x.clone()),
                 new int[] {third, 2 * third}));
         }
         // A single value smaller/greater than the pivot at the left/right/both ends
@@ -749,7 +722,7 @@ class SelectionTest {
             final double[] b = rng.ints(size, 0, size >> 3).asDoubleStream().toArray();
             for (int i = 0; i < 15; i++) {
                 builder.add(Arguments.of(
-                    shuffle(rng, a.clone()),
+                    ArraySampler.shuffle(rng, a.clone()),
                     new int[] {rng.nextInt(size)}));
                 builder.add(Arguments.of(b.clone(),
                     new int[] {rng.nextInt(size)}));
@@ -1057,34 +1030,6 @@ class SelectionTest {
         final int[] sorted = values.clone();
         Arrays.sort(sorted, from, to + 1);
         return sorted;
-    }
-
-    /**
-     * Shuffles the entries of the given array.
-     *
-     * @param rng Source of randomness.
-     * @param array Array whose entries will be shuffled (in-place).
-     * @return Shuffled input array.
-     */
-    // TODO - replace with Commons RNG 1.6: o.a.c.rng.sampling.ArraySampler
-    private static int[] shuffle(UniformRandomProvider rng, int[] array) {
-        for (int i = array.length; i > 1; i--) {
-            swap(array, i - 1, rng.nextInt(i));
-        }
-        return array;
-    }
-
-    /**
-     * Swaps the two specified elements in the array.
-     *
-     * @param array Array.
-     * @param i First index.
-     * @param j Second index.
-     */
-    private static void swap(int[] array, int i, int j) {
-        final int tmp = array[i];
-        array[i] = array[j];
-        array[j] = tmp;
     }
 
     @ParameterizedTest
@@ -1476,10 +1421,10 @@ class SelectionTest {
                     // Note: Duplicate indices do not matter
                     final int[] indices = rng.ints(k, 0, size).toArray();
                     builder.add(Arguments.of(
-                        shuffle(rng, values.clone()),
+                        ArraySampler.shuffle(rng, values.clone()),
                         indices.clone()));
                     builder.add(Arguments.of(
-                        shuffle(rng, zeros.clone()),
+                        ArraySampler.shuffle(rng, zeros.clone()),
                         indices.clone()));
                 }
             }
@@ -1494,7 +1439,7 @@ class SelectionTest {
                     // This sets a low index
                     indices[rng.nextInt(indices.length)] = rng.nextInt(0, limit >>> 1);
                     builder.add(Arguments.of(
-                        shuffle(rng, values.clone()),
+                        ArraySampler.shuffle(rng, values.clone()),
                         indices.clone()));
                 }
             }
@@ -1532,14 +1477,14 @@ class SelectionTest {
         Arrays.fill(x, n - i6, n - i2, p2);
         // Equal value in between the pivots
         Arrays.fill(x, i6, n - i6, (p1 + p2) / 2);
-        // Shuffle this and partition in the middle.
+        // ArraySampler.shuffle this and partition in the middle.
         // Also partition with the pivots in P1 and P2 using thirds.
         final int third = (int) (n / 3.0);
         // Use a fix seed to ensure we hit coverage with only 5 loops.
         rng = RandomSource.XO_SHI_RO_128_PP.create(-8111061151820577011L);
         for (int i = 0; i < 5; i++) {
-            builder.add(Arguments.of(shuffle(rng, x.clone()), new int[] {n >> 1}));
-            builder.add(Arguments.of(shuffle(rng, x.clone()),
+            builder.add(Arguments.of(ArraySampler.shuffle(rng, x.clone()), new int[] {n >> 1}));
+            builder.add(Arguments.of(ArraySampler.shuffle(rng, x.clone()),
                 new int[] {third, 2 * third}));
         }
         // A single value smaller/greater than the pivot at the left/right/both ends
@@ -1577,7 +1522,7 @@ class SelectionTest {
             final int[] b = rng.ints(size, 0, size >> 3).toArray();
             for (int i = 0; i < 15; i++) {
                 builder.add(Arguments.of(
-                    shuffle(rng, a.clone()),
+                    ArraySampler.shuffle(rng, a.clone()),
                     new int[] {rng.nextInt(size)}));
                 builder.add(Arguments.of(b.clone(),
                     new int[] {rng.nextInt(size)}));

@@ -18,8 +18,10 @@ package org.apache.commons.numbers.core;
 
 import java.util.Arrays;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.ArraySampler;
+import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -84,11 +86,11 @@ class ArithmeticUtilsTest {
 
     @Test
     void testGcdConsistency() {
-        // Use Integer to prevent varargs vs array issue with Arrays.asList
-        Integer[] primeList = {19, 23, 53, 67, 73, 79, 101, 103, 111, 131};
+        final int[] primeList = {19, 23, 53, 67, 73, 79, 101, 103, 111, 131};
+        final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
 
         for (int i = 0; i < 20; i++) {
-            Collections.shuffle(Arrays.asList(primeList));
+            ArraySampler.shuffle(rng, primeList);
             int p1 = primeList[0];
             int p2 = primeList[1];
             int p3 = primeList[2];
