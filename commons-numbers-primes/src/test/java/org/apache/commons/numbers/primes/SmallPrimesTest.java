@@ -81,18 +81,14 @@ class SmallPrimesTest {
     @Test
     void boundedTrialDivision_twoDifferentFactors() {
         final List<Integer> factors = new ArrayList<>();
-        final int result = SmallPrimes.boundedTrialDivision(LARGE_PRIME[0] * LARGE_PRIME[1], Integer.MAX_VALUE,
-            factors);
-        Assertions.assertEquals(LARGE_PRIME[1], result);
+        SmallPrimes.boundedTrialDivision(LARGE_PRIME[0] * LARGE_PRIME[1], Integer.MAX_VALUE, factors);
         Assertions.assertEquals(Arrays.asList(LARGE_PRIME[0], LARGE_PRIME[1]), factors);
     }
 
     @Test
     void boundedTrialDivision_square() {
         final List<Integer> factors = new ArrayList<>();
-        final int result = SmallPrimes.boundedTrialDivision(LARGE_PRIME[0] * LARGE_PRIME[0], Integer.MAX_VALUE,
-            factors);
-        Assertions.assertEquals(LARGE_PRIME[0], result);
+        SmallPrimes.boundedTrialDivision(LARGE_PRIME[0] * LARGE_PRIME[0], Integer.MAX_VALUE, factors);
         Assertions.assertEquals(Arrays.asList(LARGE_PRIME[0], LARGE_PRIME[0]), factors);
     }
 

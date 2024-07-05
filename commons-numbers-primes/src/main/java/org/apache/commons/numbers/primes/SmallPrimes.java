@@ -166,11 +166,10 @@ final class SmallPrimes {
      * @param maxFactor Upper bound of trial division: if it is reached, the
      * method gives up and returns {@code n}.
      * @param factors the list where to add the factors.
-     * @return {@code n} (or 1 if factorization is completed).
      */
-    static int boundedTrialDivision(int n,
-                                    int maxFactor,
-                                    List<Integer> factors) {
+    static void boundedTrialDivision(int n,
+                                     int maxFactor,
+                                     List<Integer> factors) {
         final int minFactor = PRIMES_LAST + 2;
 
         /*
@@ -212,7 +211,6 @@ final class SmallPrimes {
         // Note: When this method is used after the small trial division n != 1
         // for all n in [2, MAX_VALUE] (tested using an exhaustive enumeration).
         factors.add(n);
-        return n;
     }
 
     /**
