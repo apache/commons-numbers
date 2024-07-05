@@ -40,7 +40,7 @@ public abstract class Angle implements DoubleSupplier {
     /**
      * @param value Value in turns.
      */
-    private Angle(final double value) {
+    Angle(final double value) {
         this.value = value;
     }
 
