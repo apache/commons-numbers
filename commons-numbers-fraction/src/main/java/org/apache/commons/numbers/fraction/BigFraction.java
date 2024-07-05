@@ -1275,12 +1275,10 @@ public final class BigFraction
      * @param hasFractionalBits whether the number should be treated as though
      *                          it contained a non-zero fractional part
      * @return a {@code BigInteger} as described above
-     * @throws IllegalArgumentException if {@code bits <= 0}
      */
     private static BigInteger roundAndRightShift(BigInteger value, int bits, boolean hasFractionalBits) {
-        if (bits <= 0) {
-            throw new IllegalArgumentException("bits: " + bits);
-        }
+        // Assumptions:
+        // assert bits > 0
 
         BigInteger result = value.shiftRight(bits);
         if (value.testBit(bits - 1) &&
