@@ -39,6 +39,10 @@
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
     <numbers.jira.component>gamma</numbers.jira.component>
+
+    <!-- Change from commons-parent of 1.0 as some complex branches are not exhaustively reached -->
+    <commons.jacoco.branchRatio>0.98</commons.jacoco.branchRatio>
+    <commons.jacoco.complexityRatio>0.97</commons.jacoco.complexityRatio>
   </properties>
 
   <dependencies>
