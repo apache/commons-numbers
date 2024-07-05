@@ -179,12 +179,10 @@ final class SmallPrimes {
         as prime factors, and c is an integer undivisible by all of those
         prime numbers; in other words, skipping multiples of these primes
          */
-        final int m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()
-            [PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1] + 1;
+        final int[] a = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue();
+        final int m = a[a.length - 1] + 1;
         int km = m * (minFactor / m);
-        int currentEquivalenceClassIndex = Arrays.binarySearch(
-                PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue(),
-                minFactor % m);
+        int currentEquivalenceClassIndex = Arrays.binarySearch(a, minFactor % m);
 
         /*
         Since minFactor is the next smallest prime number after the
@@ -195,7 +193,7 @@ final class SmallPrimes {
         boolean done = false;
         while (!done) {
             // no check is done about n >= f
-            final int f = km + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[currentEquivalenceClassIndex];
+            final int f = km + a[currentEquivalenceClassIndex];
             if (f > maxFactor) {
                 done = true;
             } else if (0 == n % f) {
@@ -203,8 +201,7 @@ final class SmallPrimes {
                 factors.add(f);
                 done = true;
             } else {
-                if (currentEquivalenceClassIndex ==
-                    PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1) {
+                if (currentEquivalenceClassIndex == a.length - 1) {
                     km += m;
                     currentEquivalenceClassIndex = 0;
                 } else {
