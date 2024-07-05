@@ -51,14 +51,14 @@ final class IndexSupport {
         // Simple cases
         if (n == 2) {
             if (k[0] == k[1]) {
-                return newUpdatingInterval(left, right, k, 1);
+                return newUpdatingInterval(k, 1);
             }
             if (k[1] < k[0]) {
                 final int v = k[0];
                 k[0] = k[1];
                 k[1] = v;
             }
-            return newUpdatingInterval(left, right, k, 2);
+            return newUpdatingInterval(k, 2);
         }
 
         // Strategy: Must be fast on already ascending data.
@@ -74,7 +74,7 @@ final class IndexSupport {
 
         if (n <= INSERTION_SORT_SIZE) {
             final int unique = Sorting.insertionSortIndices(k, n);
-            return newUpdatingInterval(left, right, k, unique);
+            return newUpdatingInterval(k, unique);
         }
 
         if (isAscending(k, n)) {
@@ -83,7 +83,7 @@ final class IndexSupport {
             // slower and the difference is lost in the time taken for partitioning.
             // So always use the keys.
             final int unique = compressDuplicates(k, n);
-            return newUpdatingInterval(left, right, k, unique);
+            return newUpdatingInterval(k, unique);
         }
 
         // At least 20 indices that are partially unordered.
@@ -219,15 +219,13 @@ final class IndexSupport {
      * Returns an interval that covers the specified indices {@code k}.
      * The indices must be sorted.
      *
-     * @param left Lower bound of data (inclusive).
-     * @param right Upper bound of data (inclusive).
      * @param k Indices.
      * @param n Count of indices (must be strictly positive).
      * @throws IndexOutOfBoundsException if any index {@code k} is not within the
      * sub-range {@code [left, right]}
      * @return the interval
      */
-    private static UpdatingInterval newUpdatingInterval(int left, int right, int[] k, int n) {
+    private static UpdatingInterval newUpdatingInterval(int[] k, int n) {
         return new KeyUpdatingInterval(k, n);
     }
 
