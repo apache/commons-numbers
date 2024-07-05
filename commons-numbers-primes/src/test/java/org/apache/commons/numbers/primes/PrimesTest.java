@@ -40,7 +40,10 @@ class PrimesTest {
         22605091,
         25325981, 25326023, //around third boundary in miller-rabin
         100000007, 715827881,
-        2147483647//Integer.MAX_VALUE
+        2147483647, //Integer.MAX_VALUE
+        // Prime factors added for Miller-Rabin edge case using Matlab 2023, factor(n)
+        3761, 4513, // factor(16973393)
+        3943, 6571, // factor(25909453)
         };
 
     static final int[] NOT_PRIMES = {
@@ -53,7 +56,10 @@ class PrimesTest {
         1373637, 1373641, 1373651, 1373652, 1373653, 1373654, 1373655, 1373673, 1373675, 1373679, //around second boundary in miller-rabin
         25325979, 25325983, 25325993, 25325997, 25325999, 25326001, 25326003, 25326007, 25326009, 25326011, 25326021, 25326025, //around third boundary in miller-rabin
         100000005,
-        1073741341, 1073741823, 2147473649, 2147483641, 2147483643, 2147483645, 2147483646};
+        1073741341, 1073741823, 2147473649, 2147483641, 2147483643, 2147483645, 2147483646,
+        // Hit branch case in Miller-Rabin when square % n == 1
+        16973393, 25909453
+    };
 
     static final int[] BELOW_2 = {Integer.MIN_VALUE, -1, 0, 1};
 
