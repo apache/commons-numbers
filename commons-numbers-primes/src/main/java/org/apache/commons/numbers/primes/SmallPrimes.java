@@ -212,9 +212,9 @@ final class SmallPrimes {
                 }
             }
         }
-        if (n != 1) {
-            factors.add(n);
-        }
+        // Note: When this method is used after the small trial division n != 1
+        // for all n in [2, MAX_VALUE] (tested using an exhaustive enumeration).
+        factors.add(n);
         return n;
     }
 
