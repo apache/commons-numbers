@@ -730,8 +730,8 @@ final class QuickSelect {
      */
     private static int repeatedStep(double[] a, int l, int r, int k, int[] upper, int flags) {
         // Adapted from Alexandrescu (2016), algorithm 8.
-        int fp;
-        int s;
+        final int fp;
+        final int s;
         int p;
         if (flags <= MODE_SAMPLING) {
             // Median into a 12th-tile
@@ -785,8 +785,8 @@ final class QuickSelect {
      */
     private static int repeatedStepLeft(double[] a, int l, int r, int k, int[] upper, int flags) {
         // Adapted from Alexandrescu (2016), algorithm 9.
-        int fp;
-        int s;
+        final int fp;
+        final int s;
         int p;
         if (flags <= MODE_SAMPLING) {
             // Median into a 12th-tile
@@ -842,8 +842,8 @@ final class QuickSelect {
      */
     private static int repeatedStepRight(double[] a, int l, int r, int k, int[] upper, int flags) {
         // Mirror image repeatedStepLeft using upper median into 3rd quartile
-        int fp;
-        int e;
+        final int fp;
+        final int e;
         int p;
         if (flags <= MODE_SAMPLING) {
             // Median into a 12th-tile
@@ -906,8 +906,8 @@ final class QuickSelect {
         //   A min-of-3 sample can create a pivot too small if used with adaption of k leaving
         //   k in the larger parition and a wasted iteration.
         // - Adaption is adjusted to force use of the lower margin when not sampling.
-        int fp;
-        int s;
+        final int fp;
+        final int s;
         int p;
         if (flags <= MODE_SAMPLING) {
             // 2nd 12th-tile
@@ -976,8 +976,8 @@ final class QuickSelect {
      */
     private static int repeatedStepFarRight(double[] a, int l, int r, int k, int[] upper, int flags) {
         // Mirror image repeatedStepFarLeft
-        int fp;
-        int e;
+        final int fp;
+        final int e;
         int p;
         if (flags <= MODE_SAMPLING) {
             // 11th 12th-tile
@@ -1991,8 +1991,8 @@ final class QuickSelect {
      */
     private static int repeatedStep(int[] a, int l, int r, int k, int[] upper, int flags) {
         // Adapted from Alexandrescu (2016), algorithm 8.
-        int fp;
-        int s;
+        final int fp;
+        final int s;
         int p;
         if (flags <= MODE_SAMPLING) {
             // Median into a 12th-tile
@@ -2046,8 +2046,8 @@ final class QuickSelect {
      */
     private static int repeatedStepLeft(int[] a, int l, int r, int k, int[] upper, int flags) {
         // Adapted from Alexandrescu (2016), algorithm 9.
-        int fp;
-        int s;
+        final int fp;
+        final int s;
         int p;
         if (flags <= MODE_SAMPLING) {
             // Median into a 12th-tile
@@ -2103,8 +2103,8 @@ final class QuickSelect {
      */
     private static int repeatedStepRight(int[] a, int l, int r, int k, int[] upper, int flags) {
         // Mirror image repeatedStepLeft using upper median into 3rd quartile
-        int fp;
-        int e;
+        final int fp;
+        final int e;
         int p;
         if (flags <= MODE_SAMPLING) {
             // Median into a 12th-tile
@@ -2167,8 +2167,8 @@ final class QuickSelect {
         //   A min-of-3 sample can create a pivot too small if used with adaption of k leaving
         //   k in the larger parition and a wasted iteration.
         // - Adaption is adjusted to force use of the lower margin when not sampling.
-        int fp;
-        int s;
+        final int fp;
+        final int s;
         int p;
         if (flags <= MODE_SAMPLING) {
             // 2nd 12th-tile
@@ -2237,8 +2237,8 @@ final class QuickSelect {
      */
     private static int repeatedStepFarRight(int[] a, int l, int r, int k, int[] upper, int flags) {
         // Mirror image repeatedStepFarLeft
-        int fp;
-        int e;
+        final int fp;
+        final int e;
         int p;
         if (flags <= MODE_SAMPLING) {
             // 11th 12th-tile
