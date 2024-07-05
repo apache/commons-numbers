@@ -39,6 +39,12 @@
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
     <numbers.jira.component>quaternion</numbers.jira.component>
+
+    <!-- Change from commons-parent of 1.0 as enumeration default cases cannot be reached -->
+    <commons.jacoco.instructionRatio>0.98</commons.jacoco.instructionRatio>
+    <commons.jacoco.branchRatio>0.93</commons.jacoco.branchRatio>
+    <commons.jacoco.lineRatio>0.97</commons.jacoco.lineRatio>
+    <commons.jacoco.complexityRatio>0.95</commons.jacoco.complexityRatio>
   </properties>
 
   <dependencies>
