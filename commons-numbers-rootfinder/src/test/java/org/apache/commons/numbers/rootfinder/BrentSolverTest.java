@@ -225,6 +225,14 @@ class BrentSolverTest {
             // Ensure expected error condition.
             Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
         }
+
+        try {
+            double result = solver.findRoot(func, 0.0, -7.0, 0.6);
+            Assertions.fail("an out of range condition was expected");
+        } catch (SolverException ex) {
+            // Ensure expected error condition.
+            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
+        }
     }
 
     @Test
