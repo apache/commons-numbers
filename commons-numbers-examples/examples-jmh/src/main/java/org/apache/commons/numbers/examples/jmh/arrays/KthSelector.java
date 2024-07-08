@@ -1666,8 +1666,6 @@ class KthSelector {
         // values closer to the edge. The middle will be sorted by quicksort.
         // 13 = 27 / 2 where 27 is the threshold for quicksort.
         if (dist < (minSelectSize >>> 1)) {
-            // TODO: Determine if this is needed? The original paper
-            // does not comment its purpose.
             div++;
         }
         //swap(a, less - 1, left)
