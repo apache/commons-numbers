@@ -686,9 +686,6 @@ class ComplexEdgeCaseTest {
 
         // pow(Complex) is log().multiply(Complex).exp()
         // All are overflow safe and handle infinities as defined in the C99 standard.
-        // TODO: Test edge cases with:
-        // Double.MAX_VALUE, Double.MIN_NORMAL, Inf
-        // using other library implementations.
 
         // Test NaN
         assertComplex(1, 1, nan, nan, name, operation, nan, nan);
