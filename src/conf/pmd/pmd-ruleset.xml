@@ -74,8 +74,10 @@
 
   <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
-      <!-- TODO: Current regex effectively disables this rule. -->
-      <property name="violationSuppressXPath" value="./ancestor-or-self::ClassDeclaration[matches(@SimpleName, '^.*$')]"/>
+      <property name="violationSuppressXPath" value="./ancestor-or-self::MethodDeclaration[@Name='of'
+        or @Name='hi' or @Name='lo'] |
+        ./ancestor-or-self::ClassDeclaration[@SimpleName='DoubleEquivalence'
+        or @SimpleName='LanczosApproximation']"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ClassNamingConventions">
