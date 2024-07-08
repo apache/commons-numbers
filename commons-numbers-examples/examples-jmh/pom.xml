@@ -105,7 +105,7 @@
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/../..</numbers.parent.dir>
 
-    <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.3.0</exec-maven-plugin.version>
 
     <!-- JMH Benchmark related properties: version, name of the benchmarking uber jar. -->
     <jmh.version>1.37</jmh.version>
