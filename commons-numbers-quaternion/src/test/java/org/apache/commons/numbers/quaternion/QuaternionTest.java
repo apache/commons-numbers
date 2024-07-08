@@ -118,9 +118,8 @@ class QuaternionTest {
         Assertions.assertEquals(-q3, qConjugate.getZ());
     }
 
-    /* TODO remove dependency on Vector3D
     @Test
-    final void testProductQuaternionQuaternion() {
+    final void testMultiplyQuaternionQuaternion() {
 
         // Case : analytic test case
 
@@ -128,44 +127,25 @@ class QuaternionTest {
         final Quaternion qB = Quaternion.of(6, 2, 1, -9);
         final Quaternion qResult = Quaternion.multiply(qA, qB);
 
-        Assert.assertEquals(44, qResult.getW(), EPS);
-        Assert.assertEquals(28, qResult.getX(), EPS);
-        Assert.assertEquals(-4.5, qResult.getY(), EPS);
-        Assert.assertEquals(21.5, qResult.getZ(), EPS);
-
-        // comparison with the result given by the formula :
-        // qResult = (scalarA * scalarB - vectorA . vectorB) + (scalarA * vectorB + scalarB * vectorA + vectorA ^
-        // vectorB)
-
-        final Vector3D vectorA = new Vector3D(qA.getVectorPart());
-        final Vector3D vectorB = new Vector3D(qB.getVectorPart());
-        final Vector3D vectorResult = new Vector3D(qResult.getVectorPart());
-
-        final double scalarPartRef = qA.getScalarPart() * qB.getScalarPart() - Vector3D.dotProduct(vectorA, vectorB);
-
-        Assert.assertEquals(scalarPartRef, qResult.getScalarPart(), EPS);
-
-        final Vector3D vectorPartRef = ((vectorA.scalarMultiply(qB.getScalarPart())).add(vectorB.scalarMultiply(qA
-                .getScalarPart()))).add(Vector3D.crossProduct(vectorA, vectorB));
-        final double norm = (vectorResult.subtract(vectorPartRef)).norm();
-
-        Assert.assertEquals(0, norm, EPS);
+        Assertions.assertEquals(44, qResult.getW(), EPS);
+        Assertions.assertEquals(28, qResult.getX(), EPS);
+        Assertions.assertEquals(-4.5, qResult.getY(), EPS);
+        Assertions.assertEquals(21.5, qResult.getZ(), EPS);
 
         // Conjugate of the product of two quaternions and product of their conjugates :
         // Conj(qA * qB) = Conj(qB) * Conj(qA)
 
-        final Quaternion conjugateOfProduct = qB.getConjugate().multiply(qA.getConjugate());
-        final Quaternion productOfConjugate = (qA.multiply(qB)).getConjugate();
+        final Quaternion productOfConjugate = qB.conjugate().multiply(qA.conjugate());
+        final Quaternion conjugateOfProduct = (qA.multiply(qB)).conjugate();
 
-        Assert.assertEquals(conjugateOfProduct.getW(), productOfConjugate.getW(), EPS);
-        Assert.assertEquals(conjugateOfProduct.getX(), productOfConjugate.getX(), EPS);
-        Assert.assertEquals(conjugateOfProduct.getY(), productOfConjugate.getY(), EPS);
-        Assert.assertEquals(conjugateOfProduct.getZ(), productOfConjugate.getZ(), EPS);
+        Assertions.assertEquals(productOfConjugate.getW(), conjugateOfProduct.getW(), EPS);
+        Assertions.assertEquals(productOfConjugate.getX(), conjugateOfProduct.getX(), EPS);
+        Assertions.assertEquals(productOfConjugate.getY(), conjugateOfProduct.getY(), EPS);
+        Assertions.assertEquals(productOfConjugate.getZ(), conjugateOfProduct.getZ(), EPS);
     }
-    */
-    /* TODO remove dependency on Vector3D
+
     @Test
-    final void testProductQuaternionVector() {
+    final void testMultiplyQuaternionVector() {
 
         // Case : Product between a vector and a quaternion : QxV
 
@@ -173,48 +153,21 @@ class QuaternionTest {
         final double[] vector = {2.0, 1.0, 3.0};
         final Quaternion qResultQxV = Quaternion.multiply(quaternion, Quaternion.of(vector));
 
-        Assert.assertEquals(-19, qResultQxV.getW(), EPS);
-        Assert.assertEquals(3, qResultQxV.getX(), EPS);
-        Assert.assertEquals(-13, qResultQxV.getY(), EPS);
-        Assert.assertEquals(21, qResultQxV.getZ(), EPS);
-
-        // comparison with the result given by the formula :
-        // qResult = (- vectorQ . vector) + (scalarQ * vector + vectorQ ^ vector)
-
-        final double[] vectorQ = quaternion.getVectorPart();
-        final double[] vectorResultQxV = qResultQxV.getVectorPart();
-
-        final double scalarPartRefQxV = -Vector3D.dotProduct(new Vector3D(vectorQ), new Vector3D(vector));
-        Assert.assertEquals(scalarPartRefQxV, qResultQxV.getScalarPart(), EPS);
-
-        final Vector3D vectorPartRefQxV = (new Vector3D(vector).scalarMultiply(quaternion.getScalarPart())).add(Vector3D
-                .crossProduct(new Vector3D(vectorQ), new Vector3D(vector)));
-        final double normQxV = (new Vector3D(vectorResultQxV).subtract(vectorPartRefQxV)).norm();
-        Assert.assertEquals(0, normQxV, EPS);
+        Assertions.assertEquals(-19, qResultQxV.getW(), EPS);
+        Assertions.assertEquals(3, qResultQxV.getX(), EPS);
+        Assertions.assertEquals(-13, qResultQxV.getY(), EPS);
+        Assertions.assertEquals(21, qResultQxV.getZ(), EPS);
 
         // Case : Product between a vector and a quaternion : VxQ
 
         final Quaternion qResultVxQ = Quaternion.multiply(Quaternion.of(vector), quaternion);
 
-        Assert.assertEquals(-19, qResultVxQ.getW(), EPS);
-        Assert.assertEquals(13, qResultVxQ.getX(), EPS);
-        Assert.assertEquals(21, qResultVxQ.getY(), EPS);
-        Assert.assertEquals(3, qResultVxQ.getZ(), EPS);
-
-        final double[] vectorResultVxQ = qResultVxQ.getVectorPart();
-
-        // comparison with the result given by the formula :
-        // qResult = (- vector . vectorQ) + (scalarQ * vector + vector ^ vectorQ)
-
-        final double scalarPartRefVxQ = -Vector3D.dotProduct(new Vector3D(vectorQ), new Vector3D(vector));
-        Assert.assertEquals(scalarPartRefVxQ, qResultVxQ.getScalarPart(), EPS);
-
-        final Vector3D vectorPartRefVxQ = (new Vector3D(vector).scalarMultiply(quaternion.getScalarPart())).add(Vector3D
-                .crossProduct(new Vector3D(vector), new Vector3D(vectorQ)));
-        final double normVxQ = (new Vector3D(vectorResultVxQ).subtract(vectorPartRefVxQ)).norm();
-        Assert.assertEquals(0, normVxQ, EPS);
+        Assertions.assertEquals(-19, qResultVxQ.getW(), EPS);
+        Assertions.assertEquals(13, qResultVxQ.getX(), EPS);
+        Assertions.assertEquals(21, qResultVxQ.getY(), EPS);
+        Assertions.assertEquals(3, qResultVxQ.getZ(), EPS);
     }
-    */
+
     @Test
     final void testDotProductQuaternionQuaternion() {
         // expected output
