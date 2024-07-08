@@ -617,7 +617,7 @@ This is avoided by creating an empty directory when svn is not available.
         These are combined with the existing <modules>.
     -->
     <profile>
-      <id>commons-numbers-examples</id>
+      <id>examples</id>
       <modules>
         <module>commons-numbers-examples</module>
       </modules>
