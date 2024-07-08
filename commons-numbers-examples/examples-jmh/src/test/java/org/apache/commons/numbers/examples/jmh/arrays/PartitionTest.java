@@ -1740,7 +1740,6 @@ class PartitionTest {
             new int[] {0, 3, ~8}, new int[] {8, 8}));
         builder.add(Arguments.of(100, new int[] {9, 6, 7, 8, 2, 1, 1, 3}, allK, 2, 0,
             new int[] {1, 3, 6, 9}, new int[] {6, 9}));
-        // TODO: more cases
 
         // Repeat the contents of the stream with any case not using the full length of the data.
         // by padding with random indices (these should be ignored)

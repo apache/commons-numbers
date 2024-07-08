@@ -382,7 +382,4 @@ class PivotCacheTest {
 
         return builder.build();
     }
-
-    // TODO:
-    // Test moveLeft()
 }
