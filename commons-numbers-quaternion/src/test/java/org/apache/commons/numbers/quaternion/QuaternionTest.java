@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.quaternion;
 
 import java.util.Random;
-
+import java.util.SplittableRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -551,35 +551,20 @@ class QuaternionTest {
         Assertions.assertTrue(q.equals(qNeg.negate(), 0d));
     }
 
-    /* TODO remove dependency on Rotation
     @Test
     final void testPolarForm() {
-        final Random r = new Random(48);
+        final SplittableRandom r = new SplittableRandom(48);
         final int numberOfTrials = 1000;
         for (int i = 0; i < numberOfTrials; i++) {
             final Quaternion q = Quaternion.of(2 * (r.nextDouble() - 0.5), 2 * (r.nextDouble() - 0.5),
-                                                2 * (r.nextDouble() - 0.5), 2 * (r.nextDouble() - 0.5));
+                                               2 * (r.nextDouble() - 0.5), 2 * (r.nextDouble() - 0.5));
             final Quaternion qP = q.positivePolarForm();
 
-            Assert.assertTrue(qP.isUnit(COMPARISON_EPS));
-            Assert.assertTrue(qP.getW() >= 0);
-
-            final Rotation rot = new Rotation(q.getW(), q.getX(), q.getY(), q.getZ(), true);
-            final Rotation rotP = new Rotation(qP.getW(), qP.getX(), qP.getY(), qP.getZ(), true);
-
-            Assert.assertEquals(rot.getAngle(), rotP.getAngle(), COMPARISON_EPS);
-            Assert.assertEquals(rot.getAxis(RotationConvention.VECTOR_OPERATOR).getX(),
-                                rot.getAxis(RotationConvention.VECTOR_OPERATOR).getX(),
-                                COMPARISON_EPS);
-            Assert.assertEquals(rot.getAxis(RotationConvention.VECTOR_OPERATOR).getY(),
-                                rot.getAxis(RotationConvention.VECTOR_OPERATOR).getY(),
-                                COMPARISON_EPS);
-            Assert.assertEquals(rot.getAxis(RotationConvention.VECTOR_OPERATOR).getZ(),
-                                rot.getAxis(RotationConvention.VECTOR_OPERATOR).getZ(),
-                                COMPARISON_EPS);
+            Assertions.assertTrue(qP.isUnit(COMPARISON_EPS), "polar form is not unit length");
+            Assertions.assertTrue(qP.getW() >= 0, "scalar part is not positive");
         }
     }
-*/
+
     @Test
     final void testInverse() {
         final Quaternion q = Quaternion.of(1.5, 4, 2, -2.5);
