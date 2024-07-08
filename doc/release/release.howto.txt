@@ -152,7 +152,7 @@ that the build process can create all the necessary artifacts.
   (1b)
   The command (requires Java 11):
 
-    $ JAVA_HOME="__Path_to_a_JDK__" mvn -Pcommons-numbers-examples package site site:stage
+    $ JAVA_HOME="__Path_to_a_JDK__" mvn -Pexamples package site site:stage
 
   should create the site in the "target/staging" directory. The JMH example modules require
   Java 9+.
@@ -221,7 +221,7 @@ In particular:
 
    This can be done using maven:
 
-    $ mvn versions:set -DnewVersion=1.1 -DgenerateBackupPoms=false -Pcommons-numbers-examples
+    $ mvn versions:set -DnewVersion=1.1 -DgenerateBackupPoms=false -Pexamples
 
    You may need to update the version in dist-archive/pom.xml manually.
 
@@ -564,7 +564,7 @@ Then run these commands:
   correct hashes. It also removes the previous javadocs package-list generated using
   Java 8.
 
-  $ mvn -Pcommons-numbers-examples package site site:stage
+  $ mvn -Pexamples package site site:stage
 
   $ cd target
   $ mv staging commons-numbers-1.1-RC1-site
@@ -627,7 +627,7 @@ I have tested this with 'mvn clean install' using:
 <mvn -version>
 ***
 
-I have tested this with 'mvn clean install site site:stage -Pcommons-numbers-examples' using:
+I have tested this with 'mvn clean install site site:stage -Pexamples' using:
 
 ***
 <mvn -version>
@@ -898,7 +898,7 @@ next version will be 1.2).
 
   This can be done using maven:
 
-    $ mvn release:update-versions -DautoVersionSubmodules=true -Prelease -Pcommons-numbers-examples
+    $ mvn release:update-versions -DautoVersionSubmodules=true -Prelease -Pexamples
 
   You will only be prompted for the desired version number once.
   This may miss the dist-archive/pom.xml for all the dependencies.

@@ -627,7 +627,7 @@ This is avoided by creating an empty directory when svn is not available.
       <id>release</id>
       <modules>
         <!-- Examples are not part of the binary release so do not include in the build.
-             Use the commons-numbers-examples profile to create the site. -->
+             Use the examples profile to create the site. -->
         <module>dist-archive</module>
       </modules>
     </profile>
