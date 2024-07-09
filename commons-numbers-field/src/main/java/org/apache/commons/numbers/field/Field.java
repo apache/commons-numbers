@@ -49,7 +49,7 @@ public interface Field<T> {
     T negate(T a);
 
     /**
-     * Multiply the element {@code a} a number of times {@code n}.
+     * Multiply the element {@code a} by a specified number of times {@code n}.
      *
      * @param a Field element.
      * @param n Number of times {@code a} must be added to itself.
