@@ -25,6 +25,9 @@ import org.apache.commons.numbers.core.NativeOperators;
  */
 public abstract class AbstractField<T extends NativeOperators<T>>
     implements Field<T> {
+    /** Create an instance. */
+    public AbstractField() {}
+
     /** {@inheritDoc} */
     @Override
     public T add(T a, T b) {

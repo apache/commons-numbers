@@ -28,7 +28,11 @@ public final class DDField extends AbstractField<DD> {
     /** Singleton. */
     private DDField() {}
 
-    /** @return the field instance. */
+    /**
+     * Get the field instance.
+     *
+     * @return the field instance.
+     */
     public static DDField get() {
         return INSTANCE;
     }

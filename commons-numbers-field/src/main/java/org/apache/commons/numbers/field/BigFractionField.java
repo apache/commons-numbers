@@ -28,7 +28,11 @@ public final class BigFractionField extends AbstractField<BigFraction> {
     /** Singleton. */
     private BigFractionField() {}
 
-    /** @return the field instance. */
+    /**
+     * Get the field instance.
+     *
+     * @return the field instance.
+     */
     public static BigFractionField get() {
         return INSTANCE;
     }

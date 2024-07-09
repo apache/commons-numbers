@@ -28,7 +28,11 @@ public final class FractionField extends AbstractField<Fraction> {
     /** Singleton. */
     private FractionField() {}
 
-    /** @return the field instance. */
+    /**
+     * Get the field instance.
+     *
+     * @return the field instance.
+     */
     public static FractionField get() {
         return INSTANCE;
     }

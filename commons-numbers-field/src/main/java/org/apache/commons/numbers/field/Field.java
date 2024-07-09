@@ -23,6 +23,8 @@ package org.apache.commons.numbers.field;
  */
 public interface Field<T> {
     /**
+     * Add the elements.
+     *
      * @param a Field element.
      * @param b Field element.
      * @return {@code a + b}.
@@ -30,6 +32,8 @@ public interface Field<T> {
     T add(T a, T b);
 
     /**
+     * Subtract the element {@code b} from {@code a}.
+     *
      * @param a Field element.
      * @param b Field element.
      * @return {@code a - b}.
@@ -37,12 +41,16 @@ public interface Field<T> {
     T subtract(T a, T b);
 
     /**
+     * Negate the element.
+     *
      * @param a Field element.
      * @return {@code -a}.
      */
     T negate(T a);
 
     /**
+     * Multiply the element {@code a} a number of times {@code n}.
+     *
      * @param a Field element.
      * @param n Number of times {@code a} must be added to itself.
      * @return {@code n a}.
@@ -50,6 +58,8 @@ public interface Field<T> {
     T multiply(int n, T a);
 
     /**
+     * Multiply the elements.
+     *
      * @param a Field element.
      * @param b Field element.
      * @return {@code a * b}.
@@ -57,6 +67,8 @@ public interface Field<T> {
     T multiply(T a, T b);
 
     /**
+     * Divide the element {@code a} by {@code b}.
+     *
      * @param a Field element.
      * @param b Field element.
      * @return <code>a * b<sup>-1</sup></code>.
@@ -64,18 +76,24 @@ public interface Field<T> {
     T divide(T a, T b);
 
     /**
+     * Return the reciprocal (multiplicative inverse).
+     *
      * @param a Field element.
      * @return <code>a<sup>-1</sup></code>.
      */
     T reciprocal(T a);
 
     /**
+     * Return the value of one.
+     *
      * @return the field element {@code 1} such that for all {@code a},
      * {@code 1 * a == a}.
      */
     T one();
 
     /**
+     * Return the value of zero.
+     *
      * @return the field element {@code 0} such that for all {@code a},
      * {@code 0 + a == a}.
      */

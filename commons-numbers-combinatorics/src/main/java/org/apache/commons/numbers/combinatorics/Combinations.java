@@ -50,6 +50,8 @@ public final class Combinations implements Iterable<int[]> {
     }
 
     /**
+     * Create an instance.
+     *
      * @param n Size of the set from which subsets are selected.
      * @param k Size of the subsets to be enumerated.
      * @throws IllegalArgumentException if {@code n < 0}.

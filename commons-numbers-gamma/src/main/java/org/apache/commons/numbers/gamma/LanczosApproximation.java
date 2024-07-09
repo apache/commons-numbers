@@ -73,7 +73,9 @@ public final class LanczosApproximation {
     }
 
     /**
-     * @return the Lanczos constant \( g = \frac{607}{128} \).
+     * Return the Lanczos constant \( g = \frac{607}{128} \).
+     *
+     * @return the Lanczos constant.
      */
     public static double g() {
         return LANCZOS_G;

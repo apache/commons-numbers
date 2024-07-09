@@ -30,7 +30,11 @@ public final class FP64Field extends AbstractField<FP64> {
     /** Singleton. */
     private FP64Field() {}
 
-    /** @return the field instance. */
+    /**
+     * Get the field instance.
+     *
+     * @return the field instance.
+     */
     public static FP64Field get() {
         return INSTANCE;
     }

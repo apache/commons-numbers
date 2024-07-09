@@ -40,6 +40,8 @@
     <exclude name="OnlyOneReturn" />
     <exclude name="UseUnderscoresInNumericLiterals" />
     <exclude name="ShortClassName" />
+    <!-- Constructors are added to avoid javadoc warnings on JDK 21 -->
+    <exclude name="UnnecessaryConstructor" />
   </rule>
   <rule ref="category/java/design.xml">
     <exclude name="TooManyMethods" />
@@ -48,6 +50,8 @@
   </rule>
   <rule ref="category/java/documentation.xml">
     <exclude name="CommentSize" />
+    <!-- Constructors are added to avoid javadoc warnings on JDK 21 -->
+    <exclude name="UncommentedEmptyConstructor" />
   </rule>
   <rule ref="category/java/errorprone.xml">
     <!-- <exclude name="..." /> -->

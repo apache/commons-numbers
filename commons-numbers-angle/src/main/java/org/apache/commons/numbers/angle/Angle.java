@@ -74,16 +74,22 @@ public abstract class Angle implements DoubleSupplier {
     }
 
     /**
+     * Convert to a {@link Turn}.
+     *
      * @return the angle in <a href="https://en.wikipedia.org/wiki/Turn_%28geometry%29">turns</a>.
      */
     public abstract Turn toTurn();
 
     /**
+     * Convert to a {@link Rad}.
+     *
      * @return the angle in <a href="https://en.wikipedia.org/wiki/Radian">radians</a>.
      */
     public abstract Rad toRad();
 
     /**
+     * Convert to a {@link Deg}.
+     *
      * @return the angle in <a href="https://en.wikipedia.org/wiki/Degree_%28angle%29">degrees</a>.
      */
     public abstract Deg toDeg();
@@ -98,6 +104,8 @@ public abstract class Angle implements DoubleSupplier {
         public static final DoubleUnaryOperator WITHIN_0_AND_1 = normalizer(0d);
 
         /**
+         * Create an instance.
+         *
          * @param angle (in turns).
          */
         private Turn(final double angle) {
@@ -105,6 +113,8 @@ public abstract class Angle implements DoubleSupplier {
         }
 
         /**
+         * Create an instance.
+         *
          * @param angle (in turns).
          * @return a new instance.
          */
@@ -158,6 +168,8 @@ public abstract class Angle implements DoubleSupplier {
         public static final DoubleUnaryOperator WITHIN_MINUS_PI_AND_PI = normalizer(-Math.PI);
 
         /**
+         * Create an instance.
+         *
          * @param angle (in radians).
          */
         private Rad(final double angle) {
@@ -165,6 +177,8 @@ public abstract class Angle implements DoubleSupplier {
         }
 
         /**
+         * Create an instance.
+         *
          * @param angle (in radians).
          * @return a new instance.
          */
@@ -212,6 +226,8 @@ public abstract class Angle implements DoubleSupplier {
         public static final DoubleUnaryOperator WITHIN_0_AND_360 = normalizer(0d);
 
         /**
+         * Create an instance.
+         *
          * @param angle (in degrees).
          */
         private Deg(final double angle) {
@@ -219,6 +235,8 @@ public abstract class Angle implements DoubleSupplier {
         }
 
         /**
+         * Create an instance.
+         *
          * @param angle (in degrees).
          * @return a new instance.
          */

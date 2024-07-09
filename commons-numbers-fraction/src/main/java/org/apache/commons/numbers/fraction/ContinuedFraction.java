@@ -45,6 +45,9 @@ import org.apache.commons.numbers.fraction.GeneralizedContinuedFraction.Coeffici
  * with updates to the previous coefficients.
  */
 public abstract class ContinuedFraction {
+    /** Create an instance. */
+    public ContinuedFraction() {}
+
     /**
      * Defines the <a href="https://mathworld.wolfram.com/ContinuedFraction.html">
      * {@code n}-th "a" coefficient</a> of the continued fraction.

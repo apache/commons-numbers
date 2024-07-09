@@ -31,6 +31,8 @@ public class Reduce implements DoubleUnaryOperator {
     private final double period;
 
     /**
+     * Create an instance.
+     *
      * @param offset Value that will be mapped to {@code 0}.
      * @param period Period.
      */
