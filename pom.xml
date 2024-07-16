@@ -87,7 +87,7 @@
     <doclint.javadoc.qualifier>-Xdoclint:all</doclint.javadoc.qualifier>
 
     <!-- Dependency versions -->
-    <numbers.commons.rng.version>1.6-SNAPSHOT</numbers.commons.rng.version>
+    <numbers.commons.rng.version>1.6</numbers.commons.rng.version>
     <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
 
     <!-- Workaround to avoid the SVN site checkout in all modules.
