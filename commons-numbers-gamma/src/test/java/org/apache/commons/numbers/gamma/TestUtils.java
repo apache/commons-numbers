@@ -314,7 +314,7 @@ final class TestUtils {
             equal = delta <= ((maxUlps < 0) ? (-maxUlps - 1) : maxUlps);
         }
 
-        assert sign == Double.compare(actual, expected);
+        Assertions.assertEquals(sign, Double.compare(actual, expected));
 
         // DEBUG:
         if (maxUlps < 0) {
