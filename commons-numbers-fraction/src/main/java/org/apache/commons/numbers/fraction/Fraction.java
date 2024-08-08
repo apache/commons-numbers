@@ -423,7 +423,11 @@ public final class Fraction
         return ZERO;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @since 1.2
+     */
     @Override
     public boolean isZero() {
         return numerator == 0;
@@ -434,7 +438,11 @@ public final class Fraction
         return ONE;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @since 1.2
+     */
     @Override
     public boolean isOne() {
         return numerator == denominator;

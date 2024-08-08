@@ -503,7 +503,11 @@ public final class BigFraction
         return ZERO;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @since 1.2
+     */
     @Override
     public boolean isZero() {
         return numerator.signum() == 0;
@@ -514,7 +518,11 @@ public final class BigFraction
         return ONE;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @since 1.2
+     */
     @Override
     public boolean isOne() {
         return numerator.equals(denominator);
