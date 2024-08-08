@@ -680,7 +680,7 @@ z.doubleValue()                        // = 1.0
   For summation of terms of the same sign a very large number of operations would be required to
   observe a 1 ULP error in the final <<<double>>> result. If terms of the opposite sign are
   summed then smaller magnitude intermediate terms can be lost due to the limited 106-bit
-  precision. In this case almost total cancellation will product the incorrect result.
+  precision. In this case almost total cancellation will produce the incorrect result.
 
 +------------------------------------------+
 double a = 1;
@@ -698,7 +698,7 @@ DD.of(a).add(b).add(c).subtract(c).subtract(b)  // (0, 0)
   The purpose is to supplement the arithmetic operations in the <<<DD>>> class providing
   greater accuracy at the cost of performance.
   This includes a power function that returns the result in a fractional representation
-  to avoid over or underflow, with a lower error bound that the equivalent function in <<<DD>>>.
+  to avoid over or underflow, with a lower error bound than the equivalent function in <<<DD>>>.
 
 ** Overflow and underflow
 
