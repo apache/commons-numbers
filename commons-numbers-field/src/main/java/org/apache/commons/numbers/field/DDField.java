@@ -20,6 +20,8 @@ import org.apache.commons.numbers.core.DD;
 
 /**
  * {@link DD} field.
+ *
+ * @since 1.2
  */
 public final class DDField extends AbstractField<DD> {
     /** Singleton. */

@@ -184,6 +184,7 @@ public final class Sum
      *
      * @param other Sum to subtract.
      * @return this instance.
+     * @since 1.2
      */
     public Sum subtract(final Sum other) {
         return add(-other.sum, -other.comp);
