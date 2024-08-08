@@ -32,6 +32,9 @@ under the License.
   <description>This module creates the Apache Commons Numbers distribution.</description>
 
   <properties>
+    <!-- Reproducible builds -->
+    <project.build.outputTimestamp>${numbers.build.outputTimestamp}</project.build.outputTimestamp>
+
     <checkstyle.skip>true</checkstyle.skip>
     <animal.sniffer.skip>true</animal.sniffer.skip>
     <!-- Commons Release Plugin -->

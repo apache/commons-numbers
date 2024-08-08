@@ -37,6 +37,8 @@
     <animal.sniffer.skip>true</animal.sniffer.skip>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <!-- Reproducible builds -->
+    <project.build.outputTimestamp>${numbers.build.outputTimestamp}</project.build.outputTimestamp>
     <!-- Skip the standard build plugins to avoid processing this 'jar' as an artifact. -->
     <maven.resources.skip>true</maven.resources.skip>
     <maven.source.skip>true</maven.source.skip>
