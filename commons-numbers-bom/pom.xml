@@ -52,6 +52,8 @@
   <properties>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <!-- Reproducible builds -->
+    <project.build.outputTimestamp>${numbers.build.outputTimestamp}</project.build.outputTimestamp>
 
     <!-- Skip the standard install and deploy to avoid processing this pom as the artifact. -->
     <maven.install.skip>true</maven.install.skip>

@@ -41,6 +41,8 @@
     <commons.module.name>org.apache.commons.numbers.examples</commons.module.name>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
+    <!-- Reproducible builds -->
+    <project.build.outputTimestamp>${numbers.build.outputTimestamp}</project.build.outputTimestamp>
     <numbers.jira.component>examples</numbers.jira.component>
 
     <!-- Disable JApiCmp failures (but keep the report). The examples API is allowed to change. -->
