@@ -104,6 +104,8 @@
     <commons.module.name>org.apache.commons.numbers.examples.jmh</commons.module.name>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/../..</numbers.parent.dir>
+    <!-- Reproducible builds -->
+    <project.build.outputTimestamp>${numbers.build.outputTimestamp}</project.build.outputTimestamp>
 
     <exec-maven-plugin.version>3.3.0</exec-maven-plugin.version>
 
