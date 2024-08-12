@@ -29,7 +29,7 @@
        "Not executing Javadoc as the project is not a Java classpath-capable package" -->
 
   <name>Apache Commons Numbers Documentation</name>
-  <description>Aggregator module to genenerate Apache Commons Numbers documentation.</description>
+  <description>Aggregator module to generate Apache Commons Numbers documentation.</description>
 
   <properties>
     <moditect.skip>true</moditect.skip>
