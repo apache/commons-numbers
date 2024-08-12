@@ -40,36 +40,23 @@
  |                                                                      |
  +======================================================================+
 --->
-Apache Commons Numbers Arrays
+Apache Commons Numbers Documentation
 ===================
 
 [![Java CI](https://github.com/apache/commons-numbers/actions/workflows/maven.yml/badge.svg)](https://github.com/apache/commons-numbers/actions/workflows/maven.yml)
-[![Coverage Status](https://codecov.io/gh/apache/commons-numbers/branch/master/graph/badge.svg)](https://app.codecov.io/gh/apache/commons-numbers)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-arrays/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-arrays/?gav=true)
-[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-arrays/1.2.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-arrays/1.2)
 
-Array utilities.
+Aggregator module to generate Apache Commons Numbers documentation.
 
 Documentation
 -------------
 
 More information can be found on the [Apache Commons Numbers homepage](https://commons.apache.org/proper/commons-numbers).
-The [Javadoc](https://commons.apache.org/proper/commons-numbers/commons-numbers-arrays/apidocs) can be browsed.
+The [Javadoc](https://commons.apache.org/proper/commons-numbers/commons-numbers-docs/apidocs) can be browsed.
 Questions related to the usage of Apache Commons Numbers should be posted to the [user mailing list](https://commons.apache.org/mail-lists.html).
 
 Getting the latest release
 --------------------------
 You can download source and binaries from our [download page](https://commons.apache.org/proper/commons-numbers/download_numbers.cgi).
-
-Alternatively, you can pull it from  the central Maven repositories:
-
-```xml
-<dependency>
-  <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers-arrays</artifactId>
-  <version>1.2</version>
-</dependency>
-```
 
 Building
 --------
