@@ -392,7 +392,8 @@ the maven settings.xml file. Typically the username is the same for Nexus reposi
 settings.xml file can be used by setting the commons.distServer property for the commons release
 plugin (see https://commons.apache.org/proper/commons-release-plugin/index.html).
 
-You can then generate the release artifacts without the site generation (using Java 8):
+You can then generate the release artifacts without the site generation
+(using Java 11 - see below):
 
   $ mvn -Duser.name="__Your_Apache_id__" [-Dcommons.distServer=apache.releases.https] \
         [-Duser.password=<yourApacheIdsPassword] \
@@ -411,11 +412,10 @@ documentation. The release profile will not include the example modules as they
 are not part of the binary release artifacts. The 'package' goal is required
 to generate a jar file for the japicmp report.
 
-Using Java 8 ensures a package-list is created for the javadoc in each module. Later Java
-versions may generate an element-list. If the site is generated including the examples
-module using JDK 11+ without running 'mvn clean' then the package-list will coexist
-alongside the newly generated element-list. This allows the javadocs to be searchable
-from new and old JDKs.
+Using Java 11 will include a module-info.java in the jar via the moditect plugin.
+However it will not create a package-list for the javadoc (instead creating an
+element-list). To ensure the generated javadoc are searchable for new and old
+JDKs a package-list will be generated later during the full site build.
 
 This process transfers more files than really needed in the the "staging" (i.e.
 non official) maven repository. The files expected in the repository are
@@ -562,15 +562,20 @@ file to "SSH Key (authorized_keys line)".
 Then run these commands:
 
   Note: Site generation requires Java 11 for the examples JMH module.
-  With site generation the 'package' goal is required for the site report javadoc
-  of the Java 11 JPMS modules and for japicmp.
+  With site generation the 'package' goal is required for the site report
+  for japicmp.
 
   Do not run 'clean' as it will delete the release source/binary artifacts and the
   release plugin cannot be used to generate the template VOTE.txt file with the
-  correct hashes. It also removes the previous javadocs package-list generated using
-  Java 8.
+  correct hashes.
 
   $ mvn -Pexamples package site site:stage
+
+  To ensure the javadocs are searchable from Java 8 requires a package-list. This
+  can be created by copying the element-list. This is only required for the Java 8
+  modules:
+
+  $ find . -name element-list -execdir cp {} package-list \;
 
   $ cd target
   $ mv staging commons-numbers-1.2-RC1-site
