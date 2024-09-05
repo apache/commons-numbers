@@ -222,6 +222,10 @@ public final class Precision {
      * point values between {@code x} and {@code y}.
      */
     public static boolean equals(final float x, final float y, final int maxUlps) {
+        if (Float.isNaN(x) || Float.isNaN(y)) {
+            return false;
+        }
+
         final int xInt = Float.floatToRawIntBits(x);
         final int yInt = Float.floatToRawIntBits(y);
 
@@ -238,8 +242,7 @@ public final class Precision {
             // Numbers have same sign, there is no risk of overflow.
             isEqual = Math.abs(xInt - yInt) <= maxUlps;
         }
-
-        return isEqual && !Float.isNaN(x) && !Float.isNaN(y);
+        return isEqual;
     }
 
     /**
@@ -366,6 +369,10 @@ public final class Precision {
      * point values between {@code x} and {@code y}.
      */
     public static boolean equals(final double x, final double y, final int maxUlps) {
+        if (Double.isNaN(x) || Double.isNaN(y)) {
+            return false;
+        }
+
         final long xInt = Double.doubleToRawLongBits(x);
         final long yInt = Double.doubleToRawLongBits(y);
 
@@ -375,17 +382,12 @@ public final class Precision {
             final long deltaPlus = xInt & Long.MAX_VALUE;
             final long deltaMinus = yInt & Long.MAX_VALUE;
 
-            // Note:
-            // If either value is NaN, the exponent bits are set to (2047L << 52) and the
-            // distance above 0.0 is always above an integer ULP error. So omit the test
-            // for NaN and return directly.
-
             // Avoid possible overflow from adding the deltas by splitting the comparison
             return deltaPlus <= maxUlps && deltaMinus <= (maxUlps - deltaPlus);
         }
 
         // Numbers have same sign, there is no risk of overflow.
-        return Math.abs(xInt - yInt) <= maxUlps && !Double.isNaN(x) && !Double.isNaN(y);
+        return Math.abs(xInt - yInt) <= maxUlps;
     }
 
     /**
