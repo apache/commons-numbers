@@ -210,7 +210,6 @@ public final class EuclideanNormAlgorithms {
                     final double t = s1 + y;
                     c1 = (t - s1) - y;
                     s1 = t;
-
                 } else if (x < SMALL_THRESH) {
                     // Scale up small numbers
                     final double y = square(x * SCALE_UP) - c3;

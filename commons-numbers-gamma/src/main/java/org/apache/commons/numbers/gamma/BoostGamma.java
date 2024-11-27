@@ -775,7 +775,6 @@ final class BoostGamma {
             // This summation can have large magnitudes with opposite signs.
             // Use an extended precision sum to reduce cancellation.
             result = Sum.of(-lgamma(z)).add(-Math.log(t)).add(LOG_PI).getAsDouble();
-
         } else if (z < ROOT_EPSILON) {
             if (z == 0) {
                 // Pole error
@@ -1277,7 +1276,6 @@ final class BoostGamma {
             // calculate Q via asymptotic approximation:
             invert = !invert;
             evalMethod = 7;
-
         } else if (x < 0.5) {
             //
             // Changeover criterion chosen to give a changeover at Q ~ 0.33

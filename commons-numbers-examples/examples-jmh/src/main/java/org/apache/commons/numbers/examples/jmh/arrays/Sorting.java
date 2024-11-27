@@ -75,7 +75,6 @@ final class Sorting {
                     data[j + 1] = v;
                 }
             }
-
         } else {
             for (int i = left; ++i <= right;) {
                 final double v = data[i];

@@ -488,7 +488,6 @@ public class StickySumPerformance {
         sticky = (sticky ^ fNegate) - fNegate;
 
         return Double.longBitsToDouble(hi + sticky);
-
     }
 
     /**

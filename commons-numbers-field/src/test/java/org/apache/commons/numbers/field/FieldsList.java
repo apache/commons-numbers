@@ -66,7 +66,6 @@ final class FieldsList {
                 createDD(-0.0, -0.0),
                 // double-double operations are subject to rounding so allow a tolerance.
                 FieldsList::areEqual);
-
         } catch (Exception e) {
             e.printStackTrace(System.err);
             throw new RuntimeException(e);

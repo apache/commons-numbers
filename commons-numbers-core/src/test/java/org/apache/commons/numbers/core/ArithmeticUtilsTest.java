@@ -317,7 +317,6 @@ class ArithmeticUtilsTest {
         Assertions.assertEquals(bigOne, ArithmeticUtils.pow(twentyOne, 103));
         Assertions.assertEquals(bigOne, ArithmeticUtils.pow(twentyOne, 103L));
         Assertions.assertEquals(bigOne, ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(103L)));
-
     }
 
     @Test

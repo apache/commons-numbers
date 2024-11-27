@@ -203,6 +203,5 @@ final class TestUtils {
             out.append(" observed has length = ").append(observedLength);
             Assertions.fail(out.toString());
         }
-
     }
 }

@@ -300,7 +300,6 @@ class QuaternionTest {
         Assertions.assertThrows(IllegalStateException.class,
                 q::normalize
         );
-
     }
 
     @Test

@@ -418,7 +418,6 @@ public final class ArithmeticUtils {
         }
 
         return result;
-
     }
 
     /**
@@ -510,7 +509,6 @@ public final class ArithmeticUtils {
             // Subtracting divisor using masking is more complex in this case
             // and we use a condition
             return dividend >= 0 || dividend < divisor ? dividend : dividend - divisor;
-
         }
         // From Hacker's Delight 2.0, section 9.3
         final long q = ((dividend >>> 1) / divisor) << 1;
