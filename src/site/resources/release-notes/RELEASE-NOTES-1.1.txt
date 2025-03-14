@@ -91,7 +91,7 @@ Apache Commons Numbers 1.0 contains the following library modules:
  commons-numbers-primes (requires Java 8+)
  commons-numbers-quaternion (requires Java 8+)
  commons-numbers-rootfinder (requires Java 8+)
-N.B. the Performance testing module requires Java 9+. (The unit tests require Java 8+)
+The Performance testing module requires Java 9+. (The unit tests require Java 8+)
 
 Changes in this version include:
 
