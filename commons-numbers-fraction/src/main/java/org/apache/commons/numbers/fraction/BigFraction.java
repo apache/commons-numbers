@@ -1064,7 +1064,9 @@ public final class BigFraction
         // Compare absolute magnitude
         final BigInteger nOd = numerator.abs().multiply(other.denominator.abs());
         final BigInteger dOn = denominator.abs().multiply(other.numerator.abs());
-        return nOd.compareTo(dOn);
+        return lhsSigNum > 0 ?
+            nOd.compareTo(dOn) :
+            dOn.compareTo(nOd);
     }
 
     /**

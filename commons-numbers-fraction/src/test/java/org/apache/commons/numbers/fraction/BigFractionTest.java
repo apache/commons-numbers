@@ -254,6 +254,8 @@ class BigFractionTest {
         final BigFraction e = BigFraction.of(1, -2);
         final BigFraction f = BigFraction.of(-1, -2);
         final BigFraction g = BigFraction.of(-1, Integer.MIN_VALUE);
+        final BigFraction h = BigFraction.of(-2, 1);
+        final BigFraction i = BigFraction.of(-1, 1);
 
         Assertions.assertEquals(0, a.compareTo(a));
         Assertions.assertEquals(0, a.compareTo(c));
@@ -272,6 +274,7 @@ class BigFractionTest {
         Assertions.assertEquals(-1, g.compareTo(f));
         Assertions.assertEquals(1, a.compareTo(g));
         Assertions.assertEquals(-1, d.compareTo(g));
+        Assertions.assertEquals(-1, h.compareTo(i)); // JIRA:NUMBERS-207
 
         Assertions.assertEquals(0, BigFraction.of(0, 3).compareTo(BigFraction.of(0, -2)));
 

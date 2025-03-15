@@ -214,6 +214,8 @@ class FractionTest {
         final Fraction e = Fraction.of(1, -2);
         final Fraction f = Fraction.of(-1, -2);
         final Fraction g = Fraction.of(-1, Integer.MIN_VALUE);
+        final Fraction h = Fraction.of(-2, 1);
+        final Fraction i = Fraction.of(-1, 1);
 
         Assertions.assertEquals(0, a.compareTo(a));
         Assertions.assertEquals(0, a.compareTo(c));
@@ -232,6 +234,7 @@ class FractionTest {
         Assertions.assertEquals(-1, g.compareTo(f));
         Assertions.assertEquals(1, a.compareTo(g));
         Assertions.assertEquals(-1, d.compareTo(g));
+        Assertions.assertEquals(-1, h.compareTo(i)); // JIRA:NUMBERS-207
 
         Assertions.assertEquals(0, Fraction.of(0, 3).compareTo(Fraction.of(0, -2)));
 
