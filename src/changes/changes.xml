@@ -61,6 +61,10 @@ New features, updates and bug fixes.
     <release version="1.2" date="2024-08-12" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" issue="NUMBERS-207" due-to="Richard Mullender">
+        Bug in "compareTo" method of classes "Fraction" and "BigFraction" (when the two
+        values are negative).
+      </action>
       <action dev="aherbert" type="add" issue="NUMBERS-206">
         "Selection": Add selection of the k-th ordered element from an array.
       </action>
