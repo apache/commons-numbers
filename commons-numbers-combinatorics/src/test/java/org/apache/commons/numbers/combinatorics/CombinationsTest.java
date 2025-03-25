@@ -204,14 +204,14 @@ class CombinationsTest {
         // First call
         iter.next();
         // Check remove is not supported
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> iter.remove());
+        Assertions.assertThrows(UnsupportedOperationException.class, iter::remove);
 
         // Consume the rest
         final long numIterates = BinomialCoefficient.value(n, k);
         for (long i = 1; i < numIterates; i++) {
             iter.next();
         }
-        Assertions.assertThrows(NoSuchElementException.class, () -> iter.next());
+        Assertions.assertThrows(NoSuchElementException.class, iter::next);
     }
 
     @Test

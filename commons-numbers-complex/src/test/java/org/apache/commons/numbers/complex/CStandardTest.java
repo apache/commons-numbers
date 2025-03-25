@@ -830,10 +830,10 @@ class CStandardTest {
         // infinite.
         for (final Complex w : nans) {
             for (final Complex z : finites) {
-                assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
+                assertOperation(z, w, Complex::divide, "/", NAN::equals, "(NaN,NaN)");
             }
             for (final Complex z : infinites) {
-                assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
+                assertOperation(z, w, Complex::divide, "/", NAN::equals, "(NaN,NaN)");
             }
         }
 
