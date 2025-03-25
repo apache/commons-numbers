@@ -2148,14 +2148,10 @@ class ComplexTest {
     private static void assertAbsVsLog(int samples, Supplier<Complex> supplier) {
         // Note: All methods implement scaling to ensure the magnitude can be computed.
         // Try very large or small numbers that will over/underflow to test that the
-        // scaling
-        // is consistent.
+        // scaling is consistent.
         for (int i = 0; i < samples; i++) {
             final Complex z = supplier.get();
             final double abs = z.abs();
-            final double x = Math.abs(z.getReal());
-            final double y = Math.abs(z.getImaginary());
-
             // log(x + iy) = log(|x + i y|) + i arg(x + i y)
             // Only test the real component
             final Complex c = z.log();
