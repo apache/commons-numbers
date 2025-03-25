@@ -526,8 +526,6 @@ final class QuickSelect {
      * @param k Indices (may be destructively modified).
      * @param n Count of indices.
      * @return the count of used indices
-     * @throws IndexOutOfBoundsException if any index {@code k} is not within the
-     * sub-range {@code [left, right]}
      */
     static int select(double[] a, int left, int right, int[] k, int n) {
         if (n < 1) {
@@ -539,7 +537,7 @@ final class QuickSelect {
         }
 
         // Interval creation validates the indices are in [left, right]
-        final UpdatingInterval keys = IndexSupport.createUpdatingInterval(left, right, k, n);
+        final UpdatingInterval keys = IndexSupport.createUpdatingInterval(k, n);
 
         // Save number of used indices
         final int count = IndexSupport.countIndices(keys, n);
@@ -1794,8 +1792,6 @@ final class QuickSelect {
      * @param right Upper bound of data (inclusive).
      * @param k Indices (may be destructively modified).
      * @param n Count of indices.
-     * @throws IndexOutOfBoundsException if any index {@code k} is not within the
-     * sub-range {@code [left, right]}
      */
     static void select(int[] a, int left, int right, int[] k, int n) {
         if (n == 1) {
@@ -1804,7 +1800,7 @@ final class QuickSelect {
         }
 
         // Interval creation validates the indices are in [left, right]
-        final UpdatingInterval keys = IndexSupport.createUpdatingInterval(left, right, k, n);
+        final UpdatingInterval keys = IndexSupport.createUpdatingInterval(k, n);
 
         // Note: If the keys are not separated then they are effectively a single key.
         // Any split of keys separated by the sort select size

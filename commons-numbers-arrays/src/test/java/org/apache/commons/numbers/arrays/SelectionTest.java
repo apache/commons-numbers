@@ -523,7 +523,7 @@ class SelectionTest {
             }
             replaceNegativeZeros(a, 0, right);
             QuickSelect.dualPivotQuickSelect(a, 0, right,
-                IndexSupport.createUpdatingInterval(0, right, k, k.length),
+                IndexSupport.createUpdatingInterval(k, k.length),
                 QuickSelect.dualPivotFlags(2, 5));
             restoreNegativeZeros(a, 0, right);
         }, false);
@@ -1325,7 +1325,7 @@ class SelectionTest {
                 return;
             }
             QuickSelect.dualPivotQuickSelect(a, 0, right,
-                IndexSupport.createUpdatingInterval(0, right, k, k.length),
+                IndexSupport.createUpdatingInterval(k, k.length),
                 QuickSelect.dualPivotFlags(2, 5));
         }, false);
     }

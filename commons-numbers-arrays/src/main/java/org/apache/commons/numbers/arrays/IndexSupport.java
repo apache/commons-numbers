@@ -31,15 +31,11 @@ final class IndexSupport {
     /**
      * Returns an interval that covers the specified indices {@code k}.
      *
-     * @param left Lower bound of data (inclusive).
-     * @param right Upper bound of data (inclusive).
      * @param k Indices.
      * @param n Count of indices (must be strictly positive).
-     * @throws IndexOutOfBoundsException if any index {@code k} is not within the
-     * sub-range {@code [left, right]}
      * @return the interval
      */
-    static UpdatingInterval createUpdatingInterval(int left, int right, int[] k, int n) {
+    static UpdatingInterval createUpdatingInterval(int[] k, int n) {
         // Note: A typical use case is to have a few indices. Thus the heuristics
         // in this method should be very fast when n is small.
         // We have a choice between a KeyUpdatingInterval which requires

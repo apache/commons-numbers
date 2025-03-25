@@ -99,9 +99,7 @@ class UpdatingIntervalTest {
     @ParameterizedTest
     @MethodSource(value = {"testIndices"})
     void testUpdateIndexSupport(int[] indices, int[] k) {
-        final int l = k[0];
-        final int r = k[k.length - 1];
-        assertUpdate((x, n) -> IndexSupport.createUpdatingInterval(l, r, x, n), indices, k);
+        assertUpdate((x, n) -> IndexSupport.createUpdatingInterval(x, n), indices, k);
     }
 
     @ParameterizedTest
@@ -121,9 +119,7 @@ class UpdatingIntervalTest {
     @ParameterizedTest
     @MethodSource(value = {"testIndices"})
     void testSplitIndexSupport(int[] indices, int[] k) {
-        final int l = k[0];
-        final int r = k[k.length - 1];
-        assertSplit((x, n) -> IndexSupport.createUpdatingInterval(l, r, x, n), indices, k);
+        assertSplit((x, n) -> IndexSupport.createUpdatingInterval(x, n), indices, k);
     }
 
     /**
@@ -299,59 +295,59 @@ class UpdatingIntervalTest {
 
         // 1 key
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 2, new int[] {1}, 1).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {1}, 1).getClass());
 
         // 2 close keys
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 2, new int[] {2, 1}, 2).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {2, 1}, 2).getClass());
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 2, new int[] {1, 2}, 2).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {1, 2}, 2).getClass());
 
         // 2 unsorted keys
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 1000, new int[] {200, 1}, 2).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {200, 1}, 2).getClass());
 
         // Sorted number of keys saturating the range
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 20, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 11).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 11).getClass());
         // Sorted keys with duplicates
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 10, new int[] {1, 1, 2, 2, 3, 3, 4, 4, 5, 5}, 10).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {1, 1, 2, 2, 3, 3, 4, 4, 5, 5}, 10).getClass());
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 1000, new int[] {100, 100, 200, 200, 300, 300, 400, 400, 500, 500}, 10).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {100, 100, 200, 200, 300, 300, 400, 400, 500, 500}, 10).getClass());
         // Small number of keys saturating the range
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 20, new int[] {11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1}, 11).getClass());
+            IndexSupport.createUpdatingInterval(new int[] {11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1}, 11).getClass());
         // Keys over a huge range
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, Integer.MAX_VALUE - 1,
+            IndexSupport.createUpdatingInterval(
                 new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, Integer.MAX_VALUE - 1}, 11).getClass());
 
         // Small number of sorted keys over a moderate range
         int[] k = IntStream.range(0, 30).map(i -> i * 64) .toArray();
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 30 * 64, k.clone(), k.length).getClass());
+            IndexSupport.createUpdatingInterval(k.clone(), k.length).getClass());
         // Same keys not sorted
         reverse(k, 0, k.length);
         Assertions.assertEquals(BitIndexUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 30 * 64, k.clone(), k.length).getClass());
+            IndexSupport.createUpdatingInterval(k.clone(), k.length).getClass());
         // Same keys over a huge range
         k[k.length - 1] = Integer.MAX_VALUE - 1;
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, Integer.MAX_VALUE - 1, k, k.length).getClass());
+            IndexSupport.createUpdatingInterval(k, k.length).getClass());
 
         // Moderate number of sorted keys over a moderate range
         k = IntStream.range(0, 3000).map(i -> i * 64) .toArray();
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 3000 * 64, k.clone(), k.length).getClass());
+            IndexSupport.createUpdatingInterval(k.clone(), k.length).getClass());
         // Same keys not sorted
         reverse(k, 0, k.length);
         Assertions.assertEquals(BitIndexUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, 3000 * 64, k.clone(), k.length).getClass());
+            IndexSupport.createUpdatingInterval(k.clone(), k.length).getClass());
         // Same keys over a huge range
         k[k.length - 1] = Integer.MAX_VALUE - 1;
         Assertions.assertEquals(KeyUpdatingInterval.class,
-            IndexSupport.createUpdatingInterval(0, Integer.MAX_VALUE - 1, k.clone(), k.length).getClass());
+            IndexSupport.createUpdatingInterval(k.clone(), k.length).getClass());
     }
 
     /**
