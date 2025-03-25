@@ -315,7 +315,7 @@ class DDTest {
             // if the sum of the parts overflows (isFinite is conditioned on the evaluated sum)
         } else {
             // Cannot create a BigDecimal if not finite
-            Assertions.assertThrows(NumberFormatException.class, () -> dd.bigDecimalValue());
+            Assertions.assertThrows(NumberFormatException.class, dd::bigDecimalValue);
             Assertions.assertFalse(dd.isFinite(), "This should be non-finite");
         }
     }
