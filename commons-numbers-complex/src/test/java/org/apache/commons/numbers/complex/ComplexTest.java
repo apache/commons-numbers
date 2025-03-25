@@ -99,11 +99,6 @@ class ComplexTest {
     void testJava() {
         // CHECKSTYLE: stop Regexp
         System.out.println(">>testJava()");
-        // MathTest#testExpSpecialCases() checks the following:
-        // Assert.assertEquals("exp of -infinity should be 0.0", 0.0,
-        // Math.exp(Double.NEGATIVE_INFINITY), Precision.EPSILON);
-        // Let's check how well Math works:
-        System.out.println("Math.exp=" + Math.exp(Double.NEGATIVE_INFINITY));
         final String[] props = {"java.version", // Java Runtime Environment version
             "java.vendor", // Java Runtime Environment vendor
             "java.vm.specification.version", // Java Virtual Machine specification version
