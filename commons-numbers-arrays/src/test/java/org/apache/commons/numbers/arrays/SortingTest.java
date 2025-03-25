@@ -354,10 +354,9 @@ class SortingTest {
         final Stream.Builder<Arguments> builder = Stream.builder();
         final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
         for (final int size : new int[] {k, 2 * k, 4 * k}) {
-            double[] a = rng.doubles(size).toArray();
             final PermutationSampler s = new PermutationSampler(rng, size, k);
             for (int i = k * k; i-- >= 0;) {
-                a = rng.doubles(size).toArray();
+                final double[] a = rng.doubles(size).toArray();
                 final int[] indices = s.sample();
                 builder.add(Arguments.of(a, indices));
             }
