@@ -603,9 +603,7 @@ class LogBetaTest {
                                                              Double.TYPE, Double.TYPE);
             m.setAccessible(true);
             return ((Double) m.invoke(null, a, b)).doubleValue();
-        } catch (NoSuchMethodException e) {
-            Assertions.fail(e.getMessage());
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             Assertions.fail(e.getMessage());
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof GammaException) {
@@ -658,9 +656,7 @@ class LogBetaTest {
                                                              Double.TYPE, Double.TYPE);
             m.setAccessible(true);
             return ((Double) m.invoke(null, a, b)).doubleValue();
-        } catch (NoSuchMethodException e) {
-            Assertions.fail(e.getMessage());
-        } catch (final IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             Assertions.fail(e.getMessage());
         } catch (final InvocationTargetException e) {
             if (e.getTargetException() instanceof GammaException) {
