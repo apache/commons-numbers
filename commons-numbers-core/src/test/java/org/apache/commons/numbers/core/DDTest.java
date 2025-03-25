@@ -143,7 +143,7 @@ class DDTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = {"twoSumAddeds"})
+    @MethodSource(value = {"twoSumAddends"})
     void testFromBigDecimal(double x, double y) {
         final BigDecimal xy = bd(x).add(bd(y));
         final DD z = DD.from(xy);
@@ -184,7 +184,7 @@ class DDTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = {"twoSumAddeds", "testDoubleFloatValue"})
+    @MethodSource(value = {"twoSumAddends", "testDoubleFloatValue"})
     void testDoubleFloatValue(double x, double y) {
         // By creating a non-normalized DD this tests the two parts are added
         final DD dd = DD.of(x, y);
@@ -207,7 +207,7 @@ class DDTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = {"twoSumAddeds", "testDoubleFloatValue", "testLongIntValue"})
+    @MethodSource(value = {"twoSumAddends", "testDoubleFloatValue", "testLongIntValue"})
     void testLongIntValue(double x, double y) {
         // Number must be normalized
         final DD dd = DD.ofSum(x, y);
@@ -305,7 +305,7 @@ class DDTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = {"twoSumAddeds", "testDoubleFloatValue", "testLongIntValue"})
+    @MethodSource(value = {"twoSumAddends", "testDoubleFloatValue", "testLongIntValue"})
     void testBigDecimalValue(double x, double y) {
         // By creating a non-normalized DD this tests the two parts are added
         final DD dd = DD.of(x, y);
@@ -321,7 +321,7 @@ class DDTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = {"twoSumAddeds"})
+    @MethodSource(value = {"twoSumAddends"})
     void testFastTwoSum(double xa, double ya) {
         // |x| > |y|
         double x;
@@ -493,7 +493,7 @@ class DDTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = {"twoSumAddeds"})
+    @MethodSource(value = {"twoSumAddends"})
     void testTwoSum(double x, double y) {
         // This method currently uses DD.add and DD.subtract and not the internally named
         // twoSum and twoDiff.
@@ -526,7 +526,7 @@ class DDTest {
         }
     }
 
-    static Stream<Arguments> twoSumAddeds() {
+    static Stream<Arguments> twoSumAddends() {
         final Stream.Builder<Arguments> builder = Stream.builder();
         final UniformRandomProvider rng = createRNG();
         for (int i = 0; i < SAMPLES; i++) {
@@ -586,12 +586,8 @@ class DDTest {
     }
 
     static Stream<Arguments> testTwoProd() {
-        final Stream.Builder<Arguments> builder = Stream.builder();
-        final UniformRandomProvider rng = createRNG();
-        for (int i = 0; i < SAMPLES; i++) {
-            builder.add(Arguments.of(signedNormalDouble(rng), signedNormalDouble(rng)));
-        }
-        return builder.build();
+        // Currently identical to the two sum addends
+        return twoSumAddends();
     }
 
     /**
