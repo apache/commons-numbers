@@ -70,9 +70,7 @@ public final class TestUtils {
             final ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
             final ObjectInputStream si = new ObjectInputStream(bis);
             return si.readObject();
-        } catch (final IOException ioe) {
-            return null;
-        } catch (final ClassNotFoundException cnfe) {
+        } catch (final IOException | ClassNotFoundException e) {
             return null;
         }
     }
