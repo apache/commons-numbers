@@ -1123,20 +1123,6 @@ class BoostBetaTest {
      * @param fun Function
      * @param x Input value
      * @param y Input value
-     * @param expected Expected value
-     * @param eps Relative tolerance
-     */
-    private static void assertWithinEps(DoubleBinaryOperator fun, double x, double y, double expected, double eps) {
-        final double actual = fun.applyAsDouble(x, y);
-        Assertions.assertEquals(expected, actual, Math.abs(expected) * eps, () -> x + ", " + y);
-    }
-
-    /**
-     * Assert the function is close to the expected value.
-     *
-     * @param fun Function
-     * @param x Input value
-     * @param y Input value
      * @param z Input value
      * @param expected Expected value
      * @param tolerance the tolerance
