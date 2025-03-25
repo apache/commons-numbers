@@ -163,7 +163,7 @@ class UserGuideTest {
 
         DD nan = DD.of(Double.NaN);
         Assertions.assertFalse(nan.isFinite());
-        Assertions.assertThrows(NumberFormatException.class, () -> nan.bigDecimalValue());
+        Assertions.assertThrows(NumberFormatException.class, nan::bigDecimalValue);
     }
 
     @Test
