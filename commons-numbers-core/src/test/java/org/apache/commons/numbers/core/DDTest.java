@@ -685,7 +685,7 @@ class DDTest {
         final BigDecimal e = bd(x).divide(bd(y), MC_DIVIDE);
         // double-double has 106-bits precision.
         // This passes with a relative error of 2^-107.
-        TestUtils.assertEquals(e, s, 0.5 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 0.5 * EPS, msg::get);
 
         // Same as if low-part of x and y is zero
         s = DD.of(x).divide(DD.of(y));
@@ -1184,7 +1184,7 @@ class DDTest {
         final BigDecimal e = bd(x).add(bd(xx)).multiply(bd(y));
         // double-double multiplication should be within 16 eps^2 with eps = 2^-53.
         // a single multiply is 4 eps^2
-        TestUtils.assertEquals(e, s, 4 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 4 * EPS, msg::get);
 
         // Same as if low-part of y is zero
         s = dd.multiply(DD.of(y));
@@ -1214,7 +1214,7 @@ class DDTest {
         final BigDecimal e = bd(x).add(bd(xx)).multiply(bd(y));
         // double-double multiplication should be within 16 eps^2 with eps = 2^-53.
         // a single multiply is 0.5 eps^2
-        TestUtils.assertEquals(e, s, 0.5 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 0.5 * EPS, msg::get);
 
         // Same as if low-part of y is zero
         s = DDExt.multiply(DD.of(x, xx), DD.of(y));
@@ -1296,7 +1296,7 @@ class DDTest {
         final BigDecimal e = bd(x).add(bd(xx)).multiply(bd(y).add(bd(yy)));
         // double-double multiplication should be within 16 eps^2 with eps = 2^-53.
         // This passes at 4 eps^2
-        TestUtils.assertEquals(e, s, 4 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 4 * EPS, msg::get);
 
         // Same if reversed
         s = dy.multiply(dx);
@@ -1320,7 +1320,7 @@ class DDTest {
 
         final BigDecimal e = bd(x).add(bd(xx)).multiply(bd(y).add(bd(yy)));
         // This passes at 0.5 eps^2
-        TestUtils.assertEquals(e, s, 0.5 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 0.5 * EPS, msg::get);
 
         // Same if reversed
         s = DDExt.multiply(DD.of(y, yy), DD.of(x, xx));
@@ -1416,7 +1416,7 @@ class DDTest {
         final BigDecimal e = bd(x).add(bd(xx)).divide(bd(y), MC_DIVIDE);
         // double-double multiplication should be within 16 eps^2 with eps = 2^-53.
         // This passes with a relative error of 2^-107.
-        TestUtils.assertEquals(e, s, 0.5 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 0.5 * EPS, msg::get);
 
         // Same as if low-part of y is zero
         s = DD.of(x, xx).divide(DD.of(y));
@@ -1438,7 +1438,7 @@ class DDTest {
 
         final BigDecimal e = bd(x).add(bd(xx)).divide(bd(y).add(bd(yy)), MC_DIVIDE);
         // This passes at 3 eps^2
-        TestUtils.assertEquals(e, s, 3 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 3 * EPS, msg::get);
     }
 
     @ParameterizedTest
@@ -1455,7 +1455,7 @@ class DDTest {
 
         final BigDecimal e = bd(x).add(bd(xx)).divide(bd(y).add(bd(yy)), MC_DIVIDE);
         // This passes at 1 eps^2
-        TestUtils.assertEquals(e, s, EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, EPS, msg::get);
     }
 
     static Stream<Arguments> testDivideDoubleDouble() {
@@ -1491,7 +1491,7 @@ class DDTest {
         final BigDecimal e = BigDecimal.ONE.divide(bd(y).add(bd(yy)), MC_DIVIDE);
         // double-double has 106-bits precision.
         // This passes with a relative error of 2^-105.
-        TestUtils.assertEquals(e, s, 2 * EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, 2 * EPS, msg::get);
 
         // Same as if using divide
         s = DD.ONE.divide(DD.of(y, yy));
@@ -1515,7 +1515,7 @@ class DDTest {
         final BigDecimal e = BigDecimal.ONE.divide(bd(y).add(bd(yy)), MC_DIVIDE);
         // double-double has 106-bits precision.
         // This passes with a relative error of 2^-106.
-        TestUtils.assertEquals(e, s, EPS, () -> msg.get());
+        TestUtils.assertEquals(e, s, EPS, msg::get);
 
         // Same as if using divide
         s = DDExt.divide(DD.ONE, DD.of(y, yy));
@@ -1623,14 +1623,14 @@ class DDTest {
     @CsvFileSource(resources = {"sqrt0.csv"})
     void testSqrt(double x, double xx, BigDecimal expected) {
         final DD dd = DD.fastTwoSum(x, xx);
-        TestUtils.assertEquals(expected, dd.sqrt(), 2 * EPS, () -> dd.toString());
+        TestUtils.assertEquals(expected, dd.sqrt(), 2 * EPS, dd::toString);
     }
 
     @ParameterizedTest
     @CsvFileSource(resources = {"sqrt512.csv"})
     void testSqrtBig(double x, double xx, BigDecimal expected) {
         final DD dd = DD.fastTwoSum(x, xx);
-        TestUtils.assertEquals(expected, dd.sqrt(), 2 * EPS, () -> dd.toString());
+        TestUtils.assertEquals(expected, dd.sqrt(), 2 * EPS, dd::toString);
     }
 
     @ParameterizedTest
@@ -1638,28 +1638,28 @@ class DDTest {
     void testSqrtSmall(double x, double xx, BigDecimal expected) {
         final DD dd = DD.fastTwoSum(x, xx);
         // This test data has a case that fails at 1.01 * 2^-105
-        TestUtils.assertEquals(expected, dd.sqrt(), 2.03 * EPS, () -> dd.toString());
+        TestUtils.assertEquals(expected, dd.sqrt(), 2.03 * EPS, dd::toString);
     }
 
     @ParameterizedTest
     @CsvFileSource(resources = {"sqrt0.csv"})
     void testAccurateSqrt(double x, double xx, BigDecimal expected) {
         final DD dd = DD.fastTwoSum(x, xx);
-        TestUtils.assertEquals(expected, DDExt.sqrt(dd), EPS, () -> dd.toString());
+        TestUtils.assertEquals(expected, DDExt.sqrt(dd), EPS, dd::toString);
     }
 
     @ParameterizedTest
     @CsvFileSource(resources = {"sqrt512.csv"})
     void testAccurateSqrtBig(double x, double xx, BigDecimal expected) {
         final DD dd = DD.fastTwoSum(x, xx);
-        TestUtils.assertEquals(expected, DDExt.sqrt(dd), EPS, () -> dd.toString());
+        TestUtils.assertEquals(expected, DDExt.sqrt(dd), EPS, dd::toString);
     }
 
     @ParameterizedTest
     @CsvFileSource(resources = {"sqrt-512.csv"})
     void testAccurateSqrtSmall(double x, double xx, BigDecimal expected) {
         final DD dd = DD.fastTwoSum(x, xx);
-        TestUtils.assertEquals(expected, DDExt.sqrt(dd), EPS, () -> dd.toString());
+        TestUtils.assertEquals(expected, DDExt.sqrt(dd), EPS, dd::toString);
     }
 
     @ParameterizedTest
@@ -1893,7 +1893,7 @@ class DDTest {
         Assertions.assertEquals(hi, s.doubleValue(), () -> msg.get() + " doubleValue");
 
         final BigDecimal e = bd(x).add(bd(xx)).pow(n, MathContext.DECIMAL128);
-        TestUtils.assertEquals(e, s, eps, () -> msg.get());
+        TestUtils.assertEquals(e, s, eps, msg::get);
     }
 
     static Stream<Arguments> testSimplePow() {
@@ -2031,7 +2031,7 @@ class DDTest {
         Assertions.assertEquals(hi, f.doubleValue(), () -> msg.get() + " doubleValue");
 
         final BigDecimal e = bd(x).add(bd(xx)).pow(n, MathContext.DECIMAL128);
-        TestUtils.assertScaledEquals(e, f, exp[0], eps, () -> msg.get());
+        TestUtils.assertScaledEquals(e, f, exp[0], eps, msg::get);
     }
 
     @ParameterizedTest
@@ -2046,7 +2046,7 @@ class DDTest {
         Assertions.assertEquals(hi, f.doubleValue(), () -> msg.get() + " doubleValue");
 
         Assertions.assertEquals(e, exp[0], () -> msg.get() + " exponent");
-        TestUtils.assertEquals(expected, f, eps, () -> msg.get());
+        TestUtils.assertEquals(expected, f, eps, msg::get);
     }
 
     @ParameterizedTest
@@ -2114,7 +2114,7 @@ class DDTest {
         Assertions.assertEquals(hi, s.doubleValue(), () -> msg.get() + " doubleValue");
 
         final BigDecimal e = bd(x).add(bd(xx)).pow(n, MathContext.DECIMAL128);
-        TestUtils.assertEquals(e, s, eps, () -> msg.get());
+        TestUtils.assertEquals(e, s, eps, msg::get);
     }
 
     static Stream<Arguments> testPow() {
@@ -2221,7 +2221,7 @@ class DDTest {
         Assertions.assertEquals(hi, f.doubleValue(), () -> msg.get() + " doubleValue");
 
         final BigDecimal e = bd(x).add(bd(xx)).pow(n, MathContext.DECIMAL128);
-        TestUtils.assertScaledEquals(e, f, exp[0], eps, () -> msg.get());
+        TestUtils.assertScaledEquals(e, f, exp[0], eps, msg::get);
     }
 
     @ParameterizedTest
@@ -2236,7 +2236,7 @@ class DDTest {
         Assertions.assertEquals(hi, f.doubleValue(), () -> msg.get() + " doubleValue");
 
         Assertions.assertEquals(e, exp[0], () -> msg.get() + " exponent");
-        TestUtils.assertEquals(expected, f, eps, () -> msg.get());
+        TestUtils.assertEquals(expected, f, eps, msg::get);
     }
 
     @ParameterizedTest
@@ -2269,7 +2269,7 @@ class DDTest {
         // Test typically passes at: 0.5 * eps with eps = 2^-106.
         // Higher powers may have lower accuracy but are not tested.
         // Update tolerance to 1.0625 * eps as 1 case of rounding error has been observed.
-        TestUtils.assertScaledEquals(e, f, exp[0], 1.0625 * EPS, () -> msg.get());
+        TestUtils.assertScaledEquals(e, f, exp[0], 1.0625 * EPS, msg::get);
     }
 
     @ParameterizedTest
@@ -2285,7 +2285,7 @@ class DDTest {
 
         Assertions.assertEquals(e, exp[0], () -> msg.get() + " exponent");
         // Accuracy is that of a double-double number: 0.5 * eps with eps = 2^-106
-        TestUtils.assertEquals(expected, f, 0.5 * EPS, () -> msg.get());
+        TestUtils.assertEquals(expected, f, 0.5 * EPS, msg::get);
     }
 
     static Stream<Arguments> testPowScaledEdgeCases() {
