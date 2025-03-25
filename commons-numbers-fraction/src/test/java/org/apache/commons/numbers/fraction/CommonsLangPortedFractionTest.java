@@ -902,7 +902,6 @@ class CommonsLangPortedFractionTest {
 
         // Should overflow
         assertOperationThrows(ArithmeticException.class, Fraction.of(1, Integer.MAX_VALUE), Fraction.of(1, Integer.MAX_VALUE - 1), Fraction::subtract);
-        f = f1.subtract(f2);
 
         // denominator should not be a multiple of 2 or 3 to trigger overflow
         assertOperationThrows(ArithmeticException.class, Fraction.of(Integer.MIN_VALUE, 5), Fraction.of(1, 5), Fraction::subtract);
