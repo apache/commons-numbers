@@ -588,7 +588,7 @@ class BoostErfTest {
         final TestUtils.ErrorStatistics data = new TestUtils.ErrorStatistics();
         for (double p = low; p <= high; p += increment) {
             final double pp = fun.applyAsDouble(p);
-            TestUtils.assertEquals(p, pp, tolerance, ulp -> data.add(ulp), () -> name);
+            TestUtils.assertEquals(p, pp, tolerance, data::add, () -> name);
         }
         assertRms(name, data, rmsUlp);
     }
