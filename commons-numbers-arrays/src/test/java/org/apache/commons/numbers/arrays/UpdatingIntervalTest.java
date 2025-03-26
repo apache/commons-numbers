@@ -99,7 +99,7 @@ class UpdatingIntervalTest {
     @ParameterizedTest
     @MethodSource(value = {"testIndices"})
     void testUpdateIndexSupport(int[] indices, int[] k) {
-        assertUpdate((x, n) -> IndexSupport.createUpdatingInterval(x, n), indices, k);
+        assertUpdate(IndexSupport::createUpdatingInterval, indices, k);
     }
 
     @ParameterizedTest
@@ -119,7 +119,7 @@ class UpdatingIntervalTest {
     @ParameterizedTest
     @MethodSource(value = {"testIndices"})
     void testSplitIndexSupport(int[] indices, int[] k) {
-        assertSplit((x, n) -> IndexSupport.createUpdatingInterval(x, n), indices, k);
+        assertSplit(IndexSupport::createUpdatingInterval, indices, k);
     }
 
     /**
