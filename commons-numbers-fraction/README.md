@@ -45,7 +45,7 @@ Apache Commons Numbers Fraction
 
 [![Java CI](https://github.com/apache/commons-numbers/actions/workflows/maven.yml/badge.svg)](https://github.com/apache/commons-numbers/actions/workflows/maven.yml)
 [![Coverage Status](https://codecov.io/gh/apache/commons-numbers/branch/master/graph/badge.svg)](https://app.codecov.io/gh/apache/commons-numbers)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-fraction/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-fraction/?gav=true)
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.commons/commons-numbers-fraction?label=Maven%20Central)](https://search.maven.org/artifact/org.apache.commons/commons-numbers-fraction/)
 [![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-fraction/1.2.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-fraction/1.2)
 
 Fraction utilities.

@@ -45,7 +45,7 @@ Apache Commons Numbers Complex
 
 [![Java CI](https://github.com/apache/commons-numbers/actions/workflows/maven.yml/badge.svg)](https://github.com/apache/commons-numbers/actions/workflows/maven.yml)
 [![Coverage Status](https://codecov.io/gh/apache/commons-numbers/branch/master/graph/badge.svg)](https://app.codecov.io/gh/apache/commons-numbers)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex/?gav=true)
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.commons/commons-numbers-complex?label=Maven%20Central)](https://search.maven.org/artifact/org.apache.commons/commons-numbers-complex/)
 [![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-complex/1.2.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-complex/1.2)
 
 Complex numbers.

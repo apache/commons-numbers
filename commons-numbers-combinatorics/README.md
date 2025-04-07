@@ -45,7 +45,7 @@ Apache Commons Numbers Combinatorics
 
 [![Java CI](https://github.com/apache/commons-numbers/actions/workflows/maven.yml/badge.svg)](https://github.com/apache/commons-numbers/actions/workflows/maven.yml)
 [![Coverage Status](https://codecov.io/gh/apache/commons-numbers/branch/master/graph/badge.svg)](https://app.codecov.io/gh/apache/commons-numbers)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-combinatorics/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-combinatorics/?gav=true)
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.commons/commons-numbers-combinatorics?label=Maven%20Central)](https://search.maven.org/artifact/org.apache.commons/commons-numbers-combinatorics/)
 [![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-combinatorics/1.2.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-combinatorics/1.2)
 
 Combinatorics utilities such as factorial and binomial coefficients.
