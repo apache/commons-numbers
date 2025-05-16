@@ -42,6 +42,6 @@ jobs:
       run: mvn --show-version --batch-mode --no-transfer-progress test jacoco:report
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
       with:
         files: ./commons-numbers-angle/target/site/jacoco/jacoco.xml,./commons-numbers-arrays/target/site/jacoco/jacoco.xml,./commons-numbers-combinatorics/target/site/jacoco/jacoco.xml,./commons-numbers-complex/target/site/jacoco/jacoco.xml,./commons-numbers-complex-streams/target/site/jacoco/jacoco.xml,./commons-numbers-core/target/site/jacoco/jacoco.xml,./commons-numbers-field/target/site/jacoco/jacoco.xml,./commons-numbers-fraction/target/site/jacoco/jacoco.xml,./commons-numbers-gamma/target/site/jacoco/jacoco.xml,./commons-numbers-primes/target/site/jacoco/jacoco.xml,./commons-numbers-quaternion/target/site/jacoco/jacoco.xml,./commons-numbers-rootfinder/target/site/jacoco/jacoco.xml
