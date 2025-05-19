@@ -147,7 +147,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <reportOutputDirectory>${project.build.directory}/apidocs</reportOutputDirectory>
           <includeDependencySources>true</includeDependencySources>
           <doctitle>Apache Commons Numbers ${project.version}</doctitle>
           <windowtitle>Apache Commons Numbers ${project.version}</windowtitle>
@@ -167,7 +166,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <reportOutputDirectory>${project.build.directory}/apidocs</reportOutputDirectory>
           <includeDependencySources>true</includeDependencySources>
           <doctitle>Apache Commons Numbers ${project.version}</doctitle>
           <windowtitle>Apache Commons Numbers ${project.version}</windowtitle>
