@@ -528,7 +528,7 @@ public final class Precision {
             @Override
             public int compare(double a,
                                double b) {
-                return Precision.compareTo(a, b, epsilon);
+                return compareTo(a, b, epsilon);
             }
         };
     }
