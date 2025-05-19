@@ -146,8 +146,8 @@ public enum Norm {
      * @param y Argument.
      * @return the norm.
      */
-    public final double of(double x,
-                           double y) {
+    public double of(double x,
+                     double y) {
         return two.of(x, y);
     }
 
@@ -166,9 +166,9 @@ public enum Norm {
      * @param z Argument.
      * @return the norm.
      */
-    public final double of(double x,
-                           double y,
-                           double z) {
+    public double of(double x,
+                     double y,
+                     double z) {
         return three.of(x, y, z);
     }
 
@@ -186,7 +186,7 @@ public enum Norm {
      * @return the norm.
      * @throws IllegalArgumentException if the array is empty.
      */
-    public final double of(double[] v) {
+    public double of(double[] v) {
         ensureNonEmpty(v);
         return array.of(v);
     }
