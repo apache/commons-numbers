@@ -15,12 +15,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="Fraction">
-  <bannerRight>
-    <name>Apache Commons Numbers</name>
-    <!-- Use a full URL allows a correct banner for the modules. -->
-    <src>https://commons.apache.org/proper/commons-numbers/images/commons_numbers.small.png</src>
-    <href>https://commons.apache.org/proper/commons-numbers/index.html</href>
+<site name="Fraction">
+  <!-- Use a full URL allows a correct banner for the modules. -->
+  <bannerRight name="Apache Commons Numbers" href="https://commons.apache.org/proper/commons-numbers/index.html">
+    <image src="https://commons.apache.org/proper/commons-numbers/images/commons_numbers.small.png"/>
   </bannerRight>
 
   <body>
@@ -37,4 +35,4 @@
     </menu>
 
   </body>
-</project>
+</site>

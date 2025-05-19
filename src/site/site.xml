@@ -15,11 +15,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="Numbers">
-  <bannerRight>
-    <name>Apache Commons Numbers</name>
-    <src>/images/commons_numbers.small.png</src>
-    <href>/index.html</href>
+<site name="Numbers"
+  xmlns="http://maven.apache.org/SITE/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd">
+  <bannerRight name="Apache Commons Numbers" href="/index.html">
+    <image src="/images/commons_numbers.small.png"/>
   </bannerRight>
 
   <body>
@@ -58,4 +59,4 @@
       <prettyPrintLineNumbersEnabled>false</prettyPrintLineNumbersEnabled>
     </commonsSkin>
   </custom>
-</project>
+</site>
