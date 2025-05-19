@@ -539,6 +539,7 @@ public final class Precision {
      * It is intended for comparing outputs of a computation where floating
      * point errors may have occurred.
      */
+    @FunctionalInterface
     public interface DoubleEquivalence {
         /**
          * Indicates whether given values are considered equal to each other.
