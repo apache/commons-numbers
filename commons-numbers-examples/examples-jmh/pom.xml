@@ -107,8 +107,6 @@
     <!-- Reproducible builds -->
     <project.build.outputTimestamp>${numbers.build.outputTimestamp}</project.build.outputTimestamp>
 
-    <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
-
     <!-- JMH Benchmark related properties: version, name of the benchmarking uber jar. -->
     <jmh.version>1.37</jmh.version>
     <uberjar.name>examples-jmh</uberjar.name>
@@ -209,7 +207,6 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>${exec-maven-plugin.version}</version>
             <executions>
               <execution>
                 <id>benchmark</id>

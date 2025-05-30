@@ -60,6 +60,7 @@ New features, updates and bug fixes.
         Bug in "compareTo" method of classes "Fraction" and "BigFraction" (when the two
         values are negative).
       </action>
+	  <action dev="ggregory" type="update">Pick up exec-maven-plugin version from parent POM.</action>
     </release>
 
     <release version="1.2" date="2024-08-12" description="
