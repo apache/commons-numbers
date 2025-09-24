@@ -87,7 +87,7 @@ final class IndexSupport {
         // Find min/max to understand the range.
         int min = k[n - 1];
         int max = min;
-        for (int i = n - 1; --i >= 0;) {
+        for (int i = n - 2; i >= 0; i--) {
             min = Math.min(min, k[i]);
             max = Math.max(max, k[i]);
         }
@@ -166,7 +166,7 @@ final class IndexSupport {
      * @return true if ascending
      */
     private static boolean isAscending(int[] data, int n) {
-        for (int i = 0; ++i < n;) {
+        for (int i = 1; i < n; i++) {
             if (data[i] < data[i - 1]) {
                 // descending
                 return false;
@@ -188,7 +188,7 @@ final class IndexSupport {
         // Compress to remove duplicates
         int last = 0;
         int top = data[0];
-        for (int i = 0; ++i < n;) {
+        for (int i = 1; i < n; i++) {
             final int v = data[i];
             if (v == top) {
                 continue;

@@ -510,7 +510,7 @@ final class Sorting {
         // Index of last unique value
         int unique = 0;
         // Do an insertion sort but only compare the current set of unique values.
-        for (int i = 0; ++i < n;) {
+        for (int i = 1; i < n; i++) {
             final int v = x[i];
             int j = unique;
             if (v > x[j]) {

@@ -243,7 +243,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         double max = a[left];
-        for (int i = right + 1; --i > kb;) {
+        for (int i = right; i > kb; i--) {
             final double v = a[i];
             if (v < max) {
                 a[i] = max;
@@ -325,7 +325,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         double min = a[right];
-        for (int i = left - 1; ++i < ka;) {
+        for (int i = left; i < ka; i++) {
             final double v = a[i];
             if (v > min) {
                 a[i] = min;
@@ -438,7 +438,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         double m = a[k];
-        for (int i = right + 1; --i > k;) {
+        for (int i = right; i > k; i--) {
             final double v = a[i];
             if (v < m) {
                 a[i] = m;
@@ -484,7 +484,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         double m = a[k];
-        for (int i = left - 1; ++i < k;) {
+        for (int i = left; i < k; i++) {
             final double v = a[i];
             if (v > m) {
                 a[i] = m;
@@ -1349,7 +1349,7 @@ final class QuickSelect {
         // a[less - 1] < P1 : a[great + 1] > P2
         // unvisited in [less, great]
         SORTING:
-        for (int k = less - 1; ++k <= great;) {
+        for (int k = less; k <= great; k++) {
             final double v = a[k];
             if (v < v1) {
                 // swap(a, k, less++)
@@ -1417,7 +1417,7 @@ final class QuickSelect {
 
             // This copies the logic in the sorting loop using == comparisons
             EQUAL:
-            for (int k = less - 1; ++k <= great;) {
+            for (int k = less; k <= great; k++) {
                 final double v = a[k];
                 if (v == v1) {
                     a[k] = a[less];
@@ -1510,7 +1510,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         int max = a[left];
-        for (int i = right + 1; --i > kb;) {
+        for (int i = right; i > kb; i--) {
             final int v = a[i];
             if (v < max) {
                 a[i] = max;
@@ -1592,7 +1592,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         int min = a[right];
-        for (int i = left - 1; ++i < ka;) {
+        for (int i = left; i < ka; i++) {
             final int v = a[i];
             if (v > min) {
                 a[i] = min;
@@ -1705,7 +1705,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         int m = a[k];
-        for (int i = right + 1; --i > k;) {
+        for (int i = right; i > k; i--) {
             final int v = a[i];
             if (v < m) {
                 a[i] = m;
@@ -1751,7 +1751,7 @@ final class QuickSelect {
         // Scan the remaining data and insert
         // Mitigate worst case performance on descending data by backward sweep
         int m = a[k];
-        for (int i = left - 1; ++i < k;) {
+        for (int i = left; i < k; i++) {
             final int v = a[i];
             if (v > m) {
                 a[i] = m;
@@ -2608,7 +2608,7 @@ final class QuickSelect {
         // a[less - 1] < P1 : a[great + 1] > P2
         // unvisited in [less, great]
         SORTING:
-        for (int k = less - 1; ++k <= great;) {
+        for (int k = less; k <= great; k++) {
             final int v = a[k];
             if (v < v1) {
                 // swap(a, k, less++)
@@ -2676,7 +2676,7 @@ final class QuickSelect {
 
             // This copies the logic in the sorting loop using == comparisons
             EQUAL:
-            for (int k = less - 1; ++k <= great;) {
+            for (int k = less; k <= great; k++) {
                 final int v = a[k];
                 if (v == v1) {
                     a[k] = a[less];
