@@ -372,8 +372,8 @@ public final class GeneralizedContinuedFraction {
         // High is always further from 1 than low in absolute distance. Do not store high
         // but store the maximum absolute deviation from 1 for convergence = high - 1.
         // If this is achieved a second check is made against low.
-        double low;
-        double eps;
+        final double low;
+        final double eps;
         if (epsilon > MIN_EPSILON && epsilon <= MAX_EPSILON) {
             low = 1 - epsilon;
             eps = 1 / low - 1;
