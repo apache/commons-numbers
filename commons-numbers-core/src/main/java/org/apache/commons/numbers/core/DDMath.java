@@ -434,7 +434,7 @@ public final class DDMath {
     private static double add3(double a0, double a1, double a2, double b, MDD s12) {
         // Hide et al (2008) Fig.5: Quad-Double + Double without final a3.
         double u;
-        double v;
+        final double v;
         final double s0 = a0 + b;
         u = DD.twoSumLow(a0, b, s0);
         final double s1 = a1 + u;

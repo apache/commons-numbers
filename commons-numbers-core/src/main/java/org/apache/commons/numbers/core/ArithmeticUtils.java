@@ -70,7 +70,7 @@ public final class ArithmeticUtils {
         int a = p > 0 ? -p : p;
         int b = q > 0 ? -q : q;
 
-        int negatedGcd;
+        final int negatedGcd;
         if (a == 0) {
             negatedGcd = b;
         } else if (b == 0) {
@@ -144,7 +144,7 @@ public final class ArithmeticUtils {
         long a = p > 0 ? -p : p;
         long b = q > 0 ? -q : q;
 
-        long negatedGcd;
+        final long negatedGcd;
         if (a == 0) {
             negatedGcd = b;
         } else if (b == 0) {

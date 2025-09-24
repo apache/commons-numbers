@@ -685,8 +685,8 @@ public final class DD
         if (a == x) {
             // Edge case: Any double value above 2^53 is even. To workaround representation
             // of 2^63 as Long.MAX_VALUE (which is 2^63-1) we can split a into two parts.
-            long a1;
-            long a2;
+            final long a1;
+            final long a2;
             if (Math.abs(x) > TWO_POW_53) {
                 a1 = (long) (x * 0.5);
                 a2 = a1;
@@ -1697,8 +1697,8 @@ public final class DD
         // Break this down into e.g.: 2^512^(exp / 512) * 2^(exp % 512)
         // Number of multiples n = exp / 512   : exp >>> 9
         // Remainder           m = exp % 512   : exp & 511  (exp must be positive)
-        int n;
-        int m;
+        final int n;
+        final int m;
         double p;
         if (exp < 0) {
             // Downscaling
@@ -1719,8 +1719,8 @@ public final class DD
         // Down-scaling to sub-normal will use the final multiplication into a sub-normal result.
         // Note here that n >= 1 as the n in [-1022, 1023] case has been handled.
 
-        double z0;
-        double z1;
+        final double z0;
+        final double z1;
 
         // Handle n : 1, 2, 3, 4, 5
         if (n >= 5) {
