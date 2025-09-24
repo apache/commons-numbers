@@ -83,8 +83,8 @@ public final class Fraction
             denominator = 1;
         } else {
             // Reduce numerator (p) and denominator (q) by greatest common divisor.
-            int p;
-            int q;
+            final int p;
+            final int q;
 
             // If num and den are both 2^-31, or if one is 0 and the other is 2^-31,
             // the calculation of the gcd below will fail. Ensure that this does not

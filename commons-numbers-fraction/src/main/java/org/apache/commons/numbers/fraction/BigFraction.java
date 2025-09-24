@@ -218,7 +218,7 @@ public final class BigFraction
 
         // Use p2 / q2 or p1 / q1 if q2 has grown too large in maxDenominator mode
         long num;
-        long den;
+        final long den;
         if (q2 <= maxDen) {
             num = p2;
             den = q2;
