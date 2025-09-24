@@ -220,13 +220,15 @@ final class BitIndexUpdatingInterval implements UpdatingInterval {
     @Override
     public int updateLeft(int k) {
         // Assume left < k= < right
-        return left = nextIndex(k);
+        left = nextIndex(k);
+        return left;
     }
 
     @Override
     public int updateRight(int k) {
         // Assume left <= k < right
-        return right = previousIndex(k);
+        right = previousIndex(k);
+        return right;
     }
 
     @Override
