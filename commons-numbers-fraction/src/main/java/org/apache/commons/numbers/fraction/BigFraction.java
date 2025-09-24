@@ -197,7 +197,7 @@ public final class BigFraction
                 throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
             }
 
-            final double convergent = p2 / (double) q2;
+            final double convergent = (double) p2 / q2;
             if (n < maxIterations &&
                 Math.abs(convergent - absValue) > epsilon &&
                 q2 < maxDen) {

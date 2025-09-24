@@ -221,7 +221,7 @@ public final class Fraction
                 throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
             }
 
-            final double convergent = (double) p2 / (double) q2;
+            final double convergent = (double) p2 / q2;
             if (n < maxIterations &&
                 Math.abs(convergent - absValue) > epsilon &&
                 q2 < maxDen) {
@@ -514,7 +514,7 @@ public final class Fraction
      */
     @Override
     public double doubleValue() {
-        return (double) numerator / (double) denominator;
+        return numerator / (double) denominator;
     }
 
     /**
@@ -648,8 +648,8 @@ public final class Fraction
          * t = u(v'/d1) +/- v(u'/d1)
          */
         final int d1 = ArithmeticUtils.gcd(denominator, value.denominator);
-        final long uvp = (long) numerator * (long) (value.denominator / d1);
-        final long upv = (long) value.numerator * (long) (denominator / d1);
+        final long uvp = (long) numerator * (value.denominator / d1);
+        final long upv = (long) value.numerator * (denominator / d1);
 
         /*
          * The largest possible absolute value of a product of two ints is 2^62,
