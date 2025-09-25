@@ -247,16 +247,17 @@ final class SmallPrimes {
         final int s = Integer.numberOfTrailingZeros(nMinus1);
         final int r = nMinus1 >> s;
         // r must be odd, it is not checked here
-        int t = 1;
-        if (n >= 2047) {
-            t = 2;
-        }
-        if (n >= 1373653) {
-            t = 3;
-        }
+        final int t;
         if (n >= 25326001) {
+            // works up to 3.2 billion, int range stops at 2.1 so we are safe :-)
             t = 4;
-        } // works up to 3.2 billion, int range stops at 2.7 so we are safe :-)
+        } else if (n >= 1373653) {
+            t = 3;
+        } else if (n >= 2047) {
+            t = 2;
+        } else {
+            t = 1;
+        }
         final BigInteger br = BigInteger.valueOf(r);
         final BigInteger bn = BigInteger.valueOf(n);
 
