@@ -157,10 +157,10 @@ final class SmallPrimes {
     }
 
     /**
-     * Extract factors between {@code PRIME_LAST + 2} and {@code maxFactors}.
+     * Extract factors between {@link #PRIMES_LAST} {@code + 2} and {@code maxFactors}.
      *
-     * @param n Number to factorize, must be larger than {@code PRIME_LAST + 2}
-     * and must not contain any factor below {@code PRIME_LAST + 2}.
+     * @param n Number to factorize, must be larger than {@link #PRIMES_LAST} {@code + 2}
+     * and must not contain any factor below {@link #PRIMES_LAST} {@code + 2}.
      * @param maxFactor Upper bound of trial division: if it is reached, the
      * method gives up and returns {@code n}.
      * @param factors the list where to add the factors.
