@@ -710,7 +710,7 @@ public final class Quaternion implements Serializable {
     }
 
     /** See {@link #parse(String)}. */
-    private static class QuaternionParsingException extends NumberFormatException {
+    private static final class QuaternionParsingException extends NumberFormatException {
         /** Serializable version identifier. */
         private static final long serialVersionUID = 20181128L;
 
