@@ -62,11 +62,10 @@ public final class Trigamma {
         }
 
         final double inv = 1 / (x * x);
-        //  1    1      1       1       1
-        //  - + ---- + ---- - ----- + -----
-        //  x      2      3       5       7
-        //      2 x    6 x    30 x    42 x
-        trigamma += 1 / x + inv / 2 + inv / x * (F_1_6 - inv * (F_1_30 + F_1_42 * inv));
+        //  1     1       1       1        1
+        //  - + ----- + ----- - ------ + ------
+        //  x   2 x^2   6 x^3   30 x^5   42 x^7
+        trigamma += 1 / x + 0.5 * inv + inv / x * (F_1_6 - inv * (F_1_30 + F_1_42 * inv));
 
         return trigamma;
     }
