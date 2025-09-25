@@ -150,7 +150,7 @@ final class SmallPrimes {
     static int smallTrialDivision(int n,
                                   final List<Integer> factors) {
         for (final int p : PRIMES) {
-            while (0 == n % p) {
+            while (n % p == 0) {
                 n /= p;
                 factors.add(p);
             }
@@ -195,7 +195,7 @@ final class SmallPrimes {
             final int f = km + a[currentEquivalenceClassIndex];
             if (f > maxFactor) {
                 done = true;
-            } else if (0 == n % f) {
+            } else if (n % f == 0) {
                 n /= f;
                 factors.add(f);
                 done = true;
@@ -222,7 +222,7 @@ final class SmallPrimes {
     static List<Integer> trialDivision(int n) {
         final List<Integer> factors = new ArrayList<>(32);
         n = smallTrialDivision(n, factors);
-        if (1 == n) {
+        if (n == 1) {
             return factors;
         }
         // here we are sure that n is either a prime or a semi prime
@@ -264,17 +264,17 @@ final class SmallPrimes {
             final BigInteger a = BigInteger.valueOf(PRIMES[i]);
             final BigInteger bPow = a.modPow(br, bn);
             int y = bPow.intValue();
-            if (1 != y && y != nMinus1) {
+            if (y != 1 && y != nMinus1) {
                 int j = 1;
-                while (j <= s - 1 && nMinus1 != y) {
+                while (j <= s - 1 && y != nMinus1) {
                     final long square = ((long) y) * y;
                     y = (int) (square % n);
-                    if (1 == y) {
+                    if (y == 1) {
                         return false;
                     } // definitely composite
                     j++;
                 }
-                if (nMinus1 != y) {
+                if (y != nMinus1) {
                     return false;
                 } // definitely composite
             }

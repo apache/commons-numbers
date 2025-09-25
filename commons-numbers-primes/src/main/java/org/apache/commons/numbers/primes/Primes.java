@@ -51,7 +51,7 @@ public final class Primes {
         }
 
         for (final int p : SmallPrimes.PRIMES) {
-            if (0 == (n % p)) {
+            if (n % p == 0) {
                 return n == p;
             }
         }
@@ -81,9 +81,9 @@ public final class Primes {
         // prepare entry in the +2, +4 loop:
         // n should not be a multiple of 3
         final int rem = n % 3;
-        if (0 == rem) { // if n % 3 == 0
+        if (rem == 0) { // if n % 3 == 0
             n += 2; // n % 3 == 2
-        } else if (1 == rem) { // if n % 3 == 1
+        } else if (rem == 1) { // if n % 3 == 1
             n += 4; // n % 3 == 2
         }
         while (true) { // this loop skips all multiple of 3
