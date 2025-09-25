@@ -90,22 +90,20 @@ final class SmallPrimes {
     static final Entry<Set<Integer>, int[]> PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES;
 
     static {
-        /*
-        According to the Chinese Remainder Theorem, for every combination of
-        congruence classes modulo distinct, pairwise coprime moduli, there
-        exists exactly one congruence class modulo the product of these
-        moduli that is contained in every one of the former congruence
-        classes. Since the number of congruence classes coprime to a prime
-        number p is p-1, the number of congruence classes coprime to all
-        prime numbers p_1, p_2, p_3 … is (p_1 - 1) * (p_2 - 1) * (p_3 - 1) …
-
-        Therefore, when using the first five prime numbers as those whose multiples
-        are to be skipped in trial division, the array containing the coprime
-        equivalence classes will have to hold (2-1)*(3-1)*(5-1)*(7-1)*(11-1) = 480
-        values. As a consequence, the amount of integers to be tried in
-        trial division is reduced to 480/(2*3*5*7*11), which is about 20.78%,
-        of all integers.
-         */
+        // According to the Chinese Remainder Theorem, for every combination of
+        // congruence classes modulo distinct, pairwise coprime moduli, there
+        // exists exactly one congruence class modulo the product of these
+        // moduli that is contained in every one of the former congruence
+        // classes. Since the number of congruence classes coprime to a prime
+        // number p is p-1, the number of congruence classes coprime to all
+        // prime numbers p_1, p_2, p_3 … is (p_1 - 1) * (p_2 - 1) * (p_3 - 1) …
+        //
+        // Therefore, when using the first five prime numbers as those whose multiples
+        // are to be skipped in trial division, the array containing the coprime
+        // equivalence classes will have to hold (2-1)*(3-1)*(5-1)*(7-1)*(11-1) = 480
+        // values. As a consequence, the amount of integers to be tried in
+        // trial division is reduced to 480/(2*3*5*7*11), which is about 20.78%,
+        // of all integers.
         final Set<Integer> primeNumbers = new HashSet<>();
         primeNumbers.add(2);
         primeNumbers.add(3);
@@ -172,22 +170,18 @@ final class SmallPrimes {
                                      List<Integer> factors) {
         final int minFactor = PRIMES_LAST + 2;
 
-        /*
-        only trying integers of the form k*m + c, where k >= 0, m is the
-        product of some prime numbers which n is required not to contain
-        as prime factors, and c is an integer undivisible by all of those
-        prime numbers; in other words, skipping multiples of these primes
-         */
+        // Only trying integers of the form k*m + c, where k >= 0, m is the
+        // product of some prime numbers which n is required not to contain
+        // as prime factors, and c is an integer undivisible by all of those
+        // prime numbers; in other words, skipping multiples of these primes.
         final int[] a = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue();
         final int m = a[a.length - 1] + 1;
         int km = m * (minFactor / m);
         int currentEquivalenceClassIndex = Arrays.binarySearch(a, minFactor % m);
 
-        /*
-        Since minFactor is the next smallest prime number after the
-        first 512 primes, it cannot be a multiple of one of them, therefore,
-        the index returned by the above binary search must be non-negative.
-         */
+        // Since minFactor is the next smallest prime number after the
+        // first 512 primes, it cannot be a multiple of one of them, therefore,
+        // the index returned by the above binary search must be non-negative.
 
         boolean done = false;
         while (!done) {
