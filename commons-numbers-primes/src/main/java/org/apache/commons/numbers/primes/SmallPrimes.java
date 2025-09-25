@@ -26,14 +26,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Utility methods to work on primes within the <code>int</code> range.
+ * Utility methods to work on primes within the {@code int} range.
  */
 final class SmallPrimes {
     /**
      * The first 512 prime numbers.
-     * <p>
-     * It contains all primes smaller or equal to the cubic square of Integer.MAX_VALUE.
-     * As a result, <code>int</code> numbers which are not reduced by those primes are guaranteed
+     *
+     * <p>It contains all primes smaller or equal to the cubic square of Integer.MAX_VALUE.
+     * As a result, {@code int} numbers which are not reduced by those primes are guaranteed
      * to be either prime or semi prime.
      */
     static final int[] PRIMES = {
@@ -232,10 +232,10 @@ final class SmallPrimes {
     }
 
     /**
-     * Miller-Rabin probabilistic primality test for int type, used in such
+     * Miller-Rabin probabilistic primality test for {@code int} type, used in such
      * a way that a result is always guaranteed.
-     * <p>
-     * It uses the prime numbers as successive base therefore it is guaranteed
+     *
+     * <p>It uses the prime numbers as successive base therefore it is guaranteed
      * to be always correct (see Handbook of applied cryptography by Menezes,
      * table 4.1).
      *
