@@ -19,7 +19,7 @@ package org.apache.commons.numbers.primes;
 import java.util.List;
 
 /**
- * Methods related to prime numbers in the range of <code>int</code>.
+ * Methods related to prime numbers in the range of {@code int}.
  * <ul>
  * <li>primality test</li>
  * <li>prime number generation</li>
@@ -36,14 +36,14 @@ public final class Primes {
     private Primes() {}
 
     /**
-     * Primality test: tells if the argument is a (provable) prime or not.
+     * Primality test: tells if the argument {@code n} is a (provable) prime or not.
      * <p>
      * It uses the Miller-Rabin probabilistic test in such a way that a result is guaranteed:
      * it uses the firsts prime numbers as successive base (see Handbook of applied cryptography
      * by Menezes, table 4.1).
      *
      * @param n Number to test.
-     * @return true if {@code n} is prime. All numbers &lt; 2 return false.
+     * @return true if {@code n} is prime. All numbers {@code < 2} return false.
      */
     public static boolean isPrime(int n) {
         if (n < 2) {
@@ -59,11 +59,11 @@ public final class Primes {
     }
 
     /**
-     * Return the smallest prime greater than or equal to n.
+     * Return the smallest prime greater than or equal to {@code n}.
      *
      * @param n Positive number.
      * @return the smallest prime greater than or equal to {@code n}.
-     * @throws IllegalArgumentException if n &lt; 0.
+     * @throws IllegalArgumentException if {@code n} is negative.
      */
     public static int nextPrime(int n) {
         if (n < 0) {
@@ -101,9 +101,9 @@ public final class Primes {
     /**
      * Prime factors decomposition.
      *
-     * @param n Number to factorize: must be &ge; 2.
+     * @param n Number to factorize: must be {@code >= 2}.
      * @return the list of prime factors of {@code n}.
-     * @throws IllegalArgumentException if n &lt; 2.
+     * @throws IllegalArgumentException if n {@code < 2}.
      */
     public static List<Integer> primeFactors(int n) {
         if (n < 2) {
