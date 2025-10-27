@@ -313,6 +313,7 @@ final class BoostErf {
                 result = (ONE_OVER_ROOT_PI - result) / z;
 
                 if (!scaled) {
+                    // In contrast to smaller z: avoid using result *= expmxx(z) / z.
                     // exp(-z*z) can be sub-normal so
                     // multiply by any sub-normal after divide by z
                     result *= expmxx(z);
