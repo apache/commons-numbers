@@ -44,7 +44,7 @@ import java.util.function.DoubleUnaryOperator;
  * the specifications for the first quadrant imply the specifications for the other three
  * quadrants.</p>
  *
- * <p>Special cases of <a href="http://mathworld.wolfram.com/BranchCut.html">branch cuts</a>
+ * <p>Special cases of <a href="https://mathworld.wolfram.com/BranchCut.html">branch cuts</a>
  * for multivalued functions adopt the principle value convention from C99. Specials cases
  * from C99 that raise the "invalid" or "divide-by-zero"
  * <a href="https://en.cppreference.com/w/c/numeric/fenv/FE_exceptions">floating-point
@@ -58,7 +58,7 @@ import java.util.function.DoubleUnaryOperator;
  * cardinality of NaN component parts has increased as a real or imaginary part could
  * not be computed and is set to NaN.
  *
- * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
+ * @see <a href="https://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
 public final class Complex implements Serializable  {
@@ -115,7 +115,7 @@ public final class Complex implements Serializable  {
      * <p>In IEEE 754 arithmetic, this is 2<sup>-53</sup>.
      * Copied from o.a.c.numbers.Precision.
      *
-     * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
+     * @see <a href="https://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
      */
     private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
     /** Mask to remove the sign bit from a long. */
@@ -310,7 +310,7 @@ public final class Complex implements Serializable  {
      * @param rho The modulus of the complex number.
      * @param theta The argument of the complex number.
      * @return {@code Complex} number.
-     * @see <a href="http://mathworld.wolfram.com/PolarCoordinates.html">Polar Coordinates</a>
+     * @see <a href="https://mathworld.wolfram.com/PolarCoordinates.html">Polar Coordinates</a>
      */
     public static Complex ofPolar(double rho, double theta) {
         // Require finite theta and non-negative, non-nan rho
@@ -329,7 +329,7 @@ public final class Complex implements Serializable  {
      *
      * @param x {@code double} to build the cis number.
      * @return {@code Complex} cis number.
-     * @see <a href="http://mathworld.wolfram.com/Cis.html">Cis</a>
+     * @see <a href="https://mathworld.wolfram.com/Cis.html">Cis</a>
      */
     public static Complex ofCis(double x) {
         return new Complex(Math.cos(x), Math.sin(x));
@@ -502,7 +502,7 @@ public final class Complex implements Serializable  {
      * the result is NaN.
      *
      * <p>This method follows the
-     * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
+     * <a href="https://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
      * in calculating the returned value without intermediate overflow or underflow.
      *
      * <p>The computed result will be within 1 ulp of the exact result.
@@ -510,7 +510,7 @@ public final class Complex implements Serializable  {
      * @return The absolute value.
      * @see #isInfinite()
      * @see #isNaN()
-     * @see <a href="http://mathworld.wolfram.com/ComplexModulus.html">Complex modulus</a>
+     * @see <a href="https://mathworld.wolfram.com/ComplexModulus.html">Complex modulus</a>
      */
     public double abs() {
         return abs(real, imaginary);
@@ -559,7 +559,7 @@ public final class Complex implements Serializable  {
      * the signs of the infinite parts.
      *
      * <p>This code follows the
-     * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
+     * <a href="https://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
      * in calculating the returned value using the {@code atan2(y, x)} method for complex
      * \( x + iy \).
      *
@@ -591,7 +591,7 @@ public final class Complex implements Serializable  {
      * @see #isInfinite()
      * @see #isNaN()
      * @see #abs()
-     * @see <a href="http://mathworld.wolfram.com/AbsoluteSquare.html">Absolute square</a>
+     * @see <a href="https://mathworld.wolfram.com/AbsoluteSquare.html">Absolute square</a>
      */
     public double norm() {
         if (isInfinite()) {
@@ -648,7 +648,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
+     * <a href="https://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
      * \( \overline{z} \) of this complex number \( z \).
      *
      * <p>\[ \begin{aligned}
@@ -687,7 +687,7 @@ public final class Complex implements Serializable  {
      *
      * @return \( z \) projected onto the Riemann sphere.
      * @see #isInfinite()
-     * @see <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
+     * @see <a href="https://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
      * IEEE and ISO C standards: cproj</a>
      */
     public Complex proj() {
@@ -705,7 +705,7 @@ public final class Complex implements Serializable  {
      *
      * @param  addend Value to be added to this complex number.
      * @return {@code this + addend}.
-     * @see <a href="http://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
+     * @see <a href="https://mathworld.wolfram.com/ComplexAddition.html">Complex Addition</a>
      */
     public Complex add(Complex addend) {
         return new Complex(real + addend.real,
@@ -768,7 +768,7 @@ public final class Complex implements Serializable  {
      *
      * @param  subtrahend Value to be subtracted from this complex number.
      * @return {@code this - subtrahend}.
-     * @see <a href="http://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
+     * @see <a href="https://mathworld.wolfram.com/ComplexSubtraction.html">Complex Subtraction</a>
      */
     public Complex subtract(Complex subtrahend) {
         return new Complex(real - subtrahend.real,
@@ -867,7 +867,7 @@ public final class Complex implements Serializable  {
      *
      * @param  factor Value to be multiplied by this complex number.
      * @return {@code this * factor}.
-     * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
+     * @see <a href="https://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
     public Complex multiply(Complex factor) {
         return multiply(real, imaginary, factor.real, factor.imaginary);
@@ -1063,7 +1063,7 @@ public final class Complex implements Serializable  {
      *
      * @param divisor Value by which this complex number is to be divided.
      * @return {@code this / divisor}.
-     * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
+     * @see <a href="https://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
     public Complex divide(Complex divisor) {
         return divide(real, imaginary, divisor.real, divisor.imaginary);
@@ -1091,7 +1091,7 @@ public final class Complex implements Serializable  {
      * @param re2 Real component of second number.
      * @param im2 Imaginary component of second number.
      * @return (a + i b) / (c + i d).
-     * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
+     * @see <a href="https://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      * @see #divide(double)
      */
     private static Complex divide(double re1, double im1, double re2, double im2) {
@@ -1213,7 +1213,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/ExponentialFunction.html">
+     * <a href="https://mathworld.wolfram.com/ExponentialFunction.html">
      * exponential function</a> of this complex number.
      *
      * <p>\[ \exp(z) = e^z \]
@@ -1243,7 +1243,7 @@ public final class Complex implements Serializable  {
      * <p>\[ \exp(x + iy) = e^x (\cos(y) + i \sin(y)) \]
      *
      * @return The exponential of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
     public Complex exp() {
         if (Double.isInfinite(real)) {
@@ -1299,7 +1299,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/NaturalLogarithm.html">
+     * <a href="https://mathworld.wolfram.com/NaturalLogarithm.html">
      * natural logarithm</a> of this complex number.
      *
      * <p>The natural logarithm of \( z \) is unbounded along the real axis and
@@ -1340,7 +1340,7 @@ public final class Complex implements Serializable  {
      * @see Math#log(double)
      * @see #abs()
      * @see #arg()
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Log/">Log</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Log/">Log</a>
      */
     public Complex log() {
         return log(Math::log, HALF, LN_2, Complex::ofCartesian);
@@ -1348,7 +1348,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the base 10
-     * <a href="http://mathworld.wolfram.com/CommonLogarithm.html">
+     * <a href="https://mathworld.wolfram.com/CommonLogarithm.html">
      * common logarithm</a> of this complex number.
      *
      * <p>The common logarithm of \( z \) is unbounded along the real axis and
@@ -1486,8 +1486,8 @@ public final class Complex implements Serializable  {
      * @see #log()
      * @see #multiply(Complex)
      * @see #exp()
-     * @see <a href="http://mathworld.wolfram.com/ComplexExponentiation.html">Complex exponentiation</a>
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
+     * @see <a href="https://mathworld.wolfram.com/ComplexExponentiation.html">Complex exponentiation</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
     public Complex pow(Complex x) {
         if (real == 0 &&
@@ -1520,7 +1520,7 @@ public final class Complex implements Serializable  {
      * @see #multiply(double)
      * @see #exp()
      * @see #pow(Complex)
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
     public Complex pow(double x) {
         if (real == 0 &&
@@ -1538,7 +1538,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/SquareRoot.html">
+     * <a href="https://mathworld.wolfram.com/SquareRoot.html">
      * square root</a> of this complex number.
      *
      * <p>\[ \sqrt{x + iy} = \frac{1}{2} \sqrt{2} \left( \sqrt{ \sqrt{x^2 + y^2} + x } + i\ \text{sgn}(y) \sqrt{ \sqrt{x^2 + y^2} - x } \right) \]
@@ -1581,7 +1581,7 @@ public final class Complex implements Serializable  {
      * </blockquote>
      *
      * @return The square root of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sqrt/">Sqrt</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Sqrt/">Sqrt</a>
      */
     public Complex sqrt() {
         return sqrt(real, imaginary);
@@ -1689,7 +1689,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/Sine.html">
+     * <a href="https://mathworld.wolfram.com/Sine.html">
      * sine</a> of this complex number.
      *
      * <p>\[ \sin(z) = \frac{1}{2} i \left( e^{-iz} - e^{iz} \right) \]
@@ -1706,7 +1706,7 @@ public final class Complex implements Serializable  {
      * <p>\[ \sin(z) = -i \sinh(iz) \]
      *
      * @return The sine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sin/">Sin</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Sin/">Sin</a>
      */
     public Complex sin() {
         // Define in terms of sinh
@@ -1717,7 +1717,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/Cosine.html">
+     * <a href="https://mathworld.wolfram.com/Cosine.html">
      * cosine</a> of this complex number.
      *
      * <p>\[ \cos(z) = \frac{1}{2} \left( e^{iz} + e^{-iz} \right) \]
@@ -1734,7 +1734,7 @@ public final class Complex implements Serializable  {
      * <p>\[ cos(z) = cosh(iz) \]
      *
      * @return The cosine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cos/">Cos</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Cos/">Cos</a>
      */
     public Complex cos() {
         // Define in terms of cosh
@@ -1745,7 +1745,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/Tangent.html">
+     * <a href="https://mathworld.wolfram.com/Tangent.html">
      * tangent</a> of this complex number.
      *
      * <p>\[ \tan(z) = \frac{i(e^{-iz} - e^{iz})}{e^{-iz} + e^{iz}} \]
@@ -1760,7 +1760,7 @@ public final class Complex implements Serializable  {
      * \[ \tan(z) = -i \tanh(iz) \]
      *
      * @return The tangent of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tan/">Tangent</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Tan/">Tangent</a>
      */
     public Complex tan() {
         // Define in terms of tanh
@@ -1771,7 +1771,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/InverseSine.html">
+     * <a href="https://mathworld.wolfram.com/InverseSine.html">
      * inverse sine</a> of this complex number.
      *
      * <p>\[ \sin^{-1}(z) = - i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
@@ -1805,7 +1805,7 @@ public final class Complex implements Serializable  {
      * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}.
      *
      * @return The inverse sine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSin/">ArcSin</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/ArcSin/">ArcSin</a>
      */
     public Complex asin() {
         return asin(real, imaginary, Complex::ofCartesian);
@@ -1951,7 +1951,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/InverseCosine.html">
+     * <a href="https://mathworld.wolfram.com/InverseCosine.html">
      * inverse cosine</a> of this complex number.
      *
      * <p>\[ \cos^{-1}(z) = \frac{\pi}{2} + i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
@@ -2000,7 +2000,7 @@ public final class Complex implements Serializable  {
      * {@code c++} implementation {@code <boost/math/complex/acos.hpp>}.
      *
      * @return The inverse cosine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCos/">ArcCos</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/ArcCos/">ArcCos</a>
      */
     public Complex acos() {
         return acos(real, imaginary, Complex::ofCartesian);
@@ -2144,7 +2144,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/InverseTangent.html">
+     * <a href="https://mathworld.wolfram.com/InverseTangent.html">
      * inverse tangent</a> of this complex number.
      *
      * <p>\[ \tan^{-1}(z) = \frac{i}{2} \ln \left( \frac{i + z}{i - z} \right) \]
@@ -2160,7 +2160,7 @@ public final class Complex implements Serializable  {
      * \[ \tan^{-1}(z) = -i \tanh^{-1}(iz) \]
      *
      * @return The inverse tangent of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTan/">ArcTan</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/ArcTan/">ArcTan</a>
      */
     public Complex atan() {
         // Define in terms of atanh
@@ -2171,7 +2171,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/HyperbolicSine.html">
+     * <a href="https://mathworld.wolfram.com/HyperbolicSine.html">
      * hyperbolic sine</a> of this complex number.
      *
      * <p>\[ \sinh(z) = \frac{1}{2} \left( e^{z} - e^{-z} \right) \]
@@ -2202,7 +2202,7 @@ public final class Complex implements Serializable  {
      * <p>\[ \sinh(x + iy) = \sinh(x)\cos(y) + i \cosh(x)\sin(y) \]
      *
      * @return The hyperbolic sine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sinh/">Sinh</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Sinh/">Sinh</a>
      */
     public Complex sinh() {
         return sinh(real, imaginary, Complex::ofCartesian);
@@ -2252,7 +2252,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/HyperbolicCosine.html">
+     * <a href="https://mathworld.wolfram.com/HyperbolicCosine.html">
      * hyperbolic cosine</a> of this complex number.
      *
      * <p>\[ \cosh(z) = \frac{1}{2} \left( e^{z} + e^{-z} \right) \]
@@ -2283,7 +2283,7 @@ public final class Complex implements Serializable  {
      * <p>\[ \cosh(x + iy) = \cosh(x)\cos(y) + i \sinh(x)\sin(y) \]
      *
      * @return The hyperbolic cosine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cosh/">Cosh</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Cosh/">Cosh</a>
      */
     public Complex cosh() {
         return cosh(real, imaginary, Complex::ofCartesian);
@@ -2399,7 +2399,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/HyperbolicTangent.html">
+     * <a href="https://mathworld.wolfram.com/HyperbolicTangent.html">
      * hyperbolic tangent</a> of this complex number.
      *
      * <p>\[ \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} \]
@@ -2428,7 +2428,7 @@ public final class Complex implements Serializable  {
      * </ul>
      *
      * <p>Special cases include the technical corrigendum
-     * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * <a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
      * DR 471: Complex math functions cacosh and ctanh</a>.
      *
      * <p>This is defined using real \( x \) and imaginary \( y \) parts:
@@ -2439,7 +2439,7 @@ public final class Complex implements Serializable  {
      * and {@code 2y}.
      *
      * @return The hyperbolic tangent of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
      */
     public Complex tanh() {
         return tanh(real, imaginary, Complex::ofCartesian);
@@ -2553,7 +2553,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html">
+     * <a href="https://mathworld.wolfram.com/InverseHyperbolicSine.html">
      * inverse hyperbolic sine</a> of this complex number.
      *
      * <p>\[ \sinh^{-1}(z) = \ln \left(z + \sqrt{1 + z^2} \right) \]
@@ -2585,7 +2585,7 @@ public final class Complex implements Serializable  {
      * <p>\[ \sinh^{-1}(z) = -i \sin^{-1}(iz) \]
      *
      * @return The inverse hyperbolic sine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSinh/">ArcSinh</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/ArcSinh/">ArcSinh</a>
      */
     public Complex asinh() {
         // Define in terms of asin
@@ -2598,7 +2598,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html">
+     * <a href="https://mathworld.wolfram.com/InverseHyperbolicCosine.html">
      * inverse hyperbolic cosine</a> of this complex number.
      *
      * <p>\[ \cosh^{-1}(z) = \ln \left(z + \sqrt{z + 1} \sqrt{z - 1} \right) \]
@@ -2623,7 +2623,7 @@ public final class Complex implements Serializable  {
      * </ul>
      *
      * <p>Special cases include the technical corrigendum
-     * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * <a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
      * DR 471: Complex math functions cacosh and ctanh</a>.
      *
      * <p>The inverse hyperbolic cosine is a multivalued function and requires a branch cut in
@@ -2638,7 +2638,7 @@ public final class Complex implements Serializable  {
      * and compatibility with the C99 standard.
      *
      * @return The inverse hyperbolic cosine of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
      */
     public Complex acosh() {
         // Define in terms of acos
@@ -2663,7 +2663,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns the
-     * <a href="http://mathworld.wolfram.com/InverseHyperbolicTangent.html">
+     * <a href="https://mathworld.wolfram.com/InverseHyperbolicTangent.html">
      * inverse hyperbolic tangent</a> of this complex number.
      *
      * <p>\[ \tanh^{-1}(z) = \frac{1}{2} \ln \left( \frac{1 + z}{1 - z} \right) \]
@@ -2703,7 +2703,7 @@ public final class Complex implements Serializable  {
      * {@code c++} implementation {@code <boost/math/complex/atanh.hpp>}.
      *
      * @return The inverse hyperbolic tangent of this complex number.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTanh/">ArcTanh</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/ArcTanh/">ArcTanh</a>
      */
     public Complex atanh() {
         return atanh(real, imaginary, Complex::ofCartesian);
@@ -2994,7 +2994,7 @@ public final class Complex implements Serializable  {
      * @param high High part of number.
      * @param square Square of the number.
      * @return <code>low * low - (((product - high * high) - low * high) - high * low)</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 18</a>
      */
     private static double squareLow(double low, double high, double square) {
@@ -3011,7 +3011,7 @@ public final class Complex implements Serializable  {
      * @param b Second part of sum.
      * @param x Sum.
      * @return <code>b - (x - a)</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     private static double fastSumLow(double a, double b, double x) {
@@ -3029,7 +3029,7 @@ public final class Complex implements Serializable  {
      * @param b Second part of sum.
      * @param x Sum.
      * @return <code>(a - (x - (x - a))) + (b - (x - a))</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 7</a>
      */
     private static double sumLow(double a, double b, double x) {
@@ -3053,7 +3053,7 @@ public final class Complex implements Serializable  {
      * @param y2High High part of y^2.
      * @param y2Low Low part of y^2.
      * @return x^2 + y^2 - 1
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 12</a>
      */
     private static double sumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
@@ -3141,7 +3141,7 @@ public final class Complex implements Serializable  {
      * @param n Degree of root.
      * @return A list of all {@code n}-th roots of this complex number.
      * @throws IllegalArgumentException if {@code n} is zero.
-     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Root/">Root</a>
+     * @see <a href="https://functions.wolfram.com/ElementaryFunctions/Root/">Root</a>
      */
     public List<Complex> nthRoot(int n) {
         if (n == 0) {
@@ -3394,7 +3394,7 @@ public final class Complex implements Serializable  {
      * @return The maximum unbiased exponent of the values to be used for scaling
      * @see Math#getExponent(double)
      * @see Math#scalb(double, int)
-     * @see <a href="http://www.cplusplus.com/reference/cmath/ilogb/">ilogb</a>
+     * @see <a href="https://www.cplusplus.com/reference/cmath/ilogb/">ilogb</a>
      */
     private static int getScale(double a, double b) {
         // Only interested in the exponent and mantissa so remove the sign bit

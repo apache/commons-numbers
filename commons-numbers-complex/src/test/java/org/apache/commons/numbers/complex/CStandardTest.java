@@ -34,7 +34,7 @@ import java.util.function.UnaryOperator;
  * Tests the standards defined by the C.99 standard for complex numbers
  * defined in ISO/IEC 9899, Annex G.
  *
- * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
+ * @see <a href="https://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
 class CStandardTest {
@@ -1008,7 +1008,7 @@ class CStandardTest {
     /**
      * ISO C Standard G.6.2.1.
      *
-     * @see <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * @see <a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
      *   Complex math functions cacosh and ctanh</a>
      */
     @Test
@@ -1168,7 +1168,7 @@ class CStandardTest {
     /**
      * ISO C Standard G.6.2.6.
      *
-     * @see <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * @see <a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
      *   Complex math functions cacosh and ctanh</a>
      */
     @Test

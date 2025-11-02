@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * <a href="http://en.wikipedia.org/wiki/Trigamma_function">Trigamma function</a>.
+ * <a href="https://en.wikipedia.org/wiki/Trigamma_function">Trigamma function</a>.
  *
  * It is the derivative of the {@link Digamma digamma function}:
  * \( \psi_1(x) = \frac{d^2}{dx^2} (\ln \Gamma(x)) \).

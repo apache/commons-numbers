@@ -19,7 +19,7 @@ package org.apache.commons.numbers.rootfinder;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * This class implements the <a href="http://mathworld.wolfram.com/BrentsMethod.html">
+ * This class implements the <a href="https://mathworld.wolfram.com/BrentsMethod.html">
  * Brent algorithm</a> for finding zeros of real univariate functions.
  * The function should be continuous but not necessarily smooth.
  * The {@code solve} method returns a zero {@code x} of the function {@code f}

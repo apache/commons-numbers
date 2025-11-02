@@ -20,7 +20,7 @@
  *
  * <p>
  * This package contains code to perform a
- * <a href="http://openjdk.java.net/projects/code-tools/jmh">JMH</a> run.
+ * <a href="https://openjdk.java.net/projects/code-tools/jmh">JMH</a> run.
  * </p>
  */
 package org.apache.commons.numbers.examples.jmh;

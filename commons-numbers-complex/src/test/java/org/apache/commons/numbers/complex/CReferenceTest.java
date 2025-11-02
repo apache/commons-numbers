@@ -33,7 +33,7 @@ import java.util.function.UnaryOperator;
  * <p>The test data is generated from a known implementation of the standard
  * and saved to the test resources data files.
  *
- * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
+ * @see <a href="https://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
 class CReferenceTest {

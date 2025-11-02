@@ -23,17 +23,17 @@
  * algorithms described in
  * <ul>
  * <li>
- *  <a href="http://dx.doi.org/10.1145/22721.23109">Didonato and Morris (1986)</a>,
+ *  <a href="https://dx.doi.org/10.1145/22721.23109">Didonato and Morris (1986)</a>,
  *  <em>Computation of the Incomplete Gamma Function Ratios and their Inverse</em>,
  *  TOMS 12(4), 377-393,
  * </li>
  * <li>
- *  <a href="http://dx.doi.org/10.1145/131766.131776">Didonato and Morris (1992)</a>,
+ *  <a href="https://dx.doi.org/10.1145/131766.131776">Didonato and Morris (1992)</a>,
  *  <em>Algorithm 708: Significant Digit Computation of the Incomplete Beta Function
  *  Ratios</em>, TOMS 18(3), 360-373,
  * </li>
  * </ul>
  * and implemented in the
- * <a href="http://www.dtic.mil/docs/citations/ADA476840">NSWC Library of Mathematical Functions</a>.
+ * <a href="https://www.dtic.mil/docs/citations/ADA476840">NSWC Library of Mathematical Functions</a>.
  */
 package org.apache.commons.numbers.gamma;

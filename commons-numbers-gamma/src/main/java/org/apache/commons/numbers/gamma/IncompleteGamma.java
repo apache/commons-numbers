@@ -37,7 +37,7 @@ public final class IncompleteGamma {
     private IncompleteGamma() {}
 
     /**
-     * <a href="http://mathworld.wolfram.com/IncompleteGammaFunction.html">
+     * <a href="https://mathworld.wolfram.com/IncompleteGammaFunction.html">
      * Lower incomplete Gamma function</a> \( \gamma(a, x) \).
      *
      * <p>\[ \gamma(a,x) = \int_0^x t^{a-1}\,e^{-t}\,dt \]
@@ -79,7 +79,7 @@ public final class IncompleteGamma {
     }
 
     /**
-     * <a href="http://mathworld.wolfram.com/IncompleteGammaFunction.html">
+     * <a href="https://mathworld.wolfram.com/IncompleteGammaFunction.html">
      * Upper incomplete Gamma function</a> \( \Gamma(a, x) \).
      *
      * <p>\[ \Gamma(a,x) = \int_x^{\infty} t^{a-1}\,e^{-t}\,dt \]

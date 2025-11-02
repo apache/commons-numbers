@@ -24,7 +24,7 @@ import java.io.Serializable;
 import org.apache.commons.numbers.core.Precision;
 
 /**
- * This class implements <a href="http://mathworld.wolfram.com/Quaternion.html">
+ * This class implements <a href="https://mathworld.wolfram.com/Quaternion.html">
  * quaternions</a> (Hamilton's hypercomplex numbers).
  *
  * <p>Wherever quaternion components are listed in sequence, this class follows the

@@ -15,7 +15,7 @@
 
 # Reference data for the gamma function in the range 150 to 171.5. This
 # data was generated with the following <a
-# href="http://maxima.sourceforge.net/">Maxima</a> script.
+# href="https://maxima.sourceforge.net/">Maxima</a> script.
 #
 # kill(all);
 #

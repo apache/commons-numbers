@@ -232,7 +232,7 @@ public class StickySumPerformance {
      * @param a First part of sum.
      * @param b Second part of sum.
      * @return <code>b - (sum - a)</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     private static double fastSumWithStickyBitBranched(double a, double b) {
@@ -293,7 +293,7 @@ public class StickySumPerformance {
      * @param a First part of sum.
      * @param b Second part of sum.
      * @return <code>b - (sum - a)</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     private static double fastSumWithStickyBitBranchless(double a, double b) {
@@ -399,7 +399,7 @@ public class StickySumPerformance {
      * @param a First part of sum.
      * @param b Second part of sum.
      * @return <code>b - (sum - a)</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     private static double fastSumWithStickyBitBranchedOnHigh(double a, double b) {
@@ -503,7 +503,7 @@ public class StickySumPerformance {
      * @param a First part of sum.
      * @param b Second part of sum.
      * @return <code>b - (sum - a)</code>
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     private static double fastSumWithStickyBitBranchedOnLow(double a, double b) {

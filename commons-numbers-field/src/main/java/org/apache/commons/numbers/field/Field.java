@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.field;
 
 /**
- * Interface representing a <a href="http://mathworld.wolfram.com/Field.html">field</a>.
+ * Interface representing a <a href="https://mathworld.wolfram.com/Field.html">field</a>.
  *
  * @param <T> Type of the field elements.
  */

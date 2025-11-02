@@ -35,7 +35,7 @@ public final class Precision {
      * In IEEE 754 arithmetic, this is 2<sup>-53</sup>.
      * </p>
      *
-     * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
+     * @see <a href="https://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
      */
     public static final double EPSILON;
 
@@ -210,7 +210,7 @@ public final class Precision {
      * </p>
      * <p>
      * Adapted from <a
-     * href="http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">
+     * href="https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">
      * Bruce Dawson</a>.
      * </p>
      *
@@ -354,7 +354,7 @@ public final class Precision {
      * </p>
      * <p>
      * Adapted from <a
-     * href="http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">
+     * href="https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">
      * Bruce Dawson</a>.
      * </p>
      *

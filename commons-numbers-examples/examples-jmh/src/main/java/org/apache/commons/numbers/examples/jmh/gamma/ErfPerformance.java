@@ -479,10 +479,10 @@ public class ErfPerformance {
      * Returns the inverse error function.
      *
      * <p>This implementation is described in the paper:
-     * <a href="http://people.maths.ox.ac.uk/gilesm/files/gems_erfinv.pdf">Approximating
+     * <a href="https://people.maths.ox.ac.uk/gilesm/files/gems_erfinv.pdf">Approximating
      * the erfinv function</a> by Mike Giles, Oxford-Man Institute of Quantitative Finance,
      * which was published in GPU Computing Gems, volume 2, 2010.
-     * The source code is available <a href="http://gpucomputing.net/?q=node/1828">here</a>.
+     * The source code is available <a href="https://gpucomputing.net/?q=node/1828">here</a>.
      * </p>
      *
      * <p>This is the implementation in Commons Numbers 1.0.
@@ -587,7 +587,7 @@ public class ErfPerformance {
      *
      * <p>This implementation computes erfc(x) using the
      * {@link RegularizedGamma.Q#value(double, double, double, int) regularized gamma function},
-     * following <a href="http://mathworld.wolfram.com/Erf.html">Erf</a>, equation (3).
+     * following <a href="https://mathworld.wolfram.com/Erf.html">Erf</a>, equation (3).
      *
      * <p>This is the implementation in Commons Numbers 1.0.
      *
@@ -607,7 +607,7 @@ public class ErfPerformance {
      *
      * <p>This implementation computes erf(x) using the
      * {@link RegularizedGamma.P#value(double, double, double, int) regularized gamma function},
-     * following <a href="http://mathworld.wolfram.com/Erf.html"> Erf</a>, equation (3)
+     * following <a href="https://mathworld.wolfram.com/Erf.html"> Erf</a>, equation (3)
      *
      * <p>This is the implementation in Commons Numbers 1.0.
      *
@@ -623,7 +623,7 @@ public class ErfPerformance {
     }
 
     /**
-     * <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+     * <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
      * Regularized Gamma functions</a>.
      *
      * <p>This is the Commons Numbers 1.0 implementation. Later versions of
@@ -640,7 +640,7 @@ public class ErfPerformance {
         }
 
         /**
-         * \( P(a, x) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+         * \( P(a, x) \) <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
          * regularized Gamma function</a>.
          *
          * Class is immutable.
@@ -655,15 +655,15 @@ public class ErfPerformance {
              * The implementation of this method is based on:
              * <ul>
              *  <li>
-             *   <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+             *   <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
              *   Regularized Gamma Function</a>, equation (1)
              *  </li>
              *  <li>
-             *   <a href="http://mathworld.wolfram.com/IncompleteGammaFunction.html">
+             *   <a href="https://mathworld.wolfram.com/IncompleteGammaFunction.html">
              *   Incomplete Gamma Function</a>, equation (4).
              *  </li>
              *  <li>
-             *   <a href="http://mathworld.wolfram.com/ConfluentHypergeometricFunctionoftheFirstKind.html">
+             *   <a href="https://mathworld.wolfram.com/ConfluentHypergeometricFunctionoftheFirstKind.html">
              *   Confluent Hypergeometric Function of the First Kind</a>, equation (1).
              *  </li>
              * </ul>
@@ -718,7 +718,7 @@ public class ErfPerformance {
         }
 
         /**
-         * Creates the \( Q(a, x) \equiv 1 - P(a, x) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+         * Creates the \( Q(a, x) \equiv 1 - P(a, x) \) <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
          * regularized Gamma function</a>.
          *
          * Class is immutable.
@@ -733,11 +733,11 @@ public class ErfPerformance {
              * The implementation of this method is based on:
              * <ul>
              *  <li>
-             *   <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+             *   <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
              *   Regularized Gamma Function</a>, equation (1).
              *  </li>
              *  <li>
-             *   <a href="http://functions.wolfram.com/GammaBetaErf/GammaRegularized/10/0003/">
+             *   <a href="https://functions.wolfram.com/GammaBetaErf/GammaRegularized/10/0003/">
              *   Regularized incomplete gamma function: Continued fraction representations
              *   (formula 06.08.10.0003)</a>
              *  </li>

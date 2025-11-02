@@ -742,7 +742,7 @@ public final class DD
      * @param b Second part of sum.
      * @return the sum
      * @see #fastTwoDiff(double, double)
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     static DD fastTwoSum(double a, double b) {
@@ -781,7 +781,7 @@ public final class DD
      * @param b Subtrahend.
      * @return the difference
      * @see #fastTwoSum(double, double)
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     static DD fastTwoDiff(double a, double b) {
@@ -816,7 +816,7 @@ public final class DD
      * @param b Second part of sum.
      * @return the sum
      * @see #twoDiff(double, double)
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 7</a>
      */
     static DD twoSum(double a, double b) {

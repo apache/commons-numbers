@@ -31,7 +31,7 @@ class GammaRatioTest {
     /**
      * Reference data for the {@link GammaRatio#value(double, double)} function. This
      * data was generated with the following <a
-     * href="http://maxima.sourceforge.net/">Maxima</a> script.
+     * href="https://maxima.sourceforge.net/">Maxima</a> script.
      * Note: This data is different from the data used for {@link BoostGammaTest}.
      *
      * <pre>
@@ -74,7 +74,7 @@ class GammaRatioTest {
     /**
      * Reference data for the {@link GammaRatio#delta(double, double)} function. This
      * data was generated with the following <a
-     * href="http://maxima.sourceforge.net/">Maxima</a> script.
+     * href="https://maxima.sourceforge.net/">Maxima</a> script.
      * Note: This data is different from the data used for {@link BoostGammaTest}.
      *
      * <pre>

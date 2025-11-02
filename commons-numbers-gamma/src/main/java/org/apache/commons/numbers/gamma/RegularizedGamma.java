@@ -38,7 +38,7 @@ public final class RegularizedGamma {
     }
 
     /**
-     * <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+     * <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
      * Lower regularized Gamma function</a> \( P(a, x) \).
      *
      * <p>\[ P(a,x) = 1 - Q(a,x) = \frac{\gamma(a,x)}{\Gamma(a)} = \frac{1}{\Gamma(a)} \int_0^x t^{a-1}\,e^{-t}\,dt \]
@@ -96,7 +96,7 @@ public final class RegularizedGamma {
     }
 
     /**
-     * <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+     * <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">
      * Upper regularized Gamma function</a> \( Q(a, x) \).
      *
      * <p>\[ Q(a,x) = 1 - P(a,x) = \frac{\Gamma(a,x)}{\Gamma(a)} = \frac{1}{\Gamma(a)} \int_x^{\infty} t^{a-1}\,e^{-t}\,dt \]

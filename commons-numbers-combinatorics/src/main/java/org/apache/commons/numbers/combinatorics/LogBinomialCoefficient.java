@@ -20,7 +20,7 @@ package org.apache.commons.numbers.combinatorics;
 import org.apache.commons.numbers.gamma.LogBeta;
 
 /**
- * Natural logarithm of the <a href="http://mathworld.wolfram.com/BinomialCoefficient.html">
+ * Natural logarithm of the <a href="https://mathworld.wolfram.com/BinomialCoefficient.html">
  * binomial coefficient</a>.
  * It is "{@code n choose k}", the number of {@code k}-element subsets that
  * can be selected from an {@code n}-element set.

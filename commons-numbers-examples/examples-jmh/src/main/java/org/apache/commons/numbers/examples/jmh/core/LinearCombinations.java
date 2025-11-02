@@ -255,7 +255,7 @@ public final class LinearCombinations {
      * for K-fold precision of the sum.
      *
      * <p>It is based on the 2005 paper
-     * <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
+     * <a href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
      * Accurate Sum and Dot Product</a> by Takeshi Ogita, Siegfried M. Rump,
      * and Shin'ichi Oishi published in <em>SIAM J. Sci. Comput</em>.
      *
@@ -508,7 +508,7 @@ public final class LinearCombinations {
      * for 2-fold precision of the sum.
      *
      * <p>It is based on the 2005 paper
-     * <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
+     * <a href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
      * Accurate Sum and Dot Product</a> by Takeshi Ogita, Siegfried M. Rump,
      * and Shin'ichi Oishi published in <em>SIAM J. Sci. Comput</em>.
      *
@@ -713,7 +713,7 @@ public final class LinearCombinations {
      * floating point numbers.
      *
      * <p>It is based on the paper by
-     * <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997): Arbitrary Precision Floating-Point Arithmetic</a>.
      */
     public static final class ExtendedPrecision extends BaseLinearCombination implements TwoD, ThreeD, FourD {
@@ -1300,7 +1300,7 @@ public final class LinearCombinations {
              * @param a First part of sum.
              * @param b Second part of sum.
              * @return <code>b - (sum - a)</code>
-             * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+             * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
              * Shewchuk (1997) Theorum 6</a>
              */
             static double fastSumWithStickyBit(double a, double b) {

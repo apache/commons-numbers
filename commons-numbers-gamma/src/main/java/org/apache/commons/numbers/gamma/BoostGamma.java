@@ -33,7 +33,7 @@ import org.apache.commons.numbers.fraction.GeneralizedContinuedFraction.Coeffici
 
 /**
  * Implementation of the
- * <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">Regularized Gamma functions</a> and
+ * <a href="https://mathworld.wolfram.com/RegularizedGammaFunction.html">Regularized Gamma functions</a> and
  * <a href="https://mathworld.wolfram.com/IncompleteGammaFunction.html">Incomplete Gamma functions</a>.
  *
  * <p>This code has been adapted from the <a href="https://www.boost.org/">Boost</a>

@@ -26,7 +26,7 @@ class LogGammaSumTest {
     /**
      * Reference data for the {@link LogGammaSum#value(double, double)}
      * function. This data was generated with the following
-     * <a href="http://maxima.sourceforge.net/">Maxima</a> script.
+     * <a href="https://maxima.sourceforge.net/">Maxima</a> script.
      *
      * <pre>
      * kill(all);

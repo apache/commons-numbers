@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * <a href="http://mathworld.wolfram.com/LanczosApproximation.html">
+ * <a href="https://mathworld.wolfram.com/LanczosApproximation.html">
  * Lanczos approximation</a> to the Gamma function.
  *
  * It is related to the Gamma function by the following equation
@@ -28,7 +28,7 @@ package org.apache.commons.numbers.gamma;
  * where \( g \) is the Lanczos constant.
  *
  * See equations (1) through (5), and Paul Godfrey's
- * <a href="http://my.fit.edu/~gabdo/gamma.txt">Note on the computation
+ * <a href="https://my.fit.edu/~gabdo/gamma.txt">Note on the computation
  * of the convergent Lanczos complex Gamma approximation</a>.
  */
 public final class LanczosApproximation {

@@ -26,7 +26,7 @@ import java.util.Comparator;
 import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
- * Utility to create <a href="http://en.wikipedia.org/wiki/Combination">
+ * Utility to create <a href="https://en.wikipedia.org/wiki/Combination">
  * combinations</a> {@code (n, k)} of {@code k} elements in a set of
  * {@code n} elements.
  */

@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * <a href="http://en.wikipedia.org/wiki/Digamma_function">Digamma function</a>.
+ * <a href="https://en.wikipedia.org/wiki/Digamma_function">Digamma function</a>.
  * <p>
  * It is defined as the logarithmic derivative of the \( \Gamma \)
  * ({@link Gamma}) function:
@@ -27,7 +27,7 @@ package org.apache.commons.numbers.gamma;
  * @see Gamma
  */
 public final class Digamma {
-    /** <a href="http://en.wikipedia.org/wiki/Euler-Mascheroni_constant">Euler-Mascheroni constant</a>. */
+    /** <a href="https://en.wikipedia.org/wiki/Euler-Mascheroni_constant">Euler-Mascheroni constant</a>. */
     private static final double GAMMA = 0.577215664901532860606512090082;
 
     /** C limit. */
@@ -50,7 +50,7 @@ public final class Digamma {
      * Computes the digamma function.
      *
      * This is an independently written implementation of the algorithm described in
-     * <a href="http://www.uv.es/~bernardo/1976AppStatist.pdf">Jose Bernardo,
+     * <a href="https://www.uv.es/~bernardo/1976AppStatist.pdf">Jose Bernardo,
      * Algorithm AS 103: Psi (Digamma) Function, Applied Statistics, 1976</a>.
      * A <a href="https://en.wikipedia.org/wiki/Digamma_function#Reflection_formula">
      * reflection formula</a> is incorporated to improve performance on negative values.

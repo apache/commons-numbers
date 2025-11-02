@@ -287,7 +287,7 @@ final class SDD {
      * @param s Sum (result).
      * @return the sum
      * @see #fastTwoDiff(double, double, SDD)
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     static SDD fastTwoSum(double a, double b, SDD s) {
@@ -329,7 +329,7 @@ final class SDD {
      * @param d Difference (result).
      * @return the difference
      * @see #fastTwoSum(double, double, SDD)
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 6</a>
      */
     static SDD fastTwoDiff(double a, double b, SDD d) {
@@ -352,7 +352,7 @@ final class SDD {
      * @param s Sum (result).
      * @return the sum
      * @see #twoDiff(double, double, SDD)
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 7</a>
      */
     static SDD twoSum(double a, double b, SDD s) {

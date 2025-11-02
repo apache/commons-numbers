@@ -18,7 +18,7 @@
 package org.apache.commons.numbers.combinatorics;
 
 /**
- * <a href="http://mathworld.wolfram.com/Factorial.html">Factorial of a number</a>.
+ * <a href="https://mathworld.wolfram.com/Factorial.html">Factorial of a number</a>.
  */
 public final class Factorial {
 

@@ -175,7 +175,7 @@ final class TestUtils {
          * @param b Second part of sum.
          * @param sum Sum of the parts (a + b).
          * @return <code>(b - (sum - (sum - b))) + (a - (sum - b))</code>
-         * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+         * @see <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
          * Shewchuk (1997) Theorum 7</a>
          */
         static double twoSumLow(double a, double b, double sum) {

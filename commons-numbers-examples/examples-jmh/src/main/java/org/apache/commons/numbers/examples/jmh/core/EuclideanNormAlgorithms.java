@@ -66,7 +66,7 @@ public final class EuclideanNormAlgorithms {
         }
     }
 
-    /** Translation of the <a href="http://www.netlib.org/minpack">minpack</a>
+    /** Translation of the <a href="https://www.netlib.org/minpack">minpack</a>
      * "enorm" subroutine. This method handles overflow and underflow.
      */
     static final class Enorm implements ToDoubleFunction<double[]> {

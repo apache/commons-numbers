@@ -39,7 +39,7 @@ class LogGammaTest {
     /**
      * Reference data for the {@link LogGamma#value(double)} function. This data
      * was generated with the following <a
-     * href="http://maxima.sourceforge.net/">Maxima</a> script.
+     * href="https://maxima.sourceforge.net/">Maxima</a> script.
      *
      * <pre>
      * kill(all);

@@ -27,7 +27,7 @@ class InvGamma1pm1Test {
      * <p>
      * Reference values for the {@link InvGamma1pm1#value(double)} method.
      * These values were generated with the following <a
-     * href="http://maxima.sourceforge.net/">Maxima</a> script
+     * href="https://maxima.sourceforge.net/">Maxima</a> script
      * </p>
      *
      * <pre>

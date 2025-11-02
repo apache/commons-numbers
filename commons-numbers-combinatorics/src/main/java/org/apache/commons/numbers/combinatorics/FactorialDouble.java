@@ -20,7 +20,7 @@ package org.apache.commons.numbers.combinatorics;
 /**
  * @deprecated Since 1.1 this functionality has been replaced with {@link Factorial#doubleValue(int)}.
  *
- * <a href="http://mathworld.wolfram.com/Factorial.html">Factorial of a number</a>.
+ * <a href="https://mathworld.wolfram.com/Factorial.html">Factorial of a number</a>.
  */
 @Deprecated
 public final class FactorialDouble {

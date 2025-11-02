@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.gamma;
 
 /**
- * Inverse of the <a href="http://mathworld.wolfram.com/Erf.html">error function</a>.
+ * Inverse of the <a href="https://mathworld.wolfram.com/Erf.html">error function</a>.
  */
 public final class InverseErf {
     /** Private constructor. */

@@ -25,7 +25,7 @@ package org.apache.commons.numbers.gamma;
 import org.apache.commons.numbers.core.DD;
 
 /**
- * Implementation of the <a href="http://mathworld.wolfram.com/Erf.html">error function</a> and
+ * Implementation of the <a href="https://mathworld.wolfram.com/Erf.html">error function</a> and
  * its inverse.
  *
  * <p>This code has been adapted from the <a href="https://www.boost.org/">Boost</a>

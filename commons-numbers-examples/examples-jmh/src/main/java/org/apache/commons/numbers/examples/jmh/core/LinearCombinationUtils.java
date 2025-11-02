@@ -76,7 +76,7 @@ final class LinearCombinationUtils {
      * where the standard precision dot product will not overflow.
      *
      * <p>Uses the GenDot algorithm 6.1 from <a
-     * href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
+     * href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
      * Accurate Sum and Dot Product</a> by Takeshi Ogita, Siegfried M. Rump, and
      * Shin'ichi Oishi published in <em>SIAM J. Sci. Comput</em>.
      *

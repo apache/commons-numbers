@@ -284,7 +284,7 @@ public final class Fraction
      * <p>
      * References:
      * <ul>
-     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * <li><a href="https://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
      *
@@ -318,7 +318,7 @@ public final class Fraction
      * <p>
      * References:
      * <ul>
-     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * <li><a href="https://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
      *
