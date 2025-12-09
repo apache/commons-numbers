@@ -218,7 +218,7 @@ final class KeyUpdatingInterval implements UpdatingInterval, SplittingInterval {
             // No right interval.
             // Find new right bound for the left-side.
             // Search using a scan on the assumption that ka is close to the end
-            // given that kb is greater then the end.
+            // given that kb is greater than the end.
             int i = r;
             if (ka <= keys[i]) {
                 do {
