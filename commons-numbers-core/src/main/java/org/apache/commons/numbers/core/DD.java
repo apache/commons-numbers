@@ -153,15 +153,15 @@ import java.util.function.DoubleUnaryOperator;
  * Dekker, T.J. (1971)
  * <a href="https://doi.org/10.1007/BF01397083">
  * A floating-point technique for extending the available precision</a>
- * Numerische Mathematik, 18:224–242.
+ * Numerische Mathematik, 18:224–242.</li>
  * <li>
  * Shewchuk, J.R. (1997)
  * <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
- * Arbitrary Precision Floating-Point Arithmetic</a>.
+ * Arbitrary Precision Floating-Point Arithmetic</a>.</li>
  * <li>
  * Hide, Y, Li, X.S. and Bailey, D.H. (2008)
  * <a href="https://www.davidhbailey.com/dhbpapers/qd.pdf">
- * Library for Double-Double and Quad-Double Arithmetic</a>.
+ * Library for Double-Double and Quad-Double Arithmetic</a>.</li>
  * </ol>
  *
  * @since 1.2
@@ -398,9 +398,9 @@ public final class DD
      * This creates the following special cases:
      *
      * <ul>
-     *  <li>If {@code x + y} is infinite then the low part is NaN.
-     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.
-     *  <li>If {@code x + y} is sub-normal or zero then the low part is +/-0.0.
+     *  <li>If {@code x + y} is infinite then the low part is NaN.</li>
+     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.</li>
+     *  <li>If {@code x + y} is sub-normal or zero then the low part is +/-0.0.</li>
      * </ul>
      *
      * <p>An invalid result can be identified using {@link #isFinite()}.
@@ -446,10 +446,10 @@ public final class DD
      *
      * <ul>
      *  <li>If either {@code |x|} or {@code |y|} multiplied by {@code 1 + 2^27}
-     *      is infinite (intermediate overflow) then the low part is NaN.
-     *  <li>If {@code x * y} is infinite then the low part is NaN.
-     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.
-     *  <li>If {@code x * y} is sub-normal or zero then the low part is +/-0.0.
+     *      is infinite (intermediate overflow) then the low part is NaN.</li>
+     *  <li>If {@code x * y} is infinite then the low part is NaN.</li>
+     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.</li>
+     *  <li>If {@code x * y} is sub-normal or zero then the low part is +/-0.0.</li>
      * </ul>
      *
      * <p>An invalid result can be identified using {@link #isFinite()}.
@@ -496,11 +496,11 @@ public final class DD
      *
      * <ul>
      *  <li>If either {@code |x / y|} or {@code |y|} multiplied by {@code 1 + 2^27}
-     *      is infinite (intermediate overflow) then the low part is NaN.
-     *  <li>If {@code x / y} is infinite then the low part is NaN.
-     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.
+     *      is infinite (intermediate overflow) then the low part is NaN.</li>
+     *  <li>If {@code x / y} is infinite then the low part is NaN.</li>
+     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.</li>
      *  <li>If {@code x / y} is sub-normal or zero, excluding the previous cases,
-     *      then the low part is +/-0.0.
+     *      then the low part is +/-0.0.</li>
      * </ul>
      *
      * <p>An invalid result can be identified using {@link #isFinite()}.
@@ -625,9 +625,9 @@ public final class DD
      *
      * <p>Special cases:
      * <ul>
-     *  <li>If the {@code DD} value is infinite the result is {@link Integer#MAX_VALUE}.
-     *  <li>If the {@code DD} value is -infinite the result is {@link Integer#MIN_VALUE}.
-     *  <li>If the {@code DD} value is NaN the result is 0.
+     *  <li>If the {@code DD} value is infinite the result is {@link Integer#MAX_VALUE}.</li>
+     *  <li>If the {@code DD} value is -infinite the result is {@link Integer#MIN_VALUE}.</li>
+     *  <li>If the {@code DD} value is NaN the result is 0.</li>
      * </ul>
      *
      * <p>Conversion of a finite {@code DD} can also be performed using the
@@ -658,9 +658,9 @@ public final class DD
      *
      * <p>Special cases:
      * <ul>
-     *  <li>If the {@code DD} value is infinite the result is {@link Long#MAX_VALUE}.
-     *  <li>If the {@code DD} value is -infinite the result is {@link Long#MIN_VALUE}.
-     *  <li>If the {@code DD} value is NaN the result is 0.
+     *  <li>If the {@code DD} value is infinite the result is {@link Long#MAX_VALUE}.</li>
+     *  <li>If the {@code DD} value is -infinite the result is {@link Long#MIN_VALUE}.</li>
+     *  <li>If the {@code DD} value is NaN the result is 0.</li>
      * </ul>
      *
      * <p>Conversion of a finite {@code DD} can also be performed using the
@@ -895,11 +895,11 @@ public final class DD
      * This creates the following special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the low part is +/-0.0.
-     *  <li>If {@code x * y} is infinite then the low part is NaN.
-     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the low part is +/-0.0.</li>
+     *  <li>If {@code x * y} is infinite then the low part is NaN.</li>
+     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.</li>
      *  <li>If either {@code |x|} or {@code |y|} multiplied by {@code 1 + 2^27}
-     *      is infinite (intermediate overflow) then the low part is NaN.
+     *      is infinite (intermediate overflow) then the low part is NaN.</li>
      * </ul>
      *
      * <p>Note: Ignoring special cases is a design choice for performance. The
@@ -1069,10 +1069,10 @@ public final class DD
      *
      * <p>Cases:
      * <ul>
-     *  <li>If the {@code x} value is negative the result is {@code (-x, -xx)}.
+     *  <li>If the {@code x} value is negative the result is {@code (-x, -xx)}.</li>
      *  <li>If the {@code x} value is +/- 0.0 the result is {@code (0.0, 0.0)}; this
-     *      will remove sign information from the round-off component assumed to be zero.
-     *  <li>Otherwise the result is {@code this}.
+     *      will remove sign information from the round-off component assumed to be zero.</li>
+     *  <li>Otherwise the result is {@code this}.</li>
      * </ul>
      *
      * @return the absolute value
@@ -1098,12 +1098,12 @@ public final class DD
      *
      * <p>Cases:
      * <ul>
-     *  <li>If {@code x} is NaN, then the result is {@code (NaN, 0)}.
-     *  <li>If {@code x} is infinite, then the result is {@code (x, 0)}.
-     *  <li>If {@code x} is +/-0.0, then the result is {@code (x, 0)}.
-     *  <li>If {@code x != Math.floor(x)}, then the result is {@code (Math.floor(x), 0)}.
+     *  <li>If {@code x} is NaN, then the result is {@code (NaN, 0)}.</li>
+     *  <li>If {@code x} is infinite, then the result is {@code (x, 0)}.</li>
+     *  <li>If {@code x} is +/-0.0, then the result is {@code (x, 0)}.</li>
+     *  <li>If {@code x != Math.floor(x)}, then the result is {@code (Math.floor(x), 0)}.</li>
      *  <li>Otherwise the result is the {@code DD} value equal to the sum
-     *      {@code Math.floor(x) + Math.floor(xx)}.
+     *      {@code Math.floor(x) + Math.floor(xx)}.</li>
      * </ul>
      *
      * <p>The result may generate a high part smaller (closer to negative infinity) than
@@ -1128,12 +1128,12 @@ public final class DD
      *
      * <p>Cases:
      * <ul>
-     *  <li>If {@code x} is NaN, then the result is {@code (NaN, 0)}.
-     *  <li>If {@code x} is infinite, then the result is {@code (x, 0)}.
-     *  <li>If {@code x} is +/-0.0, then the result is {@code (x, 0)}.
-     *  <li>If {@code x != Math.ceil(x)}, then the result is {@code (Math.ceil(x), 0)}.
+     *  <li>If {@code x} is NaN, then the result is {@code (NaN, 0)}.</li>
+     *  <li>If {@code x} is infinite, then the result is {@code (x, 0)}.</li>
+     *  <li>If {@code x} is +/-0.0, then the result is {@code (x, 0)}.</li>
+     *  <li>If {@code x != Math.ceil(x)}, then the result is {@code (Math.ceil(x), 0)}.</li>
      *  <li>Otherwise the result is the {@code DD} value equal to the sum
-     *      {@code Math.ceil(x) + Math.ceil(xx)}.
+     *      {@code Math.ceil(x) + Math.ceil(xx)}.</li>
      * </ul>
      *
      * <p>The result may generate a high part larger (closer to positive infinity) than
@@ -1154,10 +1154,10 @@ public final class DD
      *
      * <p>Cases:
      * <ul>
-     *  <li>If {@code x} is non-finite or zero, then the result is {@code (x, 0)}.
+     *  <li>If {@code x} is non-finite or zero, then the result is {@code (x, 0)}.</li>
      *  <li>If {@code x} is rounded by the operator to a new value {@code y}, then the
-     *      result is {@code (y, 0)}.
-     *  <li>Otherwise the result is the {@code DD} value equal to the sum {@code op(x) + op(xx)}.
+     *      result is {@code (y, 0)}.</li>
+     *  <li>Otherwise the result is the {@code DD} value equal to the sum {@code op(x) + op(xx)}.</li>
      * </ul>
      *
      * @param x High part of x.
@@ -1602,9 +1602,9 @@ public final class DD
      *
      * <p>Special cases:
      * <ul>
-     *  <li>If {@code x} is NaN or less than zero, then the result is {@code (NaN, 0)}.
-     *  <li>If {@code x} is positive infinity, then the result is {@code (+infinity, 0)}.
-     *  <li>If {@code x} is positive zero or negative zero, then the result is {@code (x, 0)}.
+     *  <li>If {@code x} is NaN or less than zero, then the result is {@code (NaN, 0)}.</li>
+     *  <li>If {@code x} is positive infinity, then the result is {@code (+infinity, 0)}.</li>
+     *  <li>If {@code x} is positive zero or negative zero, then the result is {@code (x, 0)}.</li>
      * </ul>
      *
      * <p>The computed result is within 4 eps of the exact result where eps is 2<sup>-106</sup>.
@@ -1774,12 +1774,12 @@ public final class DD
      *
      * <p>Special cases:
      * <ul>
-     *  <li>If {@code x} is zero, then the normalized fraction is zero and the exponent is zero.
-     *  <li>If {@code x} is NaN, then the normalized fraction is NaN and the exponent is unspecified.
-     *  <li>If {@code x} is infinite, then the normalized fraction is infinite and the exponent is unspecified.
+     *  <li>If {@code x} is zero, then the normalized fraction is zero and the exponent is zero.</li>
+     *  <li>If {@code x} is NaN, then the normalized fraction is NaN and the exponent is unspecified.</li>
+     *  <li>If {@code x} is infinite, then the normalized fraction is infinite and the exponent is unspecified.</li>
      *  <li>If high-part {@code x} is an exact power of 2 and the low-part {@code xx} has an opposite
      *      signed non-zero magnitude then fraction high-part {@code f} will be {@code +/-1} such that
-     *      the double-double number is in the range {@code [0.5, 1)}.
+     *      the double-double number is in the range {@code [0.5, 1)}.</li>
      * </ul>
      *
      * <p>This is named using the equivalent function in the standard C math.h library.
@@ -1833,8 +1833,8 @@ public final class DD
      *
      * <p>Special cases:
      * <ul>
-     *  <li>If the argument is NaN or infinite, then the result is {@link Double#MAX_EXPONENT} + 1.
-     *  <li>If the argument is zero, then the result is {@link Double#MAX_EXPONENT} + 1.
+     *  <li>If the argument is NaN or infinite, then the result is {@link Double#MAX_EXPONENT} + 1.</li>
+     *  <li>If the argument is zero, then the result is {@link Double#MAX_EXPONENT} + 1.</li>
      * </ul>
      *
      * @param a Value.
@@ -1872,11 +1872,11 @@ public final class DD
      * <p>Special cases:
      * <ul>
      *  <li>If {@code x} is not a finite normalized {@code double}, the low part {@code xx}
-     *      is ignored and the result is {@link Math#pow(double, double) Math.pow(x, n)}.
-     *  <li>If {@code n = 0} the result is {@code (1, 0)}.
-     *  <li>If {@code n = 1} the result is {@code (x, xx)}.
-     *  <li>If {@code n = -1} the result is the {@link #reciprocal() reciprocal}.
-     *  <li>If the computation overflows the result is undefined.
+     *      is ignored and the result is {@link Math#pow(double, double) Math.pow(x, n)}.</li>
+     *  <li>If {@code n = 0} the result is {@code (1, 0)}.</li>
+     *  <li>If {@code n = 1} the result is {@code (x, xx)}.</li>
+     *  <li>If {@code n = -1} the result is the {@link #reciprocal() reciprocal}.</li>
+     *  <li>If the computation overflows the result is undefined.</li>
      * </ul>
      *
      * <p>Computation uses multiplication by factors generated by repeat squaring of the value.
@@ -2009,15 +2009,15 @@ public final class DD
      * <p>Special cases:
      * <ul>
      *  <li>If {@code (x, xx)} is zero the high part of the fractional part is
-     *      computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.
-     *  <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.
+     *      computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.</li>
+     *  <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.</li>
      *  <li>If {@code (x, xx)} is an exact power of 2 the fractional part is 0.5 and the exponent
-     *      is the power of 2 minus 1.
+     *      is the power of 2 minus 1.</li>
      *  <li>If the result high-part is an exact power of 2 and the low-part has an opposite
      *      signed non-zero magnitude then the fraction high-part {@code f} will be {@code +/-1} such that
-     *      the double-double number is in the range {@code [0.5, 1)}.
+     *      the double-double number is in the range {@code [0.5, 1)}.</li>
      *  <li>If the argument is not finite then a fractional representation is not possible.
-     *      In this case the fraction and the scale factor is undefined.
+     *      In this case the fraction and the scale factor is undefined.</li>
      * </ul>
      *
      * <p>The computed result is approximately {@code 16 * (n - 1) * eps} of the exact result
@@ -2187,9 +2187,9 @@ public final class DD
      * <ul>
      *  <li>Instances that contain {@code NaN} values in the same part
      *      are considered to be equal for that part, even though {@code Double.NaN == Double.NaN}
-     *      has the value {@code false}.
+     *      has the value {@code false}.</li>
      *  <li>Instances that share a {@code NaN} value in one part
-     *      but have different values in the other part are <em>not</em> considered equal.
+     *      but have different values in the other part are <em>not</em> considered equal.</li>
      * </ul>
      *
      * <p>The behavior is the same as if the components of the two double-double numbers were passed

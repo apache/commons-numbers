@@ -1276,10 +1276,10 @@ final class QuickSelect {
      * }</pre>
      *
      * <ul>
-     * <li>k0: lower pivot1 point
-     * <li>k1: upper pivot1 point (inclusive)
-     * <li>k2: lower pivot2 point
-     * <li>k3: upper pivot2 point (inclusive)
+     * <li>k0: lower pivot1 point</li>
+     * <li>k1: upper pivot1 point (inclusive)</li>
+     * <li>k2: lower pivot2 point</li>
+     * <li>k3: upper pivot2 point (inclusive)</li>
      * </ul>
      *
      * <p>Bounds are set so {@code i < k0}, {@code i > k3} and {@code k1 < i < k2} are
@@ -2535,10 +2535,10 @@ final class QuickSelect {
      * }</pre>
      *
      * <ul>
-     * <li>k0: lower pivot1 point
-     * <li>k1: upper pivot1 point (inclusive)
-     * <li>k2: lower pivot2 point
-     * <li>k3: upper pivot2 point (inclusive)
+     * <li>k0: lower pivot1 point</li>
+     * <li>k1: upper pivot1 point (inclusive)</li>
+     * <li>k2: lower pivot2 point</li>
+     * <li>k3: upper pivot2 point (inclusive)</li>
      * </ul>
      *
      * <p>Bounds are set so {@code i < k0}, {@code i > k3} and {@code k1 < i < k2} are

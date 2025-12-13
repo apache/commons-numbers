@@ -167,9 +167,9 @@ public class SelectionPerformance {
      * defaults for convenience. Re-use requires:
      *
      * <ol>
-     * <li>Creating an instance of the abstract class that provides the data length
-     * <li>Calling {@link #setup()} to create the data
-     * <li>Iterating over the data
+     * <li>Creating an instance of the abstract class that provides the data length</li>
+     * <li>Calling {@link #setup()} to create the data</li>
+     * <li>Iterating over the data</li>
      * </ol>
      *
      * <pre>
@@ -1201,13 +1201,13 @@ public class SelectionPerformance {
         private int repeats;
         /** Distribution mode. K indices can be distributed randomly or uniformly.
          * <ul>
-         * <li>"random": distribute k indices randomly
-         * <li>"uniform": distribute k indices uniformly but with a random start point
-         * <li>"index": Use a single index at k
+         * <li>"random": distribute k indices randomly</li>
+         * <li>"uniform": distribute k indices uniformly but with a random start point</li>
+         * <li>"index": Use a single index at k</li>
          * <li>"single": Use a single index at k uniformly spaced points. This mode
          * first generates the spacing for the indices. Then samples from that spacing
          * using the configured repeats. Common usage of k=10 will have 10 samples with a
-         * single index, each in a different position.
+         * single index, each in a different position.</li>
          * </ul>
          * <p>If the mode ends with a "s" then the indices are sorted. For example "randoms"
          * will sort the random indices.

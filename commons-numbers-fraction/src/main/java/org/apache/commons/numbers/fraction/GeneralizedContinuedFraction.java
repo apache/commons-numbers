@@ -222,9 +222,9 @@ public final class GeneralizedContinuedFraction {
      * Both of the first generated terms a and b are used. This fraction evaluation
      * can be used when:
      * <ul>
-     *  <li>b<sub>0</sub> is not part of a regular series
-     *  <li>b<sub>0</sub> is zero and the result will evaluate only the continued fraction component
-     *  <li>b<sub>0</sub> is very small and the result is expected to approach zero
+     *  <li>b<sub>0</sub> is not part of a regular series</li>
+     *  <li>b<sub>0</sub> is zero and the result will evaluate only the continued fraction component</li>
+     *  <li>b<sub>0</sub> is very small and the result is expected to approach zero</li>
      * </ul>
      *
      * @param b0 Coefficient b<sub>0</sub>.
@@ -245,9 +245,9 @@ public final class GeneralizedContinuedFraction {
      * Both of the first generated terms a and b are used. This fraction evaluation
      * can be used when:
      * <ul>
-     *  <li>b<sub>0</sub> is not part of a regular series
-     *  <li>b<sub>0</sub> is zero and the result will evaluate only the continued fraction component
-     *  <li>b<sub>0</sub> is very small and the result is expected to approach zero
+     *  <li>b<sub>0</sub> is not part of a regular series</li>
+     *  <li>b<sub>0</sub> is zero and the result will evaluate only the continued fraction component</li>
+     *  <li>b<sub>0</sub> is very small and the result is expected to approach zero</li>
      * </ul>
      *
      * @param b0 Coefficient b<sub>0</sub>.
@@ -280,9 +280,9 @@ public final class GeneralizedContinuedFraction {
      * Both of the first generated terms a and b are used. This fraction evaluation
      * can be used when:
      * <ul>
-     *  <li>b<sub>0</sub> is not part of a regular series
-     *  <li>b<sub>0</sub> is zero and the result will evaluate only the continued fraction component
-     *  <li>b<sub>0</sub> is very small and the result is expected to approach zero
+     *  <li>b<sub>0</sub> is not part of a regular series</li>
+     *  <li>b<sub>0</sub> is zero and the result will evaluate only the continued fraction component</li>
+     *  <li>b<sub>0</sub> is very small and the result is expected to approach zero</li>
      * </ul>
      *
      * <p><b>Usage Note</b>

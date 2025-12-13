@@ -271,9 +271,9 @@ public final class Stirling {
      * Return {@code a*b/4} without intermediate overflow.
      * It is assumed that:
      * <ul>
-     * <li>The coefficients a and b are positive
-     * <li>The product (a*b) is an exact multiple of 4
-     * <li>The result (a*b/4) is an exact integer that does not overflow a {@code long}
+     * <li>The coefficients a and b are positive</li>
+     * <li>The product (a*b) is an exact multiple of 4</li>
+     * <li>The result (a*b/4) is an exact integer that does not overflow a {@code long}</li>
      * </ul>
      *
      * <p>A conditional branch is performed on the odd/even property of {@code b}.

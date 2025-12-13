@@ -44,15 +44,15 @@ package org.apache.commons.numbers.examples.jmh.core;
  * Dekker, T.J. (1971)
  * <a href="https://doi.org/10.1007/BF01397083">
  * A floating-point technique for extending the available precision</a>
- * Numerische Mathematik, 18:224–242.
+ * Numerische Mathematik, 18:224–242.</li>
  * <li>
  * Shewchuk, J.R. (1997)
  * <a href="https://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
- * Arbitrary Precision Floating-Point Arithmetic</a>.
+ * Arbitrary Precision Floating-Point Arithmetic</a>.</li>
  * <li>
  * Hide, Y, Li, X.S. and Bailey, D.H. (2008)
  * <a href="https://www.davidhbailey.com/dhbpapers/qd.pdf">
- * Library for Double-Double and Quad-Double Arithmetic</a>.
+ * Library for Double-Double and Quad-Double Arithmetic</a>.</li>
  * </ol>
  *
  * @since 1.2
@@ -427,8 +427,8 @@ final class SDD {
      * <p>This creates the following special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the low part is 0.0.
-     *  <li>If {@code x * y} is infinite or NaN then the low part is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the low part is 0.0.</li>
+     *  <li>If {@code x * y} is infinite or NaN then the low part is NaN.</li>
      * </ul>
      *
      * @param x First factor.
@@ -1036,12 +1036,12 @@ final class SDD {
      *
      * <p>Special cases:
      * <ul>
-     * <li>If {@code x} is zero, then the normalized fraction is zero and the exponent is zero.
-     * <li>If {@code x} is NaN, then the normalized fraction is NaN and the exponent is unspecified.
-     * <li>If {@code x} is infinite, then the normalized fraction is infinite and the exponent is unspecified.
+     * <li>If {@code x} is zero, then the normalized fraction is zero and the exponent is zero.</li>
+     * <li>If {@code x} is NaN, then the normalized fraction is NaN and the exponent is unspecified.</li>
+     * <li>If {@code x} is infinite, then the normalized fraction is infinite and the exponent is unspecified.</li>
      * <li>If high-part {@code x} is an exact power of 2 and the low-part {@code xx} has an opposite
      * signed non-zero magnitude then fraction high-part {@code f} will be {@code +/-1} such that
-     * the double-double number is in the range {@code [0.5, 1)}.
+     * the double-double number is in the range {@code [0.5, 1)}.</li>
      * </ul>
      *
      * <p>This is named using the equivalent function in the standard C math.h library.
@@ -1102,8 +1102,8 @@ final class SDD {
      *
      * <p>Special cases:
      * <ul>
-     * <li>If the argument is NaN or infinite, then the result is {@link Double#MAX_EXPONENT} + 1.
-     * <li>If the argument is zero, then the result is {@link Double#MAX_EXPONENT} + 1.
+     * <li>If the argument is NaN or infinite, then the result is {@link Double#MAX_EXPONENT} + 1.</li>
+     * <li>If the argument is zero, then the result is {@link Double#MAX_EXPONENT} + 1.</li>
      * </ul>
      *
      * @param a Value.
@@ -1149,15 +1149,15 @@ final class SDD {
      * <p>Special cases:
      * <ul>
      * <li>If {@code (x, xx)} is zero the high part of the fractional part is
-     * computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.
-     * <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.
+     * computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.</li>
+     * <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.</li>
      * <li>If {@code (x, xx)} is an exact power of 2 the fractional part is 0.5 and the exponent
-     * is the power of 2 minus 1.
+     * is the power of 2 minus 1.</li>
      * <li>If the result high-part is an exact power of 2 and the low-part has an opposite
      * signed non-zero magnitude then the fraction high-part {@code f} will be {@code +/-1} such that
      * the double-double number is in the range {@code [0.5, 1)}.
      * <p>If the argument is not finite then a fractional representation is not possible.
-     * In this case the fraction and the scale factor is undefined.
+     * In this case the fraction and the scale factor is undefined.</li>
      * </ul>
      *
      * <p>Note: This method returns the exponent to avoid using an {@code long[] exp} argument
@@ -1314,15 +1314,15 @@ final class SDD {
      * <p>Special cases:
      * <ul>
      * <li>If {@code (x, xx)} is zero the high part of the fractional part is
-     * computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.
-     * <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.
+     * computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.</li>
+     * <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.</li>
      * <li>If {@code (x, xx)} is an exact power of 2 the fractional part is 0.5 and the exponent
-     * is the power of 2 minus 1.
+     * is the power of 2 minus 1.</li>
      * <li>If the result high-part is an exact power of 2 and the low-part has an opposite
      * signed non-zero magnitude then the fraction high-part {@code f} will be {@code +/-1} such that
      * the double-double number is in the range {@code [0.5, 1)}.
      * <p>If the argument is not finite then a fractional representation is not possible.
-     * In this case the fraction and the scale factor is undefined.
+     * In this case the fraction and the scale factor is undefined.</li>
      * </ul>
      *
      * <p>Note: This method returns the exponent to avoid using an {@code long[] exp} argument

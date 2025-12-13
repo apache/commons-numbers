@@ -45,9 +45,9 @@ package org.apache.commons.numbers.examples.jmh.arrays;
  * <p>The cache provides the following functionality:
  *
  * <ul>
- * <li>Test if an index {@code [left <= k <= right]} is a known pivot.
- * <li>Return a {@code lower} bounding pivot for a partition of an index {@code [left <= k <= right]}.
- * <li>Return an {@code upper} bounding pivot for a partition of an index {@code [left <= k <= right]}.
+ * <li>Test if an index {@code [left <= k <= right]} is a known pivot.</li>
+ * <li>Return a {@code lower} bounding pivot for a partition of an index {@code [left <= k <= right]}.</li>
+ * <li>Return an {@code upper} bounding pivot for a partition of an index {@code [left <= k <= right]}.</li>
  * </ul>
  *
  * <p>Note that searching with the bound {@code [lower, upper]} will reorder data
@@ -58,11 +58,11 @@ package org.apache.commons.numbers.examples.jmh.arrays;
  *
  * <ol>
  * <li>Process {@code k} indices in any order. Store all pivots during the partitioning.
- * Each subsequent search after the first can use adjacent pivots to bracket the search.
+ * Each subsequent search after the first can use adjacent pivots to bracket the search.</li>
  * <li>Process {@code k} indices in sorted order. The {@code lower} bound for {@code k+1}
  * will be {@code k <= lower}. This does not require a cache as {@code upper} can be set
  * using the end of the data {@code n}. For this case a cache can store pivots which can
- * be used to bracket the search for {@code k+1}.
+ * be used to bracket the search for {@code k+1}.</li>
  * </ol>
  *
  * <p>Implementations may assume indices are positive.

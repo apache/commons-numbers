@@ -295,14 +295,14 @@ public final class Complex implements Serializable  {
      * following the rules for double arithmetic, for example:</p>
      *
      * <ul>
-     * <li>{@code ofPolar(}\( -0.0 \){@code , }\( 0 \){@code ) = }\( \text{NaN} + i \text{NaN} \)
-     * <li>{@code ofPolar(}\( 0.0 \){@code , }\( 0 \){@code ) = }\( 0 + i 0 \)
-     * <li>{@code ofPolar(}\( 1 \){@code , }\( 0 \){@code ) = }\( 1 + i 0 \)
-     * <li>{@code ofPolar(}\( 1 \){@code , }\( \pi \){@code ) = }\( -1 + i \sin(\pi) \)
-     * <li>{@code ofPolar(}\( \infty \){@code , }\( \pi \){@code ) = }\( -\infty + i \infty \)
-     * <li>{@code ofPolar(}\( \infty \){@code , }\( 0 \){@code ) = }\( -\infty + i \text{NaN} \)
-     * <li>{@code ofPolar(}\( \infty \){@code , }\( -\frac{\pi}{4} \){@code ) = }\( \infty - i \infty \)
-     * <li>{@code ofPolar(}\( \infty \){@code , }\( 5\frac{\pi}{4} \){@code ) = }\( -\infty - i \infty \)
+     * <li>{@code ofPolar(}\( -0.0 \){@code , }\( 0 \){@code ) = }\( \text{NaN} + i \text{NaN} \)</li>
+     * <li>{@code ofPolar(}\( 0.0 \){@code , }\( 0 \){@code ) = }\( 0 + i 0 \)</li>
+     * <li>{@code ofPolar(}\( 1 \){@code , }\( 0 \){@code ) = }\( 1 + i 0 \)</li>
+     * <li>{@code ofPolar(}\( 1 \){@code , }\( \pi \){@code ) = }\( -1 + i \sin(\pi) \)</li>
+     * <li>{@code ofPolar(}\( \infty \){@code , }\( \pi \){@code ) = }\( -\infty + i \infty \)</li>
+     * <li>{@code ofPolar(}\( \infty \){@code , }\( 0 \){@code ) = }\( -\infty + i \text{NaN} \)</li>
+     * <li>{@code ofPolar(}\( \infty \){@code , }\( -\frac{\pi}{4} \){@code ) = }\( \infty - i \infty \)</li>
+     * <li>{@code ofPolar(}\( \infty \){@code , }\( 5\frac{\pi}{4} \){@code ) = }\( -\infty - i \infty \)</li>
      * </ul>
      *
      * <p>This method is the functional equivalent of the C++ method {@code std::polar}.
@@ -491,10 +491,10 @@ public final class Complex implements Serializable  {
      * <p>Special cases:
      *
      * <ul>
-     * <li>{@code abs(x + iy) == abs(y + ix) == abs(x - iy)}.
-     * <li>If {@code z} is ±∞ + iy for any y, returns +∞.
-     * <li>If {@code z} is x + iNaN for non-infinite x, returns NaN.
-     * <li>If {@code z} is x + i0, returns |x|.
+     * <li>{@code abs(x + iy) == abs(y + ix) == abs(x - iy)}.</li>
+     * <li>If {@code z} is ±∞ + iy for any y, returns +∞.</li>
+     * <li>If {@code z} is x + iNaN for non-infinite x, returns NaN.</li>
+     * <li>If {@code z} is x + i0, returns |x|.</li>
      * </ul>
      *
      * <p>The cases ensure that if either component is infinite then the result is positive
@@ -525,9 +525,9 @@ public final class Complex implements Serializable  {
      * without undue overflow or underflow."
      *
      * <ul>
-     * <li>hypot(x, y), hypot(y, x), and hypot(x, −y) are equivalent.
-     * <li>hypot(x, ±0) is equivalent to |x|.
-     * <li>hypot(±∞, y) returns +∞, even if y is a NaN.
+     * <li>hypot(x, y), hypot(y, x), and hypot(x, −y) are equivalent.</li>
+     * <li>hypot(x, ±0) is equivalent to |x|.</li>
+     * <li>hypot(±∞, y) returns +∞, even if y is a NaN.</li>
      * </ul>
      *
      * <p>This method is called by all methods that require the absolute value of the complex
@@ -606,9 +606,9 @@ public final class Complex implements Serializable  {
      *
      * <p>Note that:
      * <ul>
-     *   <li>There is more than one complex number that can return {@code true}.
+     *   <li>There is more than one complex number that can return {@code true}.</li>
      *   <li>Different representations of NaN can be distinguished by the
-     *       {@link #equals(Object) Complex.equals(Object)} method.
+     *       {@link #equals(Object) Complex.equals(Object)} method.</li>
      * </ul>
      *
      * @return {@code true} if this instance contains NaN and no infinite parts.
@@ -1222,20 +1222,20 @@ public final class Complex implements Serializable  {
      * Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().exp() == z.exp().conj()}.
-     * <li>If {@code z} is ±0 + i0, returns 1 + i0.
-     * <li>If {@code z} is x + i∞ for finite x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
-     * <li>If {@code z} is −∞ + iy for finite y, returns +0 cis(y) (see {@link #ofCis(double)}).
-     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y).
-     * <li>If {@code z} is −∞ + i∞, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).
-     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).
-     * <li>If {@code z} is −∞ + iNaN, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).
-     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
-     * <li>If {@code z} is NaN + i0, returns NaN + i0.
-     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().exp() == z.exp().conj()}.</li>
+     * <li>If {@code z} is ±0 + i0, returns 1 + i0.</li>
+     * <li>If {@code z} is x + i∞ for finite x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.</li>
+     * <li>If {@code z} is −∞ + iy for finite y, returns +0 cis(y) (see {@link #ofCis(double)}).</li>
+     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y).</li>
+     * <li>If {@code z} is −∞ + i∞, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).</li>
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).</li>
+     * <li>If {@code z} is −∞ + iNaN, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).</li>
+     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).</li>
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.</li>
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>Implements the formula:
@@ -1308,19 +1308,19 @@ public final class Complex implements Serializable  {
      * Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().log() == z.log().conj()}.
-     * <li>If {@code z} is −0 + i0, returns −∞ + iπ ("divide-by-zero" floating-point operation).
-     * <li>If {@code z} is +0 + i0, returns −∞ + i0 ("divide-by-zero" floating-point operation).
-     * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.
-     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is −∞ + iy for finite positive-signed y, returns +∞ + iπ.
-     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +∞ + i0.
-     * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.
-     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.
-     * <li>If {@code z} is ±∞ + iNaN, returns +∞ + iNaN.
-     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().log() == z.log().conj()}.</li>
+     * <li>If {@code z} is −0 + i0, returns −∞ + iπ ("divide-by-zero" floating-point operation).</li>
+     * <li>If {@code z} is +0 + i0, returns −∞ + i0 ("divide-by-zero" floating-point operation).</li>
+     * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.</li>
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is −∞ + iy for finite positive-signed y, returns +∞ + iπ.</li>
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +∞ + i0.</li>
+     * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.</li>
+     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.</li>
+     * <li>If {@code z} is ±∞ + iNaN, returns +∞ + iNaN.</li>
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>Implements the formula:
@@ -1548,29 +1548,29 @@ public final class Complex implements Serializable  {
      * branch cut along the negative real axis \( (-infty,0) \). Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().sqrt() == z.sqrt().conj()}.
-     * <li>If {@code z} is ±0 + i0, returns +0 + i0.
-     * <li>If {@code z} is x + i∞ for all x (including NaN), returns +∞ + i∞.
-     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is −∞ + iy for finite positive-signed y, returns +0 + i∞.
-     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +∞ + i0.
-     * <li>If {@code z} is −∞ + iNaN, returns NaN ± i∞ (where the sign of the imaginary part of the result is unspecified).
-     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
-     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().sqrt() == z.sqrt().conj()}.</li>
+     * <li>If {@code z} is ±0 + i0, returns +0 + i0.</li>
+     * <li>If {@code z} is x + i∞ for all x (including NaN), returns +∞ + i∞.</li>
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is −∞ + iy for finite positive-signed y, returns +0 + i∞.</li>
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +∞ + i0.</li>
+     * <li>If {@code z} is −∞ + iNaN, returns NaN ± i∞ (where the sign of the imaginary part of the result is unspecified).</li>
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.</li>
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>Implements the following algorithm to compute \( \sqrt{x + iy} \):
      * <ol>
-     * <li>Let \( t = \sqrt{2 (|x| + |x + iy|)} \)
-     * <li>if \( x \geq 0 \) return \( \frac{t}{2} + i \frac{y}{t} \)
-     * <li>else return \( \frac{|y|}{t} + i\ \text{sgn}(y) \frac{t}{2} \)
+     * <li>Let \( t = \sqrt{2 (|x| + |x + iy|)} \)</li>
+     * <li>if \( x \geq 0 \) return \( \frac{t}{2} + i \frac{y}{t} \)</li>
+     * <li>else return \( \frac{|y|}{t} + i\ \text{sgn}(y) \frac{t}{2} \)</li>
      * </ol>
      * where:
      * <ul>
-     * <li>\( |x| =\ \){@link Math#abs(double) abs}(x)
-     * <li>\( |x + y i| =\ \){@link Complex#abs}
-     * <li>\( \text{sgn}(y) =\ \){@link Math#copySign(double,double) copySign}(1.0, y)
+     * <li>\( |x| =\ \){@link Math#abs(double) abs}(x)</li>
+     * <li>\( |x + y i| =\ \){@link Complex#abs}</li>
+     * <li>\( \text{sgn}(y) =\ \){@link Math#copySign(double,double) copySign}(1.0, y)</li>
      * </ul>
      *
      * <p>The implementation is overflow and underflow safe based on the method described in:</p>
@@ -1960,19 +1960,19 @@ public final class Complex implements Serializable  {
      * unbounded along the imaginary axis. Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().acos() == z.acos().conj()}.
-     * <li>If {@code z} is ±0 + i0, returns π/2 − i0.
-     * <li>If {@code z} is ±0 + iNaN, returns π/2 + iNaN.
-     * <li>If {@code z} is x + i∞ for finite x, returns π/2 − i∞.
-     * <li>If {@code z} is x + iNaN, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns π − i∞.
-     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +0 − i∞.
-     * <li>If {@code z} is −∞ + i∞, returns 3π/4 − i∞.
-     * <li>If {@code z} is +∞ + i∞, returns π/4 − i∞.
-     * <li>If {@code z} is ±∞ + iNaN, returns NaN ± i∞ where the sign of the imaginary part of the result is unspecified.
-     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + i∞, returns NaN − i∞.
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().acos() == z.acos().conj()}.</li>
+     * <li>If {@code z} is ±0 + i0, returns π/2 − i0.</li>
+     * <li>If {@code z} is ±0 + iNaN, returns π/2 + iNaN.</li>
+     * <li>If {@code z} is x + i∞ for finite x, returns π/2 − i∞.</li>
+     * <li>If {@code z} is x + iNaN, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns π − i∞.</li>
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +0 − i∞.</li>
+     * <li>If {@code z} is −∞ + i∞, returns 3π/4 − i∞.</li>
+     * <li>If {@code z} is +∞ + i∞, returns π/4 − i∞.</li>
+     * <li>If {@code z} is ±∞ + iNaN, returns NaN ± i∞ where the sign of the imaginary part of the result is unspecified.</li>
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + i∞, returns NaN − i∞.</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>The inverse cosine is a multivalued function and requires a branch cut in
@@ -2181,20 +2181,20 @@ public final class Complex implements Serializable  {
      * Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().sinh() == z.sinh().conj()}.
-     * <li>This is an odd function: \( \sinh(z) = -\sinh(-z) \).
-     * <li>If {@code z} is +0 + i0, returns +0 + i0.
-     * <li>If {@code z} is +0 + i∞, returns ±0 + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).
-     * <li>If {@code z} is +0 + iNaN, returns ±0 + iNaN (where the sign of the real part of the result is unspecified).
-     * <li>If {@code z} is x + i∞ for positive finite x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
-     * <li>If {@code z} is +∞ + iy for positive finite y, returns +∞ cis(y) (see {@link #ofCis(double)}.
-     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).
-     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
-     * <li>If {@code z} is NaN + i0, returns NaN + i0.
-     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().sinh() == z.sinh().conj()}.</li>
+     * <li>This is an odd function: \( \sinh(z) = -\sinh(-z) \).</li>
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.</li>
+     * <li>If {@code z} is +0 + i∞, returns ±0 + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).</li>
+     * <li>If {@code z} is +0 + iNaN, returns ±0 + iNaN (where the sign of the real part of the result is unspecified).</li>
+     * <li>If {@code z} is x + i∞ for positive finite x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.</li>
+     * <li>If {@code z} is +∞ + iy for positive finite y, returns +∞ cis(y) (see {@link #ofCis(double)}.</li>
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified; "invalid" floating-point operation).</li>
+     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).</li>
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.</li>
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
@@ -2262,20 +2262,20 @@ public final class Complex implements Serializable  {
      * Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().cosh() == z.cosh().conj()}.
-     * <li>This is an even function: \( \cosh(z) = \cosh(-z) \).
-     * <li>If {@code z} is +0 + i0, returns 1 + i0.
-     * <li>If {@code z} is +0 + i∞, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified; "invalid" floating-point operation).
-     * <li>If {@code z} is +0 + iNaN, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).
-     * <li>If {@code z} is x + i∞ for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
-     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y) (see {@link #ofCis(double)}).
-     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
-     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
-     * <li>If {@code z} is NaN + i0, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).
-     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().cosh() == z.cosh().conj()}.</li>
+     * <li>This is an even function: \( \cosh(z) = \cosh(-z) \).</li>
+     * <li>If {@code z} is +0 + i0, returns 1 + i0.</li>
+     * <li>If {@code z} is +0 + i∞, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified; "invalid" floating-point operation).</li>
+     * <li>If {@code z} is +0 + iNaN, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).</li>
+     * <li>If {@code z} is x + i∞ for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.</li>
+     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y) (see {@link #ofCis(double)}).</li>
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).</li>
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.</li>
+     * <li>If {@code z} is NaN + i0, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).</li>
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
@@ -2412,19 +2412,19 @@ public final class Complex implements Serializable  {
      * \( \pi/2 \) and there is no value for which a pole error occurs. Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().tanh() == z.tanh().conj()}.
-     * <li>This is an odd function: \( \tanh(z) = -\tanh(-z) \).
-     * <li>If {@code z} is +0 + i0, returns +0 + i0.
-     * <li>If {@code z} is 0 + i∞, returns 0 + iNaN.
-     * <li>If {@code z} is x + i∞ for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is 0 + iNaN, returns 0 + iNAN.
-     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns 1 + i0 sin(2y).
-     * <li>If {@code z} is +∞ + i∞, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
-     * <li>If {@code z} is +∞ + iNaN, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
-     * <li>If {@code z} is NaN + i0, returns NaN + i0.
-     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().tanh() == z.tanh().conj()}.</li>
+     * <li>This is an odd function: \( \tanh(z) = -\tanh(-z) \).</li>
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.</li>
+     * <li>If {@code z} is 0 + i∞, returns 0 + iNaN.</li>
+     * <li>If {@code z} is x + i∞ for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is 0 + iNaN, returns 0 + iNAN.</li>
+     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns 1 + i0 sin(2y).</li>
+     * <li>If {@code z} is +∞ + i∞, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).</li>
+     * <li>If {@code z} is +∞ + iNaN, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).</li>
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.</li>
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>Special cases include the technical corrigendum
@@ -2562,18 +2562,18 @@ public final class Complex implements Serializable  {
      * in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().asinh() == z.asinh().conj()}.
-     * <li>This is an odd function: \( \sinh^{-1}(z) = -\sinh^{-1}(-z) \).
-     * <li>If {@code z} is +0 + i0, returns 0 + i0.
-     * <li>If {@code z} is x + i∞ for positive-signed finite x, returns +∞ + iπ/2.
-     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.
-     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.
-     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
-     * <li>If {@code z} is NaN + i0, returns NaN + i0.
-     * <li>If {@code z} is NaN + iy for finite nonzero y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().asinh() == z.asinh().conj()}.</li>
+     * <li>This is an odd function: \( \sinh^{-1}(z) = -\sinh^{-1}(-z) \).</li>
+     * <li>If {@code z} is +0 + i0, returns 0 + i0.</li>
+     * <li>If {@code z} is x + i∞ for positive-signed finite x, returns +∞ + iπ/2.</li>
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.</li>
+     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.</li>
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.</li>
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.</li>
+     * <li>If {@code z} is NaN + iy for finite nonzero y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>The inverse hyperbolic sine is a multivalued function and requires a branch cut in
@@ -2607,19 +2607,19 @@ public final class Complex implements Serializable  {
      * real axis and in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().acosh() == z.acosh().conj()}.
-     * <li>If {@code z} is ±0 + i0, returns +0 + iπ/2.
-     * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.
-     * <li>If {@code z} is 0 + iNaN, returns NaN + iπ/2 <sup>[1]</sup>.
-     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns +∞ + iπ.
-     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.
-     * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.
-     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.
-     * <li>If {@code z} is ±∞ + iNaN, returns +∞ + iNaN.
-     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().acosh() == z.acosh().conj()}.</li>
+     * <li>If {@code z} is ±0 + i0, returns +0 + iπ/2.</li>
+     * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.</li>
+     * <li>If {@code z} is 0 + iNaN, returns NaN + iπ/2 <sup>[1]</sup>.</li>
+     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns +∞ + iπ.</li>
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.</li>
+     * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.</li>
+     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.</li>
+     * <li>If {@code z} is ±∞ + iNaN, returns +∞ + iNaN.</li>
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>Special cases include the technical corrigendum
@@ -2672,19 +2672,19 @@ public final class Complex implements Serializable  {
      * in the range \( [-\pi/2, \pi/2] \) along the imaginary axis. Special cases:
      *
      * <ul>
-     * <li>{@code z.conj().atanh() == z.atanh().conj()}.
-     * <li>This is an odd function: \( \tanh^{-1}(z) = -\tanh^{-1}(-z) \).
-     * <li>If {@code z} is +0 + i0, returns +0 + i0.
-     * <li>If {@code z} is +0 + iNaN, returns +0 + iNaN.
-     * <li>If {@code z} is +1 + i0, returns +∞ + i0 ("divide-by-zero" floating-point operation).
-     * <li>If {@code z} is x + i∞ for finite positive-signed x, returns +0 + iπ/2.
-     * <li>If {@code z} is x+iNaN for nonzero finite x, returns NaN+iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +0 + iπ/2.
-     * <li>If {@code z} is +∞ + i∞, returns +0 + iπ/2.
-     * <li>If {@code z} is +∞ + iNaN, returns +0 + iNaN.
-     * <li>If {@code z} is NaN+iy for finite y, returns NaN+iNaN ("invalid" floating-point operation).
-     * <li>If {@code z} is NaN + i∞, returns ±0 + iπ/2 (where the sign of the real part of the result is unspecified).
-     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * <li>{@code z.conj().atanh() == z.atanh().conj()}.</li>
+     * <li>This is an odd function: \( \tanh^{-1}(z) = -\tanh^{-1}(-z) \).</li>
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.</li>
+     * <li>If {@code z} is +0 + iNaN, returns +0 + iNaN.</li>
+     * <li>If {@code z} is +1 + i0, returns +∞ + i0 ("divide-by-zero" floating-point operation).</li>
+     * <li>If {@code z} is x + i∞ for finite positive-signed x, returns +0 + iπ/2.</li>
+     * <li>If {@code z} is x+iNaN for nonzero finite x, returns NaN+iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +0 + iπ/2.</li>
+     * <li>If {@code z} is +∞ + i∞, returns +0 + iπ/2.</li>
+     * <li>If {@code z} is +∞ + iNaN, returns +0 + iNaN.</li>
+     * <li>If {@code z} is NaN+iy for finite y, returns NaN+iNaN ("invalid" floating-point operation).</li>
+     * <li>If {@code z} is NaN + i∞, returns ±0 + iπ/2 (where the sign of the real part of the result is unspecified).</li>
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.</li>
      * </ul>
      *
      * <p>The inverse hyperbolic tangent is a multivalued function and requires a branch cut in
@@ -3384,9 +3384,9 @@ public final class Complex implements Serializable  {
      *
      * <ul>
      * <li>If either argument is NaN or infinite, then the result is
-     * {@link Double#MAX_EXPONENT} + 1.
+     * {@link Double#MAX_EXPONENT} + 1.</li>
      * <li>If both arguments are zero, then the result is
-     * {@link Double#MAX_EXPONENT} + 1.
+     * {@link Double#MAX_EXPONENT} + 1.</li>
      * </ul>
      *
      * @param a the first value
@@ -3428,9 +3428,9 @@ public final class Complex implements Serializable  {
      *
      * <ul>
      * <li>If either argument is NaN or infinite, then the result is
-     * {@link Double#MAX_EXPONENT} + 1.
+     * {@link Double#MAX_EXPONENT} + 1.</li>
      * <li>If both arguments are zero or subnormal, then the result is
-     * {@link Double#MIN_EXPONENT} -1.
+     * {@link Double#MIN_EXPONENT} -1.</li>
      * </ul>
      *
      * <p>This is used by {@link #divide(double, double, double, double)} as
@@ -3468,8 +3468,8 @@ public final class Complex implements Serializable  {
      *
      * <p>Special cases:
      * <ul>
-     * <li>If either argument is infinite, then the result is positive infinity.
-     * <li>If either argument is NaN and neither argument is infinite, then the result is NaN.
+     * <li>If either argument is infinite, then the result is positive infinity.</li>
+     * <li>If either argument is NaN and neither argument is infinite, then the result is NaN.</li>
      * </ul>
      *
      * <p>The computed result is expected to be within 1 ulp of the exact result.

@@ -1521,10 +1521,10 @@ class KthSelector {
      * <p>This method returns 4 points: the lower and upper pivots and bounds for
      * the internal range of unsorted values.
      * <ul>
-     * <li>k0: lower pivot point: {@code a[k] < a[k0]} for {@code k < k0}.
-     * <li>k1: the start (inclusive) of the unsorted range: {@code k0 < k1}.
-     * <li>k2: the end (inclusive) of the unsorted range: {@code k2 <= k3}.
-     * <li>k3: upper pivot point: {@code a[k3] < a[k]} for {@code k3 < k}.
+     * <li>k0: lower pivot point: {@code a[k] < a[k0]} for {@code k < k0}.</li>
+     * <li>k1: the start (inclusive) of the unsorted range: {@code k0 < k1}.</li>
+     * <li>k2: the end (inclusive) of the unsorted range: {@code k2 <= k3}.</li>
+     * <li>k3: upper pivot point: {@code a[k3] < a[k]} for {@code k3 < k}.</li>
      * </ul>
      *
      * <p>Bounds are set so {@code [k0, k1)} and {@code (k2, k3]} are fully sorted.
@@ -1908,10 +1908,10 @@ class KthSelector {
      * <p>This method returns 4 points: the lower and upper pivots and bounds for
      * the internal range of unsorted values.
      * <ul>
-     * <li>k0: lower pivot point: {@code a[k] < a[k0]} for {@code k < k0}.
-     * <li>k1: the start (inclusive) of the unsorted range: {@code k0 < k1}.
-     * <li>k2: the end (inclusive) of the unsorted range: {@code k2 <= k3}.
-     * <li>k3: upper pivot point: {@code a[k3] < a[k]} for {@code k3 < k}.
+     * <li>k0: lower pivot point: {@code a[k] < a[k0]} for {@code k < k0}.</li>
+     * <li>k1: the start (inclusive) of the unsorted range: {@code k0 < k1}.</li>
+     * <li>k2: the end (inclusive) of the unsorted range: {@code k2 <= k3}.</li>
+     * <li>k3: upper pivot point: {@code a[k3] < a[k]} for {@code k3 < k}.</li>
      * </ul>
      *
      * <p>Bounds are set so {@code [k0, k1)} and {@code (k2, k3]} are fully sorted.

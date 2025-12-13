@@ -39,10 +39,10 @@ public final class Erfcx {
      *
      * <p>Special cases:
      * <ul>
-     * <li>If the argument is 0, then the result is 1.
-     * <li>If the argument is +infinity, then the result is 0.
-     * <li>If the argument is negative and {@code exp(x*x)} is infinite, then the result is +infinity.
-     * <li>If the argument is nan, then the result is nan.
+     * <li>If the argument is 0, then the result is 1.</li>
+     * <li>If the argument is +infinity, then the result is 0.</li>
+     * <li>If the argument is negative and {@code exp(x*x)} is infinite, then the result is +infinity.</li>
+     * <li>If the argument is nan, then the result is nan.</li>
      * </ul>
      *
      * @param x Value.

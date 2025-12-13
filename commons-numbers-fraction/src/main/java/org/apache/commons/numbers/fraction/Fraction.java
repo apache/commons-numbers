@@ -125,10 +125,10 @@ public final class Fraction
      * NOTE: This constructor is called with:
      * <ul>
      *  <li>EITHER a valid epsilon value and the maxDenominator set to
-     *      Integer.MAX_VALUE (that way the maxDenominator has no effect)
+     *      Integer.MAX_VALUE (that way the maxDenominator has no effect)</li>
      *  <li>OR a valid maxDenominator value and the epsilon value set to
      *      zero (that way epsilon only has effect if there is an exact
-     *      match before the maxDenominator value is reached).
+     *      match before the maxDenominator value is reached).</li>
      * </ul>
      * <p>
      * It has been done this way so that the same code can be reused for
@@ -827,9 +827,9 @@ public final class Fraction
      * Returns the {@code String} representing this fraction.
      * Uses:
      * <ul>
-     *  <li>{@code "0"} if {@code numerator} is zero.
-     *  <li>{@code "numerator"} if {@code denominator} is one.
-     *  <li>{@code "numerator / denominator"} for all other cases.
+     *  <li>{@code "0"} if {@code numerator} is zero.</li>
+     *  <li>{@code "numerator"} if {@code denominator} is one.</li>
+     *  <li>{@code "numerator / denominator"} for all other cases.</li>
      * </ul>
      *
      * @return a string representation of the fraction.

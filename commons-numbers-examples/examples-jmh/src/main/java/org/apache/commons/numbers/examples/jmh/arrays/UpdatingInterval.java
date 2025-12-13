@@ -22,9 +22,9 @@ package org.apache.commons.numbers.examples.jmh.arrays;
  * <p>The interval provides the following functionality:
  *
  * <ul>
- * <li>Return the supported bounds of the interval {@code [left <= right]}.
- * <li>Update the left or right bound of the interval using an index {@code k} inside the interval.
- * <li>Split the interval around two indices {@code k1} and {@code k2}.
+ * <li>Return the supported bounds of the interval {@code [left <= right]}.</li>
+ * <li>Update the left or right bound of the interval using an index {@code k} inside the interval.</li>
+ * <li>Split the interval around two indices {@code k1} and {@code k2}.</li>
  * </ul>
  *
  * <p>Note that the interval provides the supported bounds. If an index {@code k} is

@@ -72,17 +72,17 @@ public final class Precision {
      * Compares two numbers given some amount of allowed error.
      * The returned value is:
      * <ul>
-     *  <li>zero if considered equal using {@link #equals(double,double,double) equals(x, y, eps)}
-     *  <li>negative if not equal and {@code x < y}
-     *  <li>positive if not equal and {@code x > y}
+     *  <li>zero if considered equal using {@link #equals(double,double,double) equals(x, y, eps)}</li>
+     *  <li>negative if not equal and {@code x < y}</li>
+     *  <li>positive if not equal and {@code x > y}</li>
      * </ul>
      *
      * <p>NaN values are handled as if using {@link Double#compare(double, double)} where the
      * returned value is:
      * <ul>
-     *  <li>zero if {@code NaN, NaN}
-     *  <li>negative if {@code !NaN, NaN}
-     *  <li>positive if {@code NaN, !NaN}
+     *  <li>zero if {@code NaN, NaN}</li>
+     *  <li>negative if {@code !NaN, NaN}</li>
+     *  <li>positive if {@code NaN, !NaN}</li>
      * </ul>
      *
      * @param x First value.
@@ -108,17 +108,17 @@ public final class Precision {
      * Compares two numbers given some amount of allowed error.
      * The returned value is:
      * <ul>
-     *  <li>zero if considered equal using {@link #equals(double,double,int) equals(x, y, maxUlps)}
-     *  <li>negative if not equal and {@code x < y}
-     *  <li>positive if not equal and {@code x > y}
+     *  <li>zero if considered equal using {@link #equals(double,double,int) equals(x, y, maxUlps)}</li>
+     *  <li>negative if not equal and {@code x < y}</li>
+     *  <li>positive if not equal and {@code x > y}</li>
      * </ul>
      *
      * <p>NaN values are handled as if using {@link Double#compare(double, double)} where the
      * returned value is:
      * <ul>
-     *  <li>zero if {@code NaN, NaN}
-     *  <li>negative if {@code !NaN, NaN}
-     *  <li>positive if {@code NaN, !NaN}
+     *  <li>zero if {@code NaN, NaN}</li>
+     *  <li>negative if {@code !NaN, NaN}</li>
+     *  <li>positive if {@code NaN, !NaN}</li>
      * </ul>
      *
      * @param x First value.

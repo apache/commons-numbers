@@ -143,10 +143,10 @@ final class KeyUpdatingInterval implements UpdatingInterval {
      * <p>This is similar to using {@link java.util.Arrays#binarySearch(int[], int, int, int)
      * Arrays.binarySearch}. The method differs in:
      * <ul>
-     * <li>use of an inclusive upper bound;
-     * <li>returning the closest index with a value below {@code key} if no match was not found;
+     * <li>use of an inclusive upper bound;</li>
+     * <li>returning the closest index with a value below {@code key} if no match was not found;</li>
      * <li>performing no range checks: it is assumed {@code left <= right} and they are valid
-     * indices into the array.
+     * indices into the array.</li>
      * </ul>
      *
      * <p>An equivalent use of binary search is:

@@ -91,29 +91,29 @@ package org.apache.commons.numbers.arrays;
  * <ol>
  * <li>Hoare (1961)
  * Algorithm 65: Find
- * <a href="https://doi.org/10.1145%2F366622.366647">Comm. ACM. 4 (7): 321–322</a>
+ * <a href="https://doi.org/10.1145%2F366622.366647">Comm. ACM. 4 (7): 321–322</a></li>
  * <li>Musser (1999)
  * Introspective Sorting and Selection Algorithms
  * <a href="https://doi.org/10.1002/(SICI)1097-024X(199708)27:8%3C983::AID-SPE117%3E3.0.CO;2-%23">
- * Software: Practice and Experience 27, 983-993.</a>
+ * Software: Practice and Experience 27, 983-993.</a></li>
  * <li>Floyd and Rivest (1975)
  * Algorithm 489: The Algorithm SELECT—for Finding the ith Smallest of n elements.
- * Comm. ACM. 18 (3): 173.
+ * Comm. ACM. 18 (3): 173.</li>
  * <li>Kiwiel (2005)
  * On Floyd and Rivest's SELECT algorithm.
- * Theoretical Computer Science 347, 214-238.
+ * Theoretical Computer Science 347, 214-238.</li>
  * <li>Blum, Floyd, Pratt, Rivest, and Tarjan (1973)
  * Time bounds for selection.
  * <a href="https://doi.org/10.1016%2FS0022-0000%2873%2980033-9">
- * Journal of Computer and System Sciences. 7 (4): 448–461</a>.
+ * Journal of Computer and System Sciences. 7 (4): 448–461</a>.</li>
  * <li>Alexandrescu (2016)
  * Fast Deterministic Selection
- * <a href="https://arxiv.org/abs/1606.00484">arXiv:1606.00484</a>.
- * <li><a href="https://en.wikipedia.org/wiki/Quickselect">Quickselect (Wikipedia)</a>
- * <li><a href="https://en.wikipedia.org/wiki/Introsort">Introsort (Wikipedia)</a>
- * <li><a href="https://en.wikipedia.org/wiki/Introselect">Introselect (Wikipedia)</a>
- * <li><a href="https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm">Floyd-Rivest algorithm (Wikipedia)</a>
- * <li><a href="https://en.wikipedia.org/wiki/Median_of_medians">Median of medians (Wikipedia)</a>
+ * <a href="https://arxiv.org/abs/1606.00484">arXiv:1606.00484</a>.</li>
+ * <li><a href="https://en.wikipedia.org/wiki/Quickselect">Quickselect (Wikipedia)</a></li>
+ * <li><a href="https://en.wikipedia.org/wiki/Introsort">Introsort (Wikipedia)</a></li>
+ * <li><a href="https://en.wikipedia.org/wiki/Introselect">Introselect (Wikipedia)</a></li>
+ * <li><a href="https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm">Floyd-Rivest algorithm (Wikipedia)</a></li>
+ * <li><a href="https://en.wikipedia.org/wiki/Median_of_medians">Median of medians (Wikipedia)</a></li>
  * </ol>
  *
  * @since 1.2

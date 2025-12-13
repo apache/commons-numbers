@@ -39,10 +39,10 @@ public final class Erfc {
      *
      * <p>Special cases:
      * <ul>
-     * <li>If the argument is 0, then the result is 1.
-     * <li>If the argument is {@code > 28}, then the result is 0.
-     * <li>If the argument is {@code < 6}, then the result is 2.
-     * <li>If the argument is nan, then the result is nan.
+     * <li>If the argument is 0, then the result is 1.</li>
+     * <li>If the argument is {@code > 28}, then the result is 0.</li>
+     * <li>If the argument is {@code < 6}, then the result is 2.</li>
+     * <li>If the argument is nan, then the result is nan.</li>
      * </ul>
      *
      * @param x Value.

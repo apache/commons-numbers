@@ -86,38 +86,38 @@ import org.apache.commons.rng.simple.RandomSource;
  * <li>
  * Hoare (1961)
  * Algorithm 65: Find
- * <a href="https://doi.org/10.1145%2F366622.366647">Comm. ACM. 4 (7): 321–322</a>
+ * <a href="https://doi.org/10.1145%2F366622.366647">Comm. ACM. 4 (7): 321–322</a></li>
  * <li>
  * Musser (1999)
  * Introspective Sorting and Selection Algorithms
  * <a href="https://doi.org/10.1002/(SICI)1097-024X(199708)27:8%3C983::AID-SPE117%3E3.0.CO;2-%23">
- * Software: Practice and Experience 27, 983-993.</a>
+ * Software: Practice and Experience 27, 983-993.</a></li>
  * <li>
  * Wild, Nebel and Mahmoud (2013)
  * Analysis of Quickselect under Yaroslavskiy's Dual-Pivoting Algorithm
- * <a href="https://doi.org/10.48550/arXiv.1306.3819">arXiv:1306.3819</a>
+ * <a href="https://doi.org/10.48550/arXiv.1306.3819">arXiv:1306.3819</a></li>
  * <li>Floyd and Rivest (1975)
  * Algorithm 489: The Algorithm SELECT - for Finding the ith Smallest of n elements.
- * Comm. ACM. 18 (3): 173.
+ * Comm. ACM. 18 (3): 173.</li>
  * <li>Kiwiel (2005)
  * On Floyd and Rivest's SELECT algorithm.
  * <a href="https://doi.org/10.1016/j.tcs.2005.06.032">
- * Theoretical Computer Science 347, 214-238</a>.
+ * Theoretical Computer Science 347, 214-238</a>.</li>
  * <li>Valois (2000)
  * Introspective sorting and selection revisited
  * <a href="https://doi.org/10.1002/(SICI)1097-024X(200005)30:6%3C617::AID-SPE311%3E3.0.CO;2-A">
- * Software: Practice and Experience 30, 617-638.</a>
+ * Software: Practice and Experience 30, 617-638.</a></li>
  * <li>Blum, Floyd, Pratt, Rivest, and Tarjan (1973)
  * Time bounds for selection.
  * <a href="https://doi.org/10.1016%2FS0022-0000%2873%2980033-9">
- * Journal of Computer and System Sciences. 7 (4): 448–461</a>.
+ * Journal of Computer and System Sciences. 7 (4): 448–461</a>.</li>
  * <li>Alexandrescu (2016)
  * Fast Deterministic Selection
- * <a href="https://arxiv.org/abs/1606.00484">arXiv:1606.00484</a>.
- * <li><a href="https://en.wikipedia.org/wiki/Quickselect">Quickselect (Wikipedia)</a>
- * <li><a href="https://en.wikipedia.org/wiki/Introsort">Introsort (Wikipedia)</a>
- * <li><a href="https://en.wikipedia.org/wiki/Introselect">Introselect (Wikipedia)</a>
- * <li><a href="https://en.wikipedia.org/wiki/Median_of_medians">Median of medians (Wikipedia)</a>
+ * <a href="https://arxiv.org/abs/1606.00484">arXiv:1606.00484</a>.</li>
+ * <li><a href="https://en.wikipedia.org/wiki/Quickselect">Quickselect (Wikipedia)</a></li>
+ * <li><a href="https://en.wikipedia.org/wiki/Introsort">Introsort (Wikipedia)</a></li>
+ * <li><a href="https://en.wikipedia.org/wiki/Introselect">Introselect (Wikipedia)</a></li>
+ * <li><a href="https://en.wikipedia.org/wiki/Median_of_medians">Median of medians (Wikipedia)</a></li>
  * </ol>
  *
  * @since 1.2
@@ -154,11 +154,11 @@ final class Partition {
      *
      * <p>If using insertion sort as the stopper for quickselect:
      * <ul>
-     * <li>Single-pivot: Benchmarking random data in range [96, 192] suggests a value of ~16 for n=1.
+     * <li>Single-pivot: Benchmarking random data in range [96, 192] suggests a value of ~16 for n=1.</li>
      * <li>Dual-pivot: Benchmarking random data in range [162, 486] suggests a value of ~27 for n=1
      * and increasing with higher n in the same range.
      * Dual-pivot sorting requires a value of ~120. If keys are saturated between k1 and kn
-     * an increase to this threshold will gain full sort performance.
+     * an increase to this threshold will gain full sort performance.</li>
      * </ul> */
     static final int MIN_QUICKSELECT_SIZE = 0;
     /** Minimum size for heapselect.
@@ -842,8 +842,8 @@ final class Partition {
          * |         <P        | ==P |            >P        |
          * }</pre>
          * <ul>
-         * <li>k0: lower pivot point
-         * <li>k1: upper pivot point
+         * <li>k0: lower pivot point</li>
+         * <li>k1: upper pivot point</li>
          * </ul>
          *
          * @param a Data array.
@@ -1002,8 +1002,8 @@ final class Partition {
          * |         <P        | ==P |            >P        |
          * }</pre>
          * <ul>
-         * <li>k0: lower pivot point
-         * <li>k1: upper pivot point (inclusive)
+         * <li>k0: lower pivot point</li>
+         * <li>k1: upper pivot point (inclusive)</li>
          * </ul>
          *
          * @param a Data array.
@@ -1032,10 +1032,10 @@ final class Partition {
          * |   <P  | ==P1 |  <P1 && <P2    | ==P2 |   >P   |
          * }</pre>
          * <ul>
-         * <li>k0: lower pivot1 point
-         * <li>k1: upper pivot1 point (inclusive)
-         * <li>k2: lower pivot2 point
-         * <li>k3: upper pivot2 point (inclusive)
+         * <li>k0: lower pivot1 point</li>
+         * <li>k1: upper pivot1 point (inclusive)</li>
+         * <li>k2: lower pivot2 point</li>
+         * <li>k3: upper pivot2 point (inclusive)</li>
          * </ul>
          *
          * <p>Bounds are set so {@code i < k0}, {@code i > k3} and {@code k1 < i < k2} are
@@ -1100,8 +1100,8 @@ final class Partition {
          * |         <P        | ==P |            >P        |
          * }</pre>
          * <ul>
-         * <li>k0: lower pivot point
-         * <li>k1: upper pivot point (inclusive)
+         * <li>k0: lower pivot point</li>
+         * <li>k1: upper pivot point (inclusive)</li>
          * </ul>
          *
          * @param a Data array.
@@ -1197,12 +1197,12 @@ final class Partition {
      * <ul>
      * <li>Sample mode: Do not use all the data to create the pivot sample. This is less expensive
      * to compute but invalidates strict margins. The margin quality is better than a random pivot
-     * due to sampling a reasonable range of the data and using medians to create the sample.
+     * due to sampling a reasonable range of the data and using medians to create the sample.</li>
      * <li>Adaption mode: Map the target {@code k} from the current range to the size of the pivot
      * sample. This create asymmetric margins and adapts the larger margin to the position of
      * {@code k} thus increasing the chance of eliminating a large amount of data. However data
      * randomness can create a larger margin so large it includes {@code k} and partitioning
-     * must eliminate a possibly very small other side.
+     * must eliminate a possibly very small other side.</li>
      * </ul>
      *
      * <p>The quickselect adaptive paper suggests sampling mode is turned off when margins are not
@@ -2698,18 +2698,18 @@ final class Partition {
      * require a full sort. Start-up cost is higher. In practice the indices do not saturate
      * the range if the length is reasonable and it is typically possible to cut between indices
      * during partitioning to create regions that do not require visiting. Thus trying to identify
-     * regions for a full sort is a waste of resources.
+     * regions for a full sort is a waste of resources.</li>
      * <li>{@link KeyStrategy#INDEX_SET}: Uses a {@code BitSet}-type structure to store
      * pivots during a call to partition. These can be used to bracket the search for the next index.
      * Storage of sparse indices is inefficient as it will require up to length bits of the memory
-     * of the input array length. Sparse ranges cannot be efficiently searched.
+     * of the input array length. Sparse ranges cannot be efficiently searched.</li>
      * <li>{@link KeyStrategy#PIVOT_CACHE}: The {@link PivotCache} interface abstracts
      * methods from a {@code BitSet}. Indices can be stored and searched. The abstraction allows
      * the pivots to be stored efficiently. However there are no sparse implementations
      * of the interface other than 1 or 2 points. So performance is similar to the INDEX_SET
      * method. One difference is the method finds the outer indices first and then
      * only searches the internal region for the rest of the indices. This makes no difference
-     * to performance.
+     * to performance.</li>
      * </ul>
      *
      * <p>Note: In each method indices are processed independently. Thus each bracket around an
@@ -6056,10 +6056,10 @@ final class Partition {
      * <ul>
      * <li>Floyd and Rivest (1975)
      * Algorithm 489: The Algorithm SELECT—for Finding the ith Smallest of n elements.
-     * Comm. ACM. 18 (3): 173.
+     * Comm. ACM. 18 (3): 173.</li>
      * <li>Kiwiel (2005)
      * On Floyd and Rivest's SELECT algorithm.
-     * Theoretical Computer Science 347, 214-238.
+     * Theoretical Computer Science 347, 214-238.</li>
      * </ul>
      *
      * @param x Values.
@@ -8154,10 +8154,10 @@ final class Partition {
      * }</pre>
      *
      * <ul>
-     * <li>k0: lower pivot1 point
-     * <li>k1: upper pivot1 point (inclusive)
-     * <li>k2: lower pivot2 point
-     * <li>k3: upper pivot2 point (inclusive)
+     * <li>k0: lower pivot1 point</li>
+     * <li>k1: upper pivot1 point (inclusive)</li>
+     * <li>k2: lower pivot2 point</li>
+     * <li>k3: upper pivot2 point (inclusive)</li>
      * </ul>
      *
      * <p>Bounds are set so {@code i < k0},  {@code i > k3} and {@code k1 < i < k2} are
@@ -10135,10 +10135,10 @@ final class Partition {
      * <p>This is similar to using {@link java.util.Arrays#binarySearch(int[], int, int, int)
      * Arrays.binarySearch}. The method differs in:
      * <ul>
-     * <li>use of an inclusive upper bound;
-     * <li>returning the closest index with a value below {@code key} if no match was not found;
+     * <li>use of an inclusive upper bound;</li>
+     * <li>returning the closest index with a value below {@code key} if no match was not found;</li>
      * <li>performing no range checks: it is assumed {@code left <= right} and they are valid
-     * indices into the array.
+     * indices into the array.</li>
      * </ul>
      *
      * <p>An equivalent use of binary search is:
@@ -10220,10 +10220,10 @@ final class Partition {
      * <p>This is similar to using {@link java.util.Arrays#binarySearch(int[], int, int, int)
      * Arrays.binarySearch}. The method differs in:
      * <ul>
-     * <li>use of an inclusive upper bound;
-     * <li>returning the closest index with a value above {@code key} if no match was not found;
+     * <li>use of an inclusive upper bound;</li>
+     * <li>returning the closest index with a value above {@code key} if no match was not found;</li>
      * <li>performing no range checks: it is assumed {@code left <= right} and they are valid
-     * indices into the array.
+     * indices into the array.</li>
      * </ul>
      *
      * <p>An equivalent use of binary search is:

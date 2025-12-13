@@ -61,10 +61,10 @@ final class KolmogorovSmirnovDistribution {
      * <li>
      * van Mulbregt, P. (2018).
      * <a href="https://doi.org/10.48550/arxiv.1802.06966">Computing the Cumulative Distribution Function and Quantiles of the One-sided Kolmogorov-Smirnov Statistic</a>
-     * arxiv:1802.06966.
+     * arxiv:1802.06966.</li>
      * <li>Magg &amp; Dicaire (1971).
      * <a href="https://doi.org/10.1093/biomet/58.3.653">On Kolmogorov-Smirnov Type One-Sample Statistics</a>
-     * Biometrika 58.3 pp. 653–656.
+     * Biometrika 58.3 pp. 653–656.</li>
      * </ol>
      *
      * @since 1.1

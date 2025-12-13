@@ -87,8 +87,8 @@ final class PartitionFactory {
      *
      * <p>Harvests:
      * <ul>
-     * <li>PivotingStrategy : enum name
-     * <li>QSnn : minimum quickselect size of n
+     * <li>PivotingStrategy : enum name</li>
+     * <li>QSnn : minimum quickselect size of n</li>
      * </ul>
      *
      * @param name Name.
@@ -139,24 +139,24 @@ final class PartitionFactory {
      *
      * <p>Harvests:
      * <ul>
-     * <li>PivotingStrategy : enum name
-     * <li>DualPivotingStrategy : enum name
-     * <li>QSn : minimum quickselect size of n
-     * <li>ECn : minimum edgeselect constant of n
-     * <li>LCn : minimum sortselect constant of n for linear selection algorithms
-     * <li>SUn : minimum sub-sampling size of n (for the Floyd-Rivest algorithm)
-     * <li>KeyStrategy : enum name
-     * <li>PairedKeyStrategy : enum name
-     * <li>RMn.n : recursion multiple of n.n (optional floating point) used to set recursion limit for introspection
-     * <li>RCn : recursion constant of n used to set recursion limit for introspection
-     * <li>CLn : compression level of n for compressed keys
-     * <li>CFn : control flags of n
-     * <li>SPStrategy : enum name
-     * <li>ExpandStrategy : enum name
-     * <li>LinearStrategy : enum name
-     * <li>EdgeSelectStrategy : enum name
-     * <li>StopperStrategy : enum name
-     * <li>AdaptMode : enum name
+     * <li>PivotingStrategy : enum name</li>
+     * <li>DualPivotingStrategy : enum name</li>
+     * <li>QSn : minimum quickselect size of n</li>
+     * <li>ECn : minimum edgeselect constant of n</li>
+     * <li>LCn : minimum sortselect constant of n for linear selection algorithms</li>
+     * <li>SUn : minimum sub-sampling size of n (for the Floyd-Rivest algorithm)</li>
+     * <li>KeyStrategy : enum name</li>
+     * <li>PairedKeyStrategy : enum name</li>
+     * <li>RMn.n : recursion multiple of n.n (optional floating point) used to set recursion limit for introspection</li>
+     * <li>RCn : recursion constant of n used to set recursion limit for introspection</li>
+     * <li>CLn : compression level of n for compressed keys</li>
+     * <li>CFn : control flags of n</li>
+     * <li>SPStrategy : enum name</li>
+     * <li>ExpandStrategy : enum name</li>
+     * <li>LinearStrategy : enum name</li>
+     * <li>EdgeSelectStrategy : enum name</li>
+     * <li>StopperStrategy : enum name</li>
+     * <li>AdaptMode : enum name</li>
      * </ul>
      *
      * @param name Name.

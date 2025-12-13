@@ -25,7 +25,7 @@ package org.apache.commons.numbers.gamma;
  * <p>This code has been adapted from:
  * <ul>
  *  <li>The <a href="https://www.boost.org/">Boost</a>
- *      {@code c++} implementation {@code <boost/math/special_functions/gamma.hpp>}.
+ *      {@code c++} implementation {@code <boost/math/special_functions/gamma.hpp>}.</li>
  * </ul>
  *
  * @see

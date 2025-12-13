@@ -73,8 +73,8 @@ final class ExtendedPrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.
-     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.</li>
+     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.</li>
      * </ul>
      *
      * <p>This method delegates to {@link DD#twoProductLow(double, double, double)} but uses

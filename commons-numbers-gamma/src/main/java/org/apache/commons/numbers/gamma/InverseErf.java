@@ -30,11 +30,11 @@ public final class InverseErf {
      *
      * <p>Special cases:
      * <ul>
-     * <li>If the argument is 0, then the result is 0.
-     * <li>If the argument is 1, then the result is positive infinity.
-     * <li>If the argument is -1, then the result is negative infinity.
-     * <li>If the argument is outside the interval {@code [-1, 1]}, then the result is nan.
-     * <li>If the argument is nan, then the result is nan.
+     * <li>If the argument is 0, then the result is 0.</li>
+     * <li>If the argument is 1, then the result is positive infinity.</li>
+     * <li>If the argument is -1, then the result is negative infinity.</li>
+     * <li>If the argument is outside the interval {@code [-1, 1]}, then the result is nan.</li>
+     * <li>If the argument is nan, then the result is nan.</li>
      * </ul>
      *
      * @param x Value (in {@code [-1, 1]})

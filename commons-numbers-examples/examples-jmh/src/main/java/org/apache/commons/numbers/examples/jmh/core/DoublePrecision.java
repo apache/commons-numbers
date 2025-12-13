@@ -151,8 +151,8 @@ final class DoublePrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the low part is 0.0.
-     *  <li>If {@code x * y} is infinite or NaN then the low part is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the low part is 0.0.</li>
+     *  <li>If {@code x * y} is infinite or NaN then the low part is NaN.</li>
      * </ul>
      *
      * <p>Note: This does not represent the low part of infinity with zero. This is because the
@@ -379,8 +379,8 @@ final class DoublePrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.
-     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.</li>
+     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.</li>
      * </ul>
      *
      * @param x First factor.
@@ -459,8 +459,8 @@ final class DoublePrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.
-     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.</li>
+     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.</li>
      * </ul>
      *
      * @param x First factor.
@@ -531,8 +531,8 @@ final class DoublePrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.
-     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.</li>
+     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.</li>
      * </ul>
      *
      * @param x First factor.
@@ -589,11 +589,11 @@ final class DoublePrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.
+     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.</li>
      *  <li>If {@code x * y} is infinite, and {@code x} and {@code y} are finite then the
-     *      result is the opposite infinity.
-     *  <li>If {@code x} or {@code y} are infinite then the result is NaN.
-     *  <li>If {@code x * y} is NaN then the result is NaN.
+     *      result is the opposite infinity.</li>
+     *  <li>If {@code x} or {@code y} are infinite then the result is NaN.</li>
+     *  <li>If {@code x * y} is NaN then the result is NaN.</li>
      * </ul>
      *
      * @param x First factor.
@@ -641,8 +641,8 @@ final class DoublePrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.
-     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.
+     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.</li>
+     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.</li>
      * </ul>
      *
      * @param x First factor.

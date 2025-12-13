@@ -62,15 +62,15 @@ public final class DDMath {
      * <p>Special cases:
      * <ul>
      *  <li>If {@code (x, xx)} is zero the high part of the fractional part is
-     *      computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.
-     *  <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.
+     *      computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.</li>
+     *  <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.</li>
      *  <li>If {@code (x, xx)} is an exact power of 2 the fractional part is 0.5 and the exponent
-     *      is the power of 2 minus 1.
+     *      is the power of 2 minus 1.</li>
      *  <li>If the result high-part is an exact power of 2 and the low-part has an opposite
      *      signed non-zero magnitude then the fraction high-part {@code f} will be {@code +/-1} such that
-     *      the double-double number is in the range {@code [0.5, 1)}.
+     *      the double-double number is in the range {@code [0.5, 1)}.</li>
      *  <li>If the argument is not finite then a fractional representation is not possible.
-     *      In this case the fraction and the scale factor is undefined.
+     *      In this case the fraction and the scale factor is undefined.</li>
      * </ul>
      *
      * <p>The computed result is within 1 eps of the exact result where eps is 2<sup>-106</sup>.

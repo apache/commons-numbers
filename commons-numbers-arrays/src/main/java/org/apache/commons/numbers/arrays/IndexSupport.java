@@ -252,10 +252,10 @@ final class IndexSupport {
      * <p>The sub-range is defined to be out of bounds if any of the following
      * inequalities is true:
      * <ul>
-     * <li>{@code fromIndex < 0}
-     * <li>{@code fromIndex > toIndex}
-     * <li>{@code toIndex > length}
-     * <li>{@code length < 0}, which is implied from the former inequalities
+     * <li>{@code fromIndex < 0}</li>
+     * <li>{@code fromIndex > toIndex}</li>
+     * <li>{@code toIndex > length}</li>
+     * <li>{@code length < 0}, which is implied from the former inequalities</li>
      * </ul>
      *
      * @param fromIndex Lower-bound (inclusive) of the sub-range.

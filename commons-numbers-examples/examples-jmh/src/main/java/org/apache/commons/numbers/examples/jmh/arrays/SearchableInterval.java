@@ -22,9 +22,9 @@ package org.apache.commons.numbers.examples.jmh.arrays;
  * <p>The interval provides the following functionality:
  *
  * <ul>
- * <li>Return the supported bounds of the search {@code [left <= right]}.
- * <li>Return the previous index contained in the interval from a search point {@code k}.
- * <li>Return the next index contained in the interval from a search point {@code k}.
+ * <li>Return the supported bounds of the search {@code [left <= right]}.</li>
+ * <li>Return the previous index contained in the interval from a search point {@code k}.</li>
+ * <li>Return the next index contained in the interval from a search point {@code k}.</li>
  * </ul>
  *
  * <p>Note that the interval provides the supported bounds. If a search begins outside

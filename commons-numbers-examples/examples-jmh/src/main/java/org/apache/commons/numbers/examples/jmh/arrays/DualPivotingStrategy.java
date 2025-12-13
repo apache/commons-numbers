@@ -806,9 +806,9 @@ enum DualPivotingStrategy {
     /**
      * Get the effect on the sampled points.
      * <ul>
-     * <li>0 - Unchanged
-     * <li>1 - Partially sorted
-     * <li>2 - Sorted
+     * <li>0 - Unchanged</li>
+     * <li>1 - Partially sorted</li>
+     * <li>2 - Sorted</li>
      * </ul>
      *
      * @return the effect

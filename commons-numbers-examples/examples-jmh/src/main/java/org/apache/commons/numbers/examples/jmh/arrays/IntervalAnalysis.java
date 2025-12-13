@@ -35,10 +35,10 @@ interface IntervalAnalysis {
      * <ol>
      * <li>Use approximations for performance, for example
      * compressing indices into blocks of the defined separation.
-     * <pre>{@code c = (i - left) >> separation}</pre>
+     * <pre>{@code c = (i - left) >> separation}</pre></li>
      * <li>Support only a range of the possible
      * {@code separation} values in {@code [0, 30]}. Unsupported {@code separation}
-     * values should return {@code false}.
+     * values should return {@code false}.</li>
      * </ol>
      *
      * @param separation Log2 of the maximum separation between indices.

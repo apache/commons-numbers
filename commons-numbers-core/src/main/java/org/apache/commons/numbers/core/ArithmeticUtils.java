@@ -125,7 +125,7 @@ public final class ArithmeticUtils {
      * is too large for a long value.</li>
      * <li>The result of {@code gcd(x, x)}, {@code gcd(0L, x)} and
      * {@code gcd(x, 0L)} is the absolute value of {@code x}, except
-     * for the special cases above.
+     * for the special cases above.</li>
      * <li>The invocation {@code gcd(0L, 0L)} is the only one which returns
      * {@code 0L}.</li>
      * </ul>
@@ -203,7 +203,7 @@ public final class ArithmeticUtils {
      * power of 2, throw an {@code ArithmeticException}, because the result
      * would be 2^31, which is too large for an int value.</li>
      * <li>The result of {@code lcm(0, x)} and {@code lcm(x, 0)} is
-     * {@code 0} for any {@code x}.
+     * {@code 0} for any {@code x}.</li>
      * </ul>
      *
      * @param a Number.
@@ -236,7 +236,7 @@ public final class ArithmeticUtils {
      * power of 2, throw an {@code ArithmeticException}, because the result
      * would be 2^63, which is too large for an int value.</li>
      * <li>The result of {@code lcm(0L, x)} and {@code lcm(x, 0L)} is
-     * {@code 0L} for any {@code x}.
+     * {@code 0L} for any {@code x}.</li>
      * </ul>
      *
      * @param a Number.
@@ -262,12 +262,12 @@ public final class ArithmeticUtils {
      *
      * <p>Special cases:</p>
      * <ul>
-     *   <li>{@code k^0} returns {@code 1} (including {@code k=0})
-     *   <li>{@code k^1} returns {@code k} (including {@code k=0})
-     *   <li>{@code 0^0} returns {@code 1}
-     *   <li>{@code 0^e} returns {@code 0}
-     *   <li>{@code 1^e} returns {@code 1}
-     *   <li>{@code (-1)^e} returns {@code -1 or 1} if {@code e} is odd or even
+     *   <li>{@code k^0} returns {@code 1} (including {@code k=0})</li>
+     *   <li>{@code k^1} returns {@code k} (including {@code k=0})</li>
+     *   <li>{@code 0^0} returns {@code 1}</li>
+     *   <li>{@code 0^e} returns {@code 0}</li>
+     *   <li>{@code 1^e} returns {@code 1}</li>
+     *   <li>{@code (-1)^e} returns {@code -1 or 1} if {@code e} is odd or even</li>
      * </ul>
      *
      * @param k Number to raise.
@@ -322,12 +322,12 @@ public final class ArithmeticUtils {
      *
      * <p>Special cases:</p>
      * <ul>
-     *   <li>{@code k^0} returns {@code 1} (including {@code k=0})
-     *   <li>{@code k^1} returns {@code k} (including {@code k=0})
-     *   <li>{@code 0^0} returns {@code 1}
-     *   <li>{@code 0^e} returns {@code 0}
-     *   <li>{@code 1^e} returns {@code 1}
-     *   <li>{@code (-1)^e} returns {@code -1 or 1} if {@code e} is odd or even
+     *   <li>{@code k^0} returns {@code 1} (including {@code k=0})</li>
+     *   <li>{@code k^1} returns {@code k} (including {@code k=0})</li>
+     *   <li>{@code 0^0} returns {@code 1}</li>
+     *   <li>{@code 0^e} returns {@code 0}</li>
+     *   <li>{@code 1^e} returns {@code 1}</li>
+     *   <li>{@code (-1)^e} returns {@code -1 or 1} if {@code e} is odd or even</li>
      * </ul>
      *
      * @param k Number to raise.
