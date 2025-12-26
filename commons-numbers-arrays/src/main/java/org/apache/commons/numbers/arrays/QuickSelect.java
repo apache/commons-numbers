@@ -1163,7 +1163,7 @@ final class QuickSelect {
      * partition method by Vladimir Yaroslavskiy; the fall-back on poor convergence of
      * the quickselect is a heapselect.
      *
-     * <p>The {@code flags} contain the the current recursion count and the configured
+     * <p>The {@code flags} contain the current recursion count and the configured
      * length threshold for {@code r - l} to perform sort select. The count is in the upper
      * bits and the threshold is in the lower bits.
      *
@@ -2422,7 +2422,7 @@ final class QuickSelect {
      * partition method by Vladimir Yaroslavskiy; the fall-back on poor convergence of
      * the quickselect is a heapselect.
      *
-     * <p>The {@code flags} contain the the current recursion count and the configured
+     * <p>The {@code flags} contain the current recursion count and the configured
      * length threshold for {@code r - l} to perform sort select. The count is in the upper
      * bits and the threshold is in the lower bits.
      *
