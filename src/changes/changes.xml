@@ -61,7 +61,7 @@ New features, updates and bug fixes.
         values are negative).
       </action>
 	  <action dev="ggregory" type="update">Pick up exec-maven-plugin version from parent POM.</action>
-	  <action dev="ggregory" type="update">Bump org.apache.commons:commons-parent from 84 to 85 #174.</action>
+	  <action dev="ggregory" type="update">Bump org.apache.commons:commons-parent from 84 to 96 #174.</action>
     </release>
 
     <release version="1.2" date="2024-08-12" description="
