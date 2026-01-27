@@ -108,6 +108,30 @@ public final class Fraction
     /**
      * Private constructor: Instances are created using factory methods.
      *
+     * <p>This constructor should only be invoked when the fraction is known
+     * to be already reduced, and non-ZERO;
+     * otherwise use {@link #Fraction(int, int)}, or {@link #ZERO}.
+     *
+     * @param num Numerator.
+     * @param den Denominator.
+     * @param ignore Ignored, do not really use this, just to make it can overload.
+     */
+    private Fraction(int num, int den, boolean ignore) {
+        if (den == 0) {
+            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
+        }
+        if (num == den) {
+            numerator = 1;
+            denominator = 1;
+        } else {
+            numerator = num;
+            denominator = den;
+        }
+    }
+
+    /**
+     * Private constructor: Instances are created using factory methods.
+     *
      * <p>This sets the denominator to 1.
      *
      * @param num Numerator.
@@ -490,8 +514,8 @@ public final class Fraction
     @Override
     public Fraction negate() {
         return numerator == Integer.MIN_VALUE ?
-            new Fraction(numerator, -denominator) :
-            new Fraction(-numerator, denominator);
+            new Fraction(numerator, -denominator, false) :
+            new Fraction(-numerator, denominator, false);
     }
 
     /**
@@ -503,7 +527,7 @@ public final class Fraction
      */
     @Override
     public Fraction reciprocal() {
-        return new Fraction(denominator, numerator);
+        return new Fraction(denominator, numerator, false);
     }
 
     /**
@@ -601,7 +625,7 @@ public final class Fraction
         if (isZero()) {
             // Special case for min value
             return value == Integer.MIN_VALUE ?
-                new Fraction(Integer.MIN_VALUE, -1) :
+                new Fraction(Integer.MIN_VALUE, -1, false) :
                 new Fraction(-value);
         }
         // Convert to numerator with same effective denominator
@@ -694,7 +718,7 @@ public final class Fraction
         // (see multiply(Fraction) using value / 1 as the argument).
         final int d2 = ArithmeticUtils.gcd(value, denominator);
         return new Fraction(Math.multiplyExact(numerator, value / d2),
-                            denominator / d2);
+                            denominator / d2, false);
     }
 
     /**
@@ -760,7 +784,7 @@ public final class Fraction
         // (see multiply(Fraction) using 1 / value as the argument).
         final int d1 = ArithmeticUtils.gcd(numerator, value);
         return new Fraction(numerator / d1,
-                            Math.multiplyExact(denominator, value / d1));
+                            Math.multiplyExact(denominator, value / d1), false);
     }
 
     /**
@@ -809,7 +833,7 @@ public final class Fraction
         }
         if (exponent > 0) {
             return new Fraction(ArithmeticUtils.pow(numerator, exponent),
-                                ArithmeticUtils.pow(denominator, exponent));
+                                ArithmeticUtils.pow(denominator, exponent), false);
         }
         if (exponent == -1) {
             return this.reciprocal();
@@ -817,10 +841,10 @@ public final class Fraction
         if (exponent == Integer.MIN_VALUE) {
             // MIN_VALUE can't be negated
             return new Fraction(ArithmeticUtils.pow(denominator, Integer.MAX_VALUE) * denominator,
-                                ArithmeticUtils.pow(numerator, Integer.MAX_VALUE) * numerator);
+                                ArithmeticUtils.pow(numerator, Integer.MAX_VALUE) * numerator, false);
         }
         return new Fraction(ArithmeticUtils.pow(denominator, -exponent),
-                            ArithmeticUtils.pow(numerator, -exponent));
+                            ArithmeticUtils.pow(numerator, -exponent), false);
     }
 
     /**
