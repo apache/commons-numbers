@@ -671,7 +671,7 @@ public final class DD
      * a {@code long} and returning the respective upper or lower limit for numbers too
      * large for a {@code long}.
      *
-     * @return the value converted to an {@code int}
+     * @return the value converted to a {@code long}
      * @see #bigDecimalValue()
      */
     @Override
