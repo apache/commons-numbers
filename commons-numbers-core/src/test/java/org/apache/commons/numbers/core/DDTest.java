@@ -251,6 +251,54 @@ class DDTest {
         return builder.build();
     }
 
+    @Test
+    void testLongValue() {
+        // Largest long
+        Assertions.assertEquals(Long.MAX_VALUE, DD.of(Double.POSITIVE_INFINITY).longValue());
+        Assertions.assertEquals(Long.MAX_VALUE, DD.of(Double.MAX_VALUE).longValue());
+        Assertions.assertEquals(Long.MAX_VALUE, DD.of(0x1.0p63).longValue());
+        Assertions.assertEquals(Long.MAX_VALUE, DD.of(Long.MAX_VALUE).longValue());
+        Assertions.assertEquals(Long.MAX_VALUE - 1, DD.of(Long.MAX_VALUE - 1).longValue());
+        // Largest negative long
+        Assertions.assertEquals(Long.MIN_VALUE, DD.of(Double.NEGATIVE_INFINITY).longValue());
+        Assertions.assertEquals(Long.MIN_VALUE, DD.of(-Double.MAX_VALUE).longValue());
+        Assertions.assertEquals(Long.MIN_VALUE, DD.of(-0x1.0p63).longValue());
+        Assertions.assertEquals(Long.MIN_VALUE, DD.of(Long.MIN_VALUE).longValue());
+        Assertions.assertEquals(Long.MIN_VALUE + 1, DD.of(Long.MIN_VALUE + 1).longValue());
+        // Nan
+        Assertions.assertEquals(0, DD.of(Double.NaN).longValue());
+        // Truncation to zero
+        for (final double x : new double[] {0.0, 0.5, 2.75, 123.45}) {
+            final long expected = (long) x;
+            Assertions.assertEquals(expected, DD.of(x).longValue());
+            Assertions.assertEquals(-expected, DD.of(-x).longValue());
+        }
+    }
+
+    @Test
+    void testIntValue() {
+        // Largest int
+        Assertions.assertEquals(Integer.MAX_VALUE, DD.of(Double.POSITIVE_INFINITY).intValue());
+        Assertions.assertEquals(Integer.MAX_VALUE, DD.of(Double.MAX_VALUE).intValue());
+        Assertions.assertEquals(Integer.MAX_VALUE, DD.of(0x1.0p31).intValue());
+        Assertions.assertEquals(Integer.MAX_VALUE, DD.of(Integer.MAX_VALUE).intValue());
+        Assertions.assertEquals(Integer.MAX_VALUE - 1, DD.of(Integer.MAX_VALUE - 1).intValue());
+        // Largest negative int
+        Assertions.assertEquals(Integer.MIN_VALUE, DD.of(Double.NEGATIVE_INFINITY).intValue());
+        Assertions.assertEquals(Integer.MIN_VALUE, DD.of(-Double.MAX_VALUE).intValue());
+        Assertions.assertEquals(Integer.MIN_VALUE, DD.of(-0x1.0p31).intValue());
+        Assertions.assertEquals(Integer.MIN_VALUE, DD.of(Integer.MIN_VALUE).intValue());
+        Assertions.assertEquals(Integer.MIN_VALUE + 1, DD.of(Integer.MIN_VALUE + 1).intValue());
+        // Nan
+        Assertions.assertEquals(0, DD.of(Double.NaN).intValue());
+        // Truncation to zero
+        for (final double x : new double[] {0.0, 0.5, 2.75, 123.45}) {
+            final int expected = (int) x;
+            Assertions.assertEquals(expected, DD.of(x).intValue());
+            Assertions.assertEquals(-expected, DD.of(-x).intValue());
+        }
+    }
+
     /**
      * Test the value is exact after a sum of longs.
      * This exercises {@link DD#of(long)}, {@link DD#bigDecimalValue()} and {@link DD#longValue()}.
@@ -283,6 +331,8 @@ class DDTest {
         // Edge cases around min/max long value, including overflow a long then recover
         final long min = Long.MIN_VALUE;
         final long max = Long.MAX_VALUE;
+        // Has all bits in the upper 53-bits; then some more in the remaining lower bits.
+        final long big = 92874 + (long) Math.nextDown(0x1.0p63);
         builder.add(new long[] {min, 1});
         builder.add(new long[] {min, -1, 1});
         builder.add(new long[] {min, -33, 67});
@@ -292,6 +342,9 @@ class DDTest {
         builder.add(new long[] {max, 1, -1});
         builder.add(new long[] {max, 13, -14});
         builder.add(new long[] {max, max, min});
+        builder.add(new long[] {big, -1});
+        builder.add(new long[] {big, 1});
+        builder.add(new long[] {big, max, -12345, min});
         // Random
         final UniformRandomProvider rng = createRNG();
         for (int i = 1; i < 20; i++) {
