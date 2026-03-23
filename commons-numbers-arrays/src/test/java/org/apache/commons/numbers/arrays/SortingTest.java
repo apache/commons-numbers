@@ -691,6 +691,325 @@ class SortingTest {
         return data;
     }
 
+    // long[]
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort"})
+    void testLongInsertionSort(long[] values) {
+        assertSort(values, x -> Sorting.sort(x, 0, x.length - 1));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort", "testLongSort3"})
+    void testLongSort3(long[] values) {
+        final long[] data = Arrays.copyOf(values, 3);
+        assertSort(data, x -> Sorting.sort3(x, 0, 1, 2));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort", "testLongSort5"})
+    void testLongSort5(long[] values) {
+        final long[] data = Arrays.copyOf(values, 5);
+        assertSort(data, x -> Sorting.sort5(x, 0, 1, 2, 3, 4));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort3Internal"})
+    void testLongSort3Internal(long[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        assertSortInternal(values, x -> Sorting.sort3(x, a, b, c), indices);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort5Internal"})
+    void testLongSort5Internal(long[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        final int d = indices[3];
+        final int e = indices[4];
+        assertSortInternal(values, x -> Sorting.sort5(x, a, b, c, d, e), indices);
+    }
+
+    /**
+     * Assert that the sort {@code function} computes the same result as
+     * {@link Arrays#sort(long[])}.
+     *
+     * @param values Data.
+     * @param function Sort function.
+     */
+    private static void assertSort(long[] values, Consumer<long[]> function) {
+        final long[] expected = values.clone();
+        Arrays.sort(expected);
+        final long[] actual = values.clone();
+        function.accept(actual);
+        Assertions.assertArrayEquals(expected, actual, "Invalid sort");
+    }
+
+    /**
+     * Assert that the sort {@code function} computes the same result as
+     * {@link Arrays#sort(long[])} run on the provided {@code indices}.
+     *
+     * @param values Data.
+     * @param function Sort function.
+     * @param indices Indices.
+     */
+    private static void assertSortInternal(long[] values, Consumer<long[]> function, int... indices) {
+        Assertions.assertFalse(containsDuplicates(indices), () -> "Duplicate indices: " + Arrays.toString(indices));
+        // Pick out the data to sort
+        final long[] expected = extractIndices(values, indices);
+        Arrays.sort(expected);
+        final long[] data = values.clone();
+        function.accept(data);
+        // Pick out the data that was sorted
+        final long[] actual = extractIndices(data, indices);
+        Assertions.assertArrayEquals(expected, actual, "Invalid sort");
+        // Check outside the sorted indices
+        OUTSIDE: for (int i = 0; i < values.length; i++) {
+            for (final int ignore : indices) {
+                if (i == ignore) {
+                    continue OUTSIDE;
+                }
+            }
+            Assertions.assertEquals(values[i], data[i]);
+        }
+    }
+
+    static Stream<long[]> testLongSort() {
+        final Stream.Builder<long[]> builder = Stream.builder();
+        final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
+        for (final int size : new int[] {10, 15}) {
+            long[] a = new long[size];
+            Arrays.fill(a, 123);
+            builder.add(a.clone());
+            for (int ii = 0; ii < size; ii++) {
+                a[ii] = ii;
+            }
+            builder.add(a.clone());
+            for (int ii = 0; ii < size; ii++) {
+                a[ii] = size - ii;
+            }
+            builder.add(a);
+            for (int i = 0; i < 5; i++) {
+                builder.add(rng.longs(size).toArray());
+            }
+        }
+        return builder.build();
+    }
+
+    static Stream<long[]> testLongSort3() {
+        // Permutations is 3! = 6
+        final long x = 335;
+        final long y = 123;
+        final long z = -999;
+        final long[][] a = {
+            {x, y, z},
+            {x, z, y},
+            {z, x, y},
+            {y, x, z},
+            {y, z, x},
+            {z, y, x},
+        };
+        return Arrays.stream(a);
+    }
+
+    static Stream<long[]> testLongSort5() {
+        final Stream.Builder<long[]> builder = Stream.builder();
+        final long[] a = new long[5];
+        // Permutations is 5! = 120
+        final int shift = 42;
+        for (int i = 0; i < 5; i++) {
+            a[0] = i + shift;
+            for (int j = 0; j < 5; j++) {
+                if (j == i) {
+                    continue;
+                }
+                a[1] = j + shift;
+                for (int k = 0; k < 5; k++) {
+                    if (k == j || k == i) {
+                        continue;
+                    }
+                    a[2] = k + shift;
+                    for (int l = 0; l < 5; l++) {
+                        if (l == k || l == j || l == i) {
+                            continue;
+                        }
+                        a[3] = l + shift;
+                        for (int m = 0; m < 5; m++) {
+                            if (m == l || m == k || m == j || m == i) {
+                                continue;
+                            }
+                            a[3] = m + shift;
+                            builder.add(a.clone());
+                        }
+                    }
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    static Stream<Arguments> testLongSort3Internal() {
+        return testLongSortInternal(3);
+    }
+
+    static Stream<Arguments> testLongSort5Internal() {
+        return testLongSortInternal(5);
+    }
+
+    static Stream<Arguments> testLongSortInternal(int k) {
+        final Stream.Builder<Arguments> builder = Stream.builder();
+        final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
+        for (final int size : new int[] {k, 2 * k, 4 * k}) {
+            final PermutationSampler s = new PermutationSampler(rng, size, k);
+            for (int i = k * k; i-- >= 0;) {
+                final long[] a = rng.longs(size).toArray();
+                final int[] indices = s.sample();
+                builder.add(Arguments.of(a, indices));
+            }
+        }
+        return builder.build();
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort4Internal"})
+    void testLongLowerMedian4Internal(long[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        final int d = indices[3];
+        assertMedian(values, x -> {
+            Sorting.lowerMedian4(x, a, b, c, d);
+            return b;
+        }, true, false, indices);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort4Internal"})
+    void testLongUpperMedian4Internal(long[] values, int[] indices) {
+        final int a = indices[0];
+        final int b = indices[1];
+        final int c = indices[2];
+        final int d = indices[3];
+        assertMedian(values, x -> {
+            Sorting.upperMedian4(x, a, b, c, d);
+            return c;
+        }, false, false, indices);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort4"})
+    void testLongLowerMedian4(long[] a) {
+        // This method computes in place
+        assertMedian(a, x -> {
+            Sorting.lowerMedian4(x, 0, 1, 2, 3);
+            return 1;
+        }, true, true, 0, 1, 2, 3);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = {"testLongSort4"})
+    void testLongUpperMedian4(long[] a) {
+        // This method computes in place
+        assertMedian(a, x -> {
+            Sorting.upperMedian4(x, 0, 1, 2, 3);
+            return 2;
+        }, false, true, 0, 1, 2, 3);
+    }
+
+    /**
+     * Assert that the median {@code function} computes the same result as
+     * {@link Arrays#sort(long[])} run on the provided {@code indices}.
+     *
+     * @param values Data.
+     * @param function Sort function.
+     * @param lower For even lengths use the lower median; else the upper median.
+     * @param stable If true then no swaps should be made on the second pass.
+     * @param indices Indices.
+     */
+    private static void assertMedian(long[] values, ToIntFunction<long[]> function,
+        boolean lower, boolean stable, int... indices) {
+        Assertions.assertFalse(containsDuplicates(indices), () -> "Duplicate indices: " + Arrays.toString(indices));
+        // Pick out the data to sort
+        final long[] expected = extractIndices(values, indices);
+        Arrays.sort(expected);
+        final long[] data = values.clone();
+        final int m = function.applyAsInt(data);
+        Assertions.assertEquals(expected[(lower ? -1 : 0) + (expected.length >>> 1)], data[m]);
+        // Check outside the sorted indices
+        OUTSIDE: for (int i = 0; i < values.length; i++) {
+            for (final int ignore : indices) {
+                if (i == ignore) {
+                    continue OUTSIDE;
+                }
+            }
+            Assertions.assertEquals(values[i], data[i]);
+        }
+        // This is not a strict requirement but check that no swaps occur on a second pass
+        if (stable) {
+            final long[] x = data.clone();
+            final int m2 = function.applyAsInt(data);
+            Assertions.assertEquals(m, m2);
+            Assertions.assertArrayEquals(x, data);
+        }
+    }
+
+
+    static Stream<long[]> testLongSort4() {
+        final Stream.Builder<long[]> builder = Stream.builder();
+        final long[] a = new long[4];
+        // Permutations is 4! = 24
+        final int shift = 42;
+        for (int i = 0; i < 4; i++) {
+            a[0] = i + shift;
+            for (int j = 0; j < 4; j++) {
+                if (j == i) {
+                    continue;
+                }
+                a[1] = j + shift;
+                for (int k = 0; k < 4; k++) {
+                    if (k == j || k == i) {
+                        continue;
+                    }
+                    a[2] = k + shift;
+                    for (int l = 0; l < 4; l++) {
+                        if (l == k || l == j || l == i) {
+                            continue;
+                        }
+                        a[3] = l + shift;
+                        builder.add(a.clone());
+                    }
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    static Stream<Arguments> testLongSort4Internal() {
+        final int k = 4;
+        final Stream.Builder<Arguments> builder = Stream.builder();
+        final UniformRandomProvider rng = RandomSource.XO_SHI_RO_128_PP.create();
+        for (final int size : new int[] {k, 2 * k, 4 * k}) {
+            final PermutationSampler s = new PermutationSampler(rng, size, k);
+            for (int i = k * k; i-- >= 0;) {
+                final long[] a = rng.longs(size).toArray();
+                final int[] indices = s.sample();
+                builder.add(Arguments.of(a, indices));
+            }
+        }
+        return builder.build();
+    }
+
+    private static long[] extractIndices(long[] values, int[] indices) {
+        final long[] data = new long[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            data[i] = values[indices[i]];
+        }
+        return data;
+    }
+
     // Sorting unique indices
 
     @ParameterizedTest
