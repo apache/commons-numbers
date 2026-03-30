@@ -17,6 +17,7 @@
 package org.apache.commons.numbers.core;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
@@ -131,8 +133,9 @@ class DDTest {
      * to rounding to 2^53 so we have extra cases for this.
      */
     @ParameterizedTest
-    @ValueSource(longs = {0, 1, 42, 89545664, 8263492364L, Long.MIN_VALUE,
-        Long.MAX_VALUE - (1L << 10), Long.MAX_VALUE - 42, Long.MAX_VALUE - 1, Long.MAX_VALUE})
+    @ValueSource(longs = {0, 1, 42, 89545664, 8263492364L,
+        Long.MAX_VALUE - (1L << 10), Long.MAX_VALUE - 42, Long.MAX_VALUE - 1, Long.MAX_VALUE,
+        Long.MIN_VALUE})
     void testOfLong(long x) {
         DD dd = DD.of(x);
         Assertions.assertEquals(x, dd.hi(), "x hi should be (double) x");
@@ -140,6 +143,38 @@ class DDTest {
         dd = DD.of(-x);
         Assertions.assertEquals(-x, dd.hi(), "-x hi should be (double) -x");
         Assertions.assertEquals(BigDecimal.valueOf(-x).subtract(bd(-x)).doubleValue(), dd.lo(), "-x lo should be remaining bits");
+    }
+
+    /**
+     * Test conversion of an unsigned {@code long}.
+     */
+    @ParameterizedTest
+    @ValueSource(longs = {0, 1, 42, 89545664, 8263492364L,
+        -1, -42, -89545664, -8263492364L,
+        Long.MAX_VALUE - (1L << 10), Long.MAX_VALUE - 42, Long.MAX_VALUE - 1, Long.MAX_VALUE,
+        Long.MIN_VALUE + (1L << 10), Long.MIN_VALUE + 42, Long.MIN_VALUE + 1, Long.MIN_VALUE})
+    @MethodSource
+    void testOfUnsignedLong(long x) {
+        final DD dd = DD.ofUnsigned(x);
+        Assertions.assertTrue(dd.hi() >= 0, "x hi should be positive");
+        // Create the exact unsigned value
+        final BigInteger xx;
+        if (x < 0) {
+            // 63-bits plus 2^63
+            xx = BigInteger.valueOf(x & Long.MAX_VALUE).or(BigInteger.ONE.shiftLeft(63));
+        } else {
+            xx = BigInteger.valueOf(x);
+        }
+        final BigDecimal expected = new BigDecimal(xx);
+        final double hi = expected.doubleValue();
+        final double lo = expected.subtract(bd(hi)).doubleValue();
+        Assertions.assertEquals(hi, dd.hi(), "x hi");
+        Assertions.assertEquals(lo, dd.lo(), "x lo");
+    }
+
+    static LongStream testOfUnsignedLong() {
+        // Random
+        return createRNG().longs(10);
     }
 
     @ParameterizedTest

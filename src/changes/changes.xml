@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.3" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="add">
+        "DD": Allow creation from an unsigned long value.
+      </action>
       <action dev="aherbert" type="add" issue="NUMBERS-208">
         "Selection": Add support for selection from a long array.
       </action>

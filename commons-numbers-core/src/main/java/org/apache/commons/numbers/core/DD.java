@@ -362,6 +362,33 @@ public final class DD
     }
 
     /**
+     * Creates the double-double number using the argument {@code x} as an unsigned
+     * 64-bit integer.
+     *
+     * <p>Note this method preserves all 64-bits of precision. It can be used to
+     * represent the positive difference between two ordered {@code long} values
+     * without using {@link DD#subtract(DD)}.
+     *
+     * <p>Given two {@code long} values {@code a <= b} the following are equivalent:
+     * <pre>
+     * DD.of(b).subtract(DD.of(a))
+     *
+     * DD.ofUnsigned(b - a)
+     * </pre>
+     *
+     * @param x Value.
+     * @return the double-double
+     */
+    public static DD ofUnsigned(long x) {
+        // Similar to of(long) but the high part is composed as an unsigned double
+        final long a = x & HIGH32_MASK;
+        final long b = x - a;
+        // Convert the unsigned magnitude to a double
+        final double aa = (a >>> 1) * 2.0;
+        return fastTwoSum(aa, b);
+    }
+
+    /**
      * Creates the double-double number {@code (z, zz)} using the {@code double} representation
      * of the argument {@code x}; the low part is the {@code double} representation of the
      * round-off error.
