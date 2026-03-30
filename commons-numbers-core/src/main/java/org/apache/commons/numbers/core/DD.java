@@ -325,7 +325,7 @@ public final class DD
     /**
      * Creates the double-double number as the value {@code (x, 0)}.
      *
-     * <p>Note this method exists to avoid using {@link #of(long)} for {@code integer}
+     * <p>Note this method exists to avoid using {@link #of(long)} for {@code int}
      * arguments; the {@code long} variation is slower as it preserves all 64-bits
      * of information.
      *
@@ -363,13 +363,36 @@ public final class DD
 
     /**
      * Creates the double-double number using the argument {@code x} as an unsigned
-     * 64-bit integer.
+     * 32-bit integer. Equivalent to:
      *
-     * <p>Note this method preserves all 64-bits of precision. It can be used to
-     * represent the positive difference between two ordered {@code long} values
-     * without using {@link DD#subtract(DD)}.
+     * <pre>
+     * DD.of((double) Integer.toUnsignedLong(x))
+     * </pre>
+     *
+     * <p>Note this method exists to avoid using {@link #ofUnsigned(long)} for {@code int}
+     * arguments as sign extension on negative values will generate an incorrect result.
+     *
+     * @param x Value.
+     * @return the double-double
+     */
+    public static DD ofUnsigned(int x) {
+        return new DD(Integer.toUnsignedLong(x), 0);
+    }
+
+    /**
+     * Creates the double-double number using the argument {@code x} as an unsigned 64-bit
+     * integer.
+     *
+     * <p>Zero and positive values are mapped to a numerically equal double-double value;
+     * and negative values are mapped to a value equal to the positive {@code long} value
+     * of the low order 63-bits plus 2<sup>63</sup>.
+     *
+     * <p>Note this method preserves all 64-bits of precision. It can be used to represent
+     * the positive difference between two ordered {@code long} values without using
+     * {@link DD#subtract(DD)}.
      *
      * <p>Given two {@code long} values {@code a <= b} the following are equivalent:
+     *
      * <pre>
      * DD.of(b).subtract(DD.of(a))
      *

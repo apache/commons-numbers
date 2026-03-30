@@ -27,7 +27,6 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
@@ -146,6 +145,28 @@ class DDTest {
     }
 
     /**
+     * Test conversion of an unsigned {@code int}.
+     */
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 42, 89545664,
+        -1, -42, -89545664,
+        Integer.MAX_VALUE - (1 << 10), Integer.MAX_VALUE - 42, Integer.MAX_VALUE - 1, Integer.MAX_VALUE,
+        Integer.MIN_VALUE + (1 << 10), Integer.MIN_VALUE + 42, Integer.MIN_VALUE + 1, Integer.MIN_VALUE})
+    @MethodSource
+    void testOfUnsignedInt(int x) {
+        final DD dd = DD.ofUnsigned(x);
+        Assertions.assertTrue(dd.hi() >= 0, "x hi should be positive");
+        final double expected = Integer.toUnsignedLong(x);
+        Assertions.assertEquals(expected, dd.hi(), "x hi");
+        Assertions.assertEquals(0, dd.lo(), "x lo");
+    }
+
+    static int[] testOfUnsignedInt() {
+        // Random
+        return createRNG().ints(10).toArray();
+    }
+
+    /**
      * Test conversion of an unsigned {@code long}.
      */
     @ParameterizedTest
@@ -172,9 +193,9 @@ class DDTest {
         Assertions.assertEquals(lo, dd.lo(), "x lo");
     }
 
-    static LongStream testOfUnsignedLong() {
+    static long[] testOfUnsignedLong() {
         // Random
-        return createRNG().longs(10);
+        return createRNG().longs(10).toArray();
     }
 
     @ParameterizedTest

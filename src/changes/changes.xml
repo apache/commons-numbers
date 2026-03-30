@@ -57,7 +57,7 @@ If the output is not quite correct, check for invisible trailing spaces!
 New features, updates and bug fixes.
 ">
       <action dev="aherbert" type="add">
-        "DD": Allow creation from an unsigned long value.
+        "DD": Allow creation from an unsigned int or long value.
       </action>
       <action dev="aherbert" type="add" issue="NUMBERS-208">
         "Selection": Add support for selection from a long array.
