@@ -374,6 +374,7 @@ public final class DD
      *
      * @param x Value.
      * @return the double-double
+     * @since 1.3
      */
     public static DD ofUnsigned(int x) {
         return new DD(Integer.toUnsignedLong(x), 0);
@@ -401,6 +402,7 @@ public final class DD
      *
      * @param x Value.
      * @return the double-double
+     * @since 1.3
      */
     public static DD ofUnsigned(long x) {
         // Similar to of(long) but the high part is composed as an unsigned double
