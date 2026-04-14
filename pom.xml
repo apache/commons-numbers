@@ -348,10 +348,8 @@
           <archive combine.children="append">
             <manifestEntries>
               <Automatic-Module-Name>${commons.module.name}</Automatic-Module-Name>
-              <!-- Add entries from CP that are not inherited (for reasons unknown).
-                   Replace ${implementation.build} property with the unique git build number. -->
+              <!-- Add entries from CP that are not inherited (for reasons unknown). -->
               <Implementation-Vendor-Id>org.apache</Implementation-Vendor-Id>
-              <Implementation-Build>${buildNumber}; ${maven.build.timestamp}</Implementation-Build>
               <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
               <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
             </manifestEntries>
