@@ -295,12 +295,12 @@
           Below should agree with config in <reporting> section, so the site
           gets consistent output.
         -->
-          <excludes combine.children="append">
+          <inputExcludes>
             <exclude>src/test/resources/data/**</exclude>
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
             <exclude>**/site-content/**</exclude>
-          </excludes>
+          </inputExcludes>
         </configuration>
       </plugin>
       <plugin>
@@ -360,12 +360,12 @@
         <version>${commons.rat.version}</version>
         <configuration>
          <!--  Should agree with apache-rat-plugin config under <build> -->
-          <excludes combine.children="append">
+          <inputExcludes>
             <exclude>src/test/resources/data/**</exclude>
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
             <exclude>**/site-content/**</exclude>
-          </excludes>
+          </inputExcludes>
         </configuration>
       </plugin>
       <plugin>
