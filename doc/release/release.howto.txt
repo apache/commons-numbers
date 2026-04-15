@@ -547,19 +547,7 @@ Create and upload the other distribution files to the Apache servers.
 to the "dist dev" area of the svn repository.  However, for multi-module
 maven projects, the site is incomplete.]
 
-As the web site staging area is shared among all commons components and therefore
-could be published before the vote ends, it is not recommended to use the standard
-staging area for the release candidate. So you will just archive the site and
-transfer it to your apache personal area for review.
-Here is how to do this using "lftp" to initiate the sftp transfer. "lftp" supports
-a mirror command for recursive transfers; don't forget the -R flag for uploading
-instead of downloading the site.
-If you haven't setup your login on home.apache.org you will need to go to
-  https://id.apache.org/
-login and copy the contents of your
-  ~/.ssh/id_rsa.pub
-file to "SSH Key (authorized_keys line)".
-Then run these commands:
+Generate the multi-module site for the web site staging area.
 
   Note: Site generation requires Java 11 for the examples JMH module.
   With site generation the 'package' goal is required for the site report
@@ -575,20 +563,27 @@ Then run these commands:
   can be created by copying the element-list. This is only required for the Java 8
   modules:
 
-  $ find . -name element-list -execdir cp {} package-list \;
+  $ find target/staging -name element-list -execdir cp {} package-list \;
 
   $ cd target
   $ mv staging commons-numbers-1.2-RC1-site
-  $ lftp sftp://__Your_apache_login__@home.apache.org
-     lftp you@home.apache.org:~> mkdir public_html
-     lftp you@home.apache.org:~> cd public_html
-     lftp you@home.apache.org:~/public_html> mirror -R commons-numbers-1.2-RC1-site
-     lftp you@home.apache.org:~/public_html> bye
 
-If lftp fails with 'Fatal error: Host key verification failed.' then the host
-key for home.apache.org may have changed. Try to ssh to the server. This will be
-refused as only ftp connections are allowed but the error message should
-describe how to update the SSH known hosts to remove the error.
+  Checkout the dev staging area. This assumes that the site folder was removed in
+  validation steps performed in step (12):
+
+  $ svn checkout https://dist.apache.org/repos/dist/dev/commons/numbers --depth immediates
+  $ cd numbers/1.2-RC1
+
+  Update the site folder:
+
+  $ cp -pR [path/to/]commons-numbers-1.2-RC1-site site
+  $ svn add site
+  $ svn commit -m "Site files for Commons Numbers v1.2 (RC1)."
+
+Wait for the files to sync and validate the site at:
+
+  https://dist.apache.org/repos/dist/dev/commons/numbers/1.2-RC1/site
+
 
 (14)
 [NOTE: The "Commons release-plugin" can generate the text for the "[VOTE]"
