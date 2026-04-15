@@ -25,6 +25,9 @@ limitations under the License.
       <table>
         <tr><th>Version</th><th>Release date (YYYY-MM-DD)</th><th>Required Java Version</th><th>Release notes</th></tr>
         <tr>
+          <td>1.3</td><td>2026-04-20</td><td>8+</td><td><a href="release-notes/RELEASE-NOTES-1.3.txt">release notes for 1.3</a></td>
+        </tr>
+        <tr>
           <td>1.2</td><td>2024-08-12</td><td>8+</td><td><a href="release-notes/RELEASE-NOTES-1.2.txt">release notes for 1.2</a></td>
         </tr>
         <tr>

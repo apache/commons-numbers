@@ -25,7 +25,7 @@
   </parent>
 
   <artifactId>commons-numbers-parent</artifactId>
-  <version>1.3-SNAPSHOT</version>
+  <version>1.3</version>
   <packaging>pom</packaging>
   <name>Apache Commons Numbers</name>
   <description>The Apache Commons Numbers project provides number types and utilities.</description>
@@ -47,7 +47,7 @@
     <!-- This flag should only be true in the dist-archive module. -->
     <commons.release.isDistModule>false</commons.release.isDistModule>
     <!-- Reproducible builds: maven-artifact-plugin:check-buildplan -->
-    <numbers.build.outputTimestamp>2024-08-12T00:00:00Z</numbers.build.outputTimestamp>
+    <numbers.build.outputTimestamp>2026-04-15T00:00:00Z</numbers.build.outputTimestamp>
     <project.build.outputTimestamp>${numbers.build.outputTimestamp}</project.build.outputTimestamp>
     <!-- do not use snapshot suffix here -->
     <commons.release.version>1.3</commons.release.version>
