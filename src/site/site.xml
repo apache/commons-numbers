@@ -49,7 +49,7 @@
   <custom>
     <!-- Custom properties controlling the commons-skin template. -->
     <commonsSkin>
-      <!-- 
+      <!--
         Convert preformatted source section tags to prettyprint:
           <div class="source"><pre> to <div class="source"><pre class="prettyprint">
       -->
