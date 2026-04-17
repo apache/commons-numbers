@@ -577,6 +577,10 @@ x == x + xx
   and <<<lo()>>> methods and the evaluated sum \( x + xx \) as <<<doubleValue()>>>.
 
   The <<<DD>>> class is immutable. Instances are constructed with factory methods.
+  Methods to create a <<<DD>>> that are exact use the prefix <<<of>>>. Methods
+  that create the closest possible representation use the prefix <<<from>>>. These methods
+  may suffer a possible loss of precision during conversion.
+
   A <<<DD>>> can be constructed from a <<<double>>>, <<<int>>> or <<<long>>> primitive. In the
   case of a <<<long>>> this maintains the full 64-bits of information; this is not possible
   when using implicit type conversion to a <<<double>>>. These conversions can be reversed
@@ -590,6 +594,19 @@ DD.of(x).doubleValue()  // = x
 DD.of(y).intValue()     // = y
 DD.of(z).longValue()    // = z
                         // (long) (double) z != z
++------------------------------------------+
+
+  A <<<DD>>> can be constructed from an <<unsigned>> <<<int>>> or <<<long>>> primitive. These
+  conversions use the low order 31 or 63 bits of the number and the sign bit is used to
+  represent 2 to the power of 31 or 63 respectively. The operations are <not> the same
+  as using the <absolute> value of the primitive. Note that these operations cannot be
+  reversed to the original <<signed>> primitive.
+
++------------------------------------------+
+int    x = -42;
+long   y = -8564728970587006436L;
+DD.ofUnsigned(x).longValue()    // = Integer.toUnsignedLong(x)
+DD.ofUnsigned(y).doubleValue()  // = (double) (y & Long.MAX_VALUE) + Math.pow(2, 63)
 +------------------------------------------+
 
   The <<<DD>>> class can be created as the result of a <<<double>>> operation and the round-off

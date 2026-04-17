@@ -153,6 +153,15 @@ class UserGuideTest {
     }
 
     @Test
+    void testDD1a() {
+        int    x = -42;
+        long   y = -8564728970587006436L;
+        Assertions.assertEquals(Integer.toUnsignedLong(x), DD.ofUnsigned(x).longValue());
+        Assertions.assertEquals((double) (y & Long.MAX_VALUE) + Math.pow(2, 63),
+                                DD.ofUnsigned(y).doubleValue());
+    }
+
+    @Test
     void testDD2() {
         BigDecimal pi = new BigDecimal("3.14159265358979323846264338327950288419716939937510");
         DD x = DD.from(pi);

@@ -374,6 +374,7 @@ public final class DD
      *
      * @param x Value.
      * @return the double-double
+     * @see Integer#toUnsignedLong(int)
      * @since 1.3
      */
     public static DD ofUnsigned(int x) {
