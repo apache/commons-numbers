@@ -208,6 +208,50 @@ c.toMulti(50)     // [ 1,  0]
 c.toMulti(4999)   // [99, 49]
 +------------------------------------------+
 
+  The <<<Selection>>> class provides partial sorting of an array. Selection arranges elements
+  such that indices <<<k>>> correspond to their correctly sorted value in the equivalent fully
+  sorted array. Selection is the same as performing a sort and stopping early when all the desired
+  positions are correctly ordered. In most cases of unordered data, selection will perform faster
+  than a full sort when only some indices from a sorted array are required.
+
+  The following example shows how partial ordering of the elements occurs for selection
+  of indices <<<4>>> or <<<[4, 8]>>> from an array:
+
++------------------------------------------+
+data    [0, 1, 2, 1, 2, 5, 2, 3, 3, 6, 7, 7, 7, 7]
+
+k=4   : [0, 2, 1, 1], [2], [6, 3, 2, 3, 5, 7, 7, 7, 7]
+k=4,8 : [0, 1, 2, 1], [2], [3, 3, 2], [5], [7, 7, 6, 7, 7]
++------------------------------------------+
+
+  Note:
+
+    * The algorithm does not require that all data with a value equal to
+      the target index are ordered consecutively in a range containing the target index.
+
+    * The algorithm may reorder any part of the array above and below the target indices.
+
+    * Correct usage for multiple target indices should <<not>> call multiple times with each
+      index but instead call selection only once with all indices. Use of consecutive
+      calls can reorder previously selected indices.
+
+    * Calls with multiple indices are more efficient if the indices are ordered
+      but the method will accept unordered and duplicate indices.
+
+  The equivalent in code is:
+
++------------------------------------------+
+int[] data = {0, 1, 2, 1, 2, 5, 2, 3, 3, 6, 7, 7, 7, 7};
+
+Selection.select(data, 4);                 // data[4] == 2
+Selection.select(data, new int[] {4, 8});  // data[4] == 2, data[8] == 5
++------------------------------------------+
+
+  Selection is performed in-place and operates on <<<int>>>, <<<long>>> or <<<double>>>
+  arrays. Selection is used in
+  {{{https://commons.apache.org/proper/commons-statistics/}commons-statistics}} to compute
+  the median and quantiles of numeric array data.
+
 Combinatorics
 
   The {{{../commons-numbers-combinatorics/index.html}commons-numbers-combinatorics}} module

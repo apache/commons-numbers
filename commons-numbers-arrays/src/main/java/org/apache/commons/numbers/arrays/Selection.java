@@ -34,15 +34,28 @@ package org.apache.commons.numbers.arrays;
  * data    [0, 1, 2, 1, 2, 5, 2, 3, 3, 6, 7, 7, 7, 7]
  *
  *
- * k=4   : [0, 1, 2, 1], [2], [5, 2, 3, 3, 6, 7, 7, 7, 7]
- * k=4,8 : [0, 1, 2, 1], [2], [3, 3, 2], [5], [6, 7, 7, 7, 7]
+ * k=4   : [0, 2, 1, 1], [2], [6, 3, 2, 3, 5, 7, 7, 7, 7]
+ * k=4,8 : [0, 1, 2, 1], [2], [3, 3, 2], [5], [7, 7, 6, 7, 7]
  * </pre>
  *
- * <p>This implementation can select on multiple indices and will handle duplicate and
+ * <p>Notes:
+ *
+ * <ul>
+ * <li>The algorithm does not require that all data with a value equal to the target index
+ *     are ordered consecutively in a range containing the target index.
+ * <li>The algorithm may reorder any part of the array above and below the target indices.
+ * <li>Correct usage for multiple target indices should not call multiple times with each
+ *     index but instead call selection only once with all indices. Use of consecutive calls
+ *     can reorder previously selected indices.
+ * </ul>
+ *
+ * <p>Selection on multiple indices will handle duplicate and
  * unordered indices. The method detects ordered indices (with or without duplicates) and
  * uses this during processing. Passing ordered indices is recommended if the order is already
  * known; for example using uniform spacing through the array data, or to select the top and
  * bottom {@code n} values from the data.
+ *
+ * <p>Implementation details
  *
  * <p>A quickselect adaptive method is used for single indices. This uses analysis of the
  * partition sizes after each division to update the algorithm mode. If the partition

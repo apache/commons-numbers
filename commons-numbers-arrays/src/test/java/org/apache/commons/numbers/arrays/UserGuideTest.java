@@ -56,4 +56,16 @@ class UserGuideTest {
         Assertions.assertArrayEquals(new int[] {1, 0}, c.toMulti(50));
         Assertions.assertArrayEquals(new int[] {99, 49}, c.toMulti(4999));
     }
+
+    @Test
+    void testSelection1() {
+        int[] data = {0, 1, 2, 1, 2, 5, 2, 3, 3, 6, 7, 7, 7, 7};
+
+        Selection.select(data, 4);
+        Assertions.assertEquals(2, data[4]);
+
+        Selection.select(data, new int[] {4, 8});
+        Assertions.assertEquals(2, data[4]);
+        Assertions.assertEquals(5, data[8]);
+    }
 }
