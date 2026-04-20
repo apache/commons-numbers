@@ -291,10 +291,10 @@
           gets consistent output.
         -->
           <inputExcludes>
-            <exclude>src/test/resources/data/**</exclude>
-            <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
-            <exclude>dist-archive/**</exclude>
-            <exclude>**/site-content/**</exclude>
+            <inputExclude>src/test/resources/data/**</inputExclude>
+            <inputExclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</inputExclude>
+            <inputExclude>dist-archive/**</inputExclude>
+            <inputExclude>**/site-content/**</inputExclude>
           </inputExcludes>
         </configuration>
       </plugin>
@@ -356,10 +356,10 @@
         <configuration>
          <!--  Should agree with apache-rat-plugin config under <build> -->
           <inputExcludes>
-            <exclude>src/test/resources/data/**</exclude>
-            <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
-            <exclude>dist-archive/**</exclude>
-            <exclude>**/site-content/**</exclude>
+            <inputExclude>src/test/resources/data/**</inputExclude>
+            <inputExclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</inputExclude>
+            <inputExclude>dist-archive/**</inputExclude>
+            <inputExclude>**/site-content/**</inputExclude>
           </inputExcludes>
         </configuration>
       </plugin>
