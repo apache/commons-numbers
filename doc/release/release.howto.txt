@@ -883,14 +883,18 @@ in the SVN repository.
   => check you have not downgraded other components - fix their doap file and repeat
   > svn commit conf doap -m 'Regenerated component releases'
 
+  Note: The commons-site-build.sh script executes python3 and requires the requests
+  library to be installed.
+
   > commons-site-build.sh
   > svn diff target/site
   > svn commit target/site -m 'Update the staging site prior to deployment'
   => inspect at https://svn.apache.org/repos/infra/websites/staging/commons/trunk/content/index.html
 
+  The following will publish the site by generating commons-site-publish.svnmucc and
+  executing it using svnmucc (Subversion Multiple URL Command Client):
+
   > commons-site-publish.sh
-  => inspect target/commons-site-publish.svnmucc
-  => Run svnmucc command printed by the script
 
 (22)
 In the git repository, put the official final tag to point at the same commit
