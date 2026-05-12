@@ -524,7 +524,7 @@ public final class DD
     /**
      * Returns a {@code DD} whose value is {@code (x * x)}.
      *
-     * <p>This method is an optimisation of {@link #ofProduct(double, double) multiply(x, x)}.
+     * <p>This method is an optimisation of {@link #ofProduct(double, double) ofProduct(x, x)}.
      * See that method for details of special cases.
      *
      * <p>An invalid result can be identified using {@link #isFinite()}.
