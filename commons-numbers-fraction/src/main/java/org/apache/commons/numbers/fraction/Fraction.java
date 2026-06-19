@@ -125,7 +125,7 @@ public final class Fraction
      * NOTE: This constructor is called with:
      * <ul>
      *  <li>EITHER a valid epsilon value and the maxDenominator set to
-     *      Integer.MAX_VALUE (that way the maxDenominator has no effect)</li>
+     *      Integer.MIN_VALUE (that way the maxDenominator has no effect)</li>
      *  <li>OR a valid maxDenominator value and the epsilon value set to
      *      zero (that way epsilon only has effect if there is an exact
      *      match before the maxDenominator value is reached).</li>
