@@ -64,7 +64,7 @@ class UserGuideTest {
     void testQuaternion4() {
         Quaternion q1 = Quaternion.of(1, 2, 3, 4);
         Quaternion q2 = Quaternion.of(1, 2, 3, 4 + 1e-10);
-        Assertions.assertFalse(q1.equals(q2));
+        Assertions.assertNotEquals(q1, q2);
         Assertions.assertTrue(q1.equals(q2, 1e-9));
     }
 
