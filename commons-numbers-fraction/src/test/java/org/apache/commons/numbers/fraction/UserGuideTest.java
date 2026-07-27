@@ -57,7 +57,7 @@ class UserGuideTest {
         Fraction f2 = Fraction.of(15, -16);
 
         Assertions.assertEquals(-1, f1.signum());
-        Assertions.assertTrue(f1.equals(f2));
+        Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(0, f1.compareTo(f2));
         Assertions.assertEquals(-1, f1.compareTo(Fraction.ZERO));
 
