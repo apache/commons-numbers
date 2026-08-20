@@ -49,10 +49,6 @@ jobs:
         server-password: NEXUS_PW # env variable for token in deploy
     - name: Build with Maven
       # Use the default goal
-      if: matrix.java == 8
-      env:
-        NEXUS_USER: ${{ secrets.NEXUS_USER }}
-        NEXUS_PW: ${{ secrets.NEXUS_PW }}
       run: mvn --show-version --batch-mode --no-transfer-progress
     - name: Deploy SNAPSHOT
       # must run directly after 'Build with Maven'
