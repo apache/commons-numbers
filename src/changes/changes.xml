@@ -56,6 +56,11 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" due-to="Security scan, Alex Herbert" issue="NUMBERS-209">
+        "Trigamma": Avoid an infinite loop on large negative arguments. All negative
+        arguments are now computed using the reflection formula to map the computation
+        to a positive argument.
+      </action>
     </release>
 
     <release version="1.3" date="2026-04-20" description="

@@ -51,6 +51,23 @@ public final class Trigamma {
             return x;
         }
 
+        if (x < 0) {
+            // Use the reflection formula:
+            // trigamma(x) + trigamma(1 - x) = pi^2 / sin^2(pi * x)
+            // to fall back into positive values. Without this the increment
+            // loop below does not terminate for large negative x: when
+            // ulp(x) >= 2 the update x += 1 leaves x unchanged (or advances
+            // a single step and then sticks) and x < C_LIMIT holds forever.
+
+            // negative integers are poles
+            if (Math.rint(x) == x) {
+                return Double.POSITIVE_INFINITY;
+            }
+
+            final double s = Math.sin(Math.PI * x);
+            return Math.PI * Math.PI / (s * s) - value(1 - x);
+        }
+
         if (x > 0 && x <= S_LIMIT) {
             return 1 / (x * x);
         }
