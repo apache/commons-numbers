@@ -60,9 +60,26 @@ public class BrentSolver {
     public BrentSolver(double relativeAccuracy,
                        double absoluteAccuracy,
                        double functionValueAccuracy) {
-        checkAccuracy("relative", relativeAccuracy);
-        checkAccuracy("absolute", absoluteAccuracy);
-        checkAccuracy("function value", functionValueAccuracy);
+        this(checkAccuracy("relative", relativeAccuracy),
+             checkAccuracy("absolute", absoluteAccuracy),
+             checkAccuracy("function value", functionValueAccuracy),
+             false);
+    }
+
+    /**
+     * Private constructor which does not throw exceptions.
+     * This exists to raise an exception before invocation of the private constructor;
+     * this mitigates Finalizer attacks (see SpotBugs CT_CONSTRUCTOR_THROW).
+     *
+     * @param relativeAccuracy Relative accuracy.
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param functionValueAccuracy Function value accuracy.
+     * @param ignored Ignored flag.
+     */
+    private BrentSolver(double relativeAccuracy,
+                        double absoluteAccuracy,
+                        double functionValueAccuracy,
+                        boolean ignored) {
         this.relativeAccuracy = relativeAccuracy;
         this.absoluteAccuracy = absoluteAccuracy;
         this.functionValueAccuracy = functionValueAccuracy;
@@ -289,13 +306,15 @@ public class BrentSolver {
      *
      * @param name Name of the accuracy.
      * @param accuracy Accuracy.
+     * @return accuracy
      * @throws IllegalArgumentException if {@code accuracy} is NaN, infinite
      * or negative.
      */
-    private static void checkAccuracy(String name, double accuracy) {
+    private static double checkAccuracy(String name, double accuracy) {
         if (!(accuracy >= 0 && accuracy <= Double.MAX_VALUE)) {
             throw new SolverException(SolverException.INVALID_ACCURACY, name, accuracy);
         }
+        return accuracy;
     }
 
     /**
