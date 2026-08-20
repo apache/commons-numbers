@@ -31,6 +31,61 @@ class BrentSolverTest {
     private static final double DEFAULT_FUNCTION_ACCURACY = 1e-15;
 
     @Test
+    void testInvalidAccuracies() {
+        // The accuracies feed the convergence tolerance 2 * eps * abs(b) + t.
+        // A NaN accuracy makes every loop exit criterion false (an infinite
+        // loop); negative and infinite accuracies are meaningless. All must
+        // be rejected at construction.
+        for (final double bad : new double[] {Double.NaN, -1, -Double.MIN_VALUE,
+            Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new BrentSolver(bad, DEFAULT_ABSOLUTE_ACCURACY, DEFAULT_FUNCTION_ACCURACY),
+                () -> "relative accuracy: " + bad);
+            Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new BrentSolver(DEFAULT_RELATIVE_ACCURACY, bad, DEFAULT_FUNCTION_ACCURACY),
+                () -> "absolute accuracy: " + bad);
+            Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new BrentSolver(DEFAULT_RELATIVE_ACCURACY, DEFAULT_ABSOLUTE_ACCURACY, bad),
+                () -> "function value accuracy: " + bad);
+        }
+        // Zero accuracies remain supported (see testSubNormalBracket, NUMBERS-168).
+        Assertions.assertDoesNotThrow(() -> new BrentSolver(0, 0, 0));
+    }
+
+    @Test
+    void testNonFiniteBracketValue() {
+        final DoubleUnaryOperator f = x -> x;
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY, DEFAULT_ABSOLUTE_ACCURACY,
+            DEFAULT_FUNCTION_ACCURACY);
+        final SolverException ex = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(f, 0, Double.POSITIVE_INFINITY));
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("non-finite"));
+
+        final SolverException ex2 = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(f, Double.NEGATIVE_INFINITY, 0));
+        Assertions.assertNotEquals(-1, ex2.getMessage().indexOf("non-finite"));
+    }
+
+    @Test
+    void testNaNFunctionValue() {
+        // A function with a NaN "hole" strictly inside the bracket, e.g. from
+        // sqrt/log of an out-of-domain sub-expression. The solver must fail
+        // fast instead of degrading to a tolerance-sized step per evaluation
+        // (and possibly returning a point where the function value is NaN).
+        final DoubleUnaryOperator f = x -> {
+            if (x < 0.1) {
+                return -1;
+            }
+            return x < 0.4 ? Double.NaN : 1;
+        };
+        final BrentSolver solver = new BrentSolver(DEFAULT_RELATIVE_ACCURACY, DEFAULT_ABSOLUTE_ACCURACY,
+            DEFAULT_FUNCTION_ACCURACY);
+        final SolverException ex = Assertions.assertThrows(SolverException.class,
+            () -> solver.findRoot(f, 0, 0.05, 0.5));
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("NaN"));
+    }
+
+    @Test
     void testSinZero() {
         // The sinus function is behaved well around the root at pi. The second
         // order derivative is zero, which means linar approximating methods will

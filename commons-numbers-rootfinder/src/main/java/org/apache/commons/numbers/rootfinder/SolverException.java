@@ -26,6 +26,12 @@ class SolverException extends IllegalArgumentException {
     static final String OUT_OF_RANGE = "%s is out of range [%s, %s]";
     /** Error message for "failed bracketing" condition. */
     static final String BRACKETING = "No bracketing: f(%s)=%s, f(%s)=%s";
+    /** Error message for an invalid named solver accuracy. */
+    static final String INVALID_ACCURACY = "Invalid %s accuracy: %s";
+    /** Error message for a function evaluation of NaN. */
+    static final String NAN = "Function value at %s is NaN";
+    /** Error message for a named non-finite number. */
+    static final String NON_FINITE = "%s is non-finite: %s";
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190602L;

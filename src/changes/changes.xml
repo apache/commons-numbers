@@ -56,6 +56,12 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" due-to="Security scan, Alex Herbert" issue="NUMBERS-210">
+        "BrentSolver": Avoid non-convergence by validating the convergence accuracies
+        are positive and finite. Throw an exception if a function evaluation is NaN
+        as this invalidates the bracket update step. Vaidate the initial bracket [min, max]
+        has finite values.
+      </action>
       <action dev="aherbert" type="fix" due-to="Security scan, Alex Herbert" issue="NUMBERS-209">
         "Trigamma": Avoid an infinite loop on large negative arguments. All negative
         arguments are now computed using the reflection formula to map the computation

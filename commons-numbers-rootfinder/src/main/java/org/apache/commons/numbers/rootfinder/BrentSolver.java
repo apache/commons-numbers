@@ -46,13 +46,23 @@ public class BrentSolver {
     /**
      * Construct a solver.
      *
+     * <p>The accuracies must be finite and non-negative.
+     * Accuracies of zero are accepted, but the
+     * search may then only terminate when it finds a value within 1 ULP of
+     * zero.
+     *
      * @param relativeAccuracy Relative accuracy.
      * @param absoluteAccuracy Absolute accuracy.
      * @param functionValueAccuracy Function value accuracy.
+     * @throws IllegalArgumentException if any accuracy is NaN, infinite or
+     * negative.
      */
     public BrentSolver(double relativeAccuracy,
                        double absoluteAccuracy,
                        double functionValueAccuracy) {
+        checkAccuracy("relative", relativeAccuracy);
+        checkAccuracy("absolute", absoluteAccuracy);
+        checkAccuracy("function value", functionValueAccuracy);
         this.relativeAccuracy = relativeAccuracy;
         this.absoluteAccuracy = absoluteAccuracy;
         this.functionValueAccuracy = functionValueAccuracy;
@@ -61,15 +71,17 @@ public class BrentSolver {
     /**
      * Search the function's zero within the given interval.
      *
-     * @param func Function to solve.
+     * @param function Function to solve.
      * @param min Lower bound.
      * @param max Upper bound.
      * @return the root.
-     * @throws IllegalArgumentException if {@code min > max}.
+     * @throws IllegalArgumentException if {@code min > max}; or
+     * {@code min} or {@code max} are non-finite.
      * @throws IllegalArgumentException if the given interval does
      * not bracket the root.
+     * @throws IllegalArgumentException if the function evaluates as NaN.
      */
-    public double findRoot(DoubleUnaryOperator func,
+    public double findRoot(DoubleUnaryOperator function,
                            double min,
                            double max) {
         // Avoid overflow computing the initial value: 0.5 * (min + max)
@@ -78,27 +90,31 @@ public class BrentSolver {
         // if min is not the root within the configured function accuracy;
         // otherwise min is returned.
         final double initial = min == max ? min : 0.5 * min + 0.5 * max;
-        return findRoot(func, min, initial, max);
+        return findRoot(function, min, initial, max);
     }
 
     /**
      * Search the function's zero within the given interval,
      * starting from the given estimate.
      *
-     * @param func Function to solve.
+     * @param function Function to solve.
      * @param min Lower bound.
      * @param initial Initial guess.
      * @param max Upper bound.
      * @return the root.
-     * @throws IllegalArgumentException if {@code min > max} or
+     * @throws IllegalArgumentException if {@code min > max};
+     * {@code min} or {@code max} are non-finite; or
      * {@code initial} is not in the {@code [min, max]} interval.
      * @throws IllegalArgumentException if the given interval does
      * not bracket the root.
+     * @throws IllegalArgumentException if the function evaluates as NaN.
      */
-    public double findRoot(DoubleUnaryOperator func,
+    public double findRoot(DoubleUnaryOperator function,
                            double min,
                            double initial,
                            double max) {
+        checkFinite("min", min);
+        checkFinite("max", max);
         if (min > max) {
             throw new SolverException(SolverException.TOO_LARGE, min, max);
         }
@@ -106,6 +122,15 @@ public class BrentSolver {
             initial > max) {
             throw new SolverException(SolverException.OUT_OF_RANGE, initial, min, max);
         }
+
+        // A NaN invalidates convergence
+        final DoubleUnaryOperator func = x -> {
+            final double fx = function.applyAsDouble(x);
+            if (Double.isNaN(fx)) {
+                throw new SolverException(SolverException.NAN, x);
+            }
+            return fx;
+        };
 
         // Return the initial guess if it is good enough.
         final double yInitial = func.applyAsDouble(initial);
@@ -256,5 +281,33 @@ public class BrentSolver {
      */
     private static boolean equalsZero(double value) {
         return Math.abs(value) <= Double.MIN_VALUE;
+    }
+
+    /**
+     * Check the accuracy is finite and non-negative.
+     * Negative, infinite and NaN accuracies prevent valid convergence checks.
+     *
+     * @param name Name of the accuracy.
+     * @param accuracy Accuracy.
+     * @throws IllegalArgumentException if {@code accuracy} is NaN, infinite
+     * or negative.
+     */
+    private static void checkAccuracy(String name, double accuracy) {
+        if (!(accuracy >= 0 && accuracy <= Double.MAX_VALUE)) {
+            throw new SolverException(SolverException.INVALID_ACCURACY, name, accuracy);
+        }
+    }
+
+    /**
+     * Check the value is finite.
+     *
+     * @param name Name of the value.
+     * @param value Value.
+     * @throws IllegalArgumentException if {@code value} is NaN or infinite.
+     */
+    private static void checkFinite(String name, double value) {
+        if (!Double.isFinite(value)) {
+            throw new SolverException(SolverException.NON_FINITE, name, value);
+        }
     }
 }
