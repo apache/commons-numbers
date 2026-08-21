@@ -65,7 +65,7 @@ public final class MultidimensionalCounter {
      *
      * @param size Counter sizes (number of slots in each dimension).
      * @throws IllegalArgumentException if one of the sizes is negative
-     * or zero.
+     * or zero, or if the total size exceeds {@link Integer#MAX_VALUE}.
      */
     private MultidimensionalCounter(int... size) {
         dimension = size.length;
@@ -76,17 +76,23 @@ public final class MultidimensionalCounter {
         last = dimension - 1;
         uniCounterOffset[last] = 1;
 
-        int tS = 1;
+        // Compute the running products in long arithmetic.
+        // Each dimension is checked to be a positive int before
+        // multiplying by a representable int factor, so the long
+        // product cannot overflow.
+        long tS = 1;
         for (int i = last - 1; i >= 0; i--) {
             final int index = i + 1;
-            checkStrictlyPositive("index size", size[index]);
+            checkSizeStrictlyPositive(size[index]);
             tS *= size[index];
-            checkStrictlyPositive("cumulative size", tS);
-            uniCounterOffset[i] = tS;
+            checkSizeRepresentable(tS);
+            uniCounterOffset[i] = (int) tS;
         }
 
-        totalSize = tS * size[0];
-        checkStrictlyPositive("total size", totalSize);
+        checkSizeStrictlyPositive(size[0]);
+        final long total = tS * size[0];
+        checkSizeRepresentable(total);
+        totalSize = (int) total;
     }
 
     /**
@@ -95,7 +101,7 @@ public final class MultidimensionalCounter {
      * @param size Counter sizes (number of slots in each dimension).
      * @return a new instance.
      * @throws IllegalArgumentException if one of the sizes is negative
-     * or zero.
+     * or zero, or if the total size exceeds {@link Integer#MAX_VALUE}.
      */
     public static MultidimensionalCounter of(int... size) {
         return new MultidimensionalCounter(size);
@@ -193,12 +199,23 @@ public final class MultidimensionalCounter {
     /**
      * Check the size is strictly positive: {@code size > 0}.
      *
-     * @param name the name of the size
      * @param size the size
      */
-    private static void checkStrictlyPositive(String name, int size) {
+    private static void checkSizeStrictlyPositive(int size) {
         if (size <= 0) {
-            throw new IllegalArgumentException("Not positive " + name + ": " + size);
+            throw new IllegalArgumentException("Dimension size not strictly positive: " + size);
+        }
+    }
+
+    /**
+     * Check the size is representable as an {@code int}: {@code <= Integer.MAX_VALUE}.
+     * It is assumed the size is positive.
+     *
+     * @param size the size
+     */
+    private static void checkSizeRepresentable(long size) {
+        if (size > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Cumulative size too large: " + size);
         }
     }
 

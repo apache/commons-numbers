@@ -43,6 +43,30 @@ class MultidimensionalCounterTest {
     }
 
     @Test
+    void testSizeProductOverflow() {
+        // NUMBERS-212
+        // Size products that wrap modulo 2^32 back into positive range
+        // previously passed the constructor checks, creating an invalid counter.
+        // Total size wraps to +65536.
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> MultidimensionalCounter.of(65537, 65536));
+        // Total size 4294967298 wraps to +2.
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> MultidimensionalCounter.of(3, 1431655766));
+        // Cumulative (prefix) product wraps to +4, bypassing the per-step check.
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> MultidimensionalCounter.of(2, 1073741825, 4));
+        // Cumulative product 641 * 6700417 = 2^32 + 1 wraps to +1.
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> MultidimensionalCounter.of(1, 641, 6700417));
+        // The maximum representable total size is still accepted.
+        Assertions.assertEquals(Integer.MAX_VALUE,
+            MultidimensionalCounter.of(1, Integer.MAX_VALUE).getSize());
+        Assertions.assertEquals(Integer.MAX_VALUE,
+            MultidimensionalCounter.of(Integer.MAX_VALUE, 1).getSize());
+    }
+
+    @Test
     void testMulti2UniConversion() {
         final MultidimensionalCounter c = MultidimensionalCounter.of(2, 4, 5);
         Assertions.assertEquals(33, c.toUni(1, 2, 3));
