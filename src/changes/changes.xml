@@ -56,6 +56,11 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="update" due-to="Security scan, Alex Herbert" issue="NUMBERS-214">
+        "GeneralizedContinuedFraction": Lower the defaut iterations to 1_000_000. This
+        introduces a behavioural change for slowly converging fractions that may now
+        raise an ArithemticException due to non-convergence within the iteration limit.
+      </action>
       <action dev="aherbert" type="add" due-to="Alex Herbert" issue="NUMBERS-217">
         "BigFraction": Allow conversion to BigDecimal using a MathContext.
       </action>

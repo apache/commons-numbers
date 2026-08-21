@@ -240,6 +240,32 @@ class GeneralizedContinuedFractionTest {
         assertExceptionMessageContains(t, "max");
     }
 
+    /**
+     * Evaluate a fraction that neither converges nor diverges using the default
+     * iteration limit. The divergent form K(1/0) oscillates: the update deltaN
+     * alternates between approximately 1e50 and 1e-50 so the evaluation never
+     * meets the convergence, divergence or zero-update exit conditions. The
+     * default iteration limit must bound the work performed before the maximum
+     * iterations exception is raised.
+     */
+    @Test
+    void testDefaultIterationsBoundsNonConvergingFraction() {
+        final int[] calls = {0};
+        final Supplier<Coefficient> gen = () -> {
+            calls[0]++;
+            // The first term provides b0 to seed the evaluation (a is discarded).
+            // All subsequent terms (a=1, b=0) create a non-converging oscillation.
+            return Coefficient.of(1, calls[0] == 1 ? 1 : 0);
+        };
+        final Throwable t = Assertions.assertThrows(ArithmeticException.class,
+            () -> GeneralizedContinuedFraction.value(gen));
+        assertExceptionMessageContains(t, "max");
+        // 1 call to seed b0 + 1 call per iteration
+        Assertions.assertTrue(GeneralizedContinuedFraction.DEFAULT_ITERATIONS <= 1_000_000,
+            "Default iterations should bound worst-case evaluation cost");
+        Assertions.assertEquals(1 + GeneralizedContinuedFraction.DEFAULT_ITERATIONS, calls[0]);
+    }
+
     @Test
     void testNaNThrowsA() {
         // Create a NaN during the iteration

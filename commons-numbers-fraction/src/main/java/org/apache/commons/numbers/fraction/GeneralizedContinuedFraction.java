@@ -61,8 +61,16 @@ public final class GeneralizedContinuedFraction {
      * eps * |b_n|, e.g., 1e-50".
      */
     static final double SMALL = 1e-50;
-    /** Default maximum number of iterations. */
-    static final int DEFAULT_ITERATIONS = Integer.MAX_VALUE;
+    /**
+     * Default maximum number of iterations.
+     *
+     * <p>This bounds the cost of evaluating a fraction that neither converges nor
+     * diverges when using the methods that do not accept a {@code maxIterations}
+     * argument. The default is sufficient to converge typical fractions to
+     * {@code double} precision. Slowly converging fractions may be evaluated using
+     * the methods that accept a {@code maxIterations} argument to raise the limit.
+     */
+    static final int DEFAULT_ITERATIONS = 1_000_000;
     /**
      * Minimum relative error epsilon. Equal to 1 - Math.nextDown(1.0), or 2^-53.
      *
