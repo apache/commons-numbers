@@ -56,6 +56,11 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" due-to="Security scan, Alex Herbert" issue="NUMBERS-213">
+        "Selection": Fix silent modification of the sign of zeros outside the
+        [fromIndex, toIndex) range due to incorrectly restoring signs from the start
+        of the array.
+      </action>
       <action dev="aherbert" type="fix" due-to="Security scan, Alex Herbert" issue="NUMBERS-212">
         "MultidimensionalCounter": Any product of strictly positive dimension sizes
         equal or above 2^31 is rejected.

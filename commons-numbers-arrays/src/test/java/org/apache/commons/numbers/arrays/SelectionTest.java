@@ -562,6 +562,39 @@ class SelectionTest {
         }, false);
     }
 
+    /**
+     * Test that selection on a sub-range does not modify data outside the range
+     * {@code [fromIndex, toIndex)} when restoring signed zeros, and restores the
+     * negative zeros inside the range.
+     */
+    @Test
+    void testDoubleSelectRangeSignedZerosOutsideRangeUntouched() {
+        // A zero below the range must not be rewritten by the restoration scan
+        // when the range contains no negative values to fast-forward from.
+        final double[] a = {0.0, 0.0, -0.0};
+        Selection.select(a, 1, 3, 2);
+        Assertions.assertArrayEquals(new double[] {0.0, -0.0, 0.0}, a, "single k");
+        final double[] b = {0.0, 0.0, -0.0};
+        Selection.select(b, 1, 3, new int[] {1, 2});
+        Assertions.assertArrayEquals(new double[] {0.0, -0.0, 0.0}, b, "multiple k");
+    }
+
+    /**
+     * Test that selection on a sub-range does not modify data outside the range
+     * {@code [fromIndex, toIndex)} when restoring signed zeros using the
+     * fast-forward from sorted partition indices with values below zero.
+     */
+    @Test
+    void testDoubleSelectRangeSignedZerosFastForwardWithinRange() {
+        // Negative values inside the range: the fast-forward must use the
+        // partition index into the data, not the index into k, otherwise the
+        // restoration scan may start below fromIndex.
+        final double[] a = {0.0, 0.0, 0.0, 0.0, 7.0, -1.0, -0.0, 8.0, -3.0, -2.0};
+        Selection.select(a, 4, 10, new int[] {4, 5, 6, 7, 8, 9});
+        Assertions.assertArrayEquals(
+            new double[] {0.0, 0.0, 0.0, 0.0, -3.0, -2.0, -1.0, -0.0, 7.0, 8.0}, a);
+    }
+
     static void assertPartition(double[] values, int[] indices, DoublePartitionFunction function,
         boolean sortedRange) {
         final double[] data = values.clone();

@@ -242,8 +242,10 @@ public final class Selection {
 
         // Restore signed zeros
         if (cn != 0) {
-            // Use partition index below zero to fast-forward to zero as much as possible
-            for (int j = a[k] < 0 ? k : -1;;) {
+            // Use partition index below zero to fast-forward to zero as much as possible.
+            // The scan must start within the range to avoid modifying data
+            // outside [fromIndex, toIndex).
+            for (int j = a[k] < 0 ? k : fromIndex - 1;;) {
                 if (a[++j] == 0) {
                     a[j] = -0.0;
                     if (--cn == 0) {
@@ -311,8 +313,10 @@ public final class Selection {
 
         // Restore signed zeros
         if (cn != 0) {
-            // Use partition indices below zero to fast-forward to zero as much as possible
-            int j = -1;
+            // Use partition indices below zero to fast-forward to zero as much as possible.
+            // The scan must start within the range to avoid modifying data
+            // outside [fromIndex, toIndex).
+            int j = fromIndex - 1;
             if (n < 0) {
                 // Binary search on -n sorted indices: hi = (-n) - 1
                 int lo = 0;
@@ -320,7 +324,8 @@ public final class Selection {
                 while (lo <= hi) {
                     final int mid = (lo + hi) >>> 1;
                     if (a[k[mid]] < 0) {
-                        j = mid;
+                        // Track the index into the data, not the index into k
+                        j = k[mid];
                         lo = mid + 1;
                     } else {
                         hi = mid - 1;
