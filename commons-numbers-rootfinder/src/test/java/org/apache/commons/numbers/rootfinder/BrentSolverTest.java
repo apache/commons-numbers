@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.rootfinder;
 
+import java.time.Duration;
 import java.util.Locale;
 import java.util.function.DoubleUnaryOperator;
 
@@ -391,5 +392,24 @@ class BrentSolverTest {
         SolverException ex2 = Assertions.assertThrows(SolverException.class,
             () -> solver.findRoot(func1, lo, hi));
         Assertions.assertEquals(String.format(SolverException.TOO_LARGE, lo, hi), ex2.getMessage());
+    }
+
+    /**
+     * Test that the algorithm terminates when further iteration is not possible as the
+     * bracket is within machine accuracy of the root.
+     * See NUMBERS-211.
+     */
+    @Test
+    void testConvergenceToMachineAccuracy() {
+        // Degenerate accuracies below the resolution of double: the bracket
+        // shrinks to the adjacent doubles around sqrt(2) and can then never
+        // satisfy |0.5 * (c - b)| <= tol with tol = 1e-30. The solver must
+        // detect this and return instead of iterating forever.
+        final BrentSolver solver = new BrentSolver(0, 1e-30, 0);
+        final DoubleUnaryOperator f = x -> x * x - 2;
+        final double x = Assertions.assertTimeoutPreemptively(Duration.ofMillis(500),
+            () -> solver.findRoot(f, 1, 2), "Iterated too long");
+        final double expected = Math.sqrt(2.0);
+        Assertions.assertEquals(expected, x, Math.ulp(expected));
     }
 }

@@ -222,9 +222,14 @@ public class BrentSolver {
                 fc = fa;
             }
 
-            final double tol = 2 * eps * Math.abs(b) + t;
+            // NUMBERS-211: Allow convergence at machine tolerance
+            final double tol = Math.max(2 * eps * Math.abs(b) + t, Math.ulp(b));
             final double m = 0.5 * (c - b);
 
+            // |fb| <= |fc| and they have opposite signs (bracket the root).
+            // If a line is drawn between them, the midpoint will be
+            // of the opposite sign (or zero). If the distance to the midpoint is
+            // less than the tolerance, b is within tolerance to the root.
             if (Math.abs(m) <= tol ||
                 equalsZero(fb))  {
                 return b;
