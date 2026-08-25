@@ -37,14 +37,15 @@ public abstract class Angle implements DoubleSupplier {
     /** Value (unit depends on concrete instance). */
     private final double value;
 
-    /**
+    /** Create an instance.
      * @param value Value in turns.
      */
     Angle(final double value) {
         this.value = value;
     }
 
-    /** @return the value. */
+    /** {@inheritDoc}
+     * @return the value. */
     @Override
     public double getAsDouble() {
         return value;
@@ -301,7 +302,7 @@ public abstract class Angle implements DoubleSupplier {
             reduce = new Reduce(lo, period);
         }
 
-        /**
+        /** {@inheritDoc}
          * @param a Angle.
          * @return {@code = a - k} where {@code k} is an integer that satisfies
          * {@code lo <= a - k < lo + period}.

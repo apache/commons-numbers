@@ -47,7 +47,7 @@ public enum SortInPlace {
     /** Comparator. */
     private final Comparator<PairDoubleInteger> comparator;
 
-    /**
+    /** Create an instance.
      * @param comparator Comparator.
      */
     SortInPlace(Comparator<PairDoubleInteger> comparator) {
@@ -115,7 +115,7 @@ public enum SortInPlace {
         /** Value. */
         private final int value;
 
-        /**
+        /** Create an instance.
          * @param key Key.
          * @param value Value.
          */
@@ -125,12 +125,14 @@ public enum SortInPlace {
             this.value = value;
         }
 
-        /** @return the key. */
+        /** Get the key.
+         * @return the key. */
         double key() {
             return key;
         }
 
-        /** @return the value. */
+        /** Get the value.
+         * @return the value. */
         int value() {
             return value;
         }

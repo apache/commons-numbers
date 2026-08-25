@@ -47,7 +47,7 @@ final class KeyUpdatingInterval implements UpdatingInterval {
         this(indices, 0, n - 1);
     }
 
-    /**
+    /** Create an instance.
      * @param indices Indices.
      * @param l Index of left key.
      * @param r Index of right key.

@@ -102,7 +102,7 @@ public final class GeneralizedContinuedFraction {
         /** "b" coefficient. */
         private final double b;
 
-        /**
+        /** Create an instance.
          * @param a "a" coefficient
          * @param b "b" coefficient
          */

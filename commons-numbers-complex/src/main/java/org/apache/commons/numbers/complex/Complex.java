@@ -874,7 +874,9 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns a {@code Complex} whose value is:
+     * Compute the multiplication of two complex numbers.
+     *
+     * <p>Returns a {@code Complex} whose value is:
      * <pre>
      *  (a + i b)(c + i d) = (ac - bd) + i (ad + bc)</pre>
      *
@@ -1070,7 +1072,9 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns a {@code Complex} whose value is:
+     * Compute the division of two complex numbers.
+     *
+     * <p>Returns a {@code Complex} whose value is:
      * <pre>
      * <code>
      *   a + i b     (ac + bd) + i (bc - ad)

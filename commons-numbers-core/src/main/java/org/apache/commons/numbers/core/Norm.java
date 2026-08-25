@@ -82,7 +82,7 @@ public enum Norm {
     /** Function of 2 arguments. */
     @FunctionalInterface
     private interface Two {
-        /**
+        /** Compute the norm of the arguments.
          * @param x Argument.
          * @param y Argument.
          * @return the norm.
@@ -92,7 +92,7 @@ public enum Norm {
     /** Function of 3 arguments. */
     @FunctionalInterface
     private interface Three {
-        /**
+        /** Compute the norm of the arguments.
          * @param x Argument.
          * @param y Argument.
          * @param z Argument.
@@ -103,14 +103,14 @@ public enum Norm {
     /** Function of array argument. */
     @FunctionalInterface
     private interface Array {
-        /**
+        /** Compute the norm of the array.
          * @param v Array of arguments.
          * @return the norm.
          */
         double of(double[] v);
     }
 
-    /**
+    /** Create an instance.
      * @param two Function of 2 arguments.
      * @param three Function of 3 arguments.
      * @param array Function of array argument.
@@ -123,7 +123,7 @@ public enum Norm {
         this.array = array;
     }
 
-    /**
+    /** Create an instance.
      * @param alias Alternative name.
      */
     Norm(Norm alias) {
@@ -548,7 +548,8 @@ public enum Norm {
         return max;
     }
 
-    /**
+    /** Check the array is not empty.
+     *
      * @param a Array.
      * @throws IllegalArgumentException for zero-size array.
      */

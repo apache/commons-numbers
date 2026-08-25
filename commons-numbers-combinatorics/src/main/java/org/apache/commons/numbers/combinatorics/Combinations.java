@@ -36,7 +36,7 @@ public final class Combinations implements Iterable<int[]> {
     /** Number of elements in each combination. */
     private final int k;
 
-    /**
+    /** Create an instance.
      * @param n Size of the set from which subsets are selected.
      * @param k Size of the subsets to be enumerated.
      * @throws IllegalArgumentException if {@code n < 0}.
@@ -255,7 +255,7 @@ public final class Combinations implements Iterable<int[]> {
         SingletonIterator(final int n) {
             this.n = n;
         }
-        /**
+        /** {@inheritDoc}
          * @return {@code true} until next is called the first time,
          * then {@code false}.
          **/
@@ -263,7 +263,7 @@ public final class Combinations implements Iterable<int[]> {
         public boolean hasNext() {
             return more;
         }
-        /**
+        /** {@inheritDoc}
          * @return the singleton at the first activation.
          * @throws NoSuchElementException after the first activation.
          */
@@ -309,7 +309,7 @@ public final class Combinations implements Iterable<int[]> {
         /** Number of elements in each combination. */
         private final int k;
 
-        /**
+        /** Create an instance.
          * @param n Size of the set from which subsets are selected.
          * @param k Size of the subsets to be enumerated.
          */

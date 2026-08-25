@@ -120,7 +120,7 @@ public final class Quaternion implements Serializable {
             static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) -> true;
         }
 
-        /**
+        /** Create an instance.
          * @param normSq {@code normSq} method.
          * @param norm {@code norm} method.
          * @param isUnit {@code isUnit} method.
@@ -133,21 +133,21 @@ public final class Quaternion implements Serializable {
             this.testIsUnit = isUnit;
         }
 
-        /**
+        /** Compute the norm-squared of the quaternion.
          * @param q Quaternion.
          * @return the norm squared.
          */
         double normSq(Quaternion q) {
             return normSq.applyAsDouble(q);
         }
-        /**
+        /** Compute the norm of the quaternion.
          * @param q Quaternion.
          * @return the norm.
          */
         double norm(Quaternion q) {
             return norm.applyAsDouble(q);
         }
-        /**
+        /** Test if the quaternion has a unit norm.
          * @param q Quaternion.
          * @param eps Tolerance.
          * @return whether {@code q} has unit norm within the allowed tolerance.
@@ -714,14 +714,14 @@ public final class Quaternion implements Serializable {
         /** Serializable version identifier. */
         private static final long serialVersionUID = 20181128L;
 
-        /**
+        /** Create an instance.
          * @param msg Error message.
          */
         QuaternionParsingException(String msg) {
             super(msg);
         }
 
-        /**
+        /** Create an instance.
          * @param msg Error message.
          * @param cause Cause of the exception.
          */

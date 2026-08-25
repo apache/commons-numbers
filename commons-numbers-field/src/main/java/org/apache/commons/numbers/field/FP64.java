@@ -34,7 +34,7 @@ public final class FP64 extends Number
     /** Value. */
     private final double value;
 
-    /**
+    /** Create an instance.
      * @param value Value.
      */
     private FP64(double value) {

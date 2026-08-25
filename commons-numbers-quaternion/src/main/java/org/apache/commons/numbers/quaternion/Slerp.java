@@ -125,7 +125,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
         /** Sine of {@link #theta}. */
         private final double sinTheta;
 
-        /**
+        /** Create an instance.
          * @param dot Dot product of the start and end quaternions.
          */
         Spherical(double dot) {
