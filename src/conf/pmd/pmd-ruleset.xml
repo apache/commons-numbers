@@ -114,6 +114,11 @@
         value="./ancestor-or-self::ClassDeclaration[@SimpleName='BoostTools']"/>
     </properties>
   </rule>
+  <rule ref="category/java/codestyle.xml/VariableDeclarationUsageDistance">
+    <properties>
+      <property name="maxDistance" value="10"/>
+    </properties>
+  </rule>
 
   <rule ref="category/java/design.xml/CyclomaticComplexity">
     <properties>
