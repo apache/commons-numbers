@@ -593,7 +593,7 @@ a result that must be heavily edited.]
 Template the vote using this command (run from the dist-archive module):
 
   $ mvn org.apache.commons:commons-release-plugin:vote-txt \
-        -Prelease
+        -Prelease \
         -Dgit.tag.commit=commons-numbers-1.3-RC1 \
         -Dcommons.nexus.repo.id=XXXX
 
