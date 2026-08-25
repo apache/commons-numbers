@@ -42,6 +42,8 @@
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]BrentSolver\.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostBeta.java" />
   <suppress checks="UnnecessaryParentheses" files=".*[/\\]gamma[/\\]BoostGamma.java" />
+  <!-- All documentation is within deprecated tags. -->
+  <suppress checks="SummaryJavadoc" files=".*[/\\]combinatorics[/\\]FactorialDouble.java" />
 
   <!-- Selection -->
   <suppress checks="ParameterNumber" files=".*[/\\]arrays[/\\]QuickSelect.java" />

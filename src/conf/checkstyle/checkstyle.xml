@@ -92,6 +92,7 @@
     <module name="JavadocMethod" />
     <module name="JavadocType" />
     <module name="JavadocVariable" />
+    <module name="SummaryJavadoc" />
     <module name="MissingJavadocMethod">
       <property name="scope" value="private"/>
     </module>
