@@ -768,7 +768,7 @@ public final class BigFraction
             num = numerator.add(value.numerator);
             den = denominator;
         } else {
-            num = (numerator.multiply(value.denominator)).add((value.numerator).multiply(denominator));
+            num = numerator.multiply(value.denominator).add(value.numerator.multiply(denominator));
             den = denominator.multiply(value.denominator);
         }
 
@@ -841,7 +841,7 @@ public final class BigFraction
             num = numerator.subtract(value.numerator);
             den = denominator;
         } else {
-            num = (numerator.multiply(value.denominator)).subtract((value.numerator).multiply(denominator));
+            num = numerator.multiply(value.denominator).subtract(value.numerator.multiply(denominator));
             den = denominator.multiply(value.denominator);
         }
 

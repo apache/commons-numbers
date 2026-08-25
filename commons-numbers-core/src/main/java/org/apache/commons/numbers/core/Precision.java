@@ -478,8 +478,8 @@ public final class Precision {
                                int scale,
                                RoundingMode roundingMode) {
         try {
-            final double rounded = (new BigDecimal(Double.toString(x))
-                   .setScale(scale, roundingMode))
+            final double rounded = new BigDecimal(Double.toString(x))
+                   .setScale(scale, roundingMode)
                    .doubleValue();
             // MATH-1089: negative values rounded to zero should result in negative zero
             return rounded == POSITIVE_ZERO ? POSITIVE_ZERO * x : rounded;

@@ -136,7 +136,7 @@ class QuaternionTest {
         // Conj(qA * qB) = Conj(qB) * Conj(qA)
 
         final Quaternion productOfConjugate = qB.conjugate().multiply(qA.conjugate());
-        final Quaternion conjugateOfProduct = (qA.multiply(qB)).conjugate();
+        final Quaternion conjugateOfProduct = qA.multiply(qB).conjugate();
 
         Assertions.assertEquals(productOfConjugate.getW(), conjugateOfProduct.getW(), EPS);
         Assertions.assertEquals(productOfConjugate.getX(), conjugateOfProduct.getX(), EPS);
