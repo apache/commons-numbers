@@ -7835,9 +7835,11 @@ final class Partition {
         while (x[p + 1] == v) {
             if (++p == rr) {
                 // Edge-case: constant value in [ll, rr]
-                // Return the full range [l, r] as a single edge element
-                // will also be partitioned.
-                upper[0] = r;
+                // Note the full range [l, r] will also be partitioned
+                // as a[r] >= a[rr].
+                // Callers that have used part of the remaining array
+                // to find a pivot require [l, rr] not [l, r].
+                upper[0] = rr;
                 return l;
             }
         }

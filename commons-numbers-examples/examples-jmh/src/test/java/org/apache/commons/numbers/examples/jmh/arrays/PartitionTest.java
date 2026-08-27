@@ -968,7 +968,7 @@ class PartitionTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = {"testPartition"})
+    @MethodSource(value = {"testPartition", "testPartitionLSPMoveSample"})
     void testPartitionLSPMoveSample(double[] values, int[] indices) {
         Assumptions.assumeTrue(indices.length == 1 ||
             (indices.length == 2 && Math.abs(indices[1] - indices[0]) < 10));
@@ -977,6 +977,36 @@ class PartitionTest {
             .setLinearSortSelectSize(3)
             .setControlFlags(Partition.FLAG_MOVE_SAMPLE)
             ::partitionLSP);
+    }
+
+    static Stream<Arguments> testPartitionLSPMoveSample() {
+        return Stream.of(
+            // Edge case that uncovered a bug in partitionKBM when upgrading
+            // Commons RNG 1.6 to 1.7.
+            Arguments.of(
+                new double[] {0.0, -0.0, -14.0, 11.0, 20.0, 0.0, 21.0, -21.0, 0.0, 22.0, 0.0, -0.0, 15.0, -0.0, -19.0,
+                    0.0, -22.0, 0.0, -18.0, 13.0, -0.0, -0.0, 0.0, 12.0, 16.0, 17.0, 19.0, 23.0, 0.0, 14.0, 0.0, -0.0,
+                    0.0, -13.0, -15.0, -23.0, -0.0, -0.0, -17.0, -0.0, -16.0, -0.0, -20.0, -0.0, 0.0, 18.0, -0.0},
+                new int[] {37}));
+    }
+
+    /**
+     * Test partition KBM honours the contract to return the correct bounds
+     * of the pivot region [p0, p1] when the input array is a constant
+     * value with a single higher value at the end of the array.
+     * Returning the full range [l, r] is an optimisation if the method is allowed
+     * to indicate the full range of partitioned data. It will cause a bug if
+     * downstream code requires p1 to define the end the the pivot region.
+     * This occurs in linearSelect when the {@link Partition#FLAG_MOVE_SAMPLE}
+     * option is enabled and KBM is used for the sub-partition.
+     */
+    @Test
+    void testPartitionKBM() {
+        final double[] a = {0, 0, 0, 0, 1};
+        final int bound[] = {0};
+        final double p0 = Partition.partitionKBM(a, 0, a.length - 1, 2, bound);
+        Assertions.assertEquals(p0, 0);
+        Assertions.assertEquals(bound[0], 3);
     }
 
     @ParameterizedTest
