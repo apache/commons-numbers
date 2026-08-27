@@ -6669,11 +6669,21 @@ final class Partition {
         int m = (l + rr + 1) >>> 1;
         // mutual recursion
         linearSelect(part, a, l, rr, m, m, bounds);
-        // bounds contains the range of the pivot.
-        // return the upper pivot and record the end of the range.
-        m = bounds[1];
+        // The selected index is a valid pivot. Do not reuse the returned bounds as
+        // an equal-value range: recursive sample movement can widen them. Instead,
+        // identify the contiguous equal range around the selected index.
+        final double v = a[m];
+        int lp = m;
+        while (lp > l && a[lp - 1] == v) {
+            --lp;
+        }
+        int p = m;
+        while (p < rr && a[p + 1] == v) {
+            ++p;
+        }
+        bounds[0] = lp;
         bounds[1] = rr;
-        return m;
+        return p;
     }
 
     /**
