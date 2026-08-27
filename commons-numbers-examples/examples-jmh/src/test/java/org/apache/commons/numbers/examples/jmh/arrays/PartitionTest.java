@@ -1003,7 +1003,7 @@ class PartitionTest {
     @Test
     void testPartitionKBM() {
         final double[] a = {0, 0, 0, 0, 1};
-        final int bound[] = {0};
+        final int[] bound = {0};
         final double p0 = Partition.partitionKBM(a, 0, a.length - 1, 2, bound);
         Assertions.assertEquals(p0, 0);
         Assertions.assertEquals(bound[0], 3);
