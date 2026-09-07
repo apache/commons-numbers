@@ -89,8 +89,8 @@ public final class Complex implements Serializable  {
     private static final double PI_OVER_4 = 0.25 * Math.PI;
     /** Natural logarithm of 2 (ln(2)). */
     private static final double LN_2 = Math.log(2);
-    /** Base 10 logarithm of 10 divided by 2 (log10(e)/2). */
-    private static final double LOG_10E_O_2 = Math.log10(Math.E) / 2;
+    /** Base 10 logarithm of e divided by 2 (log10(e)/2). */
+    private static final double LOG10_E_O_2 = Math.log10(Math.E) * 0.5;
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
     /** {@code 1/2}. */
@@ -1372,7 +1372,7 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log10() {
-        return log(Math::log10, LOG_10E_O_2, LOG10_2, Complex::ofCartesian);
+        return log(Math::log10, LOG10_E_O_2, LOG10_2, Complex::ofCartesian);
     }
 
     /**
