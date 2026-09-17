@@ -17,6 +17,16 @@
 
 package org.apache.commons.numbers.combinatorics;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 /**
  * Computation of <a href="https://en.wikipedia.org/wiki/Stirling_number">Stirling numbers</a>.
  *
@@ -291,5 +301,345 @@ public final class Stirling {
         return (b & 1) == 0 ?
             ((b >>> 1) * a) >>> 1 :
             ((a >>> 1) * b) >>> 1;
+    }
+
+    /**
+     * From a collection of {@code n} items, generates all partitions that contains {@code k} subsets.
+     * The number of partitions is {@link #stirlingS2(int,int) stirlingS2(n, k)}.
+     * A <a href="https://mathworld.wolfram.com/RestrictedGrowthString.html">restrictive growth string
+     * (RGS)</a> is used internally.  RGS uses integers to represent items:  Position (index) in the
+     * RGS array is the same as in the original list to be partitioned, value is the "group" to which
+     * this element belongs in a given partition.
+     */
+    public static final class S2 {
+        /** Number of sublists in every partition (aka "k"). */
+        private final int numberOfSubsets;
+        /** Number of partitions. */
+        private final long stirlingS2;
+        /** Number of elements in the original list (aka "n"). */
+        private final int numberOfElements;
+        /** Difference between the number of items and the required number of subsets. */
+        private final int nMinusK;
+        /** Helper .*/
+        private final int nMinusOne;
+        /** Helper .*/
+        private final int kMinusOne;
+
+        /**
+         * Constructor.
+         *
+         * @param n Number of elements.
+         * @param k Number of sublists in each partition.
+         * @throws IllegalArgumentException if {@code n < 0}, {@code k < 0} or {@code k > n}.
+         */
+        private S2(int n,
+                   int k) {
+            stirlingS2 = stirlingS2(n, k);
+            numberOfElements = n;
+            numberOfSubsets = k;
+            nMinusK = n - k;
+            nMinusOne = n - 1;
+            kMinusOne = k - 1;
+        }
+
+        /**
+         * Factory.
+         *
+         * @param n Number of items to partition.
+         * @param k Number of sublists in each partition.
+         * @return a new instance.
+         */
+        public static S2 of(int n,
+                            int k) {
+            return new S2(n, k);
+        }
+
+        /**
+         * Get the number of partitions (aka "Stirling number of the second kind").
+         *
+         * @return the number of partitions.
+         */
+        public long get() {
+            return stirlingS2;
+        }
+
+        /**
+         * Iteration wrapped in a stream.
+         * This method must be kept "internal" to ensure consistency: Argument
+         * {@code gen} must be a {@link PartitionGenerator} instance tied to
+         * {@code this} instance.
+         *
+         * @param gen Partition generator.
+         * @return a stream (without duplicate or "null" elements).
+         *
+         * @param <T> Partition representation.
+         */
+        private <T> Stream<T> streamInternal(Iterable<T> gen) {
+            final int characteristics = Spliterator.DISTINCT | Spliterator.NONNULL;
+            return StreamSupport.stream(Spliterators.spliterator(gen.iterator(),
+                                                                 stirlingS2,
+                                                                 characteristics),
+                                        false);
+        }
+
+        /**
+         * Iteration wrapped in a stream, where each element is a partition,
+         * into {@code k} subsets of a set of {@code n} elements.
+         *
+         * @return a stream (without duplicate or "null" elements).
+         */
+        public Stream<int[][]> stream() {
+            return streamInternal(partitionGenerator());
+        }
+
+        /**
+         * Iteration wrapped in a stream, where each element is a partition
+         * of the given {@code items}.
+         *
+         * @param items Items to be partitioned.
+         * @return a stream (without duplicate or "null" elements).
+         * @throws IllegalArgumentException if the number of {@code items} does
+         * not match the {@link #of(int,int) first argument of the factory method}.
+         *
+         * @param <T> Item type.
+         */
+        public <T> Stream<List<List<T>>> stream(List<T> items) {
+            if (items.size() != numberOfElements) {
+                throw new CombinatoricsException(CombinatoricsException.MISMATCH,
+                                                 numberOfElements, items.size());
+            }
+
+            return stream().map(o -> mapPartition(o, items));
+        }
+
+        /**
+         * Iteration wrapped in a stream.
+         *
+         * @param items Items to be partitioned.
+         * @return a stream (without duplicate or "null" elements).
+         * @throws IllegalArgumentException if the number of {@code items} does
+         * not match the {@link #of(int,int) first argument of the factory method}.
+         *
+         * @param <T> Item type.
+         */
+        public <T> Stream<List<List<T>>> stream(T... items) {
+            return stream(Arrays.asList(items));
+        }
+
+        /**
+         * Creates a partition generator that returns each partition as
+         * indices between {@code 0} (included) and {@code n} (excluded).
+         *
+         * @return a new instance.
+         */
+        public Iterable<int[][]> partitionGenerator() {
+            return new Iterable<int[][]>() {
+                /** {@inheritDoc} */
+                @Override
+                public Iterator<int[][]> iterator() {
+                    return new PartitionIterator();
+                }
+            };
+        }
+
+        // Commented out: Should RGS functionality be implemented in a dedicated class?
+        // /**
+        //  * Creates a partition generator that returns each partition as a list
+        //  * of {@code n} elements whose value, between {@code 0} (included) and
+        //  * {@code k} (excluded), indicates to which subsets that element belongs.
+        //  *
+        //  * @return a new instance.
+        //  */
+        // public Iterable<int[]> restrictedGrowthStringGenerator() {
+        //     return new Iterable<int[]>() {
+        //         /** {@inheritDoc} */
+        //         @Override
+        //         public Iterator<int[]> iterator() {
+        //             return new RestrictedGrowthStringIterator();
+        //         }
+        //     };
+        // }
+
+        /**
+         * Maps a given partition to a user-defined list of objects.
+         *
+         * @param p Partition.
+         * @param items List of objects.
+         * @return the mapped partition.
+         *
+         * @param <T> Item type.
+         */
+        private <T> List<List<T>> mapPartition(int[][] p,
+                                               List<T> items) {
+            final List<List<T>> out = new ArrayList<>(numberOfSubsets);
+
+            for (int[] subset : p) {
+                final List<T> customSubset = new ArrayList<>(subset.length);
+
+                for (int i : subset) {
+                    customSubset.add(items.get(i));
+                }
+
+                out.add(customSubset);
+            }
+
+            return out;
+        }
+
+        /**
+         * Iterator.
+         */
+        private final class PartitionIterator implements Iterator<int[][]> {
+            /** Delegate to RGS implementation. */
+            private final RestrictedGrowthStringIterator delegate = new RestrictedGrowthStringIterator();
+
+            /** {@inheritDoc} */
+            @Override
+            public boolean hasNext() {
+                return delegate.hasNext();
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public int[][] next() {
+                return rgs2partition(delegate.next());
+            }
+
+            /**
+             * Maps a given RGS to a list of indices.
+             *
+             * @param rgs RGS.
+             * @return the partition.
+             */
+            private int[][] rgs2partition(int[] rgs) {
+                // Size of every subsets of the partition described by "rgs".
+                final int[] sizes = new int[numberOfSubsets];
+                for (int i = 0; i < numberOfElements; i++) {
+                    ++sizes[rgs[i]];
+                }
+
+                final int[][] out = new int[numberOfSubsets][];
+                for (int i = 0; i < numberOfSubsets; i++) {
+                    out[i] = new int[sizes[i]];
+                }
+
+                final int[] counts = new int[numberOfSubsets];
+                for (int i = 0; i < numberOfElements; i++) {
+                    final int groupIdx = rgs[i];
+                    out[groupIdx][counts[groupIdx]++] = i;
+                }
+
+                return out;
+            }
+        }
+
+        /**
+         * Iterator.
+         */
+        private final class RestrictedGrowthStringIterator implements Iterator<int[]> {
+            /** RGS array (current state). */
+            private final int[] rgs = new int[numberOfElements];
+            /** RGS array (current state). */
+            private final int[] maxRgs = new int[numberOfElements];
+            /** Current partition. */
+            private final int[] currentRGS = new int[numberOfElements];
+            /** Number of generated partitions. */
+            private long partitionCount = 0;
+            /** Whether there is another partition. */
+            private boolean hasNext = true;
+
+            /**
+             * Constructor.
+             */
+            /* package-private */ RestrictedGrowthStringIterator() {
+                // Initialize the first valid lexicographical RGS matching k-subsets.
+                for (int i = nMinusK + 1; i < numberOfElements; i++) {
+                    rgs[i] = i - nMinusK;
+                }
+                for (int i = 1; i < numberOfElements; i++) {
+                    final int iMinusOne = i - 1;
+                    maxRgs[i] = Math.max(maxRgs[iMinusOne],
+                                         rgs[iMinusOne]);
+                }
+
+                calculateNext();
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public int[] next() {
+                if (!hasNext) {
+                    throw new NoSuchElementException();
+                }
+
+                // Copy to prevent exposing internal data.
+                final int[] c = Arrays.copyOf(currentRGS, numberOfElements);
+
+                calculateNext();
+
+                return c;
+            }
+
+            /** Generates next partition. */
+            private void calculateNext() {
+                hasNext = partitionCount < stirlingS2;
+
+                if (numberOfElements > 0) {
+                    while (true) {
+                        if (maxRgs[nMinusOne] == kMinusOne ||
+                            rgs[nMinusOne] == kMinusOne) { // Partition contains "k" blocks.
+                            build();
+                            updateRgs();
+                            return;
+                        }
+
+                        updateRgs();
+                    }
+                } else {
+                    build();
+                }
+            }
+
+            /** Updates RGS. */
+            private void updateRgs() {
+                int i = nMinusOne;
+                while (i > 0) {
+                    if (rgs[i] < kMinusOne &&
+                        rgs[i] <= maxRgs[i]) {
+                        ++rgs[i];
+                        break;
+                    }
+                    --i;
+                }
+
+                if (i == 0) {
+                    return;
+                }
+
+                Arrays.fill(rgs, i + 1, numberOfElements, 0);
+
+                for (int j = i; j < numberOfElements; j++) {
+                    final int jMinusOne = j - 1;
+                    maxRgs[j] = Math.max(maxRgs[jMinusOne],
+                                         rgs[jMinusOne]);
+                }
+            }
+
+            /**
+             * Generates state to be returned by {@link #next()}.
+             */
+            private void build() {
+                System.arraycopy(rgs, 0, currentRGS, 0, numberOfElements);
+
+                // Keep count to prevent infinite loop in "calculateNext()".
+                ++partitionCount;
+            }
+        }
     }
 }

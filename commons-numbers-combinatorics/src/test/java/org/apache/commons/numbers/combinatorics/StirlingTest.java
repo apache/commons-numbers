@@ -16,7 +16,12 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -359,5 +364,119 @@ class StirlingTest {
     @MethodSource(value = {"stirlingOverflowArguments"})
     void testStirlingS2Overflow(int n, int k) {
         Assertions.assertThrows(ArithmeticException.class, () -> Stirling.stirlingS2(n, k));
+    }
+
+    @Test
+    void testS2Get() {
+        final int n = 23;
+        final int k = 17;
+        Assertions.assertEquals(Stirling.stirlingS2(n, k),
+                                Stirling.S2.of(n, k).get());
+    }
+
+    @Test
+    void testS2PartitionGeneration() {
+        Assertions.assertEquals(1, s2PartitionGenerator(2, 1).size());
+        Assertions.assertEquals(1, s2PartitionGenerator(2, 2).size());
+        Assertions.assertEquals(1, s2PartitionGenerator(3, 1).size());
+        Assertions.assertEquals(3, s2PartitionGenerator(3, 2).size());
+        Assertions.assertEquals(1, s2PartitionGenerator(3, 3).size());
+        Assertions.assertEquals(1, s2PartitionGenerator(4, 1).size());
+        Assertions.assertEquals(7, s2PartitionGenerator(4, 2).size());
+        Assertions.assertEquals(6, s2PartitionGenerator(4, 3).size());
+        Assertions.assertEquals(1, s2PartitionGenerator(4, 4).size());
+        Assertions.assertEquals(1, s2PartitionGenerator(5, 1).size());
+        Assertions.assertEquals(15, s2PartitionGenerator(5, 2).size());
+        Assertions.assertEquals(25, s2PartitionGenerator(5, 3).size());
+        Assertions.assertEquals(10, s2PartitionGenerator(5, 4).size());
+        Assertions.assertEquals(1, s2PartitionGenerator(5, 5).size());
+    }
+
+    @Test
+    void testS2ItemsStream() {
+        final String a = "A";
+        final String b = "B";
+        final String c = "C";
+        final List<String> items = new ArrayList<>();
+        items.add(a);
+        items.add(b);
+        items.add(c);
+        final List<List<List<String>>> out = Stirling.S2.of(3, 2)
+            .stream(items)
+            .collect(Collectors.toList());
+
+        Assertions.assertEquals(3, out.size());
+
+        List<List<String>> part = out.get(0);
+        Assertions.assertEquals(a, part.get(0).get(0));
+        Assertions.assertEquals(b, part.get(0).get(1));
+        Assertions.assertEquals(c, part.get(1).get(0));
+
+        part = out.get(1);
+        Assertions.assertEquals(a, part.get(0).get(0));
+        Assertions.assertEquals(c, part.get(0).get(1));
+        Assertions.assertEquals(b, part.get(1).get(0));
+
+        part = out.get(2);
+        Assertions.assertEquals(a, part.get(0).get(0));
+        Assertions.assertEquals(b, part.get(1).get(0));
+        Assertions.assertEquals(c, part.get(1).get(1));
+    }
+
+    @Test
+    void testS2ItemsStreamVarArgs() {
+        final int numPartitions = Stirling.S2.of(5, 2)
+            .stream("A", "B", "C", "D", "E")
+            .collect(Collectors.toList()).size();
+        Assertions.assertEquals(15, numPartitions);
+    }
+
+    @Test
+    void testS2ItemsStreamTooManyItems() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> Stirling.S2.of(4, 2).stream("A", "B", "C", "D", "E"));
+    }
+
+    @Test
+    void testS2ItemsStreamTooFewItems() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> Stirling.S2.of(4, 2).stream("A", "B", "C"));
+    }
+
+    @Test
+    void testS2PartitionGenerationEmptyList() {
+        Assertions.assertEquals(1, s2PartitionGenerator(0, 0).size());
+    }
+
+    @Test
+    void testS2MoreRequiredSubsetThanItems() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> s2PartitionGenerator(2, 3));
+    }
+
+    @Test
+    void testS2NegativeK() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> Stirling.S2.of(3, -1));
+    }
+
+    @Test
+    void testS2InvalidNext() {
+        Assertions.assertThrows(NoSuchElementException.class,
+                                () -> {
+                                    final Iterator<int[][]> s =
+                                        Stirling.S2.of(5, 5).partitionGenerator().iterator();
+                                    s.next(); // OK.
+                                    s.next(); // Must fail.
+                                });
+    }
+
+    /**
+     * @param n Number of items.
+     * @param k Number of sublists.
+     */
+    private List<int[][]> s2PartitionGenerator(int n,
+                                               int k) {
+        return Stirling.S2.of(n, k).stream().collect(Collectors.toList());
     }
 }
