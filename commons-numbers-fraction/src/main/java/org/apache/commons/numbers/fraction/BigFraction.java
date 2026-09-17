@@ -285,7 +285,7 @@ public final class BigFraction
         } else {
             // Normalized number: Add the implicit most significant bit.
             m = mantissa | 0x0010000000000000L;
-            k = ((int) (exponent >> 52)) - 1075; // Exponent bias is 1023.
+            k = (int) (exponent >> 52) - 1075; // Exponent bias is 1023.
         }
         if (sign != 0) {
             m = -m;

@@ -3407,7 +3407,7 @@ public final class Complex implements Serializable  {
         // Only interested in the maximum
         final long bits = Math.max(x, y);
         // Get the unbiased exponent
-        int exp = ((int) (bits >>> 52)) - EXPONENT_OFFSET;
+        int exp = (int) (bits >>> 52) - EXPONENT_OFFSET;
 
         // No case to distinguish nan/inf
         // Handle sub-normal numbers

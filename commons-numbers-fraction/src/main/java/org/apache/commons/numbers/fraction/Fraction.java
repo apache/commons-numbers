@@ -874,8 +874,8 @@ public final class Fraction
         }
         // Compare absolute magnitude.
         // Multiplication by the signum is equal to the absolute.
-        final long nOd = ((long) numerator) * lns * other.denominator * rds;
-        final long dOn = ((long) denominator) * lds * other.numerator * rns;
+        final long nOd = (long) numerator * lns * other.denominator * rds;
+        final long dOn = (long) denominator * lds * other.numerator * rns;
         return lhsSigNum > 0 ?
             Long.compare(nOd, dOn) :
             Long.compare(dOn, nOd);

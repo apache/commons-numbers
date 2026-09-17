@@ -262,7 +262,7 @@ final class SmallPrimes {
             if (y != 1 && y != nMinus1) {
                 int j = 1;
                 while (j <= s - 1 && y != nMinus1) {
-                    final long square = ((long) y) * y;
+                    final long square = (long) y * y;
                     y = (int) (square % n);
                     if (y == 1) {
                         return false;
