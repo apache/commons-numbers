@@ -1606,7 +1606,7 @@ public class SelectionPerformance {
             // Create the samples: pack indices index+point into a long
             samples = new long[size];
             for (int i = points.length; --i >= 0;) {
-                final long l = ((long) i) << Integer.SIZE;
+                final long l = (long) i << Integer.SIZE;
                 for (final int p : points[i]) {
                     samples[--size] = l | p;
                 }

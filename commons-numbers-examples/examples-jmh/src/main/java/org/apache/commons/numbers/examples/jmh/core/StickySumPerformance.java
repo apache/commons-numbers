@@ -567,7 +567,7 @@ public class StickySumPerformance {
             // if ((hi & 0x1) == 0) {
             //    // set sticky ...
             // }
-            int sticky = ~((int) hi) & 0x1;
+            int sticky = ~(int) hi & 0x1;
 
             // The sign bit is created as + or - using the XOR of hi and lo.
             // Signed shift will create a flag: -1 to negate, else 0.

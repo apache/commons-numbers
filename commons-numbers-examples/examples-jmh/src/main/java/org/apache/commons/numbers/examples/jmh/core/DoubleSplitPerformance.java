@@ -534,7 +534,7 @@ public class DoubleSplitPerformance {
         // Inf/NaN numbers have a biased exponent of 2047.
         // Catch both cases by extracting the raw exponent, subtracting 1
         // and make unsigned. 0 will underflow to a large value.
-        final int baisedExponent = ((int) (Double.doubleToRawLongBits(a) >>> 52)) & 0x7ff;
+        final int baisedExponent = (int) (Double.doubleToRawLongBits(a) >>> 52) & 0x7ff;
         return ((baisedExponent - 1) & 0xffff) >= 2046;
     }
 
@@ -549,7 +549,7 @@ public class DoubleSplitPerformance {
         // Inf/NaN numbers have a biased exponent of 2047.
         // Catch both cases by extracting the raw exponent, subtracting 1
         // and compare unsigned (so 0 underflows to a large value).
-        final int baisedExponent = ((int) (Double.doubleToRawLongBits(a) >>> 52)) & 0x7ff;
+        final int baisedExponent = (int) (Double.doubleToRawLongBits(a) >>> 52) & 0x7ff;
         // Adding int min value is equal to compare unsigned
         return baisedExponent + Integer.MIN_VALUE - 1 >= 2046 + Integer.MIN_VALUE;
     }

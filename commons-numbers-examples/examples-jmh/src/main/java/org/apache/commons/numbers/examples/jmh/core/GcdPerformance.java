@@ -77,7 +77,7 @@ public class GcdPerformance {
                     limit(numPairs * 2)
                     .toArray();
 
-            seed = (((long) values[0]) << Integer.SIZE) | values[1];
+            seed = ((long) values[0] << Integer.SIZE) | values[1];
         }
     }
 

@@ -611,7 +611,7 @@ final class SDD {
         // Inf/NaN numbers have a biased exponent of 2047.
         // Catch both cases by extracting the raw exponent, subtracting 1
         // and compare unsigned (so 0 underflows to a unsigned large value).
-        final int baisedExponent = ((int) (Double.doubleToRawLongBits(a) >>> 52)) & EXP_MASK;
+        final int baisedExponent = (int) (Double.doubleToRawLongBits(a) >>> 52) & EXP_MASK;
         // Pre-compute the additions used by Integer.compareUnsigned
         return baisedExponent + CMP_UNSIGNED_MINUS_1 >= CMP_UNSIGNED_2046;
     }
@@ -1022,7 +1022,7 @@ final class SDD {
      * @return the double
      */
     private static double twoPow(int n) {
-        return Double.longBitsToDouble(((long) (n + 1023)) << 52);
+        return Double.longBitsToDouble((long) (n + 1023) << 52);
     }
 
     /**
@@ -1116,7 +1116,7 @@ final class SDD {
         // Only interested in the exponent and mantissa so remove the sign bit
         final long bits = Double.doubleToRawLongBits(a) & UNSIGN_MASK;
         // Get the unbiased exponent
-        int exp = ((int) (bits >>> 52)) - EXPONENT_OFFSET;
+        int exp = (int) (bits >>> 52) - EXPONENT_OFFSET;
 
         // No case to distinguish nan/inf (exp == 1024).
         // Handle sub-normal numbers

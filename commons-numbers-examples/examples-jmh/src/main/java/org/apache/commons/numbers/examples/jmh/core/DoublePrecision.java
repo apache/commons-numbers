@@ -215,7 +215,7 @@ final class DoublePrecision {
         // If a single multiplication to a normal number then handle here.
         if (scale <= 2046 && scale > 0) {
             // Convert to a normalized power of 2
-            final double d = Double.longBitsToDouble(((long) scale) << 52);
+            final double d = Double.longBitsToDouble((long) scale << 52);
             z *= d;
             zz *= d;
         } else {
@@ -247,7 +247,7 @@ final class DoublePrecision {
         // Inf/NaN numbers have a biased exponent of 2047.
         // Catch both cases by extracting the raw exponent, subtracting 1
         // and compare unsigned (so 0 underflows to a large value).
-        final int baisedExponent = ((int) (Double.doubleToRawLongBits(a) >>> 52)) & EXP_MASK;
+        final int baisedExponent = (int) (Double.doubleToRawLongBits(a) >>> 52) & EXP_MASK;
         // Pre-compute the additions used by Integer.compareUnsigned
         return baisedExponent + CMP_UNSIGNED_MINUS_1 >= CMP_UNSIGNED_2046;
     }
