@@ -305,11 +305,33 @@ public final class Stirling {
 
     /**
      * From a collection of {@code n} items, generates all partitions that contains {@code k} subsets.
-     * The number of partitions is {@link #stirlingS2(int,int) stirlingS2(n, k)}.
+     * For example:
+     * <pre>{@code
+     * Stirling.S2.of(4, 2)
+     *     .stream()
+     *     .forEach(p -> System.out.println(java.util.Arrays.deepToString(p)));
+     * }</pre>
+     * will output
+     * <pre>
+     * [[0, 1, 2], [3]]
+     * [[0, 1, 3], [2]]
+     * [[0, 1], [2, 3]]
+     * [[0, 2, 3], [1]]
+     * [[0, 2], [1, 3]]
+     * [[0, 3], [1, 2]]
+     * [[0], [1, 2, 3]]
+     * </pre>
+     *
+     * <p>
+     * Method {@link #get() S2.of(n, k).get()} returns the number of partitions.
+     * </p>
+     *
+     * <p>
      * A <a href="https://mathworld.wolfram.com/RestrictedGrowthString.html">restrictive growth string
      * (RGS)</a> is used internally.  RGS uses integers to represent items:  Position (index) in the
      * RGS array is the same as in the original list to be partitioned, value is the "group" to which
      * this element belongs in a given partition.
+     * </p>
      */
     public static final class S2 {
         /** Number of sublists in every partition (aka "k"). */
@@ -393,23 +415,18 @@ public final class Stirling {
         }
 
         /**
-         * Iteration wrapped in a stream, where each element is a partition
-         * of the given {@code items}.
+         * Factory method for iterating on the partitions of the given list
+         * of {@code items}.
          *
+         * @param k Number of sublists in each partition.
          * @param items Items to be partitioned.
          * @return a stream (without duplicate or "null" elements).
-         * @throws IllegalArgumentException if the number of {@code items} does
-         * not match the {@link #of(int,int) first argument of the factory method}.
          *
          * @param <T> Item type.
          */
-        public <T> Stream<List<List<T>>> stream(List<T> items) {
-            if (items.size() != numberOfElements) {
-                throw new CombinatoricsException(CombinatoricsException.MISMATCH,
-                                                 numberOfElements, items.size());
-            }
-
-            return stream().map(o -> mapPartition(o, items));
+        public static <T> Stream<List<List<T>>> stream(List<T> items,
+                                                       int k) {
+            return of(items.size(), k).stream().map(o -> mapPartition(o, items, k));
         }
 
         /**
@@ -423,7 +440,13 @@ public final class Stirling {
          * @param <T> Item type.
          */
         public <T> Stream<List<List<T>>> stream(T... items) {
-            return stream(Arrays.asList(items));
+            if (items.length != numberOfElements) {
+                throw new CombinatoricsException(CombinatoricsException.MISMATCH,
+                                                 numberOfElements, items.length);
+            }
+
+            final List<T> list = Arrays.asList(items);
+            return stream().map(o -> mapPartition(o, list, numberOfSubsets));
         }
 
         /**
@@ -465,13 +488,15 @@ public final class Stirling {
          *
          * @param p Partition.
          * @param items List of objects.
+         * @param k Number of sublists.
          * @return the mapped partition.
          *
          * @param <T> Item type.
          */
-        private <T> List<List<T>> mapPartition(int[][] p,
-                                               List<T> items) {
-            final List<List<T>> out = new ArrayList<>(numberOfSubsets);
+        private static <T> List<List<T>> mapPartition(int[][] p,
+                                                      List<T> items,
+                                                      int k) {
+            final List<List<T>> out = new ArrayList<>(k);
 
             for (int[] subset : p) {
                 final List<T> customSubset = new ArrayList<>(subset.length);

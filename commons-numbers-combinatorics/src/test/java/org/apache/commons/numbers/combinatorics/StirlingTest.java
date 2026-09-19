@@ -401,8 +401,7 @@ class StirlingTest {
         items.add(a);
         items.add(b);
         items.add(c);
-        final List<List<List<String>>> out = Stirling.S2.of(3, 2)
-            .stream(items)
+        final List<List<List<String>>> out = Stirling.S2.stream(items, 2)
             .collect(Collectors.toList());
 
         Assertions.assertEquals(3, out.size());
