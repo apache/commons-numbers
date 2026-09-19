@@ -303,8 +303,10 @@ public final class Stirling {
             ((a >>> 1) * b) >>> 1;
     }
 
+    // CHECKSTYLE: stop regex
     /**
      * From a collection of {@code n} items, generates all partitions that contains {@code k} subsets.
+     *
      * For example:
      * <pre>{@code
      * Stirling.S2.of(4, 2)
@@ -333,6 +335,7 @@ public final class Stirling {
      * this element belongs in a given partition.
      * </p>
      */
+    // CHECKSTYLE: resume regex
     public static final class S2 {
         /** Number of sublists in every partition (aka "k"). */
         private final int numberOfSubsets;
@@ -418,8 +421,8 @@ public final class Stirling {
          * Factory method for iterating on the partitions of the given list
          * of {@code items}.
          *
-         * @param k Number of sublists in each partition.
          * @param items Items to be partitioned.
+         * @param k Number of sublists in each partition.
          * @return a stream (without duplicate or "null" elements).
          *
          * @param <T> Item type.
@@ -427,26 +430,6 @@ public final class Stirling {
         public static <T> Stream<List<List<T>>> stream(List<T> items,
                                                        int k) {
             return of(items.size(), k).stream().map(o -> mapPartition(o, items, k));
-        }
-
-        /**
-         * Iteration wrapped in a stream.
-         *
-         * @param items Items to be partitioned.
-         * @return a stream (without duplicate or "null" elements).
-         * @throws IllegalArgumentException if the number of {@code items} does
-         * not match the {@link #of(int,int) first argument of the factory method}.
-         *
-         * @param <T> Item type.
-         */
-        public <T> Stream<List<List<T>>> stream(T... items) {
-            if (items.length != numberOfElements) {
-                throw new CombinatoricsException(CombinatoricsException.MISMATCH,
-                                                 numberOfElements, items.length);
-            }
-
-            final List<T> list = Arrays.asList(items);
-            return stream().map(o -> mapPartition(o, list, numberOfSubsets));
         }
 
         /**

@@ -423,26 +423,6 @@ class StirlingTest {
     }
 
     @Test
-    void testS2ItemsStreamVarArgs() {
-        final int numPartitions = Stirling.S2.of(5, 2)
-            .stream("A", "B", "C", "D", "E")
-            .collect(Collectors.toList()).size();
-        Assertions.assertEquals(15, numPartitions);
-    }
-
-    @Test
-    void testS2ItemsStreamTooManyItems() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> Stirling.S2.of(4, 2).stream("A", "B", "C", "D", "E"));
-    }
-
-    @Test
-    void testS2ItemsStreamTooFewItems() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> Stirling.S2.of(4, 2).stream("A", "B", "C"));
-    }
-
-    @Test
     void testS2PartitionGenerationEmptyList() {
         Assertions.assertEquals(1, s2PartitionGenerator(0, 0).size());
     }
