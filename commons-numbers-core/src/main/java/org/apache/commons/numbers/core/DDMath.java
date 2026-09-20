@@ -331,7 +331,8 @@ public final class DDMath {
      * Compute the inverse of {@code (y, yy, yyy)}.
      * If {@code y = 0} the result is undefined.
      *
-     * <p>This is special routine used in {@link #pow(int, long[])}
+     * <p>This is special routine used in
+     * {@link DDMath#computePowScaled(long, double, double, int, long[])}
      * to invert the triple precision result.
      *
      * @param y First part of y.

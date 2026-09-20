@@ -132,9 +132,9 @@ final class KeyUpdatingInterval implements UpdatingInterval {
     /**
      * Search the data for the largest index {@code i} where {@code a[i]} is
      * less-than-or-equal to the {@code key}; else return {@code left - 1}.
-     * <pre>
+     * <pre>{@code
      * a[i] <= k    :   left <= i <= right, or (left - 1)
-     * </pre>
+     * }</pre>
      *
      * <p>The data is assumed to be in ascending order, otherwise the behaviour is undefined.
      * If the range contains multiple elements with the {@code key} value, the result index

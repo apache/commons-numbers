@@ -36,7 +36,7 @@ final class BoostTools {
      * The minimum epsilon value for relative error in the summation.
      * Equal to Math.ulp(1.0) or 2^-52.
      *
-     * <h2>Note</h2>
+     * <p>Note
      *
      * <p>The summation will terminate when any additional terms are too small to
      * change the sum. Assuming additional terms are reducing in magnitude this
@@ -59,7 +59,7 @@ final class BoostTools {
      * The minimum epsilon value for relative error in the Kahan summation.
      * This can be lower than {@link #EPSILON}. Set to 2^-62.
      *
-     * <h2>Note</h2>
+     * <p>Note
      *
      * <p>The Kahan summation uses a carry term to extend the precision of the sum.
      * This extends the 53-bit mantissa by adding more bits to hold round-off error.

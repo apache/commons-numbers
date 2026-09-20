@@ -2216,7 +2216,7 @@ public final class Complex implements Serializable  {
      * Returns the hyperbolic sine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code sin(z) = -i sinh(iz)}.<p>
+     * {@code sin(z) = -i sinh(iz)}.</p>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
@@ -2297,7 +2297,7 @@ public final class Complex implements Serializable  {
      * Returns the hyperbolic cosine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code cos(z) = cosh(iz)}.<p>
+     * {@code cos(z) = cosh(iz)}.</p>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
@@ -2453,7 +2453,7 @@ public final class Complex implements Serializable  {
      * Returns the hyperbolic tangent of this complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code tan(z) = -i tanh(iz)}.<p>
+     * {@code tan(z) = -i tanh(iz)}.</p>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.

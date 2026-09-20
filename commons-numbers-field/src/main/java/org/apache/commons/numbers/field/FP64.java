@@ -25,6 +25,7 @@ import org.apache.commons.numbers.core.NativeOperators;
 public final class FP64 extends Number
     implements NativeOperators<FP64>,
                Comparable<FP64> {
+    /** Default serial version ID. */
     private static final long serialVersionUID = 1L;
 
     /** Additive neutral. */
