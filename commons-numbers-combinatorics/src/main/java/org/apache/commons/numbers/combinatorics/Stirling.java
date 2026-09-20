@@ -389,25 +389,6 @@ public final class Stirling {
         }
 
         /**
-         * Iteration wrapped in a stream.
-         * This method must be kept "internal" to ensure consistency: Argument
-         * {@code gen} must be a {@link PartitionGenerator} instance tied to
-         * {@code this} instance.
-         *
-         * @param gen Partition generator.
-         * @return a stream (without duplicate or "null" elements).
-         *
-         * @param <T> Partition representation.
-         */
-        private <T> Stream<T> streamInternal(Iterable<T> gen) {
-            final int characteristics = Spliterator.DISTINCT | Spliterator.NONNULL;
-            return StreamSupport.stream(Spliterators.spliterator(gen.iterator(),
-                                                                 stirlingS2,
-                                                                 characteristics),
-                                        false);
-        }
-
-        /**
          * Iteration wrapped in a stream, where each element is a partition,
          * into {@code k} subsets of a set of {@code n} elements.
          *
@@ -465,6 +446,22 @@ public final class Stirling {
         //         }
         //     };
         // }
+
+        /**
+         * Converts {@link Iterable} to {@link Stream}.
+         *
+         * @param gen Partition generator.
+         * @return a stream (without duplicate or "null" elements).
+         *
+         * @param <T> Partition representation.
+         */
+        private <T> Stream<T> streamInternal(Iterable<T> gen) {
+            final int characteristics = Spliterator.DISTINCT | Spliterator.NONNULL;
+            return StreamSupport.stream(Spliterators.spliterator(gen.iterator(),
+                                                                 stirlingS2,
+                                                                 characteristics),
+                                        false);
+        }
 
         /**
          * Maps a given partition to a user-defined list of objects.
