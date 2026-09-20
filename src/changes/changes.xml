@@ -56,6 +56,9 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="erans" type="add" issue="NUMBERS-215">
+        Nested class "S2" in "o.a.c.numbers.combinatorics.Stirling" for iterating over k-partitions.
+      </action>
       <action dev="aherbert" type="fix" due-to="Security scan, Alex Herbert" issue="NUMBERS-213">
         "Selection": Fix silent modification of the sign of zeros outside the
         [fromIndex, toIndex) range due to incorrectly restoring signs from the start
