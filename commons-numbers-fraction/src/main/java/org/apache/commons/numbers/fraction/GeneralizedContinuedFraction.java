@@ -61,8 +61,15 @@ public final class GeneralizedContinuedFraction {
      * eps * |b_n|, e.g., 1e-50".
      */
     static final double SMALL = 1e-50;
-    /** Default maximum number of iterations. */
-    static final int DEFAULT_ITERATIONS = Integer.MAX_VALUE;
+    /**
+     * Default maximum number of iterations.
+     *
+     * <p>This is bounded well below {@link Integer#MAX_VALUE} so that a fraction which
+     * does not converge fails fast with an exception rather than iterating for an
+     * excessive length of time. A generator that requires more terms than this to
+     * converge should use the overloads that accept an explicit {@code maxIterations}.
+     */
+    static final int DEFAULT_ITERATIONS = 1_000_000;
     /**
      * Minimum relative error epsilon. Equal to 1 - Math.nextDown(1.0), or 2^-53.
      *
@@ -149,6 +156,10 @@ public final class GeneralizedContinuedFraction {
      *
      * <p>Note: The first generated partial numerator a<sub>0</sub> is discarded.
      *
+     * <p>Uses a default limit on the number of iterations. Use
+     * {@link #value(Supplier,double,int)} to specify an explicit {@code maxIterations}
+     * for a fraction that requires more terms to converge.
+     *
      * @param gen Generator of coefficients.
      * @return the value of the continued fraction.
      * @throws ArithmeticException if the algorithm fails to converge or if the maximal number of
@@ -163,6 +174,10 @@ public final class GeneralizedContinuedFraction {
      * Evaluates the continued fraction.
      *
      * <p>Note: The first generated partial numerator a<sub>0</sub> is discarded.
+     *
+     * <p>Uses a default limit on the number of iterations. Use
+     * {@link #value(Supplier,double,int)} to specify an explicit {@code maxIterations}
+     * for a fraction that requires more terms to converge.
      *
      * @param gen Generator of coefficients.
      * @param epsilon Maximum relative error allowed.
@@ -227,6 +242,10 @@ public final class GeneralizedContinuedFraction {
      *  <li>b<sub>0</sub> is very small and the result is expected to approach zero</li>
      * </ul>
      *
+     * <p>Uses a default limit on the number of iterations. Use
+     * {@link #value(double,Supplier,double,int)} to specify an explicit
+     * {@code maxIterations} for a fraction that requires more terms to converge.
+     *
      * @param b0 Coefficient b<sub>0</sub>.
      * @param gen Generator of coefficients.
      * @return the value of the continued fraction.
@@ -249,6 +268,10 @@ public final class GeneralizedContinuedFraction {
      *  <li>b<sub>0</sub> is zero and the result will evaluate only the continued fraction component</li>
      *  <li>b<sub>0</sub> is very small and the result is expected to approach zero</li>
      * </ul>
+     *
+     * <p>Uses a default limit on the number of iterations. Use
+     * {@link #value(double,Supplier,double,int)} to specify an explicit
+     * {@code maxIterations} for a fraction that requires more terms to converge.
      *
      * @param b0 Coefficient b<sub>0</sub>.
      * @param gen Generator of coefficients.

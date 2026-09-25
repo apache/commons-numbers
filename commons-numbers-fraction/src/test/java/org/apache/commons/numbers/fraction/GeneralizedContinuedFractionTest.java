@@ -240,6 +240,46 @@ class GeneralizedContinuedFractionTest {
         assertExceptionMessageContains(t, "max");
     }
 
+    /**
+     * Test the default number of iterations is bounded well below
+     * {@link Integer#MAX_VALUE}. A fraction that never converges must fail fast
+     * using the default (no {@code maxIterations} argument) evaluation methods
+     * rather than run for an excessive length of time.
+     *
+     * @see <a href="https://issues.apache.org/jira/browse/NUMBERS-214">NUMBERS-214</a>
+     */
+    @Test
+    void testDefaultIterationsIsBounded() {
+        Assertions.assertTrue(GeneralizedContinuedFraction.DEFAULT_ITERATIONS < Integer.MAX_VALUE / 100,
+            () -> "Default iterations not bounded: " + GeneralizedContinuedFraction.DEFAULT_ITERATIONS);
+    }
+
+    /**
+     * Test that evaluation of a non-converging fraction using the default number of
+     * iterations does not generate substantially more terms than the documented
+     * default limit. This bounds the runtime of a call that omits the
+     * {@code maxIterations} argument.
+     *
+     * @see <a href="https://issues.apache.org/jira/browse/NUMBERS-214">NUMBERS-214</a>
+     */
+    @Test
+    void testNonConvergingFractionUsesDefaultIterationLimit() {
+        // Oscillating generator that never converges:
+        // b0 = 1 seeds the evaluation (a0 is discarded); all subsequent terms
+        // (a=1, b=0) create a non-converging oscillation between two values.
+        final int[] calls = {0};
+        final Supplier<Coefficient> gen = () -> {
+            calls[0]++;
+            return Coefficient.of(1, calls[0] == 1 ? 1 : 0);
+        };
+
+        final Throwable t = Assertions.assertThrows(ArithmeticException.class,
+            () -> GeneralizedContinuedFraction.value(gen));
+        assertExceptionMessageContains(t, "max");
+        Assertions.assertTrue(calls[0] <= GeneralizedContinuedFraction.DEFAULT_ITERATIONS + 1,
+            () -> "Unexpected number of generator calls: " + calls[0]);
+    }
+
     @Test
     void testNaNThrowsA() {
         // Create a NaN during the iteration
