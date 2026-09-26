@@ -18,6 +18,7 @@ package org.apache.commons.numbers.fraction;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import org.apache.commons.numbers.core.TestUtils;
@@ -504,6 +505,30 @@ class BigFractionTest {
         Assertions.assertEquals(new BigDecimal("0.0003"), BigFraction.of(3, 10000).bigDecimalValue());
         Assertions.assertEquals(new BigDecimal("0"), BigFraction.of(1, 3).bigDecimalValue(RoundingMode.DOWN));
         Assertions.assertEquals(new BigDecimal("0.333"), BigFraction.of(1, 3).bigDecimalValue(3, RoundingMode.DOWN));
+    }
+
+    @Test
+    void testBigDecimalValueMathContext() {
+        Assertions.assertEquals(new BigDecimal(0.5), BigFraction.of(1, 2).bigDecimalValue(MathContext.DECIMAL32));
+
+        // 7 digits of precision
+        final BigFraction third = BigFraction.of(1, 3);
+        Assertions.assertEquals(new BigDecimal("0.3333333"), third.bigDecimalValue(MathContext.DECIMAL32));
+
+        // 1e-20 is not a representable double
+        BigFraction f = BigFraction.of(
+            BigInteger.ONE,
+            new BigInteger("100000000000000000000")
+        );
+        Assertions.assertEquals(new BigDecimal("1e-20"), f.bigDecimalValue(MathContext.DECIMAL64));
+        Assertions.assertNotEquals(new BigDecimal(1e-20), f.bigDecimalValue(MathContext.UNLIMITED),
+            "1e20 as a double is not representable");
+
+        // Check the exceptions from BigDecimal divide
+        // MathContext.UNLIMITED has precision 0
+        Assertions.assertThrows(ArithmeticException.class, () -> third.bigDecimalValue(MathContext.UNLIMITED));
+        final MathContext mc = new MathContext(10, RoundingMode.UNNECESSARY);
+        Assertions.assertThrows(ArithmeticException.class, () -> third.bigDecimalValue(mc));
     }
 
     @Test

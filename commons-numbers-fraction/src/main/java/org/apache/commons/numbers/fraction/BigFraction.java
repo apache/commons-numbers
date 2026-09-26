@@ -19,6 +19,7 @@ package org.apache.commons.numbers.fraction;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Objects;
 import org.apache.commons.numbers.core.NativeOperators;
@@ -703,6 +704,23 @@ public final class BigFraction
      */
     public BigDecimal bigDecimalValue(final int scale, RoundingMode roundingMode) {
         return new BigDecimal(numerator).divide(new BigDecimal(denominator), scale, roundingMode);
+    }
+
+    /**
+     * Returns the {@code BigDecimal} representation of this fraction.
+     * This calculates the fraction as numerator divided by denominator
+     * with rounding according to the context settings.
+     *
+     * @param mc the context to apply.
+     * @return the fraction as a {@code BigDecimal}.
+     * @throws ArithmeticException if the result is inexact but the rounding mode is
+     * {@code UNNECESSARY} or {@code mc.precision == 0} and the quotient has a non-terminating
+     * decimal expansion, including dividing by zero
+     * @see BigDecimal#divide(BigDecimal, MathContext)
+     * @since 1.4
+     */
+    public BigDecimal bigDecimalValue(MathContext mc) {
+        return new BigDecimal(numerator).divide(new BigDecimal(denominator), mc);
     }
 
     /**
