@@ -71,6 +71,10 @@ public abstract class ContinuedFraction {
     /**
      * Evaluates the continued fraction.
      *
+     * <p>Uses a default limit on the number of iterations. Use
+     * {@link #evaluate(double,double,int)} to specify an explicit {@code maxIterations}
+     * for a fraction that requires more terms to converge.
+     *
      * @param x the evaluation point.
      * @param epsilon Maximum relative error allowed.
      * @return the value of the continued fraction evaluated at {@code x}.
