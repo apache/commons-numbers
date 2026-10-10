@@ -16,6 +16,8 @@
 github:
   description: "Apache Commons Numbers"
   homepage: https://commons.apache.org/numbers
+  autolink_jira:
+    - NUMBERS
   labels:
     - java
     - math
