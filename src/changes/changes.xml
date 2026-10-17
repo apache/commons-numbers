@@ -56,6 +56,10 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action type="fix" due-to="Aryan Ganjoo" issue="NUMBERS-218">
+        "ArithmeticUtils.pow": Return the representable minimum int and long values for
+        (-2)^31 and (-2)^63 instead of reporting overflow.
+      </action>
       <action dev="aherbert" type="update" due-to="Security scan, Alex Herbert" issue="NUMBERS-214">
         "GeneralizedContinuedFraction": Lower the defaut iterations to 1_000_000. This
         introduces a behavioural change for slowly converging fractions that may now
