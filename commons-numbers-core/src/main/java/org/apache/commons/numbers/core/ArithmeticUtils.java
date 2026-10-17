@@ -294,7 +294,7 @@ public final class ArithmeticUtils {
             return (e & 1) == 0 ? 1 : -1;
         }
 
-        if (e >= 31) {
+        if (e > 31) {
             throw new ArithmeticException("integer overflow");
         }
 
@@ -354,7 +354,7 @@ public final class ArithmeticUtils {
             return (e & 1) == 0 ? 1L : -1L;
         }
 
-        if (e >= 63) {
+        if (e > 63) {
             throw new ArithmeticException("long overflow");
         }
 

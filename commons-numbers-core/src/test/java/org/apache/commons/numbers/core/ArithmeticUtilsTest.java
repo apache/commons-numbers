@@ -424,6 +424,20 @@ class ArithmeticUtilsTest {
     }
 
     @Test
+    void testPowMinValue() {
+        // (-2)^31 and (-2)^63 are exactly representable as the minimum value
+        Assertions.assertEquals(Integer.MIN_VALUE, ArithmeticUtils.pow(-2, 31));
+        Assertions.assertEquals(Long.MIN_VALUE, ArithmeticUtils.pow(-2L, 63));
+        // Adjacent results overflow
+        Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(2, 31));
+        Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(-2, 32));
+        Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(3, 31));
+        Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(2L, 63));
+        Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(-2L, 64));
+        Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(3L, 63));
+    }
+
+    @Test
     void testPowEdgeCases() {
         Assertions.assertEquals(0, ArithmeticUtils.pow(0, 2));
         Assertions.assertEquals(0L, ArithmeticUtils.pow(0L, 2));
