@@ -732,4 +732,170 @@ public final class DDExt {
         exp[0] = b * n + qb + rb + expi[0];
         return f;
     }
+
+    /**
+     * Compute number {@code x} raised to the power {@code n}.
+     *
+     * <p>Note: This is an alternative implementation to {@link DD#pow(int, long[])}.
+     * Accuracy is lower (see {@link DDTest#computePowError()}.
+     *
+     * <p>The value is returned as fractional {@code f} and integral
+     * {@code 2^exp} components.
+     * <pre>
+     * (x+xx)^n = (f+ff) * 2^exp
+     * </pre>
+     *
+     * <p>The combined fractional part (f, ff) is in the range {@code [0.5, 1)}.
+     *
+     * <p>Special cases:
+     * <ul>
+     *  <li>If {@code (x, xx)} is zero the high part of the fractional part is
+     *      computed using {@link Math#pow(double, double) Math.pow(x, n)} and the exponent is 0.</li>
+     *  <li>If {@code n = 0} the fractional part is 0.5 and the exponent is 1.</li>
+     *  <li>If {@code (x, xx)} is an exact power of 2 the fractional part is 0.5 and the exponent
+     *      is the power of 2 minus 1.</li>
+     *  <li>If the result high-part is an exact power of 2 and the low-part has an opposite
+     *      signed non-zero magnitude then the fraction high-part {@code f} will be {@code +/-1} such that
+     *      the double-double number is in the range {@code [0.5, 1)}.</li>
+     *  <li>If the argument is not finite then a fractional representation is not possible.
+     *      In this case the fraction and the scale factor is undefined.</li>
+     * </ul>
+     *
+     * <p>The computed result is approximately {@code 16 * (n - 1) * eps} of the exact result
+     * where eps is 2<sup>-106</sup>.
+     *
+     * @param x Number.
+     * @param n Power.
+     * @param exp Result power of two scale factor (integral exponent).
+     * @return Fraction part.
+     * @see DD#frexp(int[])
+     */
+    public static DD pow(DD x, int n, long[] exp) {
+        // Edge cases.
+        if (n == 0) {
+            exp[0] = 1;
+            return DD.of(0.5, 0);
+        }
+        // IEEE result for non-finite or zero
+        if (!Double.isFinite(x.hi()) || x.hi() == 0) {
+            exp[0] = 0;
+            return DD.of(Math.pow(x.hi(), n), 0);
+        }
+        // Here the number is non-zero finite
+        final int[] ie = {0};
+        DD f = x.frexp(ie);
+        final long b = ie[0];
+        // Handle exact powers of 2
+        if (Math.abs(f.hi()) == 0.5 && f.lo() == 0) {
+            // (f * 2^b)^n = (2f)^n * 2^(b-1)^n
+            // Use Math.pow to create the sign.
+            // Note the result must be scaled to the fractional representation
+            // by multiplication by 0.5 and addition of 1 to the exponent.
+            final double y0 = 0.5 * Math.pow(2 * f.hi(), n);
+            // Propagate sign change (y0*f.hi()) to the original zero (this.lo())
+            final double y1 = Math.copySign(0.0, y0 * f.hi() * x.lo());
+            exp[0] = 1 + (b - 1) * n;
+            return DD.of(y0, y1);
+        }
+        if (n < 0) {
+            f = computePowScaled(b, f.hi(), f.lo(), -n, exp);
+            // Result is a non-zero fraction part so inversion is safe
+            f = DD.of(f.hi(), f.lo()).reciprocal();
+            // Rescale to [0.5, 1.0)
+            f = f.frexp(ie);
+            exp[0] = ie[0] - exp[0];
+            return f;
+        }
+        return computePowScaled(b, f.hi(), f.lo(), n, exp);
+    }
+
+    /**
+     * Compute the number {@code x} (non-zero finite) raised to the power {@code n}.
+     *
+     * <p>The input power is treated as an unsigned integer. Thus the negative value
+     * {@link Integer#MIN_VALUE} is 2^31.
+     *
+     * @param b Integral component 2^exp of x.
+     * @param x Fractional high part of x.
+     * @param xx Fractional low part of x.
+     * @param n Power (in [2, 2^31]).
+     * @param exp Result power of two scale factor (integral exponent).
+     * @return Fraction part.
+     */
+    private static DD computePowScaled(long b, double x, double xx, int n, long[] exp) {
+        // Compute the power by multiplication (keeping track of the scale):
+        // 13 = 1101
+        // x^13 = x^8 * x^4 * x^1
+        //
+        // 21 = 10101
+        // x^21 = x^16 * x^4 * x^1
+        //
+        // 1. Initialise result r as 1
+        // 2. Initialise exponent nn as n
+        // 3. Initialise square x2 as x
+        // 4. while remaining bits (0 or 1):
+        //    - if the lowest bit is 1 then multiply r by x2
+        //    - consume bit and if none left stop
+        //    - square x2
+
+        long re = 0;
+        DD r = DD.ONE;
+
+        // Initialise the square as x^1. Represented as 2^fe * f.
+        // Scale the input in [0.5, 1) to be above 1 so multiplication increases magnitude.
+        long fe = b - 1;
+        double f0 = x * 2;
+        double f1 = xx * 2;
+
+        double u;
+        double v;
+        double w;
+
+        int nn = n;
+        while (true) {
+            if ((nn & 0x1) != 0) {
+                // r = r * x2
+                r = r.multiply(DD.of(f0, f1));
+                re += fe;
+                if (Math.abs(r.hi()) > SAFE_MULTIPLY) {
+                    // Scale back to the [1, 2) range. As safe multiply is 2^500
+                    // the exponent should be < 1001 so the twoPow scaling factor is supported.
+                    final int e = Math.getExponent(r.hi());
+                    final double s = DD.twoPow(-e);
+                    re += e;
+                    r = DD.of(r.hi() * s, r.lo() * s);
+                }
+
+            }
+            nn >>>= 1;
+            if (nn == 0) {
+                break;
+            }
+            // Square x2
+            // Inline multiply(f0, f1, f0, f1), adapted for squaring
+            fe <<= 1;
+            u = f0 * f0;
+            v = DD.twoSquareLow(f0, u);
+            // Inline fastTwoSum(hi, lo + (2 * f0 * f1), f)
+            w = v + (2 * f0 * f1);
+            f0 = u + w;
+            f1 = DD.fastTwoSumLow(u, w, f0);
+            // Rescale
+            if (Math.abs(f0) > SAFE_MULTIPLY) {
+                // Scale back to the [1, 2) range. As safe multiply is 2^500
+                // the exponent should be < 1001 so the twoPow scaling factor is supported.
+                final int e = Math.getExponent(f0);
+                final double s = DD.twoPow(-e);
+                fe += e;
+                f0 *= s;
+                f1 *= s;
+            }
+        }
+
+        // Normalise the return
+        final int[] e = {0};
+        r = r.frexp(e);
+        exp[0] = re + e[0];
+        return r;
+    }
 }

@@ -3034,6 +3034,29 @@ class DDTest {
     }
 
     /**
+     * Compute the max and mean error of scaled power operations.
+     * Note: This is not a test and is included for reference.
+     */
+    @Test
+    @org.junit.jupiter.api.Disabled("This fixture creates reference data")
+    void computePowError() {
+        final int n = 10_000;
+        final int samples = 1_000_000;
+        final UniformRandomProvider rng = createRNG();
+        final DD[] dd = IntStream.range(0, n).mapToObj(i ->
+            signedNormalDoubleDouble(rng)
+        ).toArray(DD[]::new);
+        final BigDecimal[] bd = Arrays.stream(dd).map(DD::bigDecimalValue).toArray(BigDecimal[]::new);
+        // BigDecimal power supported up to 2^(2^29)
+        for (int b = 2; b < 29; b++) {
+            computePowError(rng, dd, bd, Math.min(n, samples), b);
+        }
+        for (int b = 2; b < 29; b++) {
+            computePowError(rng, dd, bd, Math.min(n, samples), -b);
+        }
+    }
+
+    /**
      * Compute the max and mean error of the operators. This method supports two operators
      * so they can be compared to a reference implementation.
      *
@@ -3042,7 +3065,7 @@ class DDTest {
      * @param bd DD data converted to BigDecimal
      * @param samples Number of samples
      * @param operatorName Operator name
-     * @param expected Operator to compute the expected result
+     * @param reference Operator to compute the expected result
      * @param op1 First operator
      * @param op2 Second operator
      */
@@ -3083,7 +3106,7 @@ class DDTest {
      * @param bd DD data converted to BigDecimal
      * @param samples Number of samples
      * @param operatorName Operator name
-     * @param expected Operator to compute the expected result
+     * @param reference Operator to compute the expected result
      * @param op1 First operator
      * @param op2 Second operator
      */
@@ -3113,6 +3136,67 @@ class DDTest {
             operatorName,
             e1.getRMS() / EPS, e1.getMaxAbs() / EPS, e1.getMean() / EPS,
             e2.getRMS() / EPS, e2.getMaxAbs() / EPS, e2.getMean() / EPS,
+            1e-9 * time);
+    }
+
+    /**
+     * Compute the max and mean error of the pow operator.
+     * The javadoc states 16 * (n - 1) eps. This is an upper error bound.
+     * This reports RMS error ~ n/4; Max error ~ 2n.
+     *
+     * <p>The alternative implementation is {@link DDExt#pow(DD, int, long[])}. This computes
+     * the result starting at 1 and multiplying by increasing powers of 2 if required. The error is
+     * worse than the DD power implementation which starts at x^1 and multiplies by x if required,
+     * squaring the current result each iteration. Due to pre-computation of factors to multiply
+     * by x, the current DD implementation is also faster.
+     *
+     * <p>This method can be used to show DDMath.pow is accurate to ~ 0.5 eps.
+     *
+     * @param rng Source of randomness
+     * @param dd DD data
+     * @param bd DD data converted to BigDecimal
+     * @param samples Number of samples
+     * @param b Maximum bit in the power
+     */
+    private static void computePowError(UniformRandomProvider rng,
+        DD[] dd, BigDecimal[] bd, int samples, int b) {
+        final int absB = Math.abs(b);
+        Assertions.assertTrue(-absB >= -30, "b is not an exponent; exponent is 2^b");
+        final ErrorStatistics e1 = new ErrorStatistics();
+        final ErrorStatistics e2 = new ErrorStatistics();
+        final long start = System.nanoTime();
+        final int[] count = {0};
+        final int base = 1 << absB;
+        final IntSupplier next = samples == dd.length ? () -> count[0]++ : () -> rng.nextInt(dd.length);
+        final long[] exp = {0};
+        final MathContext mc = MathContext.DECIMAL128;
+        final BigDecimal two = BigDecimal.valueOf(2);
+        final BigDecimal half = new BigDecimal(0.5);
+        for (int n = 0; n < samples; n++) {
+            final int i = next.getAsInt();
+            int y = base + rng.nextInt(base);
+            if (b < 0) {
+                y = -y;
+            }
+            BigDecimal expected = bd[i].pow(y, mc);
+            final DD actual1 = dd[i].pow(y, exp);
+            e1.add(TestUtils.assertScaledEquals(expected, actual1, exp[0], -1.0, () -> "DD.pow"));
+            final DD actual2 = DDExt.pow(dd[i], y, exp);
+            // Max ULP error ~ 0.55:
+            // final DD actual2 = DDMath.pow(dd[i], y, exp);
+            e2.add(TestUtils.assertScaledEquals(expected, actual2, exp[0], -1.0, () -> "DDExt.pow"));
+        }
+        final long time = System.nanoTime() - start;
+        final double rms1 = e1.getRMS() / EPS;
+        final double max1 = e1.getMaxAbs() / EPS;
+        final double rms2 = e2.getRMS() / EPS;
+        final double max2 = e2.getMaxAbs() / EPS;
+        // Report errors scaled by the maximum power
+        final double scale = Math.scalb(1.0, -absB - 1);
+        TestUtils.printf("pow 2^%-3d  %12.6g (%4.2f) %12.6g (%4.2f) %12.6g  %12.6g (%4.2f) %12.6g (%4.2f) %12.6g   (%.3fs)%n",
+            b,
+            rms1, scale * rms1, max1, scale * max1, e1.getMean() / EPS,
+            rms2, scale * rms2, max2, scale * max2, e2.getMean() / EPS,
             1e-9 * time);
     }
 

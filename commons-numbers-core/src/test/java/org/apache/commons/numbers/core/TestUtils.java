@@ -218,9 +218,9 @@ public final class TestUtils {
         // e * 2^exp = expected
         // e = expected * 2^-exp
         if (exp < 0) {
-            e = expected.multiply(TWO.pow((int) -exp), MC_SCALING);
+            e = expected.multiply(TWO.pow((int) -exp, MC_SCALING), MC_SCALING);
         } else {
-            e = expected.multiply(HALF.pow((int) exp), MC_SCALING);
+            e = expected.multiply(HALF.pow((int) exp, MC_SCALING), MC_SCALING);
         }
         return TestUtils.assertEquals(e, actual, eps, () -> prefix(msg) + "scale=2^" + exp);
     }
