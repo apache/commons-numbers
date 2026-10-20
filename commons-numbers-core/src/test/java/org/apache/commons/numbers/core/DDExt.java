@@ -16,6 +16,9 @@
  */
 package org.apache.commons.numbers.core;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 /**
  * Computes double-double floating-point operations.
  *
@@ -737,7 +740,19 @@ public final class DDExt {
      * Compute number {@code x} raised to the power {@code n}.
      *
      * <p>Note: This is an alternative implementation to {@link DD#pow(int, long[])}.
-     * Accuracy is lower (see {@link DDTest#computePowError()}.
+     * It initialises the result as 1 and selectively multiplies by an increasing magnitude term
+     * which is squared each iteration.
+     *
+     * <p>The method used for multiplication and square can be specified.
+     * <ol>
+     * <li>{@link DD#multiply(DD)}
+     * <li>{@link DDExt#multiply(DD, DD)}
+     * </ol>
+     *
+     * <p>When using DD multiplication the accuracy is lower than the DD pow implementation
+     * (see {@link DDTest#computePowError()}.
+     * When using accurate multiplication from this class accuracy improves approximately
+     * 4-fold for a performance penalty of 4.5-fold. The method is not ulp accurate.
      *
      * <p>The value is returned as fractional {@code f} and integral
      * {@code 2^exp} components.
@@ -761,16 +776,14 @@ public final class DDExt {
      *      In this case the fraction and the scale factor is undefined.</li>
      * </ul>
      *
-     * <p>The computed result is approximately {@code 16 * (n - 1) * eps} of the exact result
-     * where eps is 2<sup>-106</sup>.
-     *
      * @param x Number.
      * @param n Power.
      * @param exp Result power of two scale factor (integral exponent).
+     * @param mode Multiplication mode.
      * @return Fraction part.
      * @see DD#frexp(int[])
      */
-    public static DD pow(DD x, int n, long[] exp) {
+    public static DD pow(DD x, int n, long[] exp, int mode) {
         // Edge cases.
         if (n == 0) {
             exp[0] = 1;
@@ -798,7 +811,7 @@ public final class DDExt {
             return DD.of(y0, y1);
         }
         if (n < 0) {
-            f = computePowScaled(b, f.hi(), f.lo(), -n, exp);
+            f = computePowScaled(b, f.hi(), f.lo(), -n, exp, mode);
             // Result is a non-zero fraction part so inversion is safe
             f = DD.of(f.hi(), f.lo()).reciprocal();
             // Rescale to [0.5, 1.0)
@@ -806,7 +819,7 @@ public final class DDExt {
             exp[0] = ie[0] - exp[0];
             return f;
         }
-        return computePowScaled(b, f.hi(), f.lo(), n, exp);
+        return computePowScaled(b, f.hi(), f.lo(), n, exp, mode);
     }
 
     /**
@@ -820,9 +833,10 @@ public final class DDExt {
      * @param xx Fractional low part of x.
      * @param n Power (in [2, 2^31]).
      * @param exp Result power of two scale factor (integral exponent).
+     * @param mode Multiplication mode.
      * @return Fraction part.
      */
-    private static DD computePowScaled(long b, double x, double xx, int n, long[] exp) {
+    private static DD computePowScaled(long b, double x, double xx, int n, long[] exp, int mode) {
         // Compute the power by multiplication (keeping track of the scale):
         // 13 = 1101
         // x^13 = x^8 * x^4 * x^1
@@ -838,25 +852,31 @@ public final class DDExt {
         //    - consume bit and if none left stop
         //    - square x2
 
+        // Note: This implementation is not optimised. It is used to test use
+        // of different multiplication routines for the power result.
+        final BiFunction<DD, DD, DD> multiply;
+        final Function<DD, DD> square;
+        if (mode == 1) {
+            multiply = DD::multiply;
+            square = DD::square;
+        } else {
+            multiply = DDExt::multiply;
+            square = DDExt::square;
+        }
+
         long re = 0;
         DD r = DD.ONE;
 
-        // Initialise the square as x^1. Represented as 2^fe * f.
+        // Initialise the square as x.
         // Scale the input in [0.5, 1) to be above 1 so multiplication increases magnitude.
-        long fe = b - 1;
-        double f0 = x * 2;
-        double f1 = xx * 2;
-
-        double u;
-        double v;
-        double w;
+        long x2e = b - 1;
+        DD x2 = DD.of(x * 2, xx * 2);
 
         int nn = n;
         while (true) {
             if ((nn & 0x1) != 0) {
-                // r = r * x2
-                r = r.multiply(DD.of(f0, f1));
-                re += fe;
+                r = multiply.apply(r, x2);
+                re += x2e;
                 if (Math.abs(r.hi()) > SAFE_MULTIPLY) {
                     // Scale back to the [1, 2) range. As safe multiply is 2^500
                     // the exponent should be < 1001 so the twoPow scaling factor is supported.
@@ -871,24 +891,16 @@ public final class DDExt {
             if (nn == 0) {
                 break;
             }
-            // Square x2
-            // Inline multiply(f0, f1, f0, f1), adapted for squaring
-            fe <<= 1;
-            u = f0 * f0;
-            v = DD.twoSquareLow(f0, u);
-            // Inline fastTwoSum(hi, lo + (2 * f0 * f1), f)
-            w = v + (2 * f0 * f1);
-            f0 = u + w;
-            f1 = DD.fastTwoSumLow(u, w, f0);
+            x2e <<= 1;
+            x2 = square.apply(x2);
             // Rescale
-            if (Math.abs(f0) > SAFE_MULTIPLY) {
+            if (Math.abs(x2.hi()) > SAFE_MULTIPLY) {
                 // Scale back to the [1, 2) range. As safe multiply is 2^500
                 // the exponent should be < 1001 so the twoPow scaling factor is supported.
-                final int e = Math.getExponent(f0);
+                final int e = Math.getExponent(x2.hi());
                 final double s = DD.twoPow(-e);
-                fe += e;
-                f0 *= s;
-                f1 *= s;
+                x2e += e;
+                x2 = DD.of(x2.hi() * s, x2.lo() * s);
             }
         }
 

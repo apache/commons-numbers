@@ -22,6 +22,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -3047,12 +3048,14 @@ class DDTest {
             signedNormalDoubleDouble(rng)
         ).toArray(DD[]::new);
         final BigDecimal[] bd = Arrays.stream(dd).map(DD::bigDecimalValue).toArray(BigDecimal[]::new);
+        // Use to choose the alternative implementation
+        final int alternative = 1;
         // BigDecimal power supported up to 2^(2^29)
         for (int b = 2; b < 29; b++) {
-            computePowError(rng, dd, bd, Math.min(n, samples), b);
+            computePowError(rng, dd, bd, Math.min(n, samples), b, alternative);
         }
         for (int b = 2; b < 29; b++) {
-            computePowError(rng, dd, bd, Math.min(n, samples), -b);
+            computePowError(rng, dd, bd, Math.min(n, samples), -b, alternative);
         }
     }
 
@@ -3141,14 +3144,22 @@ class DDTest {
 
     /**
      * Compute the max and mean error of the pow operator.
-     * The javadoc states 16 * (n - 1) eps. This is an upper error bound.
+     *
+     * <p>The DD.pow javadoc states 16 * (n - 1) eps. This is an upper error bound.
      * This reports RMS error ~ n/4; Max error ~ 2n.
      *
-     * <p>The alternative implementation is {@link DDExt#pow(DD, int, long[])}. This computes
-     * the result starting at 1 and multiplying by increasing powers of 2 if required. The error is
-     * worse than the DD power implementation which starts at x^1 and multiplies by x if required,
-     * squaring the current result each iteration. Due to pre-computation of factors to multiply
-     * by x, the current DD implementation is also faster.
+     * <p>The alternative implementation is a choice of:
+     * <ol>
+     * <li>{@link DDExt#pow(DD, int, long[])}
+     * <li>{@link DDExt#accuratePow(DD, int, long[])}
+     * <li>{@link DDMath#pow(DD, int, long[])}
+     * </ol>
+     *
+     * <p>Note that [1] and [2] compute the result starting at 1 and multiplying by
+     * increasing powers of 2 if required. In the case of [1] the error is worse than the
+     * DD power implementation which starts at x^1 and multiplies by x if required,
+     * squaring the current result each iteration. Due to pre-computation of factors to
+     * multiply by x, the current DD implementation is also faster.
      *
      * <p>This method can be used to show DDMath.pow is accurate to ~ 0.5 eps.
      *
@@ -3157,9 +3168,10 @@ class DDTest {
      * @param bd DD data converted to BigDecimal
      * @param samples Number of samples
      * @param b Maximum bit in the power
+     * @param alternative Alternative power implementation.
      */
     private static void computePowError(UniformRandomProvider rng,
-        DD[] dd, BigDecimal[] bd, int samples, int b) {
+        DD[] dd, BigDecimal[] bd, int samples, int b, int alternative) {
         final int absB = Math.abs(b);
         Assertions.assertTrue(-absB >= -30, "b is not an exponent; exponent is 2^b");
         final ErrorStatistics e1 = new ErrorStatistics();
@@ -3172,6 +3184,17 @@ class DDTest {
         final MathContext mc = MathContext.DECIMAL128;
         final BigDecimal two = BigDecimal.valueOf(2);
         final BigDecimal half = new BigDecimal(0.5);
+        // The alternative implementation uses the exp variable for output
+        final BiFunction<DD, Integer, DD> pow2;
+        final String name;
+        if (alternative == 3) {
+            pow2 = (x, n) -> DDMath.pow(x, n, exp);
+            name = "DDMath.pow";
+        } else {
+            // Supports alternative 1 or 2
+            pow2 = (x, n) -> DDExt.pow(x, n, exp, alternative);
+            name = alternative == 1 ? "DDExt.pow" : "DDExt.accPow";
+        }
         for (int n = 0; n < samples; n++) {
             final int i = next.getAsInt();
             int y = base + rng.nextInt(base);
@@ -3181,9 +3204,7 @@ class DDTest {
             BigDecimal expected = bd[i].pow(y, mc);
             final DD actual1 = dd[i].pow(y, exp);
             e1.add(TestUtils.assertScaledEquals(expected, actual1, exp[0], -1.0, () -> "DD.pow"));
-            final DD actual2 = DDExt.pow(dd[i], y, exp);
-            // Max ULP error ~ 0.55:
-            // final DD actual2 = DDMath.pow(dd[i], y, exp);
+            final DD actual2 = pow2.apply(dd[i], y);
             e2.add(TestUtils.assertScaledEquals(expected, actual2, exp[0], -1.0, () -> "DDExt.pow"));
         }
         final long time = System.nanoTime() - start;
@@ -3193,8 +3214,8 @@ class DDTest {
         final double max2 = e2.getMaxAbs() / EPS;
         // Report errors scaled by the maximum power
         final double scale = Math.scalb(1.0, -absB - 1);
-        TestUtils.printf("pow 2^%-3d  %12.6g (%4.2f) %12.6g (%4.2f) %12.6g  %12.6g (%4.2f) %12.6g (%4.2f) %12.6g   (%.3fs)%n",
-            b,
+        TestUtils.printf("%-13s 2^%-3d  %12.6g (%4.2f) %12.6g (%4.2f) %12.6g  %12.6g (%4.2f) %12.6g (%4.2f) %12.6g   (%.3fs)%n",
+            name, b,
             rms1, scale * rms1, max1, scale * max1, e1.getMean() / EPS,
             rms2, scale * rms2, max2, scale * max2, e2.getMean() / EPS,
             1e-9 * time);
