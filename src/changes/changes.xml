@@ -56,7 +56,11 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
-      <action type="fix" due-to="Aryan Ganjoo" issue="NUMBERS-218">
+      <action dev="aherbert" type="fix" due-to="Alex Herbert" issue="NUMBERS-219">
+        "Digamma/Trigamma": Value at -infinity is undefined (NaN). Value at +infinity
+        is asymptotically +infinity (digamma) and 0 (trigamma).
+      </action>
+      <action dev="aherbert" type="fix" due-to="Aryan Ganjoo" issue="NUMBERS-218">
         "ArithmeticUtils.pow": Return the representable minimum int and long values for
         (-2)^31 and (-2)^63 instead of reporting overflow.
       </action>

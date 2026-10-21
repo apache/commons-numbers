@@ -18,11 +18,11 @@ package org.apache.commons.numbers.gamma;
 
 /**
  * <a href="https://en.wikipedia.org/wiki/Digamma_function">Digamma function</a>.
- * <p>
- * It is defined as the logarithmic derivative of the \( \Gamma \)
+ *
+ * <p>It is defined as the logarithmic derivative of the \( \Gamma \)
  * ({@link Gamma}) function:
- * \( \frac{d}{dx}(\ln \Gamma(x)) = \frac{\Gamma^\prime(x)}{\Gamma(x)} \).
- * </p>
+ *
+ * <p>\[ \frac{d}{dx}(\ln \Gamma(x)) = \frac{\Gamma^\prime(x)}{\Gamma(x)} \].
  *
  * @see Gamma
  */
@@ -49,13 +49,20 @@ public final class Digamma {
     /**
      * Computes the digamma function.
      *
-     * This is an independently written implementation of the algorithm described in
+     * <p>Special cases:
+     * <ul>
+     * <li>If the argument is infinity, then the result is infinity.</li>
+     * <li>If the argument is negative infinity, then the result is nan.</li>
+     * <li>If the argument is nan, then the result is nan.</li>
+     * </ul>
+     *
+     * <p>This is an independently written implementation of the algorithm described in
      * <a href="https://www.uv.es/~bernardo/1976AppStatist.pdf">Jose Bernardo,
      * Algorithm AS 103: Psi (Digamma) Function, Applied Statistics, 1976</a>.
      * A <a href="https://en.wikipedia.org/wiki/Digamma_function#Reflection_formula">
      * reflection formula</a> is incorporated to improve performance on negative values.
      *
-     * Some of the constants have been changed to increase accuracy at the moderate
+     * <p>Some of the constants have been changed to increase accuracy at the moderate
      * expense of run-time.  The result should be accurate to within {@code 1e-8}.
      * relative tolerance for {@code 0 < x < 1e-5}  and within {@code 1e-8} absolute
      * tolerance otherwise.
@@ -66,7 +73,9 @@ public final class Digamma {
      */
     public static double value(double x) {
         if (!Double.isFinite(x)) {
-            return x;
+            // Function oscillates between infinite poles at integer values for
+            // large negative x; the -infinity limit is undefined
+            return x == Double.POSITIVE_INFINITY ? x : Double.NaN;
         }
 
         double digamma = 0;

@@ -19,8 +19,11 @@ package org.apache.commons.numbers.gamma;
 /**
  * <a href="https://en.wikipedia.org/wiki/Trigamma_function">Trigamma function</a>.
  *
- * It is the derivative of the {@link Digamma digamma function}:
- * \( \psi_1(x) = \frac{d^2}{dx^2} (\ln \Gamma(x)) \).
+ * <p>It is the derivative of the {@link Digamma digamma function}:
+ *
+ * <p>\[ \psi_1(x) = \frac{d^2}{dx^2} (\ln \Gamma(x)) \].
+ *
+ * @see Digamma
  */
 public final class Trigamma {
     /** C limit. */
@@ -43,12 +46,21 @@ public final class Trigamma {
     /**
      * Computes the trigamma function.
      *
+     * <p>Special cases:
+     * <ul>
+     * <li>If the argument is infinity, then the result is 0.</li>
+     * <li>If the argument is negative infinity, then the result is nan.</li>
+     * <li>If the argument is nan, then the result is nan.</li>
+     * </ul>
+     *
      * @param x Argument.
      * @return trigamma(x) to within {@code 1e-8} relative or absolute error whichever is larger.
      */
     public static double value(double x) {
         if (!Double.isFinite(x)) {
-            return x;
+            // Function oscillates between infinite poles at integer values for
+            // large negative x; the -infinity limit is undefined
+            return x == Double.POSITIVE_INFINITY ? 0 : Double.NaN;
         }
 
         if (x < 0) {

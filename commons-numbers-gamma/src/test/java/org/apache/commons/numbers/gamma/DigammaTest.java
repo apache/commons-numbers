@@ -68,9 +68,10 @@ class DigammaTest {
 
     @Test
     void testDigammaNonRealArgs() {
-        Assertions.assertTrue(Double.isNaN(Digamma.value(Double.NaN)));
-        Assertions.assertTrue(Double.isInfinite(Digamma.value(Double.POSITIVE_INFINITY)));
-        Assertions.assertTrue(Double.isInfinite(Digamma.value(Double.NEGATIVE_INFINITY)));
+        // See NUMBERS-219
+        Assertions.assertEquals(Double.NaN, Digamma.value(Double.NaN));
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, Digamma.value(Double.POSITIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, Digamma.value(Double.NEGATIVE_INFINITY));
     }
 
     private void checkRelativeError(String msg,
