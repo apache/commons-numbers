@@ -110,9 +110,10 @@ class TrigammaTest {
 
     @Test
     void testTrigammaNonRealArgs() {
+        // See NUMBERS-219
         Assertions.assertEquals(Double.NaN, Trigamma.value(Double.NaN));
-        Assertions.assertEquals(Double.POSITIVE_INFINITY, Trigamma.value(Double.POSITIVE_INFINITY));
-        Assertions.assertEquals(Double.NEGATIVE_INFINITY, Trigamma.value(Double.NEGATIVE_INFINITY));
+        Assertions.assertEquals(0, Trigamma.value(Double.POSITIVE_INFINITY));
+        Assertions.assertEquals(Double.NaN, Trigamma.value(Double.NEGATIVE_INFINITY));
     }
 }
 
