@@ -19,8 +19,11 @@ package org.apache.commons.numbers.gamma;
 /**
  * <a href="https://en.wikipedia.org/wiki/Trigamma_function">Trigamma function</a>.
  *
- * It is the derivative of the {@link Digamma digamma function}:
- * \( \psi_1(x) = \frac{d^2}{dx^2} (\ln \Gamma(x)) \).
+ * <p>It is the derivative of the {@link Digamma digamma function}:
+ *
+ * <p>\[ \psi_1(x) = \frac{d^2}{dx^2} (\ln \Gamma(x)) \].
+ *
+ * @see Digamma
  */
 public final class Trigamma {
     /** C limit. */

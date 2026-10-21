@@ -18,11 +18,11 @@ package org.apache.commons.numbers.gamma;
 
 /**
  * <a href="https://en.wikipedia.org/wiki/Digamma_function">Digamma function</a>.
- * <p>
- * It is defined as the logarithmic derivative of the \( \Gamma \)
+ *
+ * <p>It is defined as the logarithmic derivative of the \( \Gamma \)
  * ({@link Gamma}) function:
- * \( \frac{d}{dx}(\ln \Gamma(x)) = \frac{\Gamma^\prime(x)}{\Gamma(x)} \).
- * </p>
+ *
+ * <p>\[ \frac{d}{dx}(\ln \Gamma(x)) = \frac{\Gamma^\prime(x)}{\Gamma(x)} \].
  *
  * @see Gamma
  */
