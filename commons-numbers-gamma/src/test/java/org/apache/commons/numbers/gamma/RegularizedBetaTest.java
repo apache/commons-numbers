@@ -78,11 +78,8 @@ class RegularizedBetaTest {
         final double a = 64.33333333333334;
         final double b = 223;
 
-        try {
-            RegularizedBeta.value(x, a, b, 1e-14, 10000);
-        } catch (StackOverflowError error) {
-            Assertions.fail("Infinite recursion");
-        }
+        Assertions.assertDoesNotThrow(() -> RegularizedBeta.value(x, a, b, 1e-14, 10000),
+            "Infinite recursion");
     }
 
     @Test
