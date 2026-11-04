@@ -56,6 +56,11 @@ If the output is not quite correct, check for invisible trailing spaces!
     <release version="1.4" date="TBD" description="
 New features, updates and bug fixes.
 ">
+      <action dev="aherbert" type="fix" due-to="Alex Herbert, simpleqt">
+        "DD": Correct longValue() truncation of values in (-1, 0) to 0 by correctly
+        using a positive round-off low part when the high part is -1. Truncation
+        of values in (0, 1) to 0 was not affected.
+      </action>
       <action dev="aherbert" type="fix" due-to="Alex Herbert" issue="NUMBERS-219">
         "Digamma/Trigamma": Value at -infinity is undefined (NaN). Value at +infinity
         is asymptotically +infinity (digamma) and 0 (trigamma).
