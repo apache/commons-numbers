@@ -356,6 +356,31 @@ class DDTest {
         }
     }
 
+    @Test
+    void testLongValueTruncatesTowardsZeroWhenTheLowPartReversesTheSign() {
+        // A double-double with a negative high part and a positive low part is in the interval (-1, 0). Truncation
+        // towards zero must give 0 for both conversions.
+        final DD a = DD.ofSum(-1.0, 1e-20);
+        final BigDecimal bd = a.bigDecimalValue();
+        Assertions.assertEquals(-1, bd.signum(), "sign");
+        Assertions.assertTrue(bd.abs().compareTo(BigDecimal.ONE) < 0, "value is in (-1, 0)");
+        Assertions.assertEquals(0, a.longValue(), "longValue");
+        Assertions.assertEquals(0, a.intValue(), "intValue");
+        // The mirror value is unchanged
+        Assertions.assertEquals(0, DD.ofSum(1.0, -1e-20).longValue(), "mirror");
+        // A high part away from zero is unchanged
+        Assertions.assertEquals(-2, DD.ofSum(-3.0, 1e-20).longValue(), "value in (-3, -2)");
+        // A low part of the opposite sign to a high part just above Integer.MIN_VALUE truncates towards zero
+        final DD c = DD.ofSum(Integer.MIN_VALUE, 1e-7);
+        Assertions.assertTrue(c.bigDecimalValue().compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) > 0, "value above min");
+        Assertions.assertEquals(Integer.MIN_VALUE + 1, c.longValue(), "above min longValue");
+        Assertions.assertEquals(Integer.MIN_VALUE + 1, c.intValue(), "above min intValue");
+        // A value below the minimum int retains the clipped limit
+        final DD d = DD.ofSum(-0x1.00000001p31, 1e-7);
+        Assertions.assertTrue(d.bigDecimalValue().compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) < 0, "value below min");
+        Assertions.assertEquals(Integer.MIN_VALUE, d.intValue(), "clipped intValue");
+    }
+
     /**
      * Test the value is exact after a sum of longs.
      * This exercises {@link DD#of(long)}, {@link DD#bigDecimalValue()} and {@link DD#longValue()}.

@@ -753,11 +753,16 @@ public final class DD
             // with respect to the sign of the high part.
             final long b = (long) (a < 0 ? Math.ceil(xx) : Math.floor(xx));
 
+            // Sum the parts. A value in (-1, 0) truncates to 0, so a sum of zero is
+            // a result and not an overflow. An overflow occurs only when the sum
+            // cannot be represented as a long.
             final long sum = a1 + b + a2;
-            // Avoid overflow. If the sum has changed sign then an overflow occurred.
+            // Avoid overflow.
+            // If the sum of equal signed parts has changed sign then an overflow occurred.
             // This happens when high == 2^63 and the low part is additional magnitude.
             // The xor operation creates a negative if the signs are different.
-            if ((sum ^ a) >= 0) {
+            // Check the signs using a1 + b as the sign of a2 matches a1 or it was zero.
+            if (((sum ^ a1) & (sum ^ b)) >= 0) {
                 return sum;
             }
         }
