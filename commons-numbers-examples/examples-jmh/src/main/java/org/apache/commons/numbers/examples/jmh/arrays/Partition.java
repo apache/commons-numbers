@@ -6435,7 +6435,7 @@ final class Partition {
      *
      * <p>Note:
      * <p>This method is not configurable with the exception of the single-pivot quickselect method
-     * and the size to stop quickselect recursion and finish using sort select. It has been superceded by
+     * and the size to stop quickselect recursion and finish using sort select. It has been superseded by
      * {@link #partitionLinear(double[], int[], int)} which has configurable deterministic
      * pivot selection including those using partition expansion in-place of full partitioning.
      *
