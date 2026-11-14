@@ -17,6 +17,7 @@
 package org.apache.commons.numbers.core;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Some useful, arithmetics related, additions to the built-in functions in
@@ -386,6 +387,7 @@ public final class ArithmeticUtils {
      * @throws IllegalArgumentException if {@code e < 0}.
      */
     public static BigInteger pow(final BigInteger k, int e) {
+        Objects.requireNonNull(k);
         if (e < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
@@ -402,6 +404,7 @@ public final class ArithmeticUtils {
      * @throws IllegalArgumentException if {@code e < 0}.
      */
     public static BigInteger pow(final BigInteger k, final long e) {
+        Objects.requireNonNull(k);
         if (e < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
@@ -429,6 +432,8 @@ public final class ArithmeticUtils {
      * @throws IllegalArgumentException if {@code e < 0}.
      */
     public static BigInteger pow(final BigInteger k, final BigInteger e) {
+        Objects.requireNonNull(k);
+        Objects.requireNonNull(e);
         if (e.compareTo(BigInteger.ZERO) < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
