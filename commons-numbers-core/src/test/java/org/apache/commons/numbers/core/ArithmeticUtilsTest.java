@@ -307,6 +307,10 @@ class ArithmeticUtilsTest {
 
         Assertions.assertEquals(BigInteger.valueOf(1801088541L), ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(7L)));
         Assertions.assertEquals(BigInteger.ONE, ArithmeticUtils.pow(twentyOne, BigInteger.ZERO));
+        Assertions.assertThrows(NullPointerException.class, () -> ArithmeticUtils.pow((BigInteger) null, 0));
+        Assertions.assertThrows(NullPointerException.class, () -> ArithmeticUtils.pow((BigInteger) null, 0L));
+        Assertions.assertThrows(NullPointerException.class, () -> ArithmeticUtils.pow((BigInteger) null, BigInteger.ZERO));
+        Assertions.assertThrows(NullPointerException.class, () -> ArithmeticUtils.pow(twentyOne, (BigInteger) null));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(-7L)));
 
