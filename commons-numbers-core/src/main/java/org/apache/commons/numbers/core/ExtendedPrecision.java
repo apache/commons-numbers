@@ -59,7 +59,7 @@ final class ExtendedPrecision {
      * containing the magnitude of the rounding error when converting the exact 106-bit
      * significand of the multiplication result to a 53-bit significand.
      *
-     * <p>The method is written to be functionally similar to using a fused multiply add (FMA)
+     * <p>The method is written to be functionally <em>similar</em> to using a fused multiply add (FMA)
      * operation to compute the low part, for example JDK 9's Math.fma function (note the sign
      * change in the input argument for the product):
      * <pre>
@@ -73,12 +73,25 @@ final class ExtendedPrecision {
      * <p>Special cases:
      *
      * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0.</li>
-     *  <li>If {@code x * y} is infinite or NaN then the result is NaN.</li>
+     *  <li>If {@code x * y} is sub-normal or zero then the result is 0.0
+     *      (no low part in double precision).</li>
+     *  <li>If {@code x * y} is infinite or NaN then the result is NaN (no usable low part).
+     *      This case may be different from using Math.fma(x, y, -xy).</li>
      * </ul>
      *
-     * <p>This method delegates to {@link DD#twoProductLow(double, double, double)} but uses
-     * scaling to avoid intermediate overflow.
+     * <p>Note: Math.fma will represent the infinite product {@code x * y} as representable.
+     * When the argument {@code xy} is infinite FMA can compute a round-off different from
+     * this method, e.g. fma(2, MAX_VALUE, -2 * MAX_VALUE) is -infinity. This difference will
+     * occur only when the standard product is not finite. Attempts to extend precision for such
+     * cases are not supported. The caller is responsible for the product {@code x * y} and
+     * must ensure that use of the NaN round-off returned from this method is acceptable.
+     *
+     * <p>This method will use FMA if hardware supported FMA has been detected. Use of FMA
+     * occurs when the product {@code xy} has been validated as a finite normal number.
+     *
+     * <p>In the absence of FMA support, this method delegates to
+     * {@link DD#twoProductLow(double, double, double)} but uses scaling to avoid
+     * intermediate overflow.
      *
      * @param x First factor.
      * @param y Second factor.
@@ -96,6 +109,31 @@ final class ExtendedPrecision {
             return xy - xy;
         }
 
+        // The result xy is finite and normal.
+        // Use FMA when available.
+        // This call is performed after the check for infinite numbers to
+        // ensure a consistent result with or without FMA.
+        if (FMASupport.isHardwareFMA()) {
+            return FMASupport.fma(x, y, -xy);
+        }
+        return scaledProductLow(x, y, xy);
+    }
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * product of {@code x} and {@code y}.
+     *
+     * <p>This method delegates to {@link DD#twoProductLow(double, double, double)} but uses
+     * scaling to avoid intermediate overflow.
+     *
+     * @param x First factor.
+     * @param y Second factor.
+     * @param xy Product of the factors (x * y).
+     * @return the low part of the product double length number
+     * @see DD#twoProductLow(double, double, double)
+     */
+    // Visible for testing
+    static double scaledProductLow(double x, double y, double xy) {
         // The result xy is finite and normal.
         // Use Dekker's mul12 algorithm that splits the values into high and low parts.
         // Dekker's split using multiplication will overflow if the value is within 2^27

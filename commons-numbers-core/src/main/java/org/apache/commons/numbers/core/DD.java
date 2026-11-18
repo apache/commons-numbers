@@ -147,6 +147,64 @@ import java.util.function.DoubleUnaryOperator;
  * intermediate terms (see {@link #frexp(int[]) frexp} and {@link #scalb(int) scalb}) and
  * appropriate management of the current base 2 scale.
  *
+ * <p><b>Fused multiply-add (FMA) support</b>
+ *
+ * <p>The round-off part of the product of two {@code double} values is computed on all
+ * platforms using a software implementation (Dekker's split) of 16 floating-point
+ * operations (FLOPs). The same value can be computed using a fused multiply-add (FMA)
+ * operation in 2 FLOPs. FMA was added to Java 9 as
+ * <a href="https://docs.oracle.com/javase/9/docs/api/java/lang/Math.html#fma-double-double-double-">
+ * {@code Math.fma}</a>. HotSpot-based Java Virtual Machines (VMs) detect hardware support
+ * for FMA and compile {@code Math.fma} to the FMA instruction. This is controlled by the
+ * HotSpot product flag {@code -XX:+UseFMA} ({@code -XX:-UseFMA} to disable); if not set
+ * explicitly the flag is {@code true} on processors that support FMA.
+ *
+ * <p>From version 1.4 this class detects hardware-enabled FMA once, on the first operation
+ * that computes the round-off of a product. FMA is used when all of the following conditions
+ * are met:
+ * <ul>
+ *  <li>The system property {@code org.apache.commons.numbers.core.DD.fma} can be read and is
+ *      either not set or set to {@code true} (case-insensitive);
+ *  <li>The {@code Math.fma} method is found by a public look-up in the {@link Math} class
+ *      using the {@link java.lang.invoke.MethodHandle MethodHandle} API;
+ *  <li>The <a href="https://docs.oracle.com/javase/8/docs/jre/api/management/extension/com/sun/management/HotSpotDiagnosticMXBean.html">
+ *      HotSpotDiagnosticMXBean</a> reports the VM option "UseFMA" as {@code true};
+ *  <li>The method returns the correct finite result when the intermediate product
+ *      {@code a * b} of {@code Math.fma(a, b, c)} overflows, i.e. the operation is fused.
+ * </ul>
+ *
+ * <p>Setting the system property {@code org.apache.commons.numbers.core.DD.fma} to
+ * {@code false} disables the use of FMA: no detection is performed and the software
+ * implementation is used. This avoids the one-off cost of the detection (which
+ * initialises the management API) for start-up cost sensitive applications, and provides
+ * the same results on all platforms outside the range supported by the software
+ * implementation. The property is read once, so it must be set when the JVM is started
+ * ({@code -Dorg.apache.commons.numbers.core.DD.fma=false}) or before the first product is
+ * computed. It applies to all classes in this package that compute the round-off of a
+ * product (e.g. {@link Sum} and {@link Norm}).
+ *
+ * <p>If FMA is not enabled, e.g. on Java 8 or VMs that are not based on HotSpot, the software
+ * implementation is used. When FMA is detected the round-off part of a product is computed as:
+ * <pre>{@code
+ * double x = a * b;
+ * double xx = Math.fma(a, b, -x);
+ * }</pre>
+ *
+ * <p>This is a performance-only change. Results are identical with and without FMA where
+ * the software implementation computes the exact product: the product is finite, the
+ * round-off part is not sub-normal, and the split arguments have a base 2 exponent below
+ * 996. Outside this range results may differ; for example FMA can compute a finite
+ * round-off where the software split overflows and creates NaN. When hardware FMA is not
+ * detected the performance is equivalent to version 1.3. When it is used, operators that
+ * compute the round-off of a product (multiply, square, divide, reciprocal, sqrt) are
+ * faster, and the integer power functions, which use repeated multiplication, run in
+ * approximately half the time on the platforms tested.
+ *
+ * <p>Users are recommended to keep the arguments and results of DD operations within the
+ * range supported by the software implementation (see <i>Overflow, underflow and
+ * non-finite support</i>). This ensures consistent results on all platforms, and increased
+ * performance where hardware FMA is available.
+ *
  * <p>References:
  * <ol>
  * <li>
@@ -493,25 +551,40 @@ public final class DD
     /**
      * Returns a {@code DD} whose value is {@code (x * y)}.
      *
-     * <p>This method ignores special handling of non-normal numbers and intermediate
-     * overflow within the extended precision computation.
-     * This creates the following special cases:
+     * <p>The result is the exact double-double representation of the product under the
+     * following conditions:
      *
      * <ul>
-     *  <li>If either {@code |x|} or {@code |y|} multiplied by {@code 1 + 2^27}
-     *      is infinite (intermediate overflow) then the low part is NaN.</li>
-     *  <li>If {@code x * y} is infinite then the low part is NaN.</li>
+     *  <li>{@code x * y > 2^-969};</li>
+     *  <li>neither argument multiplied by {@code 1 + 2^27} is infinite; and</li>
+     *  <li>both arguments are finite normal numbers.</li>
+     * </ul>
+     *
+     * <p>This method ignores special handling of non-normal numbers and intermediate
+     * overflow within the extended precision computation. The low part will be computed
+     * using FMA if hardware support is available; otherwise splitting of 53-bit numbers by
+     * multiplication is used which can create intermediate overflow.
+     *
+     * <p>This creates the following special cases:
+     *
+     * <ul>
      *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.</li>
      *  <li>If {@code x * y} is sub-normal or zero then the low part is +/-0.0.</li>
+     *  <li>If {@code x * y} is infinite then the low part is undefined.</li>
+     *  <li>If {@code x * y} is finite and FMA support is available then the low part can be
+     *      computed.</li>
+     *  <li>If {@code x * y} is finite and FMA support is not available, and
+     *      either {@code |x|} or {@code |y|} multiplied by {@code 1 + 2^27}
+     *      is infinite (intermediate overflow) then the low part is NaN;
+     *      otherwise the low part can be computed.</li>
      * </ul>
      *
      * <p>An invalid result can be identified using {@link #isFinite()}.
      *
-     * <p>Note: Ignoring special cases is a design choice for performance. The
-     * method is therefore not a drop-in replacement for
-     * {@code roundOff = Math.fma(x, y, -x * y)}.
-     *
-     * <p>The result is the exact double-double representation of the product.
+     * <p>Note: Ignoring special cases is a design choice for performance. Scaling of arguments
+     * by the caller to the supported range is recommended to avoid overflow and underflow
+     * cases if the low part is required to 53-bit precision. The result can be efficiently
+     * rescaled using {@link DD#scalb(int)}.
      *
      * @param x Factor.
      * @param y Factor.
@@ -525,11 +598,10 @@ public final class DD
      * Returns a {@code DD} whose value is {@code (x * x)}.
      *
      * <p>This method is an optimisation of {@link #ofProduct(double, double) ofProduct(x, x)}.
-     * See that method for details of special cases.
+     * See that method for details of where the result is the exact double-double
+     * representation of the square and special cases.
      *
      * <p>An invalid result can be identified using {@link #isFinite()}.
-     *
-     * <p>The result is the exact double-double representation of the square.
      *
      * @param x Factor.
      * @return the square {@code x * x}.
@@ -544,14 +616,17 @@ public final class DD
      * If {@code y = 0} the result is undefined.
      *
      * <p>This method ignores special handling of non-normal numbers and intermediate
-     * overflow within the extended precision computation.
+     * overflow within the extended precision computation. The low part will be computed
+     * using FMA if hardware support is available; otherwise splitting of 53-bit numbers by
+     * multiplication is used which can create intermediate overflow.
      * This creates the following special cases:
      *
      * <ul>
-     *  <li>If either {@code |x / y|} or {@code |y|} multiplied by {@code 1 + 2^27}
-     *      is infinite (intermediate overflow) then the low part is NaN.</li>
-     *  <li>If {@code x / y} is infinite then the low part is NaN.</li>
      *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.</li>
+     *  <li>If {@code x / y} is infinite then the low part is NaN.</li>
+     *  <li>If FMA support is not available and either {@code |x / y|} or
+     *      {@code |y|} multiplied by {@code 1 + 2^27}
+     *      is infinite (intermediate overflow) then the low part is NaN.</li>
      *  <li>If {@code x / y} is sub-normal or zero, excluding the previous cases,
      *      then the low part is +/-0.0.</li>
      * </ul>
@@ -570,7 +645,7 @@ public final class DD
         final double q0 = x / y;
         // remainder r = x - q0 * y
         final double p0 = q0 * y;
-        final double p1 = twoProductLow(q0, y, p0);
+        final double p1 = prodLow(q0, y, p0);
         final double r0 = x - p0;
         final double r1 = twoDiffLow(x, p0, r0) - p1;
         // correction term q1 = r0 / y
@@ -950,19 +1025,7 @@ public final class DD
      *
      * <p>This method ignores special handling of non-normal numbers and intermediate
      * overflow within the extended precision computation.
-     * This creates the following special cases:
-     *
-     * <ul>
-     *  <li>If {@code x * y} is sub-normal or zero then the low part is +/-0.0.</li>
-     *  <li>If {@code x * y} is infinite then the low part is NaN.</li>
-     *  <li>If {@code x} or {@code y} is infinite or NaN then the low part is NaN.</li>
-     *  <li>If either {@code |x|} or {@code |y|} multiplied by {@code 1 + 2^27}
-     *      is infinite (intermediate overflow) then the low part is NaN.</li>
-     * </ul>
-     *
-     * <p>Note: Ignoring special cases is a design choice for performance. The
-     * method is therefore not a drop-in replacement for
-     * {@code round_off = Math.fma(x, y, -x * y)}.
+     * See {@link DD#ofProduct(double, double)} for special cases.
      *
      * @param x First factor.
      * @param y Second factor.
@@ -970,8 +1033,25 @@ public final class DD
      */
     static DD twoProd(double x, double y) {
         final double xy = x * y;
-        // No checks for non-normal xy, or overflow during the split of the arguments
-        return new DD(xy, twoProductLow(x, y, xy));
+        return new DD(xy, prodLow(x, y, xy));
+    }
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * product of {@code x} and {@code y}.
+     *
+     * <p>The method will use FMA if hardware supported FMA has been detected; otherwise
+     * a software implementation using Dekker's mult12 algorithm.
+     *
+     * @param x First factor.
+     * @param y Second factor.
+     * @param xy Product of the factors (x * y).
+     * @return the low part of the square double length number
+     */
+    private static double prodLow(double x, double y, double xy) {
+        return FMASupport.isHardwareFMA() ?
+            FMASupport.fma(x, y, -xy) :
+            twoProductLow(x, y, xy);
     }
 
     /**
@@ -982,6 +1062,10 @@ public final class DD
      *
      * <p>Warning: This method does not perform scaling in Dekker's split and large
      * finite numbers can create NaN results.
+     *
+     * <p>Note: This method is a fallback for when hardware supported FMA has not
+     * been detected. It is exposed for use in {@link ExtendedPrecision} for the
+     * software implementation of a scaled two-product.
      *
      * @param x First factor.
      * @param y Second factor.
@@ -1000,6 +1084,30 @@ public final class DD
 
     /**
      * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * product of {@code x} and {@code y}.
+     *
+     * <p>The method will use FMA if hardware supported FMA has been detected; otherwise
+     * a software implementation using Dekker's mult12 algorithm.
+     *
+     * <p>This is a specialised method used in the power function where repeated
+     * multiplication by the same term is required. This term can be split once
+     * and reused.
+     *
+     * @param x First factor.
+     * @param y Second factor.
+     * @param hy High-part of second factor.
+     * @param ly Low-part of second factor.
+     * @param xy Product of the factors (x * y).
+     * @return the low part of the square double length number
+     */
+    private static double prodLow(double x, double y, double hy, double ly, double xy) {
+        return FMASupport.isHardwareFMA() ?
+            FMASupport.fma(x, y, -xy) :
+            twoProductLow(x, hy, ly, xy);
+    }
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
      * product of {@code x} and {@code y} using Dekker's mult12 algorithm. The standard
      * precision product {@code x*y}, and the high and low parts of the second factor
      * must be provided.
@@ -1007,6 +1115,9 @@ public final class DD
      * <p>This is a specialised method used in the power function where repeated
      * multiplication by the same term is required. This term can be split once
      * and reused.
+     *
+     * <p>Note: This method is a fallback for when hardware supported FMA has not
+     * been detected.
      *
      * @param x First factor.
      * @param hy High-part of second factor.
@@ -1063,8 +1174,26 @@ public final class DD
      */
     static DD twoSquare(double x) {
         final double xx = x * x;
-        // No checks for non-normal xy, or overflow during the split of the arguments
-        return new DD(xx, twoSquareLow(x, xx));
+        return new DD(xx, squareLow(x, xx));
+    }
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * square of {@code x}.
+     *
+     * <p>The method will use FMA if hardware supported FMA has been detected; otherwise
+     * a software implementation using Dekker's mult12 algorithm.
+     *
+     * <p>Note: This method is exposed for use in the {@link Norm} class.
+     *
+     * @param x Factor.
+     * @param x2 Square of the factor (x * x).
+     * @return the low part of the square double length number
+     */
+    static double squareLow(double x, double x2) {
+        return FMASupport.isHardwareFMA() ?
+            FMASupport.fma(x, x, -x2) :
+            twoSquareLow(x, x2);
     }
 
     /**
@@ -1082,8 +1211,7 @@ public final class DD
      * @see #highPart(double)
      * @see #twoProductLow(double, double, double)
      */
-    static double twoSquareLow(double x, double x2) {
-        // See productLowUnscaled
+    private static double twoSquareLow(double x, double x2) {
         final double hx = highPart(x);
         final double lx = x - hx;
         return twoSquareLow(hx, lx, x2);
@@ -1476,7 +1604,7 @@ public final class DD
         // Dekker mul2 with yy=0
         // (Alternative: Scale expansion (Schewchuk Fig 13))
         final double hi = x * y;
-        final double lo = twoProductLow(x, y, hi);
+        final double lo = prodLow(x, y, hi);
         // Save 2 FLOPS compared to multiply(x, xx, y, 0).
         // This is reused in divide to save more FLOPS so worth the optimisation.
         return fastTwoSum(hi, lo + xx * y);
@@ -1510,7 +1638,7 @@ public final class DD
         // Dekker mul2
         // (Alternative: Scale expansion (Schewchuk Fig 13))
         final double hi = x * y;
-        final double lo = twoProductLow(x, y, hi);
+        final double lo = prodLow(x, y, hi);
         return fastTwoSum(hi, lo + (x * yy + xx * y));
     }
 
@@ -1538,7 +1666,7 @@ public final class DD
     private static DD square(double x, double xx) {
         // Dekker mul2
         final double hi = x * x;
-        final double lo = twoSquareLow(x, hi);
+        final double lo = squareLow(x, hi);
         return fastTwoSum(hi, lo + (2 * x * xx));
     }
 
@@ -1714,7 +1842,7 @@ public final class DD
         // Dekker's double precision sqrt2 algorithm.
         // See Dekker, 1971, pp 242.
         final double u = c * c;
-        final double uu = twoSquareLow(c, u);
+        final double uu = squareLow(c, u);
         final double cc = (x - u - uu + xx) * 0.5 / c;
 
         // Extended precision result:
@@ -2033,7 +2161,8 @@ public final class DD
         //    - if the current bit is 1 then multiply by x
         // In this scheme the factors to multiply by x can be pre-computed.
 
-        // Split b
+        // Split x even with FMA support.
+        // This cost is 4 FLOPs and reduces byte-size to achieve thresholds for inlining.
         final double xh = highPart(x);
         final double xl = x - xh;
 
@@ -2055,7 +2184,7 @@ public final class DD
         for (int i = 32 - shift; i != 0; i--, bits <<= 1) {
             // Square the result: square(f0) -> (u, v)
             u = f0 * f0;
-            v = twoSquareLow(f0, u);
+            v = squareLow(f0, u);
             // Inline fastTwoSum(u, v + (2 * f0 * f1)) -> (f0, f1)
             v += 2 * f0 * f1;
             f0 = u + v;
@@ -2063,7 +2192,7 @@ public final class DD
             if (bits < 0) {
                 // Inline multiply(f0, x) -> (u, v)
                 u = f0 * x;
-                v = twoProductLow(f0, xh, xl, u);
+                v = prodLow(f0, x, xh, xl, u);
                 // Inline fastTwoSum(u, v + (f0 * xx + f1 * x)) -> (f0, f1)
                 v += f0 * xx + f1 * x;
                 f0 = u + v;
@@ -2178,7 +2307,8 @@ public final class DD
         final long be = b - 1;
         final double b0 = x * 2;
         final double b1 = xx * 2;
-        // Split b
+        // Split b even with FMA support.
+        // This cost is 4 FLOPs and reduces byte-size to achieve thresholds for inlining.
         final double b0h = highPart(b0);
         final double b0l = b0 - b0h;
 
@@ -2202,7 +2332,7 @@ public final class DD
             // Square the result: square(f0) -> (u, v)
             fe <<= 1;
             u = f0 * f0;
-            v = twoSquareLow(f0, u);
+            v = squareLow(f0, u);
             // Inline fastTwoSum(u, v + (2 * f0 * f1)) -> (f0, f1)
             v += 2 * f0 * f1;
             f0 = u + v;
@@ -2222,12 +2352,12 @@ public final class DD
                 fe += be;
                 // Inline multiply(f0, b0) -> (u, v)
                 u = f0 * b0;
-                v = twoProductLow(f0, b0h, b0l, u);
+                v = prodLow(f0, b0, b0h, b0l, u);
                 // Inline fastTwoSum(u, v + (f0 * b1 + f1 * b0)) -> (f0, f1)
                 v += f0 * b1 + f1 * b0;
                 f0 = u + v;
                 f1 = fastTwoSumLow(u, v, f0);
-                // Avoid rescale as x2 is in [1, 2)
+                // Avoid rescale as (b0, b1) is in [1, 2)
             }
         }
 

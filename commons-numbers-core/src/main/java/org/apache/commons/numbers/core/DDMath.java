@@ -164,10 +164,21 @@ public final class DDMath {
         final double b0 = x * 2;
         final double b1 = xx * 2;
         // Split b
-        final double b0h = DD.highPart(b0);
-        final double b0l = b0 - b0h;
-        final double b1h = DD.highPart(b1);
-        final double b1l = b1 - b1h;
+        final double b0h;
+        final double b0l;
+        final double b1h;
+        final double b1l;
+        if (FMASupport.isHardwareFMA()) {
+            b0h = 0;
+            b0l = 0;
+            b1h = 0;
+            b1l = 0;
+        } else {
+            b0h = DD.highPart(b0);
+            b0l = b0 - b0h;
+            b1h = DD.highPart(b1);
+            b1l = b1 - b1h;
+        }
 
         // Initialise the result as x^1. Represented as 2^fe * f.
         long fe = be;
@@ -188,21 +199,49 @@ public final class DDMath {
         for (int i = 32 - shift; i != 0; i--, bits <<= 1) {
             // Square the result
             fe <<= 1;
-            double a0h = DD.highPart(f0);
-            double a0l = f0 - a0h;
-            double a1h = DD.highPart(f1);
-            double a1l = f1 - a1h;
-            double a2h = DD.highPart(f2);
-            double a2l = f2 - a2h;
-            double p00 = f0 * f0;
-            double q00 = DD.twoSquareLow(a0h, a0l, p00);
-            double p01 = f0 * f1;
-            double q01 = DD.twoProductLow(a0h, a0l, a1h, a1l, p01);
-            final double p02 = f0 * f2;
-            final double q02 = DD.twoProductLow(a0h, a0l, a2h, a2l, p02);
-            double p11 = f1 * f1;
-            double q11 = DD.twoSquareLow(a1h, a1l, p11);
-            final double p12 = f1 * f2;
+            double p00;
+            double p01;
+            final double p02;
+            double p11;
+            final double p12;
+            double q00;
+            double q01;
+            final double q02;
+            double q11;
+            // The products are computed in each branch. Without FMA each product is
+            // followed by its round-off term so the split and two-product low part
+            // are close to the product they use. With the HotSpot optimizing
+            // JIT compiler (C2), benchmarks on x86 measured that computing common
+            // products before the branch was slower. Code order inside the non-FMA
+            // branch matches version 1.3.
+            // Note: C2 removes the branch not taken (due to the static final FMA flag).
+            if (FMASupport.isHardwareFMA()) {
+                p00 = f0 * f0;
+                p01 = f0 * f1;
+                p02 = f0 * f2;
+                p11 = f1 * f1;
+                p12 = f1 * f2;
+                q00 = FMASupport.fma(f0, f0, -p00);
+                q01 = FMASupport.fma(f0, f1, -p01);
+                q02 = FMASupport.fma(f0, f2, -p02);
+                q11 = FMASupport.fma(f1, f1, -p11);
+            } else {
+                final double a0h = DD.highPart(f0);
+                final double a0l = f0 - a0h;
+                final double a1h = DD.highPart(f1);
+                final double a1l = f1 - a1h;
+                final double a2h = DD.highPart(f2);
+                final double a2l = f2 - a2h;
+                p00 = f0 * f0;
+                q00 = DD.twoSquareLow(a0h, a0l, p00);
+                p01 = f0 * f1;
+                q01 = DD.twoProductLow(a0h, a0l, a1h, a1l, p01);
+                p02 = f0 * f2;
+                q02 = DD.twoProductLow(a0h, a0l, a2h, a2l, p02);
+                p11 = f1 * f1;
+                q11 = DD.twoSquareLow(a1h, a1l, p11);
+                p12 = f1 * f2;
+            }
             double s0 = p00;
             // Sum (2 * p01, q00) -> (s1, r2)                  Order(eps)
             double s1 = 2 * p01 + q00;
@@ -236,23 +275,43 @@ public final class DDMath {
             if (bits < 0) {
                 // Multiply by b
                 fe += be;
-                a0h = DD.highPart(f0);
-                a0l = f0 - a0h;
-                a1h = DD.highPart(f1);
-                a1l = f1 - a1h;
-                a2h = DD.highPart(f2);
-                a2l = f2 - a2h;
-                p00 = f0 * b0;
-                q00 = DD.twoProductLow(a0h, a0l, b0h, b0l, p00);
-                p01 = f0 * b1;
-                q01 = DD.twoProductLow(a0h, a0l, b1h, b1l, p01);
-                final double p10 = f1 * b0;
-                final double q10 = DD.twoProductLow(a1h, a1l, b0h, b0l, p10);
-                p11 = f1 * b1;
-                q11 = DD.twoProductLow(a1h, a1l, b1h, b1l, p11);
-                final double p20 = f2 * b0;
-                final double q20 = DD.twoProductLow(a2h, a2l, b0h, b0l, p20);
-                final double p21 = f2 * b1;
+                final double p10;
+                final double p20;
+                final double p21;
+                final double q10;
+                final double q20;
+                // Products computed in each branch: see the square above.
+                if (FMASupport.isHardwareFMA()) {
+                    p00 = f0 * b0;
+                    p01 = f0 * b1;
+                    p10 = f1 * b0;
+                    p11 = f1 * b1;
+                    p20 = f2 * b0;
+                    p21 = f2 * b1;
+                    q00 = FMASupport.fma(f0, b0, -p00);
+                    q01 = FMASupport.fma(f0, b1, -p01);
+                    q10 = FMASupport.fma(f1, b0, -p10);
+                    q11 = FMASupport.fma(f1, b1, -p11);
+                    q20 = FMASupport.fma(f2, b0, -p20);
+                } else {
+                    final double a0h = DD.highPart(f0);
+                    final double a0l = f0 - a0h;
+                    final double a1h = DD.highPart(f1);
+                    final double a1l = f1 - a1h;
+                    final double a2h = DD.highPart(f2);
+                    final double a2l = f2 - a2h;
+                    p00 = f0 * b0;
+                    q00 = DD.twoProductLow(a0h, a0l, b0h, b0l, p00);
+                    p01 = f0 * b1;
+                    q01 = DD.twoProductLow(a0h, a0l, b1h, b1l, p01);
+                    p10 = f1 * b0;
+                    q10 = DD.twoProductLow(a1h, a1l, b0h, b0l, p10);
+                    p11 = f1 * b1;
+                    q11 = DD.twoProductLow(a1h, a1l, b1h, b1l, p11);
+                    p20 = f2 * b0;
+                    q20 = DD.twoProductLow(a2h, a2l, b0h, b0l, p20);
+                    p21 = f2 * b1;
+                }
                 s0 = p00;
                 // Sum (p01, p10, q00) -> (s1, r2, r3a)            Order(eps)
                 u = p01 + p10;
@@ -274,7 +333,7 @@ public final class DDMath {
                 f0 = norm3(s0, s1, s2, s3, m);
                 f1 = m.x;
                 f2 = m.xx;
-                // Avoid rescale as x2 is in [1, 2)
+                // Avoid rescale as (b0, b1) is in [1, 2)
             }
         }
 
@@ -400,17 +459,32 @@ public final class DDMath {
         // s0 = p00                              Order(1)
         // Sum (p10, q00) -> (s1, r1)            Order(eps)
         // Sum (p20, q10, r1) -> (s2, s3)        Order(eps^2)
-        final double a0h = DD.highPart(a0);
-        final double a0l = a0 - a0h;
-        final double a1h = DD.highPart(a1);
-        final double a1l = a1 - a1h;
-        final double b0h = DD.highPart(b);
-        final double b0l = b - b0h;
-        final double p00 = a0 * b;
-        final double q00 = DD.twoProductLow(a0h, a0l, b0h, b0l, p00);
-        final double p10 = a1 * b;
-        final double q10 = DD.twoProductLow(a1h, a1l, b0h, b0l, p10);
-        final double p20 = a2 * b;
+        final double p00;
+        final double p10;
+        final double p20;
+        final double q00;
+        final double q10;
+        // Products computed in each branch. Without FMA each product is followed by
+        // its round-off term (see computePowScaled).
+        if (FMASupport.isHardwareFMA()) {
+            p00 = a0 * b;
+            p10 = a1 * b;
+            p20 = a2 * b;
+            q00 = FMASupport.fma(a0, b, -p00);
+            q10 = FMASupport.fma(a1, b, -p10);
+        } else {
+            final double a0h = DD.highPart(a0);
+            final double a0l = a0 - a0h;
+            final double a1h = DD.highPart(a1);
+            final double a1l = a1 - a1h;
+            final double b0h = DD.highPart(b);
+            final double b0l = b - b0h;
+            p00 = a0 * b;
+            q00 = DD.twoProductLow(a0h, a0l, b0h, b0l, p00);
+            p10 = a1 * b;
+            q10 = DD.twoProductLow(a1h, a1l, b0h, b0l, p10);
+            p20 = a2 * b;
+        }
         // Sum (p10, q00) -> (s1, r1)            Order(eps)
         final double s1 = p10 + q00;
         final double r1 = DD.twoSumLow(p10, q00, s1);

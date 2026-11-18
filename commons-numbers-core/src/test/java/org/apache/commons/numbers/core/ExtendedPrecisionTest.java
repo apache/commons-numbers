@@ -167,5 +167,13 @@ class ExtendedPrecisionTest {
         // Allowed ULP=0. This allows -0.0 and 0.0 to be equal.
         TestUtils.assertEquals(expected, ExtendedPrecision.productLow(x, y, x * y), 0,
             () -> TestUtils.prefix(msg) + "low(" + x + " * " + y  + ")");
+
+        // Check the scaling method matches true FMA for finite products.
+        // This is done to ensure the behaviour is not effected if the method
+        // switches to FMA. On platforms without FMA the fallback computes the same result.
+        if (FMASupport.isHardwareFMA() && Double.isFinite(expected)) {
+            TestUtils.assertEquals(expected, ExtendedPrecision.scaledProductLow(x, y, x * y), 0,
+                () -> TestUtils.prefix(msg) + "FMA low(" + x + " * " + y  + ")");
+        }
     }
 }

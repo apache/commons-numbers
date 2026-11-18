@@ -31,7 +31,8 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        java: [ 8 ]
+        # Coverage of the DD FMA code paths requires Java 9+ (and hardware FMA)
+        java: [ 11 ]
 
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

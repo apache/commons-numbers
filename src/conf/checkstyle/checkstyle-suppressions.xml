@@ -46,6 +46,9 @@
   <suppress checks="SummaryJavadoc" files=".*[/\\]combinatorics[/\\]FactorialDouble.java" />
   <suppress checks="SummaryJavadoc" files="[\\/]examples[\\/].*" />
 
+  <!-- Catch all documented throwables when using the public API to find and test FMA. -->
+  <suppress checks="IllegalCatch" files=".*[/\\]core[/\\]FMASupport\.java" />
+
   <!-- Selection -->
   <suppress checks="ParameterNumber" files=".*[/\\]arrays[/\\]QuickSelect.java" />
   <suppress checks="ParameterNumber" files=".*[/\\]jmh[/\\]arrays[/\\]Partition.java" />
