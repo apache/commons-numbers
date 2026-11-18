@@ -2057,7 +2057,7 @@ public final class DD
             u = f0 * f0;
             v = twoSquareLow(f0, u);
             // Inline fastTwoSum(u, v + (2 * f0 * f1)) -> (f0, f1)
-            v += (2 * f0 * f1);
+            v += 2 * f0 * f1;
             f0 = u + v;
             f1 = fastTwoSumLow(u, v, f0);
             if (bits < 0) {
@@ -2065,7 +2065,7 @@ public final class DD
                 u = f0 * x;
                 v = twoProductLow(f0, xh, xl, u);
                 // Inline fastTwoSum(u, v + (f0 * xx + f1 * x)) -> (f0, f1)
-                v += (f0 * xx + f1 * x);
+                v += f0 * xx + f1 * x;
                 f0 = u + v;
                 f1 = fastTwoSumLow(u, v, f0);
             }
@@ -2204,7 +2204,7 @@ public final class DD
             u = f0 * f0;
             v = twoSquareLow(f0, u);
             // Inline fastTwoSum(u, v + (2 * f0 * f1)) -> (f0, f1)
-            v += (2 * f0 * f1);
+            v += 2 * f0 * f1;
             f0 = u + v;
             f1 = fastTwoSumLow(u, v, f0);
             // Rescale
@@ -2224,7 +2224,7 @@ public final class DD
                 u = f0 * b0;
                 v = twoProductLow(f0, b0h, b0l, u);
                 // Inline fastTwoSum(u, v + (f0 * b1 + f1 * b0)) -> (f0, f1)
-                v += (f0 * b1 + f1 * b0);
+                v += f0 * b1 + f1 * b0;
                 f0 = u + v;
                 f1 = fastTwoSumLow(u, v, f0);
                 // Avoid rescale as x2 is in [1, 2)
