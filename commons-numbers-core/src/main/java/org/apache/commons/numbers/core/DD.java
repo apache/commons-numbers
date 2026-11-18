@@ -906,7 +906,7 @@ public final class DD
 
     /**
      * Compute the difference of two numbers {@code a} and {@code b} using
-     * Knuth's two-sum algorithm. The values are not required to be ordered by magnitude.
+     * Knuth's two-diff algorithm. The values are not required to be ordered by magnitude.
      *
      * <p>Computes the same results as {@link #twoSum(double, double) twoSum(a, -b)}.
      *
@@ -922,7 +922,7 @@ public final class DD
 
     /**
      * Compute the round-off of the difference of two numbers {@code a} and {@code b} using
-     * Knuth two-sum algorithm. The values are not required to be ordered by magnitude,
+     * Knuth two-diff algorithm. The values are not required to be ordered by magnitude.
      *
      * @param a Minuend.
      * @param b Subtrahend.
