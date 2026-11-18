@@ -1001,6 +1001,33 @@ public final class DD
     /**
      * Compute the low part of the double length number {@code (z,zz)} for the exact
      * product of {@code x} and {@code y} using Dekker's mult12 algorithm. The standard
+     * precision product {@code x*y}, and the high and low parts of the second factor
+     * must be provided.
+     *
+     * <p>This is a specialised method used in the power function where repeated
+     * multiplication by the same term is required. This term can be split once
+     * and reused.
+     *
+     * @param x First factor.
+     * @param hy High-part of second factor.
+     * @param ly Low-part of second factor.
+     * @param xy Product of the factors (x * y).
+     * @return the low part of the product double length number
+     */
+    private static double twoProductLow(double x, double hy, double ly, double xy) {
+        // Compute the multiply low part:
+        // err1 = xy - hx * hy
+        // err2 = err1 - lx * hy
+        // err3 = err2 - hx * ly
+        // low = lx * ly - err3
+        final double hx = highPart(x);
+        final double lx = x - hx;
+        return twoProductLow(hx, lx, hy, ly, xy);
+    }
+
+    /**
+     * Compute the low part of the double length number {@code (z,zz)} for the exact
+     * product of {@code x} and {@code y} using Dekker's mult12 algorithm. The standard
      * precision product {@code x*y}, and the high and low parts of the factors must be
      * provided.
      *
@@ -1686,10 +1713,8 @@ public final class DD
 
         // Dekker's double precision sqrt2 algorithm.
         // See Dekker, 1971, pp 242.
-        final double hc = highPart(c);
-        final double lc = c - hc;
         final double u = c * c;
-        final double uu = twoSquareLow(hc, lc, u);
+        final double uu = twoSquareLow(c, u);
         final double cc = (x - u - uu + xx) * 0.5 / c;
 
         // Extended precision result:
@@ -2018,7 +2043,6 @@ public final class DD
 
         double u;
         double v;
-        double w;
 
         // Shift the highest set bit off the top.
         // Any remaining bits are detected in the sign bit.
@@ -2029,24 +2053,21 @@ public final class DD
         // The square can be optimised.
         // Process remaining bits below highest set bit.
         for (int i = 32 - shift; i != 0; i--, bits <<= 1) {
-            // Square the result
-            // Inline multiply(f0, f1, f0, f1), adapted for squaring
+            // Square the result: square(f0) -> (u, v)
             u = f0 * f0;
             v = twoSquareLow(f0, u);
-            // Inline (f0, f1) = fastTwoSum(hi, lo + (2 * f0 * f1))
-            w = v + (2 * f0 * f1);
-            f0 = u + w;
-            f1 = fastTwoSumLow(u, w, f0);
+            // Inline fastTwoSum(u, v + (2 * f0 * f1)) -> (f0, f1)
+            v += (2 * f0 * f1);
+            f0 = u + v;
+            f1 = fastTwoSumLow(u, v, f0);
             if (bits < 0) {
-                // Inline multiply(f0, f1, x, xx)
-                u = highPart(f0);
-                v = f0 - u;
-                w = f0 * x;
-                v = twoProductLow(u, v, xh, xl, w);
-                // Inline (f0, f1) = fastTwoSum(w, v + (f0 * xx + f1 * x))
-                u = v + (f0 * xx + f1 * x);
-                f0 = w + u;
-                f1 = fastTwoSumLow(w, u, f0);
+                // Inline multiply(f0, x) -> (u, v)
+                u = f0 * x;
+                v = twoProductLow(f0, xh, xl, u);
+                // Inline fastTwoSum(u, v + (f0 * xx + f1 * x)) -> (f0, f1)
+                v += (f0 * xx + f1 * x);
+                f0 = u + v;
+                f1 = fastTwoSumLow(u, v, f0);
             }
         }
 
@@ -2168,7 +2189,6 @@ public final class DD
 
         double u;
         double v;
-        double w;
 
         // Shift the highest set bit off the top.
         // Any remaining bits are detected in the sign bit.
@@ -2179,15 +2199,14 @@ public final class DD
         // are always finite and the product will not overflow. The square can be optimised.
         // Process remaining bits below highest set bit.
         for (int i = 32 - shift; i != 0; i--, bits <<= 1) {
-            // Square the result
-            // Inline multiply(f0, f1, f0, f1, f), adapted for squaring
+            // Square the result: square(f0) -> (u, v)
             fe <<= 1;
             u = f0 * f0;
             v = twoSquareLow(f0, u);
-            // Inline fastTwoSum(hi, lo + (2 * f0 * f1), f)
-            w = v + (2 * f0 * f1);
-            f0 = u + w;
-            f1 = fastTwoSumLow(u, w, f0);
+            // Inline fastTwoSum(u, v + (2 * f0 * f1)) -> (f0, f1)
+            v += (2 * f0 * f1);
+            f0 = u + v;
+            f1 = fastTwoSumLow(u, v, f0);
             // Rescale
             if (Math.abs(f0) > SAFE_MULTIPLY) {
                 // Scale back to the [1, 2) range. As safe multiply is 2^500
@@ -2201,15 +2220,13 @@ public final class DD
             if (bits < 0) {
                 // Multiply by b
                 fe += be;
-                // Inline multiply(f0, f1, b0, b1, f)
-                u = highPart(f0);
-                v = f0 - u;
-                w = f0 * b0;
-                v = twoProductLow(u, v, b0h, b0l, w);
-                // Inline fastTwoSum(w, v + (f0 * b1 + f1 * b0), f)
-                u = v + (f0 * b1 + f1 * b0);
-                f0 = w + u;
-                f1 = fastTwoSumLow(w, u, f0);
+                // Inline multiply(f0, b0) -> (u, v)
+                u = f0 * b0;
+                v = twoProductLow(f0, b0h, b0l, u);
+                // Inline fastTwoSum(u, v + (f0 * b1 + f1 * b0)) -> (f0, f1)
+                v += (f0 * b1 + f1 * b0);
+                f0 = u + v;
+                f1 = fastTwoSumLow(u, v, f0);
                 // Avoid rescale as x2 is in [1, 2)
             }
         }
