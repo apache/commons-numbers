@@ -46,16 +46,18 @@ import org.openjdk.jmh.infra.Blackhole;
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-server", "-Xms512M", "-Xmx512M"})
 public class SumPerformance {
-    /**
-     * The seed to use to create the random benchmark input.
-     * Using a fixed seed ensures the same values are created across benchmarks.
-     */
-    private static final long SEED = System.currentTimeMillis();
 
     /** Class providing double arrays for benchmarks.
+     *
+     * <p>Samples are drawn using a fixed seed once per trial. This allows comparison
+     * of the same data between JVM runs, e.g. with different JVM options.
      */
     @State(Scope.Benchmark)
     public static class ArrayInput {
+
+        /** The seed for the random samples. */
+        @Param({"12345"})
+        private long seed;
 
         /** Number of array samples. */
         @Param("100000")
@@ -100,7 +102,7 @@ public class SumPerformance {
         /** Create the input arrays for the instance. */
         @Setup
         public void createArrays() {
-            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(SEED);
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(seed);
 
             a = new double[samples][];
             b = new double[samples][];
