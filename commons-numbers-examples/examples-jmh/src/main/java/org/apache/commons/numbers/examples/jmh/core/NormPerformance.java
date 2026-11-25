@@ -47,9 +47,16 @@ import org.openjdk.jmh.infra.Blackhole;
 public class NormPerformance {
 
     /** Class providing input vectors for benchmarks.
+     *
+     * <p>Samples are drawn using a fixed seed once per trial. This allows comparison
+     * of the same data between JVM runs, e.g. with different JVM options.
      */
     @State(Scope.Benchmark)
     public static class VectorArrayInput {
+
+        /** The seed for the random samples. */
+        @Param({"12345"})
+        private long seed;
 
         /** Number of vector samples. */
         @Param("100000")
@@ -81,7 +88,7 @@ public class NormPerformance {
          */
         @Setup
         public void createVectors() {
-            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create();
+            final UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_1024_PP.create(seed);
 
             vectors = new double[samples][];
             for (int i = 0; i < vectors.length; ++i) {

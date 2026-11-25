@@ -37,6 +37,8 @@ The Apache Commons Numbers User Guide
 
     * {{{DD:_double-double}DD: double-double}}
 
+    * {{{FMA_Support}FMA Support}}
+
   * {{{Field}Field}}
 
   * {{{Fraction}Fraction}}
@@ -797,7 +799,7 @@ DD x = DD.of(a);
 DD y = DD.of(b);
 
 // Values too extreme for DD arithmetic!
-x.multiply(y).isFinite()  // false
+x.multiply(y).isFinite()  // false (without FMA support - see below)
 
 // Create fractional representation as [0.5, 1) * 2^b
 int[] xb = {0};
@@ -855,6 +857,10 @@ z.lo()  // = Math.fma(x, y, -x * y)
   the round-off component. Splitting and computation of the round-off takes 16 FLOPS which is
   far slower than a hardware supported FMA operation.
 
+  From version 1.4 <<<Commons Numbers>>> can detect and use hardware-supported FMA
+  (see {{{FMA_Support}FMA Support}}). This can provide speed-ups for all operations
+  that use the product round-off.
+
 ** Comparison to IEEE 754 quadruple
 
   A <<<DD>>> class has a 106-bit significand, 11-bit exponent and a sign bit. It is not an
@@ -880,6 +886,66 @@ z.lo()  // = Math.fma(x, y, -x * y)
   in targeted parts of function evaluations where accuracy is improved by 8-10 bits over standard
   <<<double>>> arithmetic, or even to enable computations that have catastrophic error using
   <<<double>>> arithmetic.
+
+* FMA Support
+
+  The Java HotSpot Virtual Machine (VM) provides a public API to look-up VM options. From
+  Java 9 an option is provided to enable FMA intrinsic instructions
+  to be generated for calls to the method <<<Math.fma>>> on supported CPUs.
+
+  On start-up the VM will set the VM option <<<UseFMA>>> to <<<true>>> if FMA is supported.
+  On platforms where hardware support is not available, or the VM argument <<<-XX:-UseFMA>>> is
+  explicitly used then a software implementation is used for <<<Math.fma>>>.
+
+  From version 1.4, <<<Commons Numbers>>> core provides support for FMA. A check is performed
+  on first use of classes that use the round-off part of multiplications to increase precision.
+  This applies to the <<<DD>>>, <<<DDMath>>>, <<<Norm>>> and <<<Sum>>> classes;
+  <<<Sum>>> uses extended precision for the sum of products.
+  The check will attempt to find the <<<Math.fma>>> method (Java 9+).
+  If found, the option <<<UseFMA>>> is read, and if <<<true>>> the method is tested
+  to check it returns a fused multiply-add result. If successful then FMA
+  can provide a speed-up for classes computing extended precision products. If the
+  <<<Math.fma>>> method cannot be found (Java 8), the VM option cannot be read (not a HotSpot VM),
+  or is set to <<<false>>>, then the software implementation is used which matches the
+  behaviour of version 1.3.
+
+  For performance reasons the look-up is only performed once, and cannot be
+  changed after the <<<Commons Numbers>>> classes using this feature have been loaded.
+  Look-up of hardware supported FMA has a small one-time start-up cost. The look-up
+  can be disabled by setting the system property <<<org.apache.commons.numbers.core.DD.fma>>>
+  to <<<false>>>. <<<Commons Numbers>>> will not attempt to detect FMA support and will use
+  the software implementation to compute product round-off. The property must be set before
+  first use, e.g. <<<-Dorg.apache.commons.numbers.core.DD.fma=false>>> on the command line.
+
+  Explicit use of <<<-XX:-UseFMA>>> is not recommended as it will disable FMA application wide,
+  and will not remove the one-time start-up cost made by <<<Commons Numbers>>> to check the
+  FMA support. Use the system property <<<org.apache.commons.numbers.core.DD.fma>>>.
+
+** Behaviour using FMA
+
+  The <<<Norm>>> and <<<Sum>>> classes use appropriate scaling of arguments to avoid overflow
+  or underflow when computing extended precision products. Behaviour
+  with FMA is a performance-only change.
+
+  The <<<DD>>> class is an API for extended precision <<<double>>> arithmetic where the result
+  and intermediates do not approach over or underflow. For performance reasons no validation of
+  arguments is performed; arguments and results should be validated by the caller.
+
+  Operations that involve splitting a double (multiply, divide) to compute
+  extended precision products are safe when the base 2 exponent is below 996 using the default
+  software implementation. Larger arguments and intermediate terms can generate overflow
+  and the result <<<DD>>> is not finite, even if the standard double product is finite, for
+  example \( 2^\{1022\} \times 2^\{-1022\} \).
+
+  Use of FMA can extend the supported range of arguments for <<<DD>>> operations that compute
+  the double-double product of multiplications. When using FMA any product that is finite and
+  not sub-normal can have the round-off computed using FMA, expanding the supported domain.
+  Note that when the product is below \( 2^\{-969\} \) the round-off is sub-normal and accuracy
+  is lost, with or without FMA.
+  Applications should not rely on FMA support and should use scaling where appropriate to ensure
+  consistent behaviour when FMA is enabled or disabled. Explicitly setting the system property
+  <<<org.apache.commons.numbers.core.DD.fma>>> to <<<false>>> will ensure consistent behaviour
+  across all JVMs and hardware platforms.
 
 Field
 

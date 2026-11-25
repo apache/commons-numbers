@@ -739,11 +739,39 @@ class DDTest {
         assertProduct(Double.NaN, 1.0, Double.POSITIVE_INFINITY);
         assertProduct(Double.NaN, 1.0, Double.NEGATIVE_INFINITY);
         assertProduct(Double.NaN, 1.0, Double.NaN);
-        // x * y is infinite
-        assertProduct(Double.NaN, 0x1.0p511, 0x1.0p513);
-        // |x| or |y| > ~2^997
-        assertProduct(Double.NaN, 0.5, 0x1.0p997);
-        assertProduct(Double.NaN, 0.5, Double.MAX_VALUE);
+        assertProduct(Double.NaN, Double.POSITIVE_INFINITY, -1.0);
+        assertProduct(Double.NaN, Double.NEGATIVE_INFINITY, -1.0);
+        assertProduct(Double.NaN, Double.NaN, -1.0);
+        // Here FMA creates a behavioural change when the product is infinite;
+        // or the product of either argument would overflow when multiplied by 1 + 2^27.
+        // Note: product low part is documented as undefined when the high part is not finite.
+        final double half = 0.5;
+        final double big = 0x1.0p997;
+        final double max = Double.MAX_VALUE;
+        if (FMASupport.isHardwareFMA()) {
+            // x * y is infinite
+            // FMA: [finite unrepresentable value above MAX_VALUE] - Infinity = -Infinity
+            assertProduct(Double.NEGATIVE_INFINITY, 0x1.0p511, 0x1.0p513);
+            assertProduct(Double.POSITIVE_INFINITY, -0x1.0p511, 0x1.0p513);
+            assertProduct(Double.POSITIVE_INFINITY, 0x1.0p511, -0x1.0p513);
+            assertProduct(Double.NEGATIVE_INFINITY, -0x1.0p511, -0x1.0p513);
+            // |x| or |y| > ~2^997
+            // FMA can be used as there is no splitting by multiplication
+            assertProduct(0.0, half, big);
+            assertProduct(0.0, half, max);
+            // Compare to scaledProductLow (which uses scaling to prevent overflow during the split)
+            Assertions.assertEquals(0.0, ExtendedPrecision.scaledProductLow(half, big, half * big));
+            // This creates a sign change not observed for FMA.
+            // The precision of the double-double is not affected.
+            Assertions.assertEquals(-0.0, ExtendedPrecision.scaledProductLow(half, max, half * max));
+        } else {
+            // x * y is infinite
+            assertProduct(Double.NaN, 0x1.0p511, 0x1.0p513);
+            // |x| or |y| > ~2^997
+            // Splitting the arguments creates infinite intermediate terms and generates NaN
+            assertProduct(Double.NaN, half, big);
+            assertProduct(Double.NaN, half, max);
+        }
     }
 
     private static void assertProduct(double expectedLo, double x, double y) {
@@ -789,10 +817,15 @@ class DDTest {
         assertSquare(Double.NaN, Double.POSITIVE_INFINITY);
         assertSquare(Double.NaN, Double.NaN);
         // x * x is infinite
-        assertSquare(Double.NaN, 0x1.0p512);
+        // FMA has unlimited precision for the intermediate x*x
+        // FMA: [finite unrepresentable value above MAX_VALUE] - Infinity = -Infinity
+        // Std: Infinity - Infinity = NaN
+        // Note: product low part is documented as undefined when the high part is not finite.
+        final double expected = FMASupport.isHardwareFMA() ? Double.NEGATIVE_INFINITY : Double.NaN;
+        assertSquare(expected, 0x1.0p512);
         // |x| > ~2^997
-        assertSquare(Double.NaN, 0x1.0p997);
-        assertSquare(Double.NaN, Double.MAX_VALUE);
+        assertSquare(expected, 0x1.0p997);
+        assertSquare(expected, Double.MAX_VALUE);
     }
 
     private static void assertSquare(double expectedLo, double x) {
@@ -859,15 +892,17 @@ class DDTest {
         // x / y is infinite
         assertQuotient(Double.NaN, 0x1.0p511, 0x1.0p-513);
         assertQuotient(Double.NaN, 1, Double.MIN_VALUE);
+        // Here FMA creates a behavioural change when Dekker's split will overflow on |y|
+        final double expected = FMASupport.isHardwareFMA() ? 0.0 : Double.NaN;
         // |x / y| > ~2^997
-        assertQuotient(Double.NaN, 0x1.0p997, 0.5);
-        assertQuotient(Double.NaN, Double.MAX_VALUE, 2);
+        assertQuotient(expected, 0x1.0p997, 0.5);
+        assertQuotient(expected, Double.MAX_VALUE, 2);
         // |y| > ~2^997
-        assertQuotient(Double.NaN, 0.5, 0x1.0p997);
-        assertQuotient(Double.NaN, 2, Double.MAX_VALUE);
+        assertQuotient(expected, 0.5, 0x1.0p997);
+        assertQuotient(expected, 2, Double.MAX_VALUE);
         // x / y is sub-normal or zero with intermediate overflow
-        assertQuotient(Double.NaN, 0.5, Double.MAX_VALUE);
-        assertQuotient(Double.NaN, Double.MIN_NORMAL, 0x1.0p997);
+        assertQuotient(expected, 0.5, Double.MAX_VALUE);
+        assertQuotient(expected, Double.MIN_NORMAL, 0x1.0p997);
     }
 
     private static void assertQuotient(double expectedLo, double x, double y) {

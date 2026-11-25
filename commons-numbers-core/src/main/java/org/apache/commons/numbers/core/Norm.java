@@ -305,12 +305,12 @@ public enum Norm {
         // initialise sum and compensation using scaled x
         final double sx = xabs * scale;
         double sum = sx * sx;
-        double comp = DD.twoSquareLow(sx, sum);
+        double comp = DD.squareLow(sx, sum);
 
         // add scaled y
         final double sy = yabs * scale;
         final double py = sy * sy;
-        comp += DD.twoSquareLow(sy, py);
+        comp += DD.squareLow(sy, py);
         final double sumPy = sum + py;
         comp += DD.twoSumLow(sum, py, sumPy);
         sum = sumPy;
@@ -365,12 +365,12 @@ public enum Norm {
         // initialise sum and compensation using scaled x
         final double sx = xabs * scale;
         double sum = sx * sx;
-        double comp = DD.twoSquareLow(sx, sum);
+        double comp = DD.squareLow(sx, sum);
 
         // add scaled y
         final double sy = yabs * scale;
         final double py = sy * sy;
-        comp += DD.twoSquareLow(sy, py);
+        comp += DD.squareLow(sy, py);
         final double sumPy = sum + py;
         comp += DD.twoSumLow(sum, py, sumPy);
         sum = sumPy;
@@ -378,7 +378,7 @@ public enum Norm {
         // add scaled z
         final double sz = zabs * scale;
         final double pz = sz * sz;
-        comp += DD.twoSquareLow(sz, pz);
+        comp += DD.squareLow(sz, pz);
         final double sumPz = sum + pz;
         comp += DD.twoSumLow(sum, pz, sumPz);
         sum = sumPz;
@@ -418,7 +418,7 @@ public enum Norm {
 
                 // compute the product and product compensation
                 final double p = sx * sx;
-                final double cp = DD.twoSquareLow(sx, p);
+                final double cp = DD.squareLow(sx, p);
 
                 // compute the running sum and sum compensation
                 final double s = s1 + p;
@@ -433,7 +433,7 @@ public enum Norm {
 
                 // compute the product and product compensation
                 final double p = sx * sx;
-                final double cp = DD.twoSquareLow(sx, p);
+                final double cp = DD.squareLow(sx, p);
 
                 // compute the running sum and sum compensation
                 final double s = s3 + p;
@@ -446,7 +446,7 @@ public enum Norm {
                 // no scaling
                 // compute the product and product compensation
                 final double p = x * x;
-                final double cp = DD.twoSquareLow(x, p);
+                final double cp = DD.squareLow(x, p);
 
                 // compute the running sum and sum compensation
                 final double s = s2 + p;

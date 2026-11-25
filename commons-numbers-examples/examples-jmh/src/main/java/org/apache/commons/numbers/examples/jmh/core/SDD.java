@@ -1293,7 +1293,7 @@ final class SDD {
                 u = v + (f0 * b1 + f1 * b0);
                 f0 = w + u;
                 f1 = fastTwoSumLow(w, u, f0);
-                // Avoid rescale as x2 is in [1, 2)
+                // Avoid rescale as (b0, b1) is in [1, 2)
             }
         }
 
@@ -1524,7 +1524,7 @@ final class SDD {
                 f0 = norm3(s0, s1, s2, s3, f);
                 f1 = f.hi;
                 f2 = f.lo;
-                // Avoid rescale as x2 is in [1, 2)
+                // Avoid rescale as (b0, b1) is in [1, 2)
             }
         }
 

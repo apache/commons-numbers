@@ -72,4 +72,106 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <!-- On Java 8 we cannot test FMA support.
+           Activate explicitly (-Pno-fma-support) when building on Java 9+ on
+           hardware without FMA support: the FMA code paths cannot be reached. -->
+      <id>no-fma-support</id>
+      <activation>
+        <jdk>(,9)</jdk>
+      </activation>
+      <properties>
+        <!-- No FMA code paths can be reached. Everything else should be tested.
+          These values should be raised as the codebase expands.  -->
+        <commons.jacoco.instructionRatio>0.95</commons.jacoco.instructionRatio>
+        <commons.jacoco.methodRatio>0.96</commons.jacoco.methodRatio>
+        <commons.jacoco.branchRatio>0.96</commons.jacoco.branchRatio>
+        <commons.jacoco.lineRatio>0.96</commons.jacoco.lineRatio>
+        <commons.jacoco.complexityRatio>0.96</commons.jacoco.complexityRatio>
+      </properties>
+    </profile>
+    <profile>
+      <!-- On Java 9+ all code paths are tested on hardware with FMA support (default
+           JaCoCo coverage ratios). On hardware without FMA support use
+           -Pno-fma-support to apply the reduced coverage ratios. -->
+      <id>fma-support</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <!-- Tests repeated with each option to enable/disable FMA.
+             Comma-separated Surefire include patterns without spaces:
+             a pattern with a leading space is silently ignored. -->
+        <numbers.fma.tests>**/DDTest,**/ExtendedPrecisionTest,**/FMASupportTest</numbers.fma.tests>
+      </properties>
+      <!-- Test the methods that can enable/disable FMA.
+           argLine is set by jacoco so pass its settings through using the late
+           evaluation syntax @{argLine}: on Java 21+ the commons-parent java-21-up
+           profile defines argLine as a property, so ${argLine} would be resolved
+           before jacoco sets it and the jacoco agent would be dropped. -->
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>dd-no-use-fma</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <argLine>@{argLine} -XX:-UseFMA</argLine>
+                  <includes>
+                    <include>${numbers.fma.tests}</include>
+                  </includes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>dd-use-fma</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <argLine>@{argLine} -XX:+UseFMA</argLine>
+                  <includes>
+                    <include>${numbers.fma.tests}</include>
+                  </includes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>dd-property-disable</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <argLine>@{argLine} -Dorg.apache.commons.numbers.core.DD.fma=false</argLine>
+                  <includes>
+                    <include>${numbers.fma.tests}</include>
+                  </includes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>dd-property-enable</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <argLine>@{argLine} -Dorg.apache.commons.numbers.core.DD.fma=true</argLine>
+                  <includes>
+                    <include>${numbers.fma.tests}</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>

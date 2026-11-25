@@ -228,7 +228,7 @@ class UserGuideTest {
         double b = 4 * Math.pow(2, -1022);
         DD x = DD.of(a);
         DD y = DD.of(b);
-        Assertions.assertFalse(x.multiply(y).isFinite());
+        Assertions.assertEquals(FMASupport.isHardwareFMA(), x.multiply(y).isFinite());
 
         // Create fractional representation as [0.5, 1) * 2^b
         int[] xb = {0};

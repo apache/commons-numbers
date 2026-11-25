@@ -163,17 +163,25 @@ public final class DDExt {
     private static DD accurateMultiply(double x, double xx, double y) {
         // For working see accurateMultiply(double x, double xx, double y, double yy)
 
-        final double xh = DD.highPart(x);
-        final double xl = x - xh;
-        final double xxh = DD.highPart(xx);
-        final double xxl = xx - xxh;
-        final double yh = DD.highPart(y);
-        final double yl = y - yh;
-
         final double p00 = x * y;
-        final double q00 = DD.twoProductLow(xh, xl, yh, yl, p00);
         final double p10 = xx * y;
-        final double q10 = DD.twoProductLow(xxh, xxl, yh, yl, p10);
+        double q00;
+        double q10;
+        if (FMASupport.isHardwareFMA()) {
+            // Direct use of fma: 4 FLOPs
+            q00 = FMASupport.fma(x, y, -p00);
+            q10 = FMASupport.fma(xx, y, -p10);
+        } else {
+            // FLOPs = 3*4 + 2*8 = 28
+            final double xh = DD.highPart(x);
+            final double xl = x - xh;
+            final double xxh = DD.highPart(xx);
+            final double xxl = xx - xxh;
+            final double yh = DD.highPart(y);
+            final double yl = y - yh;
+            q00 = DD.twoProductLow(xh, xl, yh, yl, p00);
+            q10 = DD.twoProductLow(xxh, xxl, yh, yl, p10);
+        }
 
         // The code below collates the O(eps) terms with a round-off
         // so O(eps^2) terms can be added to it.
@@ -234,21 +242,39 @@ public final class DDExt {
         // Sum (p01, p10, q00) -> (s1, r2)       Order(eps)
         // Sum (p11, q01, q10, r2) -> s2         Order(eps^2)
 
-        final double xh = DD.highPart(x);
-        final double xl = x - xh;
-        final double xxh = DD.highPart(xx);
-        final double xxl = xx - xxh;
-        final double yh = DD.highPart(y);
-        final double yl = y - yh;
-        final double yyh = DD.highPart(yy);
-        final double yyl = yy - yyh;
+        final double p00;
+        final double p01;
+        final double p10;
+        double q00;
+        double q10;
+        double q01;
 
-        final double p00 = x * y;
-        final double q00 = DD.twoProductLow(xh, xl, yh, yl, p00);
-        final double p01 = x * yy;
-        final double q01 = DD.twoProductLow(xh, xl, yyh, yyl, p01);
-        final double p10 = xx * y;
-        final double q10 = DD.twoProductLow(xxh, xxl, yh, yl, p10);
+        if (FMASupport.isHardwareFMA()) {
+            // Direct use of FMA
+            p00 = x * y;
+            p01 = x * yy;
+            p10 = xx * y;
+            q00 = FMASupport.fma(x, y, -p00);
+            q01 = FMASupport.fma(x, yy, -p01);
+            q10 = FMASupport.fma(xx, y, -p10);
+        } else {
+            // Operation order from version 1.3
+            final double xh = DD.highPart(x);
+            final double xl = x - xh;
+            final double xxh = DD.highPart(xx);
+            final double xxl = xx - xxh;
+            final double yh = DD.highPart(y);
+            final double yl = y - yh;
+            final double yyh = DD.highPart(yy);
+            final double yyl = yy - yyh;
+
+            p00 = x * y;
+            q00 = DD.twoProductLow(xh, xl, yh, yl, p00);
+            p01 = x * yy;
+            q01 = DD.twoProductLow(xh, xl, yyh, yyl, p01);
+            p10 = xx * y;
+            q10 = DD.twoProductLow(xxh, xxl, yh, yl, p10);
+        }
         final double p11 = xx * yy;
 
         // Note: Directly adding same order terms (error = 2 eps^2):
@@ -299,15 +325,28 @@ public final class DDExt {
     private static DD accurateSquare(double x, double xx) {
         // For working see accurateMultiply(double x, double xx, double y, double yy)
 
-        final double xh = DD.highPart(x);
-        final double xl = x - xh;
-        final double xxh = DD.highPart(xx);
-        final double xxl = xx - xxh;
+        final double p00;
+        final double p01;
+        double q00;
+        double q01;
+        if (FMASupport.isHardwareFMA()) {
+            // Direct use of FMA
+            p00 = x * x;
+            p01 = x * xx;
+            q00 = FMASupport.fma(x, x, -p00);
+            q01 = FMASupport.fma(x, xx, -p01);
+        } else {
+            // Operation order from version 1.3
+            final double xh = DD.highPart(x);
+            final double xl = x - xh;
+            final double xxh = DD.highPart(xx);
+            final double xxl = xx - xxh;
 
-        final double p00 = x * x;
-        final double q00 = DD.twoSquareLow(xh, xl, p00);
-        final double p01 = x * xx;
-        final double q01 = DD.twoProductLow(xh, xl, xxh, xxl, p01);
+            p00 = x * x;
+            q00 = DD.twoSquareLow(xh, xl, p00);
+            p01 = x * xx;
+            q01 = DD.twoProductLow(xh, xl, xxh, xxl, p01);
+        }
         final double p11 = xx * xx;
 
         // The code below collates the O(eps) terms with a round-off
